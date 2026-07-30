@@ -48,9 +48,9 @@ function wmds_vehicle_with( array $meta ) {
 	return new WMDS_Vehicle( $post_id );
 }
 
-/* ================================================================== *
- *  1. Access to individual fields
- * ================================================================== */
+// ====================================================================
+// 1. Access to individual fields
+// ====================================================================
 
 wmds_section( 'Access to individual fields' );
 
@@ -81,17 +81,27 @@ wmds_assert( 'no highlights', array(), $none->highlights() );
 wmds_assert( 'no features', array(), $none->features() );
 wmds_assert( 'no warnings', array(), $none->warnings() );
 
-/* ================================================================== *
- *  2. Price and tax
- * ================================================================== */
+// ====================================================================
+// 2. Price and tax
+// ====================================================================
 
 wmds_section( 'Price' );
 
 wmds_fake_reset();
-$v = wmds_vehicle_with( array( 'price' => '32.900', 'currency' => 'EUR' ) );
+$v = wmds_vehicle_with(
+	array(
+		'price'    => '32.900',
+		'currency' => 'EUR',
+	)
+);
 wmds_assert( 'euro as a symbol', '32.900 €', $v->price() );
 
-$v = wmds_vehicle_with( array( 'price' => '31.000', 'currency' => 'CHF' ) );
+$v = wmds_vehicle_with(
+	array(
+		'price'    => '31.000',
+		'currency' => 'CHF',
+	)
+);
 wmds_assert( 'other currency spelled out', '31.000 CHF', $v->price() );
 
 $v = wmds_vehicle_with( array( 'price' => '9.500' ) );
@@ -102,10 +112,20 @@ wmds_assert( 'no price, no text', '', $v->price() );
 
 wmds_section( 'VAT' );
 
-$v = wmds_vehicle_with( array( 'vatable' => 'true', 'vat_rate' => '19' ) );
+$v = wmds_vehicle_with(
+	array(
+		'vatable'  => 'true',
+		'vat_rate' => '19',
+	)
+);
 wmds_assert( 'reclaimable, with a rate', 'incl. 19% VAT', $v->vat_note() );
 
-$v = wmds_vehicle_with( array( 'vatable' => 'true', 'vat_rate' => '19.00' ) );
+$v = wmds_vehicle_with(
+	array(
+		'vatable'  => 'true',
+		'vat_rate' => '19.00',
+	)
+);
 wmds_assert( 'trailing zeros dropped', 'incl. 19% VAT', $v->vat_note() );
 
 $v = wmds_vehicle_with( array( 'vatable' => 'true' ) );
@@ -117,9 +137,9 @@ wmds_assert( 'reclaimable, no rate', 'incl. VAT', $v->vat_note() );
 $v = wmds_vehicle_with( array( 'vatable' => 'false' ) );
 wmds_assert( 'not reclaimable is stated', 'VAT not reclaimable', $v->vat_note() );
 
-/* ================================================================== *
- *  3. Key figures
- * ================================================================== */
+// ====================================================================
+// 3. Key figures
+// ====================================================================
 
 wmds_section( 'Key figures' );
 
@@ -151,15 +171,20 @@ wmds_assert( 'with a date', 'Inspection valid until 11.2027', $v->inspection() )
 $v = wmds_vehicle_with( array( 'newHuAu' => 'New inspection on purchase' ) );
 wmds_assert( 'falls back to newHuAu', 'New inspection on purchase', $v->inspection() );
 
-$v = wmds_vehicle_with( array( 'nextInspection' => '2027-11-01', 'newHuAu' => 'New inspection on purchase' ) );
+$v = wmds_vehicle_with(
+	array(
+		'nextInspection' => '2027-11-01',
+		'newHuAu'        => 'New inspection on purchase',
+	)
+);
 wmds_assert( 'the date takes precedence', 'Inspection valid until 11.2027', $v->inspection() );
 
 $v = wmds_vehicle_with( array() );
 wmds_assert( 'neither', '', $v->inspection() );
 
-/* ================================================================== *
- *  4. Groupings
- * ================================================================== */
+// ====================================================================
+// 4. Groupings
+// ====================================================================
 
 wmds_section( 'Highlights' );
 
@@ -181,7 +206,7 @@ wmds_assert( 'value is formatted', '78,000 km', $highlights['Mileage'] );
 
 wmds_section( 'Specifications, grouped' );
 
-$v = wmds_vehicle_with(
+$v     = wmds_vehicle_with(
 	array(
 		'condition'                        => 'Used vehicle',
 		'cubic_capacity'                   => '1,968',
@@ -201,8 +226,8 @@ wmds_assert( 'an empty group disappears entirely', false, isset( $specs['Other']
 
 wmds_section( 'Features' );
 
-$keys = WMDS_Json_Mapper::feature_keys();
-$v    = wmds_vehicle_with(
+$keys     = WMDS_Json_Mapper::feature_keys();
+$v        = wmds_vehicle_with(
 	array(
 		$keys[0] => 'Central locking',
 		$keys[1] => '',
@@ -222,7 +247,12 @@ wmds_assert( 'unrepaired damage', array( 'Damaged, unrepaired' ), $v->warnings()
 $v = wmds_vehicle_with( array( 'roadWorthy' => 'false' ) );
 wmds_assert( 'not roadworthy', array( 'Not roadworthy' ), $v->warnings() );
 
-$v = wmds_vehicle_with( array( 'damageRepaired' => 'false', 'roadWorthy' => 'true' ) );
+$v = wmds_vehicle_with(
+	array(
+		'damageRepaired' => 'false',
+		'roadWorthy'     => 'true',
+	)
+);
 wmds_assert( 'unremarkable vehicle', array(), $v->warnings() );
 
 // Missing fields must not raise a warning - otherwise every incompletely
@@ -230,9 +260,9 @@ wmds_assert( 'unremarkable vehicle', array(), $v->warnings() );
 $v = wmds_vehicle_with( array() );
 wmds_assert( 'no data, no warning', array(), $v->warnings() );
 
-/* ================================================================== *
- *  5. Seller
- * ================================================================== */
+// ====================================================================
+// 5. Seller
+// ====================================================================
 
 wmds_section( 'Phone number' );
 
@@ -245,20 +275,35 @@ $v = wmds_vehicle_with(
 );
 wmds_assert( 'leading zero dropped before the country code', '+49 69 1234567', $v->seller_phone() );
 
-$v = wmds_vehicle_with( array( 'seller_phone_area_code' => '069', 'seller_phone_number' => '1234567' ) );
+$v = wmds_vehicle_with(
+	array(
+		'seller_phone_area_code' => '069',
+		'seller_phone_number'    => '1234567',
+	)
+);
 wmds_assert( 'without a country code', '069 1234567', $v->seller_phone() );
 
-$v = wmds_vehicle_with( array( 'seller_phone_country_calling_code' => '49', 'seller_phone_area_code' => '069' ) );
+$v = wmds_vehicle_with(
+	array(
+		'seller_phone_country_calling_code' => '49',
+		'seller_phone_area_code'            => '069',
+	)
+);
 wmds_assert( 'no number, no fragment', '', $v->seller_phone() );
 
-/* ================================================================== *
- *  6. Images
- * ================================================================== */
+// ====================================================================
+// 6. Images
+// ====================================================================
 
 wmds_section( 'Images' );
 
 wmds_fake_reset();
-$post_id                                       = wp_insert_post( array( 'post_type' => WMDS_CPT, 'post_title' => 'Audi A4' ) );
+$post_id                                       = wp_insert_post(
+	array(
+		'post_type'  => WMDS_CPT,
+		'post_title' => 'Audi A4',
+	)
+);
 $GLOBALS['wp_fake']['attachments'][ $post_id ] = array( 501, 502 );
 
 $v      = new WMDS_Vehicle( $post_id );
@@ -269,9 +314,9 @@ wmds_assert( 'large variant', 'https://example.invalid/bild-501-large.jpg', $ima
 wmds_assert( 'thumbnail at medium size', 'https://example.invalid/bild-501-medium.jpg', $images[0]['thumb'] );
 wmds_assert( 'alt text from the title', 'Audi A4', $images[0]['alt'] );
 
-/* ================================================================== *
- *  7. End to end: importer writes, read model reads
- * ================================================================== */
+// ====================================================================
+// 7. End to end: importer writes, read model reads
+// ====================================================================
 
 wmds_section( 'End-to-end with a real ad from the fixtures' );
 
@@ -280,8 +325,8 @@ wmds_fake_reset();
 $fixture = json_decode( file_get_contents( __DIR__ . '/fixtures/search-2-ads.json' ), true );
 $detail  = json_decode( file_get_contents( __DIR__ . '/fixtures/ad-detail.json' ), true );
 
-$client        = new WMDS_Fake_Client();
-$client->pages = array(
+$client          = new WMDS_Fake_Client();
+$client->pages   = array(
 	1 => array(
 		'ads'       => array( $fixture['ads'][0] ),
 		'max_pages' => 1,

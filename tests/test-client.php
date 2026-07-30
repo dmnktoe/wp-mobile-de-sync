@@ -13,9 +13,9 @@ require_once __DIR__ . '/bootstrap.php';
 require_once __DIR__ . '/../includes/class-wmds-client.php';
 require_once __DIR__ . '/../includes/class-wmds-refdata.php';
 
-/* ------------------------------------------------------------------ *
- *  URL construction
- * ------------------------------------------------------------------ */
+// --------------------------------------------------------------------
+// URL construction
+// --------------------------------------------------------------------
 
 wmds_section( 'Search URL: prefers the documented customerId' );
 
@@ -56,9 +56,9 @@ wmds_assert_contains( 'plus sign encoded', '%2B02%3A00', $inc );
 wmds_assert_contains( 'sorted ascending', 'sort.order=ASCENDING', $inc );
 wmds_assert( 'no sorting without a time filter', false, strpos( $client->search_url(), 'sort.field' ) );
 
-/* ------------------------------------------------------------------ *
- *  Response evaluation
- * ------------------------------------------------------------------ */
+// --------------------------------------------------------------------
+// Response evaluation
+// --------------------------------------------------------------------
 
 wmds_section( 'Response: valid search result' );
 
@@ -101,9 +101,9 @@ $empty = WMDS_Client::interpret( 200, '{"total":0,"currentPage":1,"maxPages":1,"
 wmds_assert( 'no error', false, is_wp_error( $empty ) );
 wmds_assert( 'total 0', 0, $empty['total'] );
 
-/* ------------------------------------------------------------------ *
- *  Reference data
- * ------------------------------------------------------------------ */
+// --------------------------------------------------------------------
+// Reference data
+// --------------------------------------------------------------------
 
 wmds_section( 'Refdata: a real /refdata/gearboxes response' );
 

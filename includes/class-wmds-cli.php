@@ -62,23 +62,25 @@ class WMDS_CLI {
 				WP_CLI::error( $stats->get_error_message() );
 			}
 
-			WP_CLI::log( sprintf(
-				'%s: %d seen, %d created, %d updated, %d skipped, %d removed, %d images, %d pending.',
-				$stats['full'] ? 'Full sync' : 'Incremental sync',
-				$stats['seen'],
-				$stats['created'],
-				$stats['updated'],
-				$stats['skipped'],
-				$stats['removed'],
-				$stats['images'],
-				$stats['pending']
-			) );
+			WP_CLI::log(
+				sprintf(
+					'%s: %d seen, %d created, %d updated, %d skipped, %d removed, %d images, %d pending.',
+					$stats['full'] ? 'Full sync' : 'Incremental sync',
+					$stats['seen'],
+					$stats['created'],
+					$stats['updated'],
+					$stats['skipped'],
+					$stats['removed'],
+					$stats['images'],
+					$stats['pending']
+				)
+			);
 
 			if ( $stats['failed'] ) {
 				WP_CLI::warning( sprintf( '%d vehicles could not be processed.', $stats['failed'] ) );
 			}
 
-			$runs++;
+			++$runs;
 			// Follow-up passes are never "full" again: the watermark stays
 			// empty while anything is pending, so they are full implicitly.
 			$options['full'] = false;
@@ -170,11 +172,13 @@ class WMDS_CLI {
 		WP_CLI::success( sprintf( 'Connection OK - %d vehicles in the inventory.', $result['total'] ) );
 
 		if ( ! empty( $result['capped'] ) ) {
-			WP_CLI::warning( sprintf(
-				'The inventory exceeds the %d vehicles the API hands out across paginated pages. '
-				. 'A reconciliation would be incomplete.',
-				WMDS_Client::PAGINATION_CAP
-			) );
+			WP_CLI::warning(
+				sprintf(
+					'The inventory exceeds the %d vehicles the API hands out across paginated pages. '
+					. 'A reconciliation would be incomplete.',
+					WMDS_Client::PAGINATION_CAP
+				)
+			);
 		}
 	}
 }

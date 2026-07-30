@@ -22,10 +22,10 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class WMDS_Updater {
 
-	const REPO       = 'dmnktoe/wp-mobile-de-sync';
-	const HOST       = 'github.com';
-	const API        = 'https://api.github.com/repos/';
-	const CACHE      = 'wmds_release';
+	const REPO      = 'dmnktoe/wp-mobile-de-sync';
+	const HOST      = 'github.com';
+	const API       = 'https://api.github.com/repos/';
+	const CACHE     = 'wmds_release';
 	const TTL_OK    = 21600; // 6 hours
 	const TTL_ERROR = 1800;  // 30 minutes
 
@@ -35,6 +35,7 @@ class WMDS_Updater {
 	/** @var string Directory name, which is also the slug */
 	private static $slug = '';
 
+	/** Hook the update, details and post-update handlers. */
 	public static function init() {
 		self::$basename = plugin_basename( WMDS_FILE );
 		self::$slug     = dirname( self::$basename );
@@ -107,12 +108,7 @@ class WMDS_Updater {
 			'last_updated'  => $release['date'],
 			'download_link' => $release['package'],
 			'sections'      => array(
-				'description' => wpautop( esc_html__(
-					'Synchronises a dealer\'s vehicle inventory from the mobile.de Search API '
-					. 'into a "fahrzeuge" custom post type. Works with FacetWP and with '
-					. 'existing theme templates.',
-					'wp-mobile-de-sync'
-				) ),
+				'description' => wpautop( esc_html__( 'Synchronises a dealer\'s vehicle inventory from the mobile.de Search API into a "fahrzeuge" custom post type. Works with FacetWP and with existing theme templates.', 'wp-mobile-de-sync' ) ),
 				'changelog'   => $release['changelog'],
 			),
 		);

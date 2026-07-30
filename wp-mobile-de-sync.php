@@ -1,18 +1,18 @@
 <?php
-/*
-Plugin Name: mobile.de Sync
-Plugin URI:  https://github.com/dmnktoe/wp-mobile-de-sync
-Description: Synchronises a dealer's vehicle inventory from the mobile.de Search API into a "fahrzeuge" custom post type. Works with FacetWP and with existing theme templates.
-Version:     1.0.0
-Author:      Domenik Töfflinger
-Author URI:  https://github.com/dmnktoe
-License:     GPL-2.0-or-later
-Text Domain: wp-mobile-de-sync
-Domain Path: /languages
-Requires at least: 5.8
-Requires PHP: 7.0
-Update URI: https://github.com/dmnktoe/wp-mobile-de-sync
-*/
+/**
+ * Plugin Name: mobile.de Sync
+ * Plugin URI:  https://github.com/dmnktoe/wp-mobile-de-sync
+ * Description: Synchronises a dealer's vehicle inventory from the mobile.de Search API into a "fahrzeuge" custom post type. Works with FacetWP and with existing theme templates.
+ * Version:     1.0.0
+ * Author:      Domenik Töfflinger
+ * Author URI:  https://github.com/dmnktoe
+ * License:     GPL-2.0-or-later
+ * Text Domain: wp-mobile-de-sync
+ * Domain Path: /languages
+ * Requires at least: 5.8
+ * Requires PHP: 7.0
+ * Update URI: https://github.com/dmnktoe/wp-mobile-de-sync
+ */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -147,13 +147,17 @@ function wmds_template_loader( $template ) {
 add_filter( 'template_include', 'wmds_template_loader' );
 
 /**
- * Shortcode [fahrzeuge-anzeigen] – renders the list view.
+ * Shortcode [fahrzeuge-anzeigen] - renders the list view.
  *
- * @param array  $atts
- * @param string $content
+ * Both parameters look unused here but are not: the included template reads
+ * $atts out of this scope. Passing them explicitly would mean giving the
+ * template a function signature, which would break theme overrides.
+ *
+ * @param array  $atts    Shortcode attributes, consumed by the template.
+ * @param string $content Enclosed content, unused.
  * @return string
  */
-function wmds_shortcode_getcars( $atts, $content = null ) {
+function wmds_shortcode_getcars( $atts, $content = null ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter -- see above.
 	ob_start();
 	$theme_tpl = get_stylesheet_directory() . '/mob_vehicle-list.php';
 	if ( file_exists( $theme_tpl ) ) {
@@ -189,18 +193,18 @@ function wmds_enqueue_styles() {
 	wp_enqueue_style( 'wmds', WMDS_URL . 'assets/wmds.css', array(), WMDS_VERSION );
 }
 
-/* ------------------------------------------------------------------------- *
- *  Schedule
- *
- *  WP-Cron is the interface here, not the timer: it is triggered by page
- *  views, not by a clock. On a low-traffic site "every 15 minutes" really
- *  means "eventually". A real cron job is therefore recommended per install:
- *
- *      define( 'DISABLE_WP_CRON', true );          // wp-config.php
- *      *\/15 * * * * cd /path && wp cron event run --due-now
- *
- *  The settings screen points this out when neither mechanism fires.
- * ------------------------------------------------------------------------- */
+// ---------------------------------------------------------------------------
+// Schedule
+//
+// WP-Cron is the interface here, not the timer: it is triggered by page
+// views, not by a clock. On a low-traffic site "every 15 minutes" really
+// means "eventually". A real cron job is therefore recommended per install:
+//
+// define( 'DISABLE_WP_CRON', true );          // wp-config.php
+// */15 * * * * cd /path && wp cron event run --due-now
+//
+// The settings screen points this out when neither mechanism fires.
+// ---------------------------------------------------------------------------
 
 add_filter( 'cron_schedules', 'wmds_cron_schedules' );
 /**
@@ -242,6 +246,7 @@ function wmds_force_full_sync() {
 }
 
 register_activation_hook( __FILE__, 'wmds_activate' );
+/** Register the post type, flush rewrites and arm the schedule. */
 function wmds_activate() {
 	wmds_register_cpt();
 	flush_rewrite_rules();
@@ -255,6 +260,7 @@ function wmds_activate() {
 }
 
 register_deactivation_hook( __FILE__, 'wmds_deactivate' );
+/** Clear the schedule and the run lock, flush rewrites. */
 function wmds_deactivate() {
 	wp_clear_scheduled_hook( WMDS_CRON_HOOK );
 	wp_clear_scheduled_hook( WMDS_CRON_FULL_HOOK );

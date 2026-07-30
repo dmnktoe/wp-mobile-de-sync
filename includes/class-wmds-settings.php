@@ -14,18 +14,27 @@ class WMDS_Settings {
 
 	const OPTION = 'wmds_settings';
 
-	public static function get( $key, $default = '' ) {
+	/**
+	 * Reads one setting.
+	 *
+	 * @param string $key      Setting name.
+	 * @param string $fallback Returned when the setting is unset or empty.
+	 * @return mixed
+	 */
+	public static function get( $key, $fallback = '' ) {
 		$opts = get_option( self::OPTION, array() );
 		if ( is_array( $opts ) && isset( $opts[ $key ] ) && '' !== $opts[ $key ] ) {
 			return $opts[ $key ];
 		}
-		return $default;
+		return $fallback;
 	}
 
+	/** @return string The mobile.de API username. */
 	public static function username() {
 		return trim( (string) self::get( 'username' ) );
 	}
 
+	/** @return string The mobile.de API password. */
 	public static function password() {
 		return (string) self::get( 'password' );
 	}
@@ -106,6 +115,11 @@ class WMDS_Settings {
 			&& ( '' !== self::seller_id() || '' !== self::dealer() );
 	}
 
+	/**
+	 * Merges values into the stored settings.
+	 *
+	 * @param array $values Setting name => value.
+	 */
 	public static function update( array $values ) {
 		$opts = get_option( self::OPTION, array() );
 		if ( ! is_array( $opts ) ) {

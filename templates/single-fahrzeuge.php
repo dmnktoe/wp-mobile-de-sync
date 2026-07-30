@@ -115,10 +115,12 @@ while ( have_posts() ) :
 					<?php if ( $vehicle->seller_email() ) : ?>
 						<p>
 							<a class="wmds-button"
-								href="mailto:<?php echo esc_attr( $vehicle->seller_email() ); ?>?subject=<?php
+								href="mailto:<?php echo esc_attr( $vehicle->seller_email() ); ?>?subject=
+								<?php
 									/* translators: %s: the vehicle title. */
 									echo rawurlencode( sprintf( __( 'Enquiry about %s', 'wp-mobile-de-sync' ), get_the_title() ) );
-								?>">
+								?>
+								">
 								<?php esc_html_e( 'Send an e-mail', 'wp-mobile-de-sync' ); ?>
 							</a>
 						</p>

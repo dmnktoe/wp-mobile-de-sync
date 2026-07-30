@@ -33,8 +33,8 @@ class WMDS_Sync_Plan {
 	 *
 	 * @param array $ads   Ads from the search result (raw, with mobileAdId
 	 *                     and modificationDate).
-	 * @param array $known Known inventory:
-	 *                     [ ad_id => ['post_id'=>int, 'modified'=>string] ]
+	 * @param array $known Known inventory, as
+	 *                     [ ad_id => ['post_id'=>int, 'modified'=>string] ].
 	 * @param bool  $force Re-read everything, including unchanged ads.
 	 * @return array{create:array,update:array,skip:array,seen:array}
 	 *         create/update hold the raw ads, skip only the ad IDs.
@@ -52,7 +52,7 @@ class WMDS_Sync_Plan {
 				continue;
 			}
 
-			$id            = (string) $ad['mobileAdId'];
+			$id             = (string) $ad['mobileAdId'];
 			$plan['seen'][] = $id;
 
 			if ( ! isset( $known[ $id ] ) ) {
@@ -85,8 +85,8 @@ class WMDS_Sync_Plan {
 	 * inventory. Removal therefore happens only after a full pass.
 	 *
 	 * @param string[] $seen    Ad IDs seen during the run.
-	 * @param array    $known   [ ad_id => ['post_id'=>int, ...] ]
-	 * @param bool     $is_full Was this a complete pass?
+	 * @param array    $known   Known inventory, as [ ad_id => ['post_id'=>int, ...] ].
+	 * @param bool     $is_full Whether this was a complete pass.
 	 * @return array{remove:int[],abort:string,candidates:int}
 	 *         abort is empty when deletion is allowed; otherwise the reason.
 	 */
@@ -103,7 +103,7 @@ class WMDS_Sync_Plan {
 		}
 
 		if ( ! $known ) {
-			return $result; // nothing on file, nothing to remove
+			return $result; // Nothing on file, nothing to remove.
 		}
 
 		if ( ! $seen ) {

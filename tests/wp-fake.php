@@ -23,7 +23,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Resets the stub to its initial state.
  */
 function wmds_fake_reset() {
-	$GLOBALS['wp_fake'] = array(
+	$GLOBALS['wp_fake']              = array(
 		'posts'       => array(),
 		'meta'        => array(),
 		'options'     => array(),
@@ -66,15 +66,15 @@ function wmds_fake_seed_vehicle( $ad_id, $modified = '2026-01-01T00:00:00.000Z' 
 	return $post_id;
 }
 
-/* ------------------------------------------------------------------ *
- *  Posts
- * ------------------------------------------------------------------ */
+// --------------------------------------------------------------------
+// Posts
+// --------------------------------------------------------------------
 
 if ( ! function_exists( 'wp_insert_post' ) ) {
 	function wp_insert_post( $postarr, $wp_error = false ) {
 		$id = $GLOBALS['wp_fake']['next_id']++;
 
-		$GLOBALS['wp_fake']['posts'][ $id ] = array_merge(
+		$GLOBALS['wp_fake']['posts'][ $id ]       = array_merge(
 			array(
 				'ID'           => $id,
 				'post_type'    => 'post',
@@ -135,9 +135,9 @@ if ( ! function_exists( 'get_the_ID' ) ) {
 	}
 }
 
-/* ------------------------------------------------------------------ *
- *  Post meta
- * ------------------------------------------------------------------ */
+// --------------------------------------------------------------------
+// Post meta
+// --------------------------------------------------------------------
 
 if ( ! function_exists( 'update_post_meta' ) ) {
 	function update_post_meta( $post_id, $key, $value ) {
@@ -180,9 +180,9 @@ if ( ! function_exists( 'delete_post_meta' ) ) {
 	}
 }
 
-/* ------------------------------------------------------------------ *
- *  Options and transients
- * ------------------------------------------------------------------ */
+// --------------------------------------------------------------------
+// Options and transients
+// --------------------------------------------------------------------
 
 if ( ! function_exists( 'get_option' ) ) {
 	function get_option( $key, $default = false ) {
@@ -216,9 +216,9 @@ if ( ! function_exists( 'delete_transient' ) ) {
 	}
 }
 
-/* ------------------------------------------------------------------ *
- *  Attachments and images
- * ------------------------------------------------------------------ */
+// --------------------------------------------------------------------
+// Attachments and images
+// --------------------------------------------------------------------
 
 if ( ! function_exists( 'get_attached_media' ) ) {
 	function get_attached_media( $type, $post_id ) {
@@ -322,9 +322,9 @@ if ( ! function_exists( 'sanitize_file_name' ) ) {
 	}
 }
 
-/* ------------------------------------------------------------------ *
- *  Miscellaneous
- * ------------------------------------------------------------------ */
+// --------------------------------------------------------------------
+// Miscellaneous
+// --------------------------------------------------------------------
 
 if ( ! function_exists( 'wp_list_pluck' ) ) {
 	function wp_list_pluck( $list, $field ) {
@@ -379,9 +379,9 @@ if ( ! function_exists( 'esc_attr' ) ) {
 	}
 }
 
-/* ------------------------------------------------------------------ *
- *  $wpdb
- * ------------------------------------------------------------------ */
+// --------------------------------------------------------------------
+// $wpdb
+// --------------------------------------------------------------------
 
 /**
  * Answers known_map()'s query from memory.
@@ -403,7 +403,7 @@ class WMDS_Fake_WPDB {
 	}
 
 	public function get_results( $sql ) {
-		$this->queries++;
+		++$this->queries;
 
 		$rows = array();
 		foreach ( $GLOBALS['wp_fake']['posts'] as $id => $post ) {
@@ -431,9 +431,9 @@ class WMDS_Fake_WPDB {
 
 $GLOBALS['wpdb'] = new WMDS_Fake_WPDB();
 
-/* ------------------------------------------------------------------ *
- *  Stubs for the importer's collaborators
- * ------------------------------------------------------------------ */
+// --------------------------------------------------------------------
+// Stubs for the importer's collaborators
+// --------------------------------------------------------------------
 
 /**
  * Client stub. Serves prepared pages and detail calls, and records what the
@@ -466,7 +466,10 @@ class WMDS_Fake_Client {
 	}
 
 	public function search( $page = 1, $per_page = 100, $modified_since = '' ) {
-		$this->searched[] = array( 'page' => $page, 'since' => $modified_since );
+		$this->searched[] = array(
+			'page'  => $page,
+			'since' => $modified_since,
+		);
 
 		if ( $this->search_error ) {
 			return $this->search_error;

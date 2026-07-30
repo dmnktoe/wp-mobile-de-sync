@@ -15,9 +15,9 @@ define( 'WMDS_URL', 'https://example.invalid/wp-content/plugins/wp-mobile-de-syn
 
 require_once __DIR__ . '/../includes/class-wmds-logos.php';
 
-/* ------------------------------------------------------------------ *
- *  Normalisierung
- * ------------------------------------------------------------------ */
+// --------------------------------------------------------------------
+// Normalisierung
+// --------------------------------------------------------------------
 
 wmds_section( 'Normalisation: key and file name meet' );
 
@@ -36,9 +36,9 @@ wmds_assert( 'Alfa Romeo', 'alfaromeo', WMDS_Logos::normalize( 'ALFA ROMEO' ) );
 wmds_assert( 'Harley-Davidson', 'harleydavidson', WMDS_Logos::normalize( 'HARLEY-DAVIDSON' ) );
 wmds_assert( 'leer bleibt leer', '', WMDS_Logos::normalize( '   ' ) );
 
-/* ------------------------------------------------------------------ *
- *  Matching against the real files
- * ------------------------------------------------------------------ */
+// --------------------------------------------------------------------
+// Matching against the real files
+// --------------------------------------------------------------------
 
 wmds_section( 'Matching against assets/logos/' );
 

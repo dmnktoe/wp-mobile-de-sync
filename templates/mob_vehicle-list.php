@@ -44,7 +44,7 @@ $wmds_atts = shortcode_atts(
 		'getriebe'       => '',
 		'orderby'        => 'date',
 		'order'          => 'DESC',
-		'meta_key'       => '',
+		'meta_key'       => '', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- an attribute name, not a query.
 	),
 	isset( $atts ) && is_array( $atts ) ? $atts : array(),
 	'fahrzeuge-anzeigen'
@@ -60,7 +60,7 @@ $wmds_query_args = array(
 );
 
 if ( '' !== $wmds_atts['meta_key'] ) {
-	$wmds_query_args['meta_key'] = sanitize_key( $wmds_atts['meta_key'] );
+	$wmds_query_args['meta_key'] = sanitize_key( $wmds_atts['meta_key'] ); // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- sorting by a meta field is what the attribute is for.
 }
 
 // The attributes filter on the same meta fields the facets use. Important:
@@ -90,8 +90,8 @@ foreach ( $wmds_filters as $wmds_key => $wmds_value ) {
 }
 
 if ( $wmds_meta_query ) {
-	$wmds_meta_query['relation']    = 'AND';
-	$wmds_query_args['meta_query']  = $wmds_meta_query;
+	$wmds_meta_query['relation']   = 'AND';
+	$wmds_query_args['meta_query'] = $wmds_meta_query; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- filtering by meta is what the shortcode is for.
 }
 
 $wmds_vehicles = new WP_Query( $wmds_query_args );

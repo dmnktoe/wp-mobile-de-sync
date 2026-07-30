@@ -22,3 +22,8 @@ Thumbs.db
 /local/
 *.local.php
 *credentials*
+
+# Composer tooling for the coding standards. vendor/ is not part of the
+# plugin and not part of the release ZIP; composer.lock is committed so CI
+# installs the same tool versions every run.
+/vendor/

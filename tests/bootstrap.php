@@ -10,9 +10,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	define( 'ABSPATH', dirname( __DIR__ ) . '/' );
 }
 
-/* ------------------------------------------------------------------ *
- *  WordPress stubs
- * ------------------------------------------------------------------ */
+// --------------------------------------------------------------------
+// WordPress stubs
+// --------------------------------------------------------------------
 
 if ( ! class_exists( 'WP_Error' ) ) {
 	class WP_Error {
@@ -150,9 +150,9 @@ if ( ! function_exists( '__' ) ) {
 	}
 }
 
-/* ------------------------------------------------------------------ *
- *  Assertion helpers
- * ------------------------------------------------------------------ */
+// --------------------------------------------------------------------
+// Assertion helpers
+// --------------------------------------------------------------------
 
 $GLOBALS['wmds_checks']   = 0;
 $GLOBALS['wmds_failures'] = 0;
@@ -165,12 +165,12 @@ if ( ! function_exists( 'wmds_section' ) ) {
 
 if ( ! function_exists( 'wmds_assert' ) ) {
 	function wmds_assert( $label, $expected, $actual ) {
-		$GLOBALS['wmds_checks']++;
+		++$GLOBALS['wmds_checks'];
 		if ( $expected === $actual ) {
 			printf( "  ok    %s\n", $label );
 			return;
 		}
-		$GLOBALS['wmds_failures']++;
+		++$GLOBALS['wmds_failures'];
 		printf(
 			"  FAIL  %s\n        expected: %s\n        actual:   %s\n",
 			$label,
@@ -182,12 +182,12 @@ if ( ! function_exists( 'wmds_assert' ) ) {
 
 if ( ! function_exists( 'wmds_assert_contains' ) ) {
 	function wmds_assert_contains( $label, $needle, $haystack ) {
-		$GLOBALS['wmds_checks']++;
+		++$GLOBALS['wmds_checks'];
 		if ( is_string( $haystack ) && false !== strpos( $haystack, $needle ) ) {
 			printf( "  ok    %s\n", $label );
 			return;
 		}
-		$GLOBALS['wmds_failures']++;
+		++$GLOBALS['wmds_failures'];
 		printf(
 			"  FAIL  %s\n        expected to contain: %s\n        actual:              %s\n",
 			$label,

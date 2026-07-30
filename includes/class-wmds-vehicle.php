@@ -50,13 +50,14 @@ class WMDS_Vehicle {
 		return '' !== $this->get( $key );
 	}
 
+	/** @return int The post ID this model reads from. */
 	public function id() {
 		return $this->post_id;
 	}
 
-	/* ------------------------------------------------------------------ *
-	 *  Price
-	 * ------------------------------------------------------------------ */
+	// --------------------------------------------------------------------
+	// Price
+	// --------------------------------------------------------------------
 
 	/** @return string e.g. "42,999 €" */
 	public function price() {
@@ -92,9 +93,9 @@ class WMDS_Vehicle {
 		return sprintf( __( 'incl. %s%% VAT', 'wp-mobile-de-sync' ), rtrim( rtrim( $rate, '0' ), '.,' ) );
 	}
 
-	/* ------------------------------------------------------------------ *
-	 *  Key figures
-	 * ------------------------------------------------------------------ */
+	// --------------------------------------------------------------------
+	// Key figures
+	// --------------------------------------------------------------------
 
 	/** @return string e.g. "129,000 km" */
 	public function mileage() {
@@ -169,9 +170,9 @@ class WMDS_Vehicle {
 		return sprintf( __( 'Available from %s', 'wp-mobile-de-sync' ), $from );
 	}
 
-	/* ------------------------------------------------------------------ *
-	 *  Groupings for output
-	 * ------------------------------------------------------------------ */
+	// --------------------------------------------------------------------
+	// Groupings for output
+	// --------------------------------------------------------------------
 
 	/**
 	 * The headline figures, as label => value.
@@ -181,11 +182,11 @@ class WMDS_Vehicle {
 	public function highlights() {
 		return array_filter(
 			array(
-				__( 'Mileage', 'wp-mobile-de-sync' )            => $this->mileage(),
+				__( 'Mileage', 'wp-mobile-de-sync' )      => $this->mileage(),
 				__( 'First registration', 'wp-mobile-de-sync' ) => $this->first_registration(),
-				__( 'Power', 'wp-mobile-de-sync' )              => $this->power(),
-				__( 'Transmission', 'wp-mobile-de-sync' )       => $this->get( 'gearbox' ),
-				__( 'Fuel', 'wp-mobile-de-sync' )               => $this->get( 'fuel' ),
+				__( 'Power', 'wp-mobile-de-sync' )        => $this->power(),
+				__( 'Transmission', 'wp-mobile-de-sync' ) => $this->get( 'gearbox' ),
+				__( 'Fuel', 'wp-mobile-de-sync' )         => $this->get( 'fuel' ),
 			)
 		);
 	}
@@ -197,14 +198,14 @@ class WMDS_Vehicle {
 	 */
 	public function specifications() {
 		$groups = array(
-			__( 'Vehicle', 'wp-mobile-de-sync' )             => array(
-				__( 'Body type', 'wp-mobile-de-sync' )          => $this->get( 'category' ),
-				__( 'Condition', 'wp-mobile-de-sync' )          => $this->get( 'condition' ),
+			__( 'Vehicle', 'wp-mobile-de-sync' ) => array(
+				__( 'Body type', 'wp-mobile-de-sync' )  => $this->get( 'category' ),
+				__( 'Condition', 'wp-mobile-de-sync' )  => $this->get( 'condition' ),
 				__( 'First registration', 'wp-mobile-de-sync' ) => $this->first_registration(),
-				__( 'Model year', 'wp-mobile-de-sync' )         => $this->get( 'construction-year' ),
-				__( 'Mileage', 'wp-mobile-de-sync' )            => $this->mileage(),
-				__( 'Previous owners', 'wp-mobile-de-sync' )    => $this->get( 'owners' ),
-				__( 'Inspection', 'wp-mobile-de-sync' )         => $this->inspection(),
+				__( 'Model year', 'wp-mobile-de-sync' ) => $this->get( 'construction-year' ),
+				__( 'Mileage', 'wp-mobile-de-sync' )    => $this->mileage(),
+				__( 'Previous owners', 'wp-mobile-de-sync' ) => $this->get( 'owners' ),
+				__( 'Inspection', 'wp-mobile-de-sync' ) => $this->inspection(),
 			),
 			__( 'Engine & transmission', 'wp-mobile-de-sync' ) => array(
 				__( 'Power', 'wp-mobile-de-sync' )        => $this->power(),
@@ -212,12 +213,12 @@ class WMDS_Vehicle {
 				__( 'Fuel', 'wp-mobile-de-sync' )         => $this->get( 'fuel' ),
 				__( 'Displacement', 'wp-mobile-de-sync' ) => $this->unit( 'cubic_capacity', __( 'cm³', 'wp-mobile-de-sync' ) ),
 			),
-			__( 'Exterior & interior', 'wp-mobile-de-sync' )  => array(
+			__( 'Exterior & interior', 'wp-mobile-de-sync' ) => array(
 				__( 'Exterior colour', 'wp-mobile-de-sync' ) => $this->get( 'exteriorColor' ),
-				__( 'Paint name', 'wp-mobile-de-sync' )      => $this->get( 'manufacturer_color_name' ),
-				__( 'Interior', 'wp-mobile-de-sync' )        => trim( $this->get( 'interior_type' ) . ' ' . $this->get( 'interior_color' ) ),
-				__( 'Doors', 'wp-mobile-de-sync' )           => $this->get( 'door_count' ),
-				__( 'Seats', 'wp-mobile-de-sync' )           => $this->get( 'num_seats' ),
+				__( 'Paint name', 'wp-mobile-de-sync' ) => $this->get( 'manufacturer_color_name' ),
+				__( 'Interior', 'wp-mobile-de-sync' )   => trim( $this->get( 'interior_type' ) . ' ' . $this->get( 'interior_color' ) ),
+				__( 'Doors', 'wp-mobile-de-sync' )      => $this->get( 'door_count' ),
+				__( 'Seats', 'wp-mobile-de-sync' )      => $this->get( 'num_seats' ),
 			),
 			__( 'Energy & environment', 'wp-mobile-de-sync' ) => array(
 				__( 'Emission class', 'wp-mobile-de-sync' )        => $this->get( 'emissionClass' ),
@@ -228,9 +229,9 @@ class WMDS_Vehicle {
 				__( 'CO₂ emissions, combined', 'wp-mobile-de-sync' ) => $this->unit( 'emissionFuelConsumption_CO2', __( 'g/km', 'wp-mobile-de-sync' ) ),
 				__( 'Power consumption, combined', 'wp-mobile-de-sync' ) => $this->unit( 'combinedPowerConsumption', __( 'kWh/100 km', 'wp-mobile-de-sync' ) ),
 			),
-			__( 'Other', 'wp-mobile-de-sync' )                => array(
+			__( 'Other', 'wp-mobile-de-sync' )   => array(
 				__( 'Listing number', 'wp-mobile-de-sync' ) => $this->get( 'vehicleListingID' ),
-				__( 'Schwacke code', 'wp-mobile-de-sync' )  => $this->get( 'schwacke-code' ),
+				__( 'Schwacke code', 'wp-mobile-de-sync' ) => $this->get( 'schwacke-code' ),
 			),
 		);
 
@@ -284,9 +285,9 @@ class WMDS_Vehicle {
 		return $out;
 	}
 
-	/* ------------------------------------------------------------------ *
-	 *  Seller, images, logo
-	 * ------------------------------------------------------------------ */
+	// --------------------------------------------------------------------
+	// Seller, images, logo
+	// --------------------------------------------------------------------
 
 	/** @return string */
 	public function seller() {
@@ -368,9 +369,9 @@ class WMDS_Vehicle {
 		return $out;
 	}
 
-	/* ------------------------------------------------------------------ *
-	 *  Helpers
-	 * ------------------------------------------------------------------ */
+	// --------------------------------------------------------------------
+	// Helpers
+	// --------------------------------------------------------------------
 
 	/**
 	 * Appends a unit to a value, or returns an empty string.

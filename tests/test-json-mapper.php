@@ -15,17 +15,35 @@ require_once __DIR__ . '/../includes/class-wmds-json-mapper.php';
 class WMDS_Refdata_Fake extends WMDS_Refdata {
 	protected function fetch( $path ) {
 		$tables = array(
-			'gearboxes'        => array( 'MANUAL_GEAR' => 'Schaltgetriebe', 'AUTOMATIC_GEAR' => 'Automatik' ),
-			'fuels'            => array( 'DIESEL' => 'Diesel' ),
-			'colors'           => array( 'BLACK' => 'Schwarz' ),
-			'interiorcolors'   => array( 'BLACK' => 'Schwarz' ),
-			'interiortypes'    => array( 'PARTIAL_LEATHER' => 'Teilleder', 'LEATHER' => 'Leder' ),
-			'conditions'       => array( 'USED' => 'Gebraucht' ),
-			'doorcounts'       => array( 'TWO_OR_THREE' => '2/3', 'FOUR_OR_FIVE' => '4/5' ),
-			'emissionclasses'  => array( 'EURO5' => 'Euro5', 'EURO6D' => 'Euro6d' ),
-			'emissionstickers' => array( 'EMISSIONSSTICKER_GREEN' => '4 (Gruen)' ),
-			'classes/Car/categories' => array( 'OffRoad' => 'SUV/Gelaendewagen', 'EstateCar' => 'Kombi' ),
-			'classes/Car/makes'      => array( 'LAND ROVER' => 'Land Rover', 'VOLVO' => 'Volvo' ),
+			'gearboxes'              => array(
+				'MANUAL_GEAR'    => 'Schaltgetriebe',
+				'AUTOMATIC_GEAR' => 'Automatik',
+			),
+			'fuels'                  => array( 'DIESEL' => 'Diesel' ),
+			'colors'                 => array( 'BLACK' => 'Schwarz' ),
+			'interiorcolors'         => array( 'BLACK' => 'Schwarz' ),
+			'interiortypes'          => array(
+				'PARTIAL_LEATHER' => 'Teilleder',
+				'LEATHER'         => 'Leder',
+			),
+			'conditions'             => array( 'USED' => 'Gebraucht' ),
+			'doorcounts'             => array(
+				'TWO_OR_THREE' => '2/3',
+				'FOUR_OR_FIVE' => '4/5',
+			),
+			'emissionclasses'        => array(
+				'EURO5'  => 'Euro5',
+				'EURO6D' => 'Euro6d',
+			),
+			'emissionstickers'       => array( 'EMISSIONSSTICKER_GREEN' => '4 (Gruen)' ),
+			'classes/Car/categories' => array(
+				'OffRoad'   => 'SUV/Gelaendewagen',
+				'EstateCar' => 'Kombi',
+			),
+			'classes/Car/makes'      => array(
+				'LAND ROVER' => 'Land Rover',
+				'VOLVO'      => 'Volvo',
+			),
 		);
 		return isset( $tables[ $path ] ) ? $tables[ $path ] : array();
 	}
@@ -44,9 +62,9 @@ if ( ! $search || ! $detail ) {
 $defender = $mapper->map( $search['ads'][0] );
 $volvo    = $mapper->map( $search['ads'][1] );
 
-/* ------------------------------------------------------------------ *
- *  Grunddaten
- * ------------------------------------------------------------------ */
+// --------------------------------------------------------------------
+// Grunddaten
+// --------------------------------------------------------------------
 
 wmds_section( 'Vehicle 1: basics and refdata resolution' );
 
@@ -84,9 +102,9 @@ wmds_assert( 'Verbrauch kombiniert', '10', $defender['meta']['emissionFuelConsum
 wmds_assert( 'CO2', '265', $defender['meta']['emissionFuelConsumption_CO2'] );
 wmds_assert( 'Verbrauch innerorts fehlt -> leer', '', $defender['meta']['emissionFuelConsumption_Inner'] );
 
-/* ------------------------------------------------------------------ *
- *  Mehrwertsteuer
- * ------------------------------------------------------------------ */
+// --------------------------------------------------------------------
+// Mehrwertsteuer
+// --------------------------------------------------------------------
 
 wmds_section( 'VAT: derived from vatRate, not from a dedicated field' );
 
@@ -96,9 +114,9 @@ wmds_assert( 'without vatRate -> false', 'false', $defender['meta']['vatable'] )
 wmds_assert( 'mit vatRate -> true', 'true', $volvo['meta']['vatable'] );
 wmds_assert( 'Satz mitgefuehrt', '19.00', $volvo['meta']['vat_rate'] );
 
-/* ------------------------------------------------------------------ *
- *  Inspection and previous owners
- * ------------------------------------------------------------------ */
+// --------------------------------------------------------------------
+// Inspection and previous owners
+// --------------------------------------------------------------------
 
 wmds_section( 'Inspection: generalInspection absent, newHuAu carries the statement' );
 
@@ -111,9 +129,9 @@ wmds_section( 'Vorbesitzer' );
 wmds_assert( 'not stated -> empty', '', $defender['meta']['owners'] );
 wmds_assert( 'angegeben', '1', $volvo['meta']['owners'] );
 
-/* ------------------------------------------------------------------ *
- *  Ausstattung
- * ------------------------------------------------------------------ */
+// --------------------------------------------------------------------
+// Ausstattung
+// --------------------------------------------------------------------
 
 wmds_section( 'Features: all 28 template keys are covered' );
 
@@ -143,9 +161,9 @@ wmds_section( 'Features: lists - a reversing camera is not parking sensors' );
 wmds_assert( 'camera only -> no parking sensors', false, isset( $defender['meta']['PARKING_SENSORS'] ) );
 wmds_assert( 'with sensors -> parking sensors', 'Parking sensors', $volvo['meta']['PARKING_SENSORS'] );
 
-/* ------------------------------------------------------------------ *
- *  Entitaeten
- * ------------------------------------------------------------------ */
+// --------------------------------------------------------------------
+// Entitaeten
+// --------------------------------------------------------------------
 
 wmds_section( 'HTML entities in a field value are decoded' );
 
@@ -155,9 +173,9 @@ wmds_assert(
 	$volvo['meta']['manufacturer_color_name']
 );
 
-/* ------------------------------------------------------------------ *
- *  Bilder
- * ------------------------------------------------------------------ */
+// --------------------------------------------------------------------
+// Bilder
+// --------------------------------------------------------------------
 
 wmds_section( 'Bilder: groesste Repraesentation plus Hash' );
 
@@ -167,9 +185,9 @@ wmds_assert( 'Hash uebernommen', '99c3997d960b89eae1b66fb104c8d8a2', $defender['
 // The second vehicle has no xxl/xl/l - it has to fall back to xxxl or icon.
 wmds_assert( 'Rueckfall auf vorhandene Groesse', 'https://img.example.invalid/b-xxxl.jpg', $volvo['images'][0]['url'] );
 
-/* ------------------------------------------------------------------ *
- *  Suchergebnis vs. Einzelabruf
- * ------------------------------------------------------------------ */
+// --------------------------------------------------------------------
+// Suchergebnis vs. Einzelabruf
+// --------------------------------------------------------------------
 
 wmds_section( 'A search result has neither description nor seller name' );
 
@@ -199,9 +217,9 @@ wmds_assert( 'two paragraphs', 2, substr_count( $desc, '<p>' ) );
 wmds_assert_contains( 'special characters preserved', 'intercooler', $desc );
 wmds_assert_contains( 'post_content is the plain text', 'The following modifications', $merged['description'] );
 
-/* ------------------------------------------------------------------ *
- *  Robustheit
- * ------------------------------------------------------------------ */
+// --------------------------------------------------------------------
+// Robustheit
+// --------------------------------------------------------------------
 
 wmds_section( 'Incomplete ads do not blow up' );
 

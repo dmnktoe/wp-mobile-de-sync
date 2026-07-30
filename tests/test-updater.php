@@ -44,9 +44,9 @@ function release_json( array $overrides = array() ) {
 	return json_encode( $data );
 }
 
-/* ------------------------------------------------------------------ *
- *  Gueltiges Release
- * ------------------------------------------------------------------ */
+// --------------------------------------------------------------------
+// Gueltiges Release
+// --------------------------------------------------------------------
 
 wmds_section( 'A valid release is evaluated' );
 
@@ -60,9 +60,9 @@ wmds_assert( 'Requires PHP read from the notes', '7.2', $release['requires_php']
 wmds_assert( 'Tested up to read from the notes', '6.9', $release['tested'] );
 wmds_assert( 'Requires at least falls back to the default', '5.8', $release['requires'] );
 
-/* ------------------------------------------------------------------ *
- *  Cases where no update is offered on purpose
- * ------------------------------------------------------------------ */
+// --------------------------------------------------------------------
+// Cases where no update is offered on purpose
+// --------------------------------------------------------------------
 
 wmds_section( 'No attached ZIP means no update' );
 
@@ -73,11 +73,19 @@ wmds_assert( 'no assets', false, WMDS_Updater::parse( 200, release_json( array( 
 wmds_assert(
 	'fremdes Asset',
 	false,
-	WMDS_Updater::parse( 200, release_json( array(
-		'assets' => array(
-			array( 'name' => 'notizen.pdf', 'browser_download_url' => 'https://example.invalid/x.pdf' ),
-		),
-	) ) )
+	WMDS_Updater::parse(
+		200,
+		release_json(
+			array(
+				'assets' => array(
+					array(
+						'name'                 => 'notizen.pdf',
+						'browser_download_url' => 'https://example.invalid/x.pdf',
+					),
+				),
+			)
+		)
+	)
 );
 
 wmds_section( 'Drafts and pre-releases are skipped' );
@@ -100,14 +108,19 @@ wmds_assert(
 
 wmds_section( 'Tag spellings' );
 
-foreach ( array( 'v2.1.0' => '2.1.0', 'V2.1.0' => '2.1.0', '2.1.0' => '2.1.0', 'v3' => '3' ) as $tag => $erwartet ) {
+foreach ( array(
+	'v2.1.0' => '2.1.0',
+	'V2.1.0' => '2.1.0',
+	'2.1.0'  => '2.1.0',
+	'v3'     => '3',
+) as $tag => $erwartet ) {
 	$r = WMDS_Updater::parse( 200, release_json( array( 'tag_name' => $tag ) ) );
 	wmds_assert( $tag, $erwartet, $r['version'] );
 }
 
-/* ------------------------------------------------------------------ *
- *  Aenderungsprotokoll
- * ------------------------------------------------------------------ */
+// --------------------------------------------------------------------
+// Aenderungsprotokoll
+// --------------------------------------------------------------------
 
 wmds_section( 'Release notes become plain HTML' );
 

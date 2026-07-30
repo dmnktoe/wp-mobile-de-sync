@@ -28,7 +28,15 @@ get_header();
 		if ( isset( $total->publish ) && $total->publish ) :
 			?>
 			<p class="wmds-archive__count">
-				<?php echo esc_html( sprintf( _n( '%d vehicle', '%d vehicles', $total->publish, 'wp-mobile-de-sync' ), $total->publish ) ); ?>
+				<?php
+				echo esc_html(
+					sprintf(
+						/* translators: %d: number of vehicles in the inventory. */
+						_n( '%d vehicle', '%d vehicles', $total->publish, 'wp-mobile-de-sync' ),
+						$total->publish
+					)
+				);
+				?>
 			</p>
 		<?php endif; ?>
 	</header>

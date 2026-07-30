@@ -76,7 +76,7 @@ if ( ! function_exists( 'more_fields' ) ) {
 
 		if ( isset( $images[ $index ] ) ) {
 			$item = $images[ $index ];
-			$index++;
+			++$index;
 			return $item;
 		}
 

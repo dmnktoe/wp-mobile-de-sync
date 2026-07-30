@@ -71,14 +71,35 @@ class WMDS_Logos {
 		$value = strtr(
 			$value,
 			array(
-				'ä' => 'ae', 'ö' => 'oe', 'ü' => 'ue', 'ß' => 'ss',
-				'Ä' => 'ae', 'Ö' => 'oe', 'Ü' => 'ue',
-				'ë' => 'e', 'é' => 'e', 'è' => 'e', 'ê' => 'e',
-				'á' => 'a', 'à' => 'a', 'â' => 'a', 'å' => 'a',
-				'í' => 'i', 'ì' => 'i', 'î' => 'i',
-				'ó' => 'o', 'ò' => 'o', 'ô' => 'o', 'ø' => 'o',
-				'ú' => 'u', 'ù' => 'u', 'û' => 'u',
-				'ç' => 'c', 'ñ' => 'n', 'š' => 's', 'ž' => 'z',
+				'ä' => 'ae',
+				'ö' => 'oe',
+				'ü' => 'ue',
+				'ß' => 'ss',
+				'Ä' => 'ae',
+				'Ö' => 'oe',
+				'Ü' => 'ue',
+				'ë' => 'e',
+				'é' => 'e',
+				'è' => 'e',
+				'ê' => 'e',
+				'á' => 'a',
+				'à' => 'a',
+				'â' => 'a',
+				'å' => 'a',
+				'í' => 'i',
+				'ì' => 'i',
+				'î' => 'i',
+				'ó' => 'o',
+				'ò' => 'o',
+				'ô' => 'o',
+				'ø' => 'o',
+				'ú' => 'u',
+				'ù' => 'u',
+				'û' => 'u',
+				'ç' => 'c',
+				'ñ' => 'n',
+				'š' => 's',
+				'ž' => 'z',
 			)
 		);
 
@@ -99,7 +120,10 @@ class WMDS_Logos {
 
 		self::$index = array();
 
-		foreach ( array( 'bundled' => WMDS_DIR . self::DIR, 'override' => self::override_dir() ) as $source => $dir ) {
+		foreach ( array(
+			'bundled'  => WMDS_DIR . self::DIR,
+			'override' => self::override_dir(),
+		) as $source => $dir ) {
 			if ( ! is_dir( $dir ) ) {
 				continue;
 			}

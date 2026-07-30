@@ -63,10 +63,12 @@ class WMDS_Client {
 		$this->dealer    = trim( (string) $dealer );
 	}
 
+	/** @return bool Whether a username and password are stored. */
 	public function has_credentials() {
 		return '' !== $this->user && '' !== $this->pass;
 	}
 
+	/** @return bool Whether a seller ID or a dealer name is stored. */
 	public function has_seller() {
 		return '' !== $this->seller_id || '' !== $this->dealer;
 	}
@@ -175,6 +177,7 @@ class WMDS_Client {
 				'redirection' => 2,
 				'headers'     => array(
 					'Accept'        => self::ACCEPT,
+					// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- HTTP Basic auth is defined in terms of base64.
 					'Authorization' => 'Basic ' . base64_encode( $this->user . ':' . $this->pass ),
 				),
 			)
@@ -202,7 +205,7 @@ class WMDS_Client {
 	 */
 	public static function interpret( $code, $body ) {
 		if ( 200 !== (int) $code ) {
-			$hints = array(
+			$hints  = array(
 				401 => ' (check the credentials)',
 				403 => ' (Search API may not be enabled for this account)',
 				404 => ' (ad not found, or wrong seller ID)',
@@ -260,7 +263,7 @@ class WMDS_Client {
 			return '';
 		}
 
-		// application/problem+json
+		// Shape one: application/problem+json.
 		if ( isset( $data['detail'] ) || isset( $data['title'] ) ) {
 			$parts = array();
 			if ( ! empty( $data['title'] ) ) {

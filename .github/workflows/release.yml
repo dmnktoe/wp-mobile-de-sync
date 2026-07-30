@@ -26,7 +26,8 @@ jobs:
       - name: Verify version against tag
         run: |
           TAG="${GITHUB_REF_NAME#v}"
-          HEADER=$(grep -m1 '^Version:' wp-mobile-de-sync.php | sed 's/Version:[[:space:]]*//')
+          # The plugin header is a /** */ docblock, so the line starts with " * ".
+          HEADER=$(grep -m1 -E '^[ \t*]*Version:' wp-mobile-de-sync.php | sed -E 's/^[ \t*]*Version:[[:space:]]*//')
           READMES=$(grep -m1 '^Stable tag:' readme.txt | sed 's/Stable tag:[[:space:]]*//')
           echo "Tag=$TAG  Plugin-Header=$HEADER  readme.txt=$READMES"
           if [ "$TAG" != "$HEADER" ] || [ "$TAG" != "$READMES" ]; then

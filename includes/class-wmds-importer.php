@@ -54,6 +54,10 @@ class WMDS_Importer {
 	/** @var WMDS_Json_Mapper */
 	private $mapper;
 
+	/**
+	 * @param WMDS_Client|null      $client Injectable for tests.
+	 * @param WMDS_Json_Mapper|null $mapper Injectable for tests.
+	 */
 	public function __construct( $client = null, $mapper = null ) {
 		$this->client = $client ? $client : WMDS_Settings::client();
 		$this->mapper = $mapper ? $mapper : new WMDS_Json_Mapper( new WMDS_Refdata( WMDS_Settings::language() ) );
@@ -118,15 +122,17 @@ class WMDS_Importer {
 			$ads    = array_merge( $ads, $result['ads'] );
 			$capped = $capped || ! empty( $result['capped'] );
 			$pages  = max( 1, (int) $result['max_pages'] );
-			$page++;
+			++$page;
 		} while ( $page <= $pages && $page <= $guard );
 
 		if ( $capped ) {
-			$this->log( sprintf(
-				'Warning: the inventory exceeds the %d vehicles the API hands out across '
-				. 'paginated pages. This reconciliation is incomplete.',
-				WMDS_Client::PAGINATION_CAP
-			) );
+			$this->log(
+				sprintf(
+					'Warning: the inventory exceeds the %d vehicles the API hands out across '
+					. 'paginated pages. This reconciliation is incomplete.',
+					WMDS_Client::PAGINATION_CAP
+				)
+			);
 		}
 
 		$known = $this->known_map();
@@ -144,11 +150,11 @@ class WMDS_Importer {
 		foreach ( $todo as $ad ) {
 			$outcome = $this->process( $ad, $known, $images );
 			if ( 'created' === $outcome ) {
-				$created++;
+				++$created;
 			} elseif ( 'updated' === $outcome ) {
-				$updated++;
+				++$updated;
 			} else {
-				$failed++;
+				++$failed;
 			}
 		}
 
@@ -168,7 +174,7 @@ class WMDS_Importer {
 				// Trash rather than delete: a bad run stays recoverable and
 				// the URL survives for a while.
 				wp_trash_post( $post_id );
-				$removed++;
+				++$removed;
 			}
 		}
 
@@ -198,17 +204,19 @@ class WMDS_Importer {
 
 		update_option( self::OPT_LAST_RUN, $stats, false );
 
-		$this->log( sprintf(
-			'%s: %d seen, %d created, %d updated, %d skipped, %d removed, %d images%s.',
-			$is_full ? 'Full sync' : 'Incremental sync',
-			$stats['seen'],
-			$created,
-			$updated,
-			$stats['skipped'],
-			$removed,
-			$images,
-			$pending ? sprintf( ', %d pending', $pending ) : ''
-		) );
+		$this->log(
+			sprintf(
+				'%s: %d seen, %d created, %d updated, %d skipped, %d removed, %d images%s.',
+				$is_full ? 'Full sync' : 'Incremental sync',
+				$stats['seen'],
+				$created,
+				$updated,
+				$stats['skipped'],
+				$removed,
+				$images,
+				$pending ? sprintf( ', %d pending', $pending ) : ''
+			)
+		);
 
 		return $stats;
 	}
@@ -269,7 +277,7 @@ class WMDS_Importer {
 		// Write only when something actually changed. For an unchanged
 		// vehicle that saves roughly 95 write operations.
 		$hash = WMDS_Sync_Plan::content_hash( $mapped );
-		if ( $hash !== (string) get_post_meta( $post_id, self::META_HASH, true ) ) {
+		if ( (string) get_post_meta( $post_id, self::META_HASH, true ) !== $hash ) {
 			$this->write_meta( $post_id, $mapped['meta'] );
 			update_post_meta( $post_id, self::META_HASH, $hash );
 		}
@@ -350,7 +358,7 @@ class WMDS_Importer {
 				continue;
 			}
 
-			$count++;
+			++$count;
 			if ( ! $first ) {
 				$first = (int) $attachment;
 			}
@@ -413,9 +421,9 @@ class WMDS_Importer {
 	/**
 	 * Writes to a rolling log in the database.
 	 *
-	 * error_log() alone is not enough: across several sites it has to be
-	 * possible to see remotely what a run did, without access to the server
-	 * logs.
+	 * Writing only to error_log() is not enough: across several sites it has
+	 * to be possible to see remotely what a run did, without access to the
+	 * server logs.
 	 *
 	 * @param string $message
 	 */
@@ -436,7 +444,7 @@ class WMDS_Importer {
 		update_option( self::OPT_LOG, array_slice( $log, 0, 50 ), false );
 
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			error_log( '[wp-mobile-de-sync] ' . $message );
+			error_log( '[wp-mobile-de-sync] ' . $message ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- only under WP_DEBUG; the durable log is the option above.
 		}
 	}
 }

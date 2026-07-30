@@ -11,11 +11,13 @@ class WMDS_Admin {
 	const PAGE  = 'wmds-settings';
 	const NONCE = 'wmds_admin';
 
+	/** Hook the settings screen into the admin. */
 	public static function init() {
 		add_action( 'admin_menu', array( __CLASS__, 'menu' ) );
 		add_action( 'admin_init', array( __CLASS__, 'handle' ) );
 	}
 
+	/** Register the settings page under the vehicles menu. */
 	public static function menu() {
 		add_submenu_page(
 			'edit.php?post_type=' . WMDS_CPT,
@@ -27,10 +29,16 @@ class WMDS_Admin {
 		);
 	}
 
-	/* ------------------------------------------------------------------ *
-	 *  Actions
-	 * ------------------------------------------------------------------ */
+	// --------------------------------------------------------------------
+	// Actions
+	// --------------------------------------------------------------------
 
+	/**
+	 * Dispatches a posted action.
+	 *
+	 * This is the single place where the request is authorised: capability
+	 * first, then the nonce. Everything below runs only after both passed.
+	 */
 	public static function handle() {
 		if ( ! isset( $_POST['wmds_action'] ) || ! current_user_can( 'manage_options' ) ) {
 			return;
@@ -57,10 +65,19 @@ class WMDS_Admin {
 		}
 	}
 
+	/**
+	 * Stores the submitted settings.
+	 *
+	 * Only ever reached through handle(), which checks the capability and
+	 * calls check_admin_referer() first - hence the nonce annotations below.
+	 */
 	private static function save() {
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- verified in handle() before this runs.
 		$values = array(
 			'username'  => sanitize_text_field( wp_unslash( $_POST['wmds_username'] ?? '' ) ),
-			'seller_id' => preg_replace( '/\D/', '', wp_unslash( $_POST['wmds_seller_id'] ?? '' ) ),
+			// preg_replace to digits only is the sanitisation here; phpcs does
+			// not recognise it as one.
+			'seller_id' => preg_replace( '/\D/', '', wp_unslash( $_POST['wmds_seller_id'] ?? '' ) ), // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			'dealer'    => sanitize_text_field( wp_unslash( $_POST['wmds_dealer'] ?? '' ) ),
 			'language'  => sanitize_key( wp_unslash( $_POST['wmds_language'] ?? '' ) ),
 			'interval'  => sanitize_key( wp_unslash( $_POST['wmds_interval'] ?? 'wmds_15min' ) ),
@@ -70,10 +87,11 @@ class WMDS_Admin {
 		// brackets and surrounding whitespace, silently breaking valid
 		// passwords. An empty field means "leave unchanged", so the stored
 		// value never has to appear in the form.
-		$password = (string) wp_unslash( $_POST['wmds_password'] ?? '' );
+		$password = (string) wp_unslash( $_POST['wmds_password'] ?? '' ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- deliberately unsanitised, see above.
 		if ( '' !== $password ) {
 			$values['password'] = $password;
 		}
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
 
 		WMDS_Settings::update( $values );
 		self::resync_schedule();
@@ -94,6 +112,7 @@ class WMDS_Admin {
 		wp_schedule_event( time() + 60, $wanted, WMDS_CRON_HOOK );
 	}
 
+	/** Performs a one-vehicle search and reports the outcome. */
 	private static function test() {
 		$result = WMDS_Settings::client()->search( 1, 1 );
 
@@ -128,8 +147,11 @@ class WMDS_Admin {
 		add_settings_error( 'wmds', 'test', $message, 'updated' );
 	}
 
+	/** Runs a full sync from the admin and reports the statistics. */
 	private static function sync() {
-		@set_time_limit( 0 );
+		// A full sync from the admin can outlive the default limit; the CLI is
+		// the better route, but the button must not simply time out.
+		@set_time_limit( 0 ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- disabled on many hosts, the failure is harmless.
 
 		$importer = new WMDS_Importer();
 		$stats    = $importer->run( array( 'full' => true ) );
@@ -170,10 +192,11 @@ class WMDS_Admin {
 		add_settings_error( 'wmds', 'sync', $message, 'updated' );
 	}
 
-	/* ------------------------------------------------------------------ *
-	 *  Output
-	 * ------------------------------------------------------------------ */
+	// --------------------------------------------------------------------
+	// Output
+	// --------------------------------------------------------------------
 
+	/** Renders the settings screen. */
 	public static function render() {
 		$last = get_option( WMDS_Importer::OPT_LAST_RUN, array() );
 		$log  = get_option( WMDS_Importer::OPT_LOG, array() );
@@ -350,16 +373,18 @@ class WMDS_Admin {
 							<td><?php esc_html_e( 'Result', 'wp-mobile-de-sync' ); ?></td>
 							<td>
 								<?php
-								echo esc_html( sprintf(
+								echo esc_html(
+									sprintf(
 									/* translators: 1: seen, 2: created, 3: updated, 4: skipped, 5: removed, 6: images. */
-									__( '%1$d seen · %2$d created · %3$d updated · %4$d skipped · %5$d removed · %6$d images', 'wp-mobile-de-sync' ),
-									isset( $last['seen'] ) ? $last['seen'] : 0,
-									isset( $last['created'] ) ? $last['created'] : 0,
-									isset( $last['updated'] ) ? $last['updated'] : 0,
-									isset( $last['skipped'] ) ? $last['skipped'] : 0,
-									isset( $last['removed'] ) ? $last['removed'] : 0,
-									isset( $last['images'] ) ? $last['images'] : 0
-								) );
+										__( '%1$d seen · %2$d created · %3$d updated · %4$d skipped · %5$d removed · %6$d images', 'wp-mobile-de-sync' ),
+										isset( $last['seen'] ) ? $last['seen'] : 0,
+										isset( $last['created'] ) ? $last['created'] : 0,
+										isset( $last['updated'] ) ? $last['updated'] : 0,
+										isset( $last['skipped'] ) ? $last['skipped'] : 0,
+										isset( $last['removed'] ) ? $last['removed'] : 0,
+										isset( $last['images'] ) ? $last['images'] : 0
+									)
+								);
 								?>
 							</td>
 						</tr>
@@ -368,11 +393,13 @@ class WMDS_Admin {
 								<td><?php esc_html_e( 'Still pending', 'wp-mobile-de-sync' ); ?></td>
 								<td>
 									<?php
-									echo esc_html( sprintf(
+									echo esc_html(
+										sprintf(
 										/* translators: %d: number of vehicles still pending. */
-										__( '%d vehicles', 'wp-mobile-de-sync' ),
-										(int) $last['pending']
-									) );
+											__( '%d vehicles', 'wp-mobile-de-sync' ),
+											(int) $last['pending']
+										)
+									);
 									?>
 								</td>
 							</tr>
@@ -421,19 +448,23 @@ class WMDS_Admin {
 		}
 
 		if ( $disabled ) {
-			echo '<div class="notice notice-info"><p>' . wp_kses_post( sprintf(
+			echo '<div class="notice notice-info"><p>' . wp_kses_post(
+				sprintf(
 				/* translators: 1: DISABLE_WP_CRON, 2: wp cron event run --due-now, 3: wp-cron.php - all marked up as code. */
-				__( '<strong>WP-Cron is disabled</strong> (%1$s). That is the recommended setting – provided a system cron calls %2$s or %3$s regularly. Without that, no sync happens at all.', 'wp-mobile-de-sync' ),
-				'<code>DISABLE_WP_CRON</code>',
-				'<code>wp cron event run --due-now</code>',
-				'<code>wp-cron.php</code>'
-			) ) . '</p></div>';
+					__( '<strong>WP-Cron is disabled</strong> (%1$s). That is the recommended setting – provided a system cron calls %2$s or %3$s regularly. Without that, no sync happens at all.', 'wp-mobile-de-sync' ),
+					'<code>DISABLE_WP_CRON</code>',
+					'<code>wp cron event run --due-now</code>',
+					'<code>wp-cron.php</code>'
+				)
+			) . '</p></div>';
 		} else {
-			echo '<div class="notice notice-info"><p>' . wp_kses_post( sprintf(
+			echo '<div class="notice notice-info"><p>' . wp_kses_post(
+				sprintf(
 				/* translators: %s: the DISABLE_WP_CRON define, already marked up as code. */
-				__( '<strong>A note on scheduling.</strong> WP-Cron is triggered by page views, not by a clock. With little traffic on the site, runs are delayed accordingly. More reliable is %s plus a cron job at your host.', 'wp-mobile-de-sync' ),
-				'<code>define( \'DISABLE_WP_CRON\', true );</code>'
-			) ) . '</p></div>';
+					__( '<strong>A note on scheduling.</strong> WP-Cron is triggered by page views, not by a clock. With little traffic on the site, runs are delayed accordingly. More reliable is %s plus a cron job at your host.', 'wp-mobile-de-sync' ),
+					'<code>define( \'DISABLE_WP_CRON\', true );</code>'
+				)
+			) . '</p></div>';
 		}
 
 		if ( $stale ) {

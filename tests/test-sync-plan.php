@@ -14,17 +14,23 @@ require_once __DIR__ . '/../includes/class-wmds-sync-plan.php';
 
 /** Baut ein Roh-Ad, wie es im Suchergebnis steht. */
 function ad( $id, $modified = '2026-07-28T18:00:00+02:00' ) {
-	return array( 'mobileAdId' => $id, 'modificationDate' => $modified );
+	return array(
+		'mobileAdId'       => $id,
+		'modificationDate' => $modified,
+	);
 }
 
 /** Builds one entry of the known inventory. */
 function known( $post_id, $modified = '2026-07-28T18:00:00+02:00' ) {
-	return array( 'post_id' => $post_id, 'modified' => $modified );
+	return array(
+		'post_id'  => $post_id,
+		'modified' => $modified,
+	);
 }
 
-/* ------------------------------------------------------------------ *
- *  What needs to happen?
- * ------------------------------------------------------------------ */
+// --------------------------------------------------------------------
+// What needs to happen?
+// --------------------------------------------------------------------
 
 wmds_section( 'Plan: anlegen, aktualisieren, ueberspringen' );
 
@@ -72,9 +78,9 @@ $ohne_datum = WMDS_Sync_Plan::build(
 );
 wmds_assert( 'sicherheitshalber aktualisieren', 1, count( $ohne_datum['update'] ) );
 
-/* ------------------------------------------------------------------ *
- *  Removal - the dangerous part
- * ------------------------------------------------------------------ */
+// --------------------------------------------------------------------
+// Removal - the dangerous part
+// --------------------------------------------------------------------
 
 wmds_section( 'Removal: never after a partial pass' );
 
@@ -82,7 +88,11 @@ wmds_section( 'Removal: never after a partial pass' );
 // that basis would take out half the inventory.
 $teillauf = WMDS_Sync_Plan::removals(
 	array( 'a' ),
-	array( 'a' => known( 1 ), 'b' => known( 2 ), 'c' => known( 3 ) ),
+	array(
+		'a' => known( 1 ),
+		'b' => known( 2 ),
+		'c' => known( 3 ),
+	),
 	false
 );
 wmds_assert( 'nichts zu entfernen', 0, count( $teillauf['remove'] ) );
@@ -101,9 +111,16 @@ wmds_section( 'Loeschen: Normalfall' );
 $normal = WMDS_Sync_Plan::removals(
 	array( 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i' ),
 	array(
-		'a' => known( 1 ), 'b' => known( 2 ), 'c' => known( 3 ), 'd' => known( 4 ),
-		'e' => known( 5 ), 'f' => known( 6 ), 'g' => known( 7 ), 'h' => known( 8 ),
-		'i' => known( 9 ), 'verkauft' => known( 99 ),
+		'a'        => known( 1 ),
+		'b'        => known( 2 ),
+		'c'        => known( 3 ),
+		'd'        => known( 4 ),
+		'e'        => known( 5 ),
+		'f'        => known( 6 ),
+		'g'        => known( 7 ),
+		'h'        => known( 8 ),
+		'i'        => known( 9 ),
+		'verkauft' => known( 99 ),
 	),
 	true
 );
@@ -160,15 +177,36 @@ $nothing = WMDS_Sync_Plan::removals( array( 'a' ), array(), true );
 wmds_assert( 'no abort', '', $nothing['abort'] );
 wmds_assert( 'nichts zu entfernen', 0, count( $nothing['remove'] ) );
 
-/* ------------------------------------------------------------------ *
- *  Fingerprint and images
- * ------------------------------------------------------------------ */
+// --------------------------------------------------------------------
+// Fingerprint and images
+// --------------------------------------------------------------------
 
 wmds_section( 'Fingerabdruck erkennt echte Aenderungen' );
 
-$a = array( 'title' => 'Audi A4', 'description' => 'text', 'meta' => array( 'price' => '10.000', 'make' => 'Audi' ) );
-$b = array( 'title' => 'Audi A4', 'description' => 'text', 'meta' => array( 'make' => 'Audi', 'price' => '10.000' ) );
-$c = array( 'title' => 'Audi A4', 'description' => 'text', 'meta' => array( 'make' => 'Audi', 'price' => '9.500' ) );
+$a = array(
+	'title'       => 'Audi A4',
+	'description' => 'text',
+	'meta'        => array(
+		'price' => '10.000',
+		'make'  => 'Audi',
+	),
+);
+$b = array(
+	'title'       => 'Audi A4',
+	'description' => 'text',
+	'meta'        => array(
+		'make'  => 'Audi',
+		'price' => '10.000',
+	),
+);
+$c = array(
+	'title'       => 'Audi A4',
+	'description' => 'text',
+	'meta'        => array(
+		'make'  => 'Audi',
+		'price' => '9.500',
+	),
+);
 
 wmds_assert(
 	'meta field order does not matter',
@@ -184,8 +222,14 @@ wmds_assert(
 wmds_section( 'Images: a swapped photo is detected via the hash' );
 
 $images = array(
-	array( 'url' => 'a.jpg', 'hash' => 'h1' ),
-	array( 'url' => 'b.jpg', 'hash' => 'h2' ),
+	array(
+		'url'  => 'a.jpg',
+		'hash' => 'h1',
+	),
+	array(
+		'url'  => 'b.jpg',
+		'hash' => 'h2',
+	),
 );
 
 wmds_assert( 'unchanged', false, WMDS_Sync_Plan::images_changed( array( 'h1', 'h2' ), $images ) );
@@ -195,11 +239,23 @@ wmds_assert( 'Bild dazugekommen', true, WMDS_Sync_Plan::images_changed( array( '
 wmds_assert( 'never imported before', true, WMDS_Sync_Plan::images_changed( null, $images ) );
 // Without hashes in the feed there is nothing to compare - so do not
 // alle Bilder neu laden.
-wmds_assert( 'no hashes in the feed', false, WMDS_Sync_Plan::images_changed( array( 'h1' ), array( array( 'url' => 'a.jpg', 'hash' => '' ) ) ) );
+wmds_assert(
+	'no hashes in the feed',
+	false,
+	WMDS_Sync_Plan::images_changed(
+		array( 'h1' ),
+		array(
+			array(
+				'url'  => 'a.jpg',
+				'hash' => '',
+			),
+		)
+	)
+);
 
-/* ------------------------------------------------------------------ *
- *  Watermark for the next run
- * ------------------------------------------------------------------ */
+// --------------------------------------------------------------------
+// Watermark for the next run
+// --------------------------------------------------------------------
 
 wmds_section( 'Watermark: newest value minus one minute' );
 
@@ -208,11 +264,13 @@ wmds_section( 'Watermark: newest value minus one minute' );
 wmds_assert(
 	'the newest of several dates',
 	'2026-07-28T16:28:13+00:00',
-	WMDS_Sync_Plan::next_watermark( array(
-		'2026-07-20T10:00:00+02:00',
-		'2026-07-28T18:29:13+02:00',
-		'2026-07-25T12:00:00+02:00',
-	) )
+	WMDS_Sync_Plan::next_watermark(
+		array(
+			'2026-07-20T10:00:00+02:00',
+			'2026-07-28T18:29:13+02:00',
+			'2026-07-25T12:00:00+02:00',
+		)
+	)
 );
 wmds_assert( 'nichts Verwertbares', '', WMDS_Sync_Plan::next_watermark( array() ) );
 wmds_assert( 'nothing usable', '', WMDS_Sync_Plan::next_watermark( array( '', 'not a date' ) ) );

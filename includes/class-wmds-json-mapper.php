@@ -39,42 +39,133 @@ class WMDS_Json_Mapper {
 	 * @var array<string, array>
 	 */
 	private static $features = array(
-		'ABS'                       => array( 'type' => 'bool', 'field' => 'abs' ),
-		'AUTOMATIC_RAIN_SENSOR'     => array( 'type' => 'bool', 'field' => 'automaticRainSensor' ),
-		'AUXILIARY_HEATING'         => array( 'type' => 'bool', 'field' => 'auxiliaryHeating' ),
-		'CENTRAL_LOCKING'           => array( 'type' => 'bool', 'field' => 'centralLocking' ),
-		'ELECTRIC_ADJUSTABLE_SEATS' => array( 'type' => 'bool', 'field' => 'electricAdjustableSeats' ),
-		'ELECTRIC_EXTERIOR_MIRRORS' => array( 'type' => 'bool', 'field' => 'electricExteriorMirrors' ),
-		'ELECTRIC_HEATED_SEATS'     => array( 'type' => 'bool', 'field' => 'electricHeatedSeats' ),
-		'ELECTRIC_WINDOWS'          => array( 'type' => 'bool', 'field' => 'electricWindows' ),
-		'ESP'                       => array( 'type' => 'bool', 'field' => 'esp' ),
-		'FRONT_FOG_LIGHTS'          => array( 'type' => 'bool', 'field' => 'frontFogLights' ),
-		'FULL_SERVICE_HISTORY'      => array( 'type' => 'bool', 'field' => 'fullServiceHistory' ),
-		'HEAD_UP_DISPLAY'           => array( 'type' => 'bool', 'field' => 'headUpDisplay' ),
-		'IMMOBILIZER'               => array( 'type' => 'bool', 'field' => 'immobilizer' ),
-		'ISOFIX'                    => array( 'type' => 'bool', 'field' => 'isofix' ),
-		'LIGHT_SENSOR'              => array( 'type' => 'bool', 'field' => 'lightSensor' ),
-		'METALLIC'                  => array( 'type' => 'bool', 'field' => 'metallic' ),
-		'MULTIFUNCTIONAL_WHEEL'     => array( 'type' => 'bool', 'field' => 'multifunctionalWheel' ),
-		'NAVIGATION_SYSTEM'         => array( 'type' => 'bool', 'field' => 'navigationSystem' ),
-		'PANORAMIC_GLASS_ROOF'      => array( 'type' => 'bool', 'field' => 'panoramicGlassRoof' ),
-		'POWER_ASSISTED_STEERING'   => array( 'type' => 'bool', 'field' => 'powerAssistedSteering' ),
-		'START_STOP_SYSTEM'         => array( 'type' => 'bool', 'field' => 'startStopSystem' ),
-		'SUNROOF'                   => array( 'type' => 'bool', 'field' => 'sunroof' ),
-		'TRACTION_CONTROL_SYSTEM'   => array( 'type' => 'bool', 'field' => 'tractionControlSystem' ),
+		'ABS'                       => array(
+			'type'  => 'bool',
+			'field' => 'abs',
+		),
+		'AUTOMATIC_RAIN_SENSOR'     => array(
+			'type'  => 'bool',
+			'field' => 'automaticRainSensor',
+		),
+		'AUXILIARY_HEATING'         => array(
+			'type'  => 'bool',
+			'field' => 'auxiliaryHeating',
+		),
+		'CENTRAL_LOCKING'           => array(
+			'type'  => 'bool',
+			'field' => 'centralLocking',
+		),
+		'ELECTRIC_ADJUSTABLE_SEATS' => array(
+			'type'  => 'bool',
+			'field' => 'electricAdjustableSeats',
+		),
+		'ELECTRIC_EXTERIOR_MIRRORS' => array(
+			'type'  => 'bool',
+			'field' => 'electricExteriorMirrors',
+		),
+		'ELECTRIC_HEATED_SEATS'     => array(
+			'type'  => 'bool',
+			'field' => 'electricHeatedSeats',
+		),
+		'ELECTRIC_WINDOWS'          => array(
+			'type'  => 'bool',
+			'field' => 'electricWindows',
+		),
+		'ESP'                       => array(
+			'type'  => 'bool',
+			'field' => 'esp',
+		),
+		'FRONT_FOG_LIGHTS'          => array(
+			'type'  => 'bool',
+			'field' => 'frontFogLights',
+		),
+		'FULL_SERVICE_HISTORY'      => array(
+			'type'  => 'bool',
+			'field' => 'fullServiceHistory',
+		),
+		'HEAD_UP_DISPLAY'           => array(
+			'type'  => 'bool',
+			'field' => 'headUpDisplay',
+		),
+		'IMMOBILIZER'               => array(
+			'type'  => 'bool',
+			'field' => 'immobilizer',
+		),
+		'ISOFIX'                    => array(
+			'type'  => 'bool',
+			'field' => 'isofix',
+		),
+		'LIGHT_SENSOR'              => array(
+			'type'  => 'bool',
+			'field' => 'lightSensor',
+		),
+		'METALLIC'                  => array(
+			'type'  => 'bool',
+			'field' => 'metallic',
+		),
+		'MULTIFUNCTIONAL_WHEEL'     => array(
+			'type'  => 'bool',
+			'field' => 'multifunctionalWheel',
+		),
+		'NAVIGATION_SYSTEM'         => array(
+			'type'  => 'bool',
+			'field' => 'navigationSystem',
+		),
+		'PANORAMIC_GLASS_ROOF'      => array(
+			'type'  => 'bool',
+			'field' => 'panoramicGlassRoof',
+		),
+		'POWER_ASSISTED_STEERING'   => array(
+			'type'  => 'bool',
+			'field' => 'powerAssistedSteering',
+		),
+		'START_STOP_SYSTEM'         => array(
+			'type'  => 'bool',
+			'field' => 'startStopSystem',
+		),
+		'SUNROOF'                   => array(
+			'type'  => 'bool',
+			'field' => 'sunroof',
+		),
+		'TRACTION_CONTROL_SYSTEM'   => array(
+			'type'  => 'bool',
+			'field' => 'tractionControlSystem',
+		),
 
-		'XENON_HEADLIGHTS'          => array( 'type' => 'enum', 'field' => 'headlightType', 'values' => array( 'XENON_HEADLIGHTS' ) ),
-		'BENDING_LIGHTS'            => array( 'type' => 'enum', 'field' => 'bendingLightsType' ),
-		'DAYTIME_RUNNING_LIGHTS'    => array( 'type' => 'enum', 'field' => 'daytimeRunningLamps' ),
-		'CRUISE_CONTROL'            => array( 'type' => 'enum', 'field' => 'speedControl', 'values' => array( 'CRUISE_CONTROL', 'ADAPTIVE_CRUISE_CONTROL' ) ),
+		'XENON_HEADLIGHTS'          => array(
+			'type'   => 'enum',
+			'field'  => 'headlightType',
+			'values' => array( 'XENON_HEADLIGHTS' ),
+		),
+		'BENDING_LIGHTS'            => array(
+			'type'  => 'enum',
+			'field' => 'bendingLightsType',
+		),
+		'DAYTIME_RUNNING_LIGHTS'    => array(
+			'type'  => 'enum',
+			'field' => 'daytimeRunningLamps',
+		),
+		'CRUISE_CONTROL'            => array(
+			'type'   => 'enum',
+			'field'  => 'speedControl',
+			'values' => array( 'CRUISE_CONTROL', 'ADAPTIVE_CRUISE_CONTROL' ),
+		),
 		// A reversing camera alone is not parking sensors - the feed lists
 		// REAR_VIEW_CAM in the same array.
-		'PARKING_SENSORS'           => array( 'type' => 'list', 'field' => 'parkingAssistants', 'values' => array( 'FRONT_SENSORS', 'REAR_SENSORS' ) ),
+		'PARKING_SENSORS'           => array(
+			'type'   => 'list',
+			'field'  => 'parkingAssistants',
+			'values' => array( 'FRONT_SENSORS', 'REAR_SENSORS' ),
+		),
 	);
 
 	/** @var WMDS_Refdata|null */
 	private $refdata;
 
+	/**
+	 * @param WMDS_Refdata|null $refdata Label resolver; without it the raw
+	 *                                   keys survive unchanged.
+	 */
 	public function __construct( $refdata = null ) {
 		$this->refdata = $refdata;
 	}
@@ -95,12 +186,13 @@ class WMDS_Json_Mapper {
 		$make     = $this->label( 'make', $make_key, $class );
 
 		$meta['make']      = $make;
-		$meta['make_key']  = $make_key; // language independent, drives the logo lookup
+		$meta['make_key']  = $make_key; // Language independent, drives the logo lookup.
 		$meta['model']     = isset( $ad['model'] ) ? (string) $ad['model'] : '';
 		$meta['category']  = $this->label( 'category', $this->str( $ad, 'category' ), $class );
 		$meta['condition'] = $this->label( 'condition', $this->str( $ad, 'condition' ), $class );
 
-		/* --- Title ---------------------------------------------------------
+		/*
+		--- Title ---------------------------------------------------------
 		 * Per the documentation modelDescription is "also used as ad title
 		 * together with the make". The model name is already in there -
 		 * prefixing model as well would produce "Land Rover Defender Defender
@@ -115,8 +207,8 @@ class WMDS_Json_Mapper {
 
 		/* --- Price --------------------------------------------------------- */
 
-		$price       = isset( $ad['price'] ) && is_array( $ad['price'] ) ? $ad['price'] : array();
-		$gross       = isset( $price['consumerPriceGross'] ) ? (string) $price['consumerPriceGross'] : '';
+		$price = isset( $ad['price'] ) && is_array( $ad['price'] ) ? $ad['price'] : array();
+		$gross = isset( $price['consumerPriceGross'] ) ? (string) $price['consumerPriceGross'] : '';
 
 		$meta['price']    = ( '' !== $gross ) ? self::number( (float) $gross ) : '';
 		$meta['currency'] = isset( $price['currency'] ) ? (string) $price['currency'] : 'EUR';
@@ -175,12 +267,12 @@ class WMDS_Json_Mapper {
 		$meta['emissionClass']   = $this->label( 'emissionClass', $this->str( $ad, 'emissionClass' ), $class );
 		$meta['emissionSticker'] = $this->label( 'emissionSticker', $this->str( $ad, 'emissionSticker' ), $class );
 
-		$fuel_c = self::dig( $ad, array( 'consumptions', 'fuel' ) );
+		$fuel_c                                   = self::dig( $ad, array( 'consumptions', 'fuel' ) );
 		$meta['emissionFuelConsumption_Combined'] = $this->str( $fuel_c, 'combined' );
 		$meta['emissionFuelConsumption_Inner']    = $this->str( $fuel_c, 'city' );
 		$meta['emissionFuelConsumption_Outer']    = $this->str( $fuel_c, 'highway' );
 
-		$power_c = self::dig( $ad, array( 'consumptions', 'power' ) );
+		$power_c                          = self::dig( $ad, array( 'consumptions', 'power' ) );
 		$meta['combinedPowerConsumption'] = $this->str( $power_c, 'combined' );
 
 		$meta['emissionFuelConsumption_CO2'] = $this->str(
@@ -188,14 +280,15 @@ class WMDS_Json_Mapper {
 			'co2'
 		);
 
-		/* --- Availability ---------------------------------------------------
+		/*
+		--- Availability ---------------------------------------------------
 		 * Per the documentation deliveryPeriod applies to new vehicles only.
 		 * A value of at most one day means immediately available.
 		 */
 		$meta['available_from'] = '';
 		// A separate, language-independent flag: comparing the display string
 		// against a translated literal breaks the moment it is translated.
-		$meta['available_now']  = '';
+		$meta['available_now'] = '';
 		if ( isset( $ad['deliveryPeriod'] ) && (int) $ad['deliveryPeriod'] <= 1 ) {
 			$meta['available_from'] = __( 'Immediately', 'wp-mobile-de-sync' );
 			$meta['available_now']  = 'true';
@@ -254,9 +347,9 @@ class WMDS_Json_Mapper {
 		);
 	}
 
-	/* --------------------------------------------------------------------- *
-	 *  Helpers
-	 * --------------------------------------------------------------------- */
+	// --------------------------------------------------------------------
+	// Helpers
+	// --------------------------------------------------------------------
 
 	/**
 	 * Formats a whole number for display, following the site's locale.
@@ -285,34 +378,34 @@ class WMDS_Json_Mapper {
 	 */
 	private static function feature_labels() {
 		return array(
-			'ABS'                         => __( 'ABS', 'wp-mobile-de-sync' ),
-			'AUTOMATIC_RAIN_SENSOR'       => __( 'Rain sensor', 'wp-mobile-de-sync' ),
-			'AUXILIARY_HEATING'           => __( 'Auxiliary heating', 'wp-mobile-de-sync' ),
-			'CENTRAL_LOCKING'             => __( 'Central locking', 'wp-mobile-de-sync' ),
-			'ELECTRIC_ADJUSTABLE_SEATS'   => __( 'Electrically adjustable seats', 'wp-mobile-de-sync' ),
-			'ELECTRIC_EXTERIOR_MIRRORS'   => __( 'Electrically adjustable mirrors', 'wp-mobile-de-sync' ),
-			'ELECTRIC_HEATED_SEATS'       => __( 'Heated seats', 'wp-mobile-de-sync' ),
-			'ELECTRIC_WINDOWS'            => __( 'Electric windows', 'wp-mobile-de-sync' ),
-			'ESP'                         => __( 'ESP', 'wp-mobile-de-sync' ),
-			'FRONT_FOG_LIGHTS'            => __( 'Front fog lights', 'wp-mobile-de-sync' ),
-			'FULL_SERVICE_HISTORY'        => __( 'Full service history', 'wp-mobile-de-sync' ),
-			'HEAD_UP_DISPLAY'             => __( 'Head-up display', 'wp-mobile-de-sync' ),
-			'IMMOBILIZER'                 => __( 'Immobiliser', 'wp-mobile-de-sync' ),
-			'ISOFIX'                      => __( 'Isofix', 'wp-mobile-de-sync' ),
-			'LIGHT_SENSOR'                => __( 'Light sensor', 'wp-mobile-de-sync' ),
-			'METALLIC'                    => __( 'Metallic paint', 'wp-mobile-de-sync' ),
-			'MULTIFUNCTIONAL_WHEEL'       => __( 'Multifunction steering wheel', 'wp-mobile-de-sync' ),
-			'NAVIGATION_SYSTEM'           => __( 'Navigation system', 'wp-mobile-de-sync' ),
-			'PANORAMIC_GLASS_ROOF'        => __( 'Panoramic glass roof', 'wp-mobile-de-sync' ),
-			'POWER_ASSISTED_STEERING'     => __( 'Power steering', 'wp-mobile-de-sync' ),
-			'START_STOP_SYSTEM'           => __( 'Start/stop system', 'wp-mobile-de-sync' ),
-			'SUNROOF'                     => __( 'Sunroof', 'wp-mobile-de-sync' ),
-			'TRACTION_CONTROL_SYSTEM'     => __( 'Traction control', 'wp-mobile-de-sync' ),
-			'XENON_HEADLIGHTS'            => __( 'Xenon headlights', 'wp-mobile-de-sync' ),
-			'BENDING_LIGHTS'              => __( 'Cornering lights', 'wp-mobile-de-sync' ),
-			'DAYTIME_RUNNING_LIGHTS'      => __( 'Daytime running lights', 'wp-mobile-de-sync' ),
-			'CRUISE_CONTROL'              => __( 'Cruise control', 'wp-mobile-de-sync' ),
-			'PARKING_SENSORS'             => __( 'Parking sensors', 'wp-mobile-de-sync' ),
+			'ABS'                       => __( 'ABS', 'wp-mobile-de-sync' ),
+			'AUTOMATIC_RAIN_SENSOR'     => __( 'Rain sensor', 'wp-mobile-de-sync' ),
+			'AUXILIARY_HEATING'         => __( 'Auxiliary heating', 'wp-mobile-de-sync' ),
+			'CENTRAL_LOCKING'           => __( 'Central locking', 'wp-mobile-de-sync' ),
+			'ELECTRIC_ADJUSTABLE_SEATS' => __( 'Electrically adjustable seats', 'wp-mobile-de-sync' ),
+			'ELECTRIC_EXTERIOR_MIRRORS' => __( 'Electrically adjustable mirrors', 'wp-mobile-de-sync' ),
+			'ELECTRIC_HEATED_SEATS'     => __( 'Heated seats', 'wp-mobile-de-sync' ),
+			'ELECTRIC_WINDOWS'          => __( 'Electric windows', 'wp-mobile-de-sync' ),
+			'ESP'                       => __( 'ESP', 'wp-mobile-de-sync' ),
+			'FRONT_FOG_LIGHTS'          => __( 'Front fog lights', 'wp-mobile-de-sync' ),
+			'FULL_SERVICE_HISTORY'      => __( 'Full service history', 'wp-mobile-de-sync' ),
+			'HEAD_UP_DISPLAY'           => __( 'Head-up display', 'wp-mobile-de-sync' ),
+			'IMMOBILIZER'               => __( 'Immobiliser', 'wp-mobile-de-sync' ),
+			'ISOFIX'                    => __( 'Isofix', 'wp-mobile-de-sync' ),
+			'LIGHT_SENSOR'              => __( 'Light sensor', 'wp-mobile-de-sync' ),
+			'METALLIC'                  => __( 'Metallic paint', 'wp-mobile-de-sync' ),
+			'MULTIFUNCTIONAL_WHEEL'     => __( 'Multifunction steering wheel', 'wp-mobile-de-sync' ),
+			'NAVIGATION_SYSTEM'         => __( 'Navigation system', 'wp-mobile-de-sync' ),
+			'PANORAMIC_GLASS_ROOF'      => __( 'Panoramic glass roof', 'wp-mobile-de-sync' ),
+			'POWER_ASSISTED_STEERING'   => __( 'Power steering', 'wp-mobile-de-sync' ),
+			'START_STOP_SYSTEM'         => __( 'Start/stop system', 'wp-mobile-de-sync' ),
+			'SUNROOF'                   => __( 'Sunroof', 'wp-mobile-de-sync' ),
+			'TRACTION_CONTROL_SYSTEM'   => __( 'Traction control', 'wp-mobile-de-sync' ),
+			'XENON_HEADLIGHTS'          => __( 'Xenon headlights', 'wp-mobile-de-sync' ),
+			'BENDING_LIGHTS'            => __( 'Cornering lights', 'wp-mobile-de-sync' ),
+			'DAYTIME_RUNNING_LIGHTS'    => __( 'Daytime running lights', 'wp-mobile-de-sync' ),
+			'CRUISE_CONTROL'            => __( 'Cruise control', 'wp-mobile-de-sync' ),
+			'PARKING_SENSORS'           => __( 'Parking sensors', 'wp-mobile-de-sync' ),
 		);
 	}
 
@@ -436,7 +529,8 @@ class WMDS_Json_Mapper {
 	}
 
 	/**
-	 * yyyyMM or yyyy-MM to yyyy-MM-01, so strtotime() works in the template.
+	 * Normalises yyyyMM or yyyy-MM to yyyy-MM-01, so strtotime() works in the
+	 * template.
 	 *
 	 * @param string $value
 	 * @return string
