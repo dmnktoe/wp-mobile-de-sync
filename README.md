@@ -141,24 +141,21 @@ The fixtures are anonymised but structurally real API responses.
 **Credentials and customer data do not belong in this repository.** A CI job
 checks that on every push.
 
-## Multiple sites
-
-Nothing is tied to one installation — credentials, seller ID, interval,
-language and logos are configurable per site. Extension points:
-
-| Filter | Purpose |
-|---|---|
-| `wmds_logo_url` | override the logo URL |
-| `wmds_enqueue_styles` | switch off the bundled stylesheet |
+## Customising
 
 Templates are taken from the theme as soon as `single-fahrzeuge.php`,
 `archive-fahrzeuge.php` or `mob_vehicle-list.php` exist in the stylesheet
 directory. The bundled templates require no CSS framework and work with the
 active theme's `get_header()` / `get_footer()`.
 
-If an existing site brings its own templates that call helper functions from
-an earlier solution, `includes/class-wmds-compat.php` provides equivalents —
-but only when they are not already defined.
+| Filter | Purpose |
+|---|---|
+| `wmds_logo_url` | override the logo URL |
+| `wmds_enqueue_styles` | switch off the bundled stylesheet |
+
+If a site brings its own templates that call helper functions from an earlier
+solution, `includes/class-wmds-compat.php` provides equivalents — but only
+when they are not already defined.
 
 ## Known limits
 

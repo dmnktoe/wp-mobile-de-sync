@@ -421,9 +421,8 @@ class WMDS_Importer {
 	/**
 	 * Writes to a rolling log in the database.
 	 *
-	 * Writing only to error_log() is not enough: across several sites it has
-	 * to be possible to see remotely what a run did, without access to the
-	 * server logs.
+	 * Writing only to error_log() is not enough: what a run did has to be
+	 * visible from the admin screen, without shell access to the server.
 	 *
 	 * @param string $message
 	 */
