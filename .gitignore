@@ -1,0 +1,24 @@
+# Abhaengigkeiten
+/vendor/
+/node_modules/
+
+# Build-Artefakte (das Release-ZIP wird vom Workflow erzeugt)
+/build/
+/dist/
+*.zip
+
+# Werkzeuge
+.phpcs-cache
+.phpunit.result.cache
+
+# Betriebssystem / Editor
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# Nie ins Repo: lokale Zugangsdaten oder Feed-Mitschnitte eines Kunden
+/local/
+*.local.php
+*credentials*

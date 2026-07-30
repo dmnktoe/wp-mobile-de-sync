@@ -1,0 +1,26 @@
+{
+	"name": "dmnktoe/wp-mobile-de-sync",
+	"description": "Synchronises a dealer's vehicle inventory from mobile.de into the fahrzeuge custom post type.",
+	"type": "wordpress-plugin",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"php": ">=7.0"
+	},
+	"require-dev": {
+		"squizlabs/php_codesniffer": "^3.9",
+		"wp-coding-standards/wpcs": "^3.1",
+		"phpcompatibility/phpcompatibility-wp": "^2.1",
+		"dealerdirect/phpcodesniffer-composer-installer": "^1.0"
+	},
+	"config": {
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": true
+		}
+	},
+	"scripts": {
+		"lint": "phpcs",
+		"fix": "phpcbf",
+		"test": "sh tests/run.sh"
+	},
+	"comment": "Composer is only needed for the development tooling. The plugin itself has no runtime dependencies and runs without a vendor/ directory, which is why vendor/ is not part of the release package."
+}

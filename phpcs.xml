@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+<ruleset name="wp-mobile-de-sync">
+	<description>
+		Coding standards and PHP compatibility.
+
+		All code - the main file, includes/, templates/ and tests/ - is
+		checked against the WordPress coding standards and against the
+		target PHP version. Exceptions are justified individually below.
+	</description>
+
+	<file>wp-mobile-de-sync.php</file>
+	<file>includes</file>
+	<file>templates</file>
+	<file>tests</file>
+	<file>uninstall.php</file>
+
+	<exclude-pattern>*/vendor/*</exclude-pattern>
+	<exclude-pattern>*/node_modules/*</exclude-pattern>
+	<exclude-pattern>*/assets/*</exclude-pattern>
+
+	<arg name="extensions" value="php"/>
+	<arg name="colors"/>
+	<arg value="sp"/>
+
+	<!--
+		Target version. The floor is 7.0 so older installations do not hit a
+		parse error. Without this line "runs on PHP 7" is a claim rather than
+		a check.
+	-->
+	<config name="testVersion" value="7.0-"/>
+	<rule ref="PHPCompatibilityWP"/>
+
+	<rule ref="WordPress">
+		<!-- Array syntax is consistently long throughout the project. -->
+		<exclude name="Generic.Arrays.DisallowShortArraySyntax"/>
+		<!-- File names already follow class-*.php. -->
+		<exclude name="WordPress.Files.FileName.InvalidClassFileName"/>
+	</rule>
+
+	<rule ref="WordPress.WP.CapitalPDangit">
+		<exclude-pattern>*</exclude-pattern>
+	</rule>
+
+	<config name="minimum_wp_version" value="5.8"/>
+
+	<!-- The text domain is fixed; flag any string that uses another one. -->
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="wp-mobile-de-sync"/>
+			</property>
+		</properties>
+		<!-- Tests run without WordPress and have no translatable strings. -->
+		<exclude-pattern>tests/*</exclude-pattern>
+	</rule>
+
+	<!--
+		Tests run without WordPress and may therefore print directly and read
+		files.
+	-->
+	<rule ref="WordPress.Security.EscapeOutput">
+		<exclude-pattern>tests/*</exclude-pattern>
+	</rule>
+	<rule ref="WordPress.WP.AlternativeFunctions">
+		<exclude-pattern>tests/*</exclude-pattern>
+	</rule>
+	<rule ref="WordPress.PHP.DevelopmentFunctions">
+		<exclude-pattern>tests/*</exclude-pattern>
+	</rule>
+	<rule ref="WordPress.DB.DirectDatabaseQuery">
+		<!--
+			known_map() and the refdata cache need direct queries: one JOIN
+			across the whole inventory instead of a meta query per vehicle is
+			the entire point.
+		-->
+		<exclude-pattern>includes/class-wmds-importer.php</exclude-pattern>
+		<exclude-pattern>includes/class-wmds-refdata.php</exclude-pattern>
+	</rule>
+</ruleset>

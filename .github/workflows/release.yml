@@ -1,0 +1,71 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build and publish package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          coverage: none
+
+      # A release that fails its tests should never come into existence.
+      - name: Tests
+        run: sh tests/run.sh
+
+      - name: Verify version against tag
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          HEADER=$(grep -m1 '^Version:' wp-mobile-de-sync.php | sed 's/Version:[[:space:]]*//')
+          READMES=$(grep -m1 '^Stable tag:' readme.txt | sed 's/Stable tag:[[:space:]]*//')
+          echo "Tag=$TAG  Plugin-Header=$HEADER  readme.txt=$READMES"
+          if [ "$TAG" != "$HEADER" ] || [ "$TAG" != "$READMES" ]; then
+            echo "::error::Tag, plugin header and readme.txt must state the same version."
+            exit 1
+          fi
+
+      # The top-level folder inside the ZIP must be named exactly like the
+      # plugin directory. Otherwise WordPress unpacks the update beside the
+      # existing install and deactivates the plugin doing so. That is exactly
+      # why GitHub's generated source download is unusable here.
+      - name: Build ZIP
+        run: |
+          SLUG=wp-mobile-de-sync
+          mkdir -p build/$SLUG
+          rsync -a --exclude-from=- ./ build/$SLUG/ <<'EOF'
+          .git/
+          .github/
+          build/
+          tests/
+          vendor/
+          node_modules/
+          composer.json
+          composer.lock
+          phpcs.xml
+          .gitignore
+          EOF
+          cd build && zip -rq $SLUG.zip $SLUG
+          unzip -l $SLUG.zip | head -20
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/wp-mobile-de-sync.zip
+          generate_release_notes: true
+          body: |
+            Install via **Plugins → Add New → Upload Plugin**, or as an update
+            from the plugins list once an earlier version is installed.
+
+            Requires at least: 5.8
+            Requires PHP: 7.0
+            Tested up to: 6.8

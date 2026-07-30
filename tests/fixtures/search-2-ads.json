@@ -1,0 +1,199 @@
+{
+  "_note": "Shortened, anonymised copy of a real /search-api/search response (New JSON). Seller data, image URLs and detail-page links are placeholders; structure, field names and vehicle values are unchanged. Deliberately two vehicles with differing field coverage, so a mapper that leaks values from the first ad into the second is caught.",
+  "total": 143,
+  "currentPage": 1,
+  "maxPages": 72,
+  "pageSize": 2,
+  "ads": [
+    {
+      "mobileAdId": "424776053",
+      "mobileSellerId": "99999999",
+      "creationDate": "2026-07-23T03:05:54.81+02:00",
+      "modificationDate": "2026-07-28T18:29:13+02:00",
+      "vehicleClass": "Car",
+      "category": "OffRoad",
+      "make": "LAND ROVER",
+      "model": "Defender",
+      "modelDescription": "Defender 90 Standheizung Kamera LED Recaro",
+      "condition": "USED",
+      "firstRegistration": "201409",
+      "mileage": 129000,
+      "cubicCapacity": 2198,
+      "power": 108,
+      "gearbox": "MANUAL_GEAR",
+      "fuel": "DIESEL",
+      "emissionSticker": "EMISSIONSSTICKER_GREEN",
+      "emissionClass": "EURO5",
+      "emissions": {
+        "combined": {
+          "co2": "265"
+        }
+      },
+      "consumptions": {
+        "fuel": {
+          "combined": "10"
+        }
+      },
+      "exteriorColor": "BLACK",
+      "metallic": true,
+      "doors": "TWO_OR_THREE",
+      "seats": 2,
+      "interiorColor": "BLACK",
+      "interiorType": "PARTIAL_LEATHER",
+      "newHuAu": true,
+      "fullServiceHistory": true,
+      "damageUnrepaired": false,
+      "accidentDamaged": false,
+      "roadworthy": true,
+      "alloyWheels": true,
+      "auxiliaryHeating": true,
+      "centralLocking": true,
+      "climatisation": "MANUAL_CLIMATISATION",
+      "electricHeatedSeats": true,
+      "electricWindows": true,
+      "immobilizer": true,
+      "lightSensor": true,
+      "navigationSystem": true,
+      "panoramicGlassRoof": true,
+      "parkingAssistants": [
+        "REAR_VIEW_CAM"
+      ],
+      "daytimeRunningLamps": "LED_RUNNING_LIGHTS",
+      "headlightType": "LED_HEADLIGHTS",
+      "powerAssistedSteering": true,
+      "plainTextDescription": "",
+      "images": [
+        {
+          "hash": "99c3997d960b89eae1b66fb104c8d8a2",
+          "icon": "https://img.example.invalid/a-icon.jpg",
+          "l": "https://img.example.invalid/a-l.jpg",
+          "xl": "https://img.example.invalid/a-xl.jpg",
+          "xxxl": "https://img.example.invalid/a-xxxl.jpg"
+        }
+      ],
+      "detailPageUrl": "https://suchen.mobile.de/auto-inserat/platzhalter/424776053.html?source=api",
+      "seller": {
+        "mobileSellerId": "99999999",
+        "email": "kontakt@example.invalid",
+        "geoData": {
+          "lon": 13.0,
+          "lat": 52.0
+        },
+        "phones": [],
+        "address": {
+          "zipcode": "12345",
+          "city": "Musterstadt",
+          "country": "DE"
+        },
+        "type": "DEALER",
+        "commercial": true
+      },
+      "price": {
+        "consumerPriceGross": "42999.00",
+        "type": "FIXED",
+        "currency": "EUR"
+      }
+    },
+    {
+      "mobileAdId": "427312402",
+      "mobileSellerId": "99999999",
+      "creationDate": "2026-07-28T03:01:27.377+02:00",
+      "modificationDate": "2026-07-28T22:07:51+02:00",
+      "vehicleClass": "Car",
+      "category": "EstateCar",
+      "make": "VOLVO",
+      "model": "V90",
+      "modelDescription": "V90 Kombi Navi Leder LED Kamera 1.Hand AHK",
+      "condition": "USED",
+      "firstRegistration": "202104",
+      "mileage": 124000,
+      "cubicCapacity": 1969,
+      "power": 145,
+      "gearbox": "AUTOMATIC_GEAR",
+      "fuel": "DIESEL",
+      "startStopSystem": true,
+      "emissionSticker": "EMISSIONSSTICKER_GREEN",
+      "emissionClass": "EURO6D",
+      "emissions": {
+        "combined": {
+          "co2": "128"
+        }
+      },
+      "consumptions": {
+        "fuel": {
+          "combined": "5"
+        }
+      },
+      "exteriorColor": "BLACK",
+      "manufacturerColorName": "BLACK SOLID &quot;STONE&quot; / Solid",
+      "doors": "FOUR_OR_FIVE",
+      "seats": 5,
+      "interiorColor": "BLACK",
+      "interiorType": "LEATHER",
+      "newHuAu": true,
+      "numberOfPreviousOwners": 1,
+      "fullServiceHistory": true,
+      "damageUnrepaired": false,
+      "accidentDamaged": false,
+      "roadworthy": true,
+      "abs": true,
+      "alloyWheels": true,
+      "automaticRainSensor": true,
+      "centralLocking": true,
+      "climatisation": "AUTOMATIC_CLIMATISATION_2_ZONES",
+      "electricAdjustableSeats": true,
+      "electricExteriorMirrors": true,
+      "electricHeatedSeats": true,
+      "electricWindows": true,
+      "esp": true,
+      "immobilizer": true,
+      "isofix": true,
+      "lightSensor": true,
+      "multifunctionalWheel": true,
+      "navigationSystem": true,
+      "parkingAssistants": [
+        "REAR_VIEW_CAM",
+        "AUTOMATIC_PARKING",
+        "FRONT_SENSORS",
+        "REAR_SENSORS"
+      ],
+      "speedControl": "CRUISE_CONTROL",
+      "daytimeRunningLamps": "LED_RUNNING_LIGHTS",
+      "headlightType": "LED_HEADLIGHTS",
+      "powerAssistedSteering": true,
+      "plainTextDescription": "",
+      "images": [
+        {
+          "hash": "1e69eb4da881ba66288e3225dc1cf338",
+          "icon": "https://img.example.invalid/b-icon.jpg",
+          "xxxl": "https://img.example.invalid/b-xxxl.jpg"
+        }
+      ],
+      "detailPageUrl": "https://suchen.mobile.de/auto-inserat/platzhalter/427312402.html?source=api",
+      "seller": {
+        "mobileSellerId": "99999999",
+        "email": "kontakt@example.invalid",
+        "geoData": {
+          "lon": 13.0,
+          "lat": 52.0
+        },
+        "phones": [],
+        "address": {
+          "zipcode": "12345",
+          "city": "Musterstadt",
+          "country": "DE"
+        },
+        "type": "DEALER",
+        "commercial": true
+      },
+      "warranty": true,
+      "price": {
+        "consumerPriceGross": "22499.00",
+        "consumerPriceNet": "18906.72",
+        "vatRate": "19.00",
+        "type": "FIXED",
+        "currency": "EUR"
+      }
+    }
+  ]
+}

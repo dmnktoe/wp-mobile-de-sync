@@ -1,0 +1,137 @@
+{
+  "_note": "Shortened, anonymised copy of a real /search-api/ad/{id} response (New JSON). Seller data, VIN and image URLs are placeholders; structure and vehicle values are unchanged. Shows the fields only the single-ad call returns: description (CREOLE-formatted), companyName, phones, VIN, KBA, trimLine.",
+  "mobileAdId": "424776053",
+  "mobileSellerId": "99999999",
+  "creationDate": "2026-07-23T03:05:54.81+02:00",
+  "modificationDate": "2026-07-28T18:29:13+02:00",
+  "vehicleClass": "Car",
+  "category": "OffRoad",
+  "make": "LAND ROVER",
+  "model": "Defender",
+  "modelDescription": "Defender 90 Standheizung Kamera LED Recaro",
+  "condition": "USED",
+  "firstRegistration": "201409",
+  "mileage": 129000,
+  "vin": "WVWZZZAAAZA000000",
+  "cubicCapacity": 2198,
+  "power": 108,
+  "gearbox": "MANUAL_GEAR",
+  "fuel": "DIESEL",
+  "emissionSticker": "EMISSIONSSTICKER_GREEN",
+  "emissionClass": "EURO5",
+  "emissions": {
+    "combined": {
+      "co2": "265"
+    }
+  },
+  "consumptions": {
+    "fuel": {
+      "combined": "10"
+    }
+  },
+  "exteriorColor": "BLACK",
+  "metallic": true,
+  "doors": "TWO_OR_THREE",
+  "seats": 2,
+  "interiorColor": "BLACK",
+  "interiorType": "PARTIAL_LEATHER",
+  "newHuAu": true,
+  "fullServiceHistory": true,
+  "damageUnrepaired": false,
+  "accidentDamaged": false,
+  "roadworthy": true,
+  "alloyWheels": true,
+  "auxiliaryHeating": true,
+  "centralLocking": true,
+  "climatisation": "MANUAL_CLIMATISATION",
+  "electricHeatedSeats": true,
+  "electricWindows": true,
+  "immobilizer": true,
+  "lightSensor": true,
+  "navigationSystem": true,
+  "panoramicGlassRoof": true,
+  "parkingAssistants": [
+    "REAR_VIEW_CAM"
+  ],
+  "daytimeRunningLamps": "LED_RUNNING_LIGHTS",
+  "headlightType": "LED_HEADLIGHTS",
+  "trimLine": "90 E Hard Top",
+  "modelRange": "Defender (LD)(10.2002->)",
+  "powerAssistedSteering": true,
+  "weight": 1771,
+  "cylinder": 4,
+  "fuelTankVolume": 60,
+  "driveType": "ALL_WHEEL",
+  "description": "**The following modifications were made: 108 kW with intercooler, suspension, wheels and tyres, sports steering wheel, Recaro seats, LED headlights, navigation, sound system, camera, auxiliary heating, boot conversion with commercial registration etc.\\\\\\\\Further equipment:**\\\\Driver/passenger airbag, brake assist, body: 3-door, centre differential lock, engine 2.2 l - 90 kW Td4 CAT, rear fog light, upholstery: synthetic leather, tinted glazing",
+  "plainTextDescription": "The following modifications were made: 108 kW with intercooler, suspension, wheels and tyres, sports steering wheel, Recaro seats, LED headlights, navigation, sound system, camera, auxiliary heating, boot conversion with commercial registration etc. -  - Further equipment: - Driver/passenger airbag, brake assist, body: 3-door, centre differential lock, engine 2.2 l - 90 kW Td4 CAT, rear fog light, upholstery: synthetic leather, tinted glazing",
+  "images": [
+    {
+      "hash": "99c3997d960b89eae1b66fb104c8d8a2",
+      "icon": "https://img.example.invalid/a-icon.jpg",
+      "l": "https://img.example.invalid/a-l.jpg",
+      "xl": "https://img.example.invalid/a-xl.jpg",
+      "xxxl": "https://img.example.invalid/a-xxxl.jpg"
+    },
+    {
+      "hash": "626f22c8cd526fa930ad9542eb510f85",
+      "icon": "https://img.example.invalid/b-icon.jpg",
+      "xxl": "https://img.example.invalid/b-xxl.jpg"
+    }
+  ],
+  "detailPageUrl": "https://suchen.mobile.de/auto-inserat/platzhalter/424776053.html?source=api",
+  "seller": {
+    "mobileSellerId": "99999999",
+    "mobileSellerSince": "2016-04-06T22:00:00Z",
+    "email": "kontakt@example.invalid",
+    "geoData": {
+      "lon": 13.0,
+      "lat": 52.0
+    },
+    "companyName": "Musterhaendler GmbH",
+    "phones": [
+      {
+        "internationalPrefix": 49,
+        "nationalPrefix": "000",
+        "number": "0000000"
+      },
+      {
+        "internationalPrefix": 49,
+        "nationalPrefix": "111",
+        "number": "1111111"
+      }
+    ],
+    "address": {
+      "street": "Musterstrasse 1",
+      "zipcode": "12345",
+      "city": "Musterstadt",
+      "country": "DE"
+    },
+    "type": "DEALER",
+    "commercial": true,
+    "homepage": "https://example.invalid"
+  },
+  "kba": {
+    "hsn": "1590",
+    "tsn": "AAE"
+  },
+  "price": {
+    "consumerPriceGross": "42999.00",
+    "type": "FIXED",
+    "currency": "EUR"
+  },
+  "priceRating": {
+    "label": "REASONABLE_PRICE",
+    "labelRanges": [
+      {
+        "label": "GOOD_PRICE",
+        "from": "38000",
+        "to": "41000"
+      },
+      {
+        "label": "REASONABLE_PRICE",
+        "from": "41000",
+        "to": "45600"
+      }
+    ]
+  }
+}

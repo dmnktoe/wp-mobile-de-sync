@@ -1,0 +1,98 @@
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+jobs:
+  # 7.0 is the declared floor, so "runs on PHP 7" is verified rather than
+  # claimed. 8.3 rides along so a later move is not a surprise.
+  lint:
+    name: Syntax (PHP ${{ matrix.php }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['7.0', '7.4', '8.3']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+      - name: php -l across all files
+        run: |
+          status=0
+          for file in $(find . -name '*.php' -not -path './vendor/*'); do
+            php -l "$file" > /dev/null || { echo "Syntax error: $file"; status=1; }
+          done
+          exit $status
+
+  test:
+    name: Tests (PHP ${{ matrix.php }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['7.0', '7.4', '8.3']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+      - name: Test run
+        run: sh tests/run.sh
+
+  phpcs:
+    name: Coding standards and PHP compatibility
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+          tools: composer
+      - name: Install tooling
+        run: composer install --no-interaction --prefer-dist
+      - name: phpcs
+        run: vendor/bin/phpcs
+
+  secrets:
+    name: No credentials or customer data in the tree
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check patterns
+        run: |
+          # Credentials and customer data belong in each installation's
+          # settings, never in this repository. Fixtures use example.invalid
+          # exclusively.
+          #
+          # The patterns are deliberately generic: a filter that enumerates
+          # actual customer names publishes them itself.
+          muster='dlr_[a-z]|:[^[:space:]"'"'"']{8,}@services\.mobile\.de|password["'"'"']?[[:space:]]*[:=][[:space:]]*["'"'"'][^"'"'"']{6,}|Authorization:[[:space:]]*Basic[[:space:]]+[A-Za-z0-9+/]{16,}'
+          treffer=$(grep -rniE "$muster" \
+            --include='*.php' --include='*.md' --include='*.json' \
+            --include='*.txt' --include='*.xml' --include='*.yml' \
+            --exclude-dir=.git . || true)
+
+          if [ -n "$treffer" ]; then
+            echo "$treffer"
+            echo "::error::Possible credentials found."
+            exit 1
+          fi
+
+          # E-mail addresses in fixtures must point at placeholder domains.
+          echte=$(grep -rhoE '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}' \
+            tests/fixtures 2>/dev/null | grep -viE '@example\.(invalid|com|org)$' || true)
+
+          if [ -n "$echte" ]; then
+            echo "$echte"
+            echo "::error::Fixture contains a real e-mail address."
+            exit 1
+          fi
+
+          echo "Clean."
