@@ -657,6 +657,46 @@ wmds_assert( 'nothing was removed', 0, $stats['removed'] );
 wmds_assert( 'the vanished vehicle is still published', 'publish', wmds_fake( 'posts' )[ $gone ]['post_status'] );
 wmds_assert( 'the watermark did not move', '', (string) get_option( WMDS_Importer::OPT_WATERMARK, '' ) );
 
+wmds_section( 'A listing cut short removes nothing' );
+
+wmds_fake_reset();
+foreach ( array( '1', '2', '9' ) as $seed ) {
+	wmds_fake_seed_vehicle( $seed, '2026-01-01T00:00:00.000Z' );
+}
+$unread = wmds_post_for( '9' );
+
+list( $importer, $client ) = wmds_setup( array( wmds_ad( '1' ) ) );
+$client->pages             = array(
+	1 => array(
+		'ads'       => array( wmds_ad( '1' ) ),
+		'max_pages' => 3,
+		'capped'    => false,
+	),
+	2 => array(
+		'ads'       => array( wmds_ad( '2' ) ),
+		'max_pages' => 3,
+		'capped'    => false,
+	),
+	3 => array(
+		'ads'       => array( wmds_ad( '9' ) ),
+		'max_pages' => 3,
+		'capped'    => false,
+	),
+);
+
+$stats = $importer->run(
+	array(
+		'full'   => true,
+		'budget' => 0,
+	)
+);
+
+wmds_assert( 'it stopped before the last page', true, count( $client->searched ) < 3 );
+wmds_assert( 'the unread vehicle was not trashed', 'publish', wmds_fake( 'posts' )[ $unread ]['post_status'] );
+wmds_assert( 'nothing was removed at all', 0, $stats['removed'] );
+wmds_assert( 'the watermark did not move', '', (string) get_option( WMDS_Importer::OPT_WATERMARK, '' ) );
+wmds_assert( 'and the run comes back', true, in_array( WMDS_CRON_HOOK, wmds_fake( 'scheduled' ), true ) );
+
 wmds_section( 'Images are only replaced once the new ones are in' );
 
 wmds_fake_reset();

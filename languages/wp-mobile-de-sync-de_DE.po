@@ -1502,7 +1502,7 @@ msgstr "OK"
 
 #: includes/class-wmds-admin.php
 msgid "Keeps a dealer's inventory on mobile.de and the vehicles on this site in step. The mobile.de Search API is read on a schedule and every ad becomes a regular WordPress post that themes, FacetWP and the block editor can work with like any other."
-msgstr "Hält den Bestand eines Händlers auf mobile.de und die Fahrzeuge auf dieser Seite im Gleichstand. Die mobile.de Search-API wird nach Zeitplan gelesen, und jedes Inserat wird ein ganz normaler WordPress-Beitrag, mit dem Themes, FacetWP und der Block-Editor umgehen können wie mit jedem anderen."
+msgstr "Hält den Bestand eines Händlers auf mobile.de und die Fahrzeuge auf dieser Seite synchron. Die mobile.de Search-API wird nach Zeitplan gelesen, und jedes Inserat wird ein ganz normaler WordPress-Beitrag, mit dem Themes, FacetWP und der Block-Editor umgehen können wie mit jedem anderen."
 
 #: includes/class-wmds-admin.php
 msgid "Installed version"

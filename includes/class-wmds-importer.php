@@ -136,13 +136,19 @@ class WMDS_Importer {
 		$watermark = $full ? '' : (string) get_option( self::OPT_WATERMARK, '' );
 		$is_full   = ( '' === $watermark );
 
-		$ads    = array();
-		$page   = 1;
-		$pages  = 1;
-		$capped = false;
-		$guard  = 40;
+		$ads       = array();
+		$page      = 1;
+		$pages     = 1;
+		$capped    = false;
+		$truncated = false;
+		$guard     = 40;
 
 		do {
+			self::touch_lock();
+
+			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- disabled on many hosts, the deadline below covers that case.
+			@set_time_limit( 0 );
+
 			$result = $this->client->search( $page, WMDS_Client::MAX_PAGE_SIZE, $watermark );
 			if ( is_wp_error( $result ) ) {
 				$this->log( 'Aborted on page ' . $page . ': ' . $result->get_error_message() );
@@ -153,6 +159,20 @@ class WMDS_Importer {
 			$capped = $capped || ! empty( $result['capped'] );
 			$pages  = max( 1, (int) $result['max_pages'] );
 			++$page;
+
+			if ( $deadline && $page <= $pages && $page <= $guard && time() >= $deadline ) {
+				$truncated = true;
+
+				$this->log(
+					sprintf(
+						'Listing stopped after %d of %d pages to stay inside the execution limit. '
+						. 'This pass reconciles only what it read and removes nothing.',
+						$page - 1,
+						$pages
+					)
+				);
+				break;
+			}
 		} while ( $page <= $pages && $page <= $guard );
 
 		if ( $capped ) {
@@ -210,7 +230,7 @@ class WMDS_Importer {
 			}
 		}
 
-		$complete = ( 0 === $pending );
+		$complete = ( 0 === $pending ) && ! $truncated;
 		$removal  = WMDS_Sync_Plan::removals( $plan['seen'], $known, $is_full && $complete );
 		$removed  = 0;
 
