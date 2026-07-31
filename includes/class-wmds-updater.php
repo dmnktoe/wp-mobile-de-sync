@@ -275,12 +275,12 @@ class WMDS_Updater {
 
 		$columns = 4;
 		if ( isset( $GLOBALS['wp_list_table'] ) && method_exists( $GLOBALS['wp_list_table'], 'get_column_count' ) ) {
-			$columns = (int) $GLOBALS['wp_list_table']->get_column_count();
+			$columns = $GLOBALS['wp_list_table']->get_column_count();
 		}
 
 		printf(
 			'<tr class="plugin-update-tr"><td colspan="%d" class="plugin-update colspanchange"><div class="update-message notice inline notice-warning notice-alt"><p>%s</p></div></td></tr>',
-			$columns,
+			absint( $columns ),
 			sprintf(
 				/* translators: %s: reason the update check failed. */
 				esc_html__( 'The update check against GitHub failed, so no new version can be offered here: %s', 'wp-mobile-de-sync' ),
