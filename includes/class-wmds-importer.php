@@ -282,13 +282,21 @@ class WMDS_Importer {
 			update_post_meta( $post_id, self::META_HASH, $hash );
 		}
 
+		// Cap here rather than inside import_images(), so the comparison and
+		// the import see the same list. Comparing the stored hashes against an
+		// uncapped feed list would differ forever and re-import every run.
+		$wanted = array_slice( $mapped['images'], 0, self::MAX_IMAGES );
 		$stored = get_post_meta( $post_id, self::META_IMAGES, true );
-		if ( WMDS_Sync_Plan::images_changed( $stored, $mapped['images'] ) || ! has_post_thumbnail( $post_id ) ) {
-			$count = $this->import_images( $post_id, $mapped['images'], $mapped['title'] );
-			if ( $count ) {
-				$images += $count;
-				update_post_meta( $post_id, self::META_IMAGES, wp_list_pluck( $mapped['images'], 'hash' ) );
-			}
+
+		if ( $wanted && ( WMDS_Sync_Plan::images_changed( $stored, $wanted ) || ! has_post_thumbnail( $post_id ) ) ) {
+			$imported = $this->import_images( $post_id, $wanted, $mapped['title'] );
+			$images  += count( $imported );
+
+			// Record what actually landed, not what was asked for. If one
+			// image of fifteen failed, the stored list stays different from
+			// the feed and the next run tries again - instead of the vehicle
+			// being marked complete and never repaired.
+			update_post_meta( $post_id, self::META_IMAGES, $imported );
 		}
 
 		return $mode;
@@ -318,13 +326,14 @@ class WMDS_Importer {
 	 * otherwise orphans pile up in the media library.
 	 *
 	 * @param int    $post_id
-	 * @param array  $images
+	 * @param array  $images Already capped to MAX_IMAGES by the caller.
 	 * @param string $title
-	 * @return int Number of images imported.
+	 * @return string[] Hashes of the images that were actually imported, in
+	 *                  order. Shorter than $images when a download failed.
 	 */
 	private function import_images( $post_id, array $images, $title ) {
 		if ( ! $images ) {
-			return 0;
+			return array();
 		}
 
 		require_once ABSPATH . 'wp-admin/includes/file.php';
@@ -335,10 +344,10 @@ class WMDS_Importer {
 			wp_delete_attachment( $old->ID, true );
 		}
 
-		$first = 0;
-		$count = 0;
+		$first    = 0;
+		$imported = array();
 
-		foreach ( array_slice( $images, 0, self::MAX_IMAGES ) as $index => $image ) {
+		foreach ( $images as $index => $image ) {
 			$tmp = download_url( $image['url'], 30 );
 			if ( is_wp_error( $tmp ) ) {
 				$this->log( 'Image could not be downloaded: ' . $image['url'] );
@@ -358,7 +367,7 @@ class WMDS_Importer {
 				continue;
 			}
 
-			++$count;
+			$imported[] = isset( $image['hash'] ) ? (string) $image['hash'] : '';
 			if ( ! $first ) {
 				$first = (int) $attachment;
 			}
@@ -368,7 +377,7 @@ class WMDS_Importer {
 			set_post_thumbnail( $post_id, $first );
 		}
 
-		return $count;
+		return $imported;
 	}
 
 	/**
@@ -411,6 +420,30 @@ class WMDS_Importer {
 		}
 
 		return $map;
+	}
+
+	/**
+	 * Deletes a vehicle's images when the vehicle itself is deleted for good.
+	 *
+	 * Deliberately hooked to permanent deletion, not to trashing. A vehicle in
+	 * the trash can still be restored, and restoring it must bring its gallery
+	 * back - that recovery window is the whole reason removal uses the trash.
+	 * WordPress empties the trash on its own schedule, so the images do go
+	 * eventually; without this they would stay in the media library forever,
+	 * fifteen per sold vehicle.
+	 *
+	 * @param int $post_id
+	 */
+	public static function delete_attachments( $post_id ) {
+		$post_id = (int) $post_id;
+
+		if ( WMDS_CPT !== get_post_type( $post_id ) ) {
+			return;
+		}
+
+		foreach ( get_attached_media( 'image', $post_id ) as $attachment ) {
+			wp_delete_attachment( $attachment->ID, true );
+		}
 	}
 
 	/** Kick off the next pass while something is still pending. */

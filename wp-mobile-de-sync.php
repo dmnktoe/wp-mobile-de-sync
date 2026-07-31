@@ -119,6 +119,10 @@ function wmds_register_cpt() {
 }
 add_action( 'init', 'wmds_register_cpt' );
 
+// Clean up a vehicle's images when the vehicle is deleted for good. Trashing
+// leaves them alone on purpose, so a restore brings the gallery back.
+add_action( 'before_delete_post', array( 'WMDS_Importer', 'delete_attachments' ) );
+
 /**
  * Template loader. Prefers theme overrides, falls back to the bundled
  * templates.

@@ -119,6 +119,16 @@ if ( ! function_exists( 'wp_trash_post' ) ) {
 	}
 }
 
+if ( ! function_exists( 'get_post_type' ) ) {
+	function get_post_type( $post_id = 0 ) {
+		$post_id = (int) $post_id;
+
+		return isset( $GLOBALS['wp_fake']['posts'][ $post_id ]['post_type'] )
+			? $GLOBALS['wp_fake']['posts'][ $post_id ]['post_type']
+			: false;
+	}
+}
+
 if ( ! function_exists( 'get_the_title' ) ) {
 	function get_the_title( $post_id = 0 ) {
 		$post_id = (int) $post_id;
