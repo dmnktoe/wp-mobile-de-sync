@@ -1,15 +1,4 @@
 <?php
-/**
- * Assertions for tests/integration/run.sh, executed inside the WordPress the
- * run installed:
- *
- *   WMDS_IT_PHASE=full-sync wp eval-file tests/integration/assert.php
- *
- * Everything checked here is state WordPress ended up in - posts, meta,
- * attachments, thumbnails, options, transients - never a return value the
- * test handed to itself.
- */
-
 $GLOBALS['wmds_it_failures'] = array();
 
 /**

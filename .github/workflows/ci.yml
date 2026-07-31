@@ -45,9 +45,6 @@ jobs:
       - name: Test run
         run: sh tests/run.sh
 
-  # tests/run.sh proves the logic against stubs. This job proves the plugin
-  # inside the thing it is written for: a real WordPress on a real database,
-  # driven through WP-CLI, with mobile.de answered by a local mock server.
   integration:
     name: WordPress end to end (mocked mobile.de)
     runs-on: ubuntu-latest

@@ -1,26 +1,4 @@
 <?php
-/**
- * Stand-in for mobile.de: Search API, reference data and the image host.
- * Served by the built-in web server, driven by tests/integration/run.sh:
- *
- *   php -S 127.0.0.1:8089 tests/integration/mock-server.php
- *
- * Environment:
- *   WMDS_MOCK_STATE   Directory holding state.json and requests.log.
- *   WMDS_MOCK_USER    Expected Basic auth user.
- *   WMDS_MOCK_PASS    Expected Basic auth secret.
- *   WMDS_MOCK_SELLER  Expected customerId.
- *
- * state.json steers a scenario without restarting the server. Every key is
- * optional:
- *   ads            Ad IDs the seller currently has on offer.
- *   modified       Ad ID => modificationDate, overriding the fixture.
- *   model          Ad ID => modelDescription, overriding the fixture.
- *   page_size      Ads per search page, so pagination is exercised for real.
- *   search_status  Status the search endpoint answers with.
- *   detail_status  Ad ID => status the single-ad endpoint answers with.
- */
-
 /** @return string */
 function wmds_mock_dir() {
 	$dir = (string) getenv( 'WMDS_MOCK_STATE' );
@@ -50,9 +28,6 @@ function wmds_mock_setting( array $state, $key, $fallback ) {
 }
 
 /**
- * Ad ID => ['search' => array, 'detail' => array], in the order the fixture
- * lists them and with the scenario overrides applied.
- *
  * @param array $state
  * @return array
  */
@@ -108,12 +83,6 @@ function wmds_mock_catalog( array $state ) {
 }
 
 /**
- * parse_str() is unusable here: it turns "page.number" into "page_number".
- * The decoding is rawurldecode() rather than urldecode(), so a "+" stays a
- * plus - add_query_arg() does not encode, so the watermark reaches the
- * server as "...T20:06:51+00:00" and a form decoder would read that offset
- * as a space.
- *
  * @param string $query_string
  * @return array
  */
@@ -180,12 +149,7 @@ function wmds_mock_fail( $status, $title, $detail ) {
 	);
 }
 
-/**
- * The tables WMDS_Refdata asks for. Descriptions are English because the
- * test configures the plugin with that language.
- *
- * @return array
- */
+/** @return array */
 function wmds_mock_refdata() {
 	return array(
 		'gearboxes'              => array(

@@ -1,16 +1,7 @@
 <?php
 /**
  * Plugin Name: wmds integration test transport
- * Description: Routes every mobile.de request at the local mock server and blocks the rest, so the integration test never reaches the internet.
- *
- * Copied into wp-content/mu-plugins by tests/integration/run.sh. It is a
- * test harness, not part of the plugin, and is never distributed.
- *
- * The redirect sits on pre_http_request, which runs before WordPress
- * validates the target. That leaves the plugin's own code untouched: it
- * still calls wp_remote_get() and download_url() against the real mobile.de
- * URLs, and the response - including the streamed image file - is produced
- * by a real HTTP request.
+ * Description: Routes every mobile.de request at the local mock server and blocks the rest.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

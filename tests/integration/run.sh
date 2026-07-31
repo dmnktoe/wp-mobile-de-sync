@@ -1,16 +1,9 @@
 #!/usr/bin/env sh
-# End-to-end test against a real WordPress.
-#
-# tests/run.sh checks the plugin's own logic against stubs. This one installs
-# WordPress, activates the plugin and drives the sync through WP-CLI, with
-# every mobile.de call answered by tests/integration/mock-server.php. What is
-# asserted afterwards is the state WordPress ended up in: posts, meta,
-# attachments, thumbnails, options and transients.
+# End-to-end test against a real WordPress. See README.md, "Integration test".
 #
 #   sh tests/integration/run.sh
 #
 # Needs PHP with mysqli and gd, WP-CLI on the PATH, and a MySQL to talk to.
-# Override anything through the environment:
 #
 #   WMDS_IT_WORKDIR   Scratch directory            (/tmp/wmds-integration)
 #   WMDS_IT_PORT      Port of the mock server      (8089)
