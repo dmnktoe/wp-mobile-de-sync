@@ -1,6 +1,38 @@
 <?php
 
 require_once __DIR__ . '/bootstrap.php';
+
+if ( ! function_exists( 'get_option' ) ) {
+	function get_option( $key, $default = false ) {
+		$formats = array(
+			'date_format' => 'j. F Y',
+			'time_format' => 'H:i',
+		);
+
+		return isset( $formats[ $key ] ) ? $formats[ $key ] : $default;
+	}
+}
+
+if ( ! function_exists( 'wp_date' ) ) {
+	function wp_date( $format, $timestamp = null ) {
+		return gmdate( $format, null === $timestamp ? time() : (int) $timestamp );
+	}
+}
+
+if ( ! function_exists( 'get_gmt_from_date' ) ) {
+	function get_gmt_from_date( $date, $format = 'Y-m-d H:i:s' ) {
+		$timestamp = strtotime( $date . ' UTC' );
+
+		return $timestamp ? gmdate( $format, $timestamp ) : '';
+	}
+}
+
+if ( ! function_exists( 'human_time_diff' ) ) {
+	function human_time_diff( $from, $to = 0 ) {
+		return (int) round( abs( ( $to ? $to : time() ) - $from ) / 60 ) . ' mins';
+	}
+}
+
 require_once __DIR__ . '/../includes/class-wmds-status.php';
 
 $now   = 1800000000;
@@ -118,5 +150,20 @@ foreach ( array(
 	wmds_assert( 'label for ' . $level, true, '' !== $label && $label !== $level );
 	wmds_assert( 'explanation for ' . $level, true, '' !== $explanation );
 }
+
+wmds_section( 'Times are read in the site format, not in the storage format' );
+
+$stamp = WMDS_Status::timestamp( '2026-07-31 11:38:12' );
+
+wmds_assert( 'MySQL time to timestamp', 1785497892, $stamp );
+wmds_assert( 'nothing stored', 0, WMDS_Status::timestamp( '' ) );
+wmds_assert( 'the site date format', '31. July 2026 at 11:38', WMDS_Status::local_time( $stamp ) );
+wmds_assert( 'no timestamp, no date', '—', WMDS_Status::local_time( 0 ) );
+wmds_assert_contains( 'ISO 8601 for the attribute', '2026-07-31T11:38:12', WMDS_Status::iso_time( $stamp ) );
+wmds_assert( 'without a timestamp there is no attribute', '', WMDS_Status::iso_time( 0 ) );
+
+wmds_assert_contains( 'a past run reads as elapsed', 'ago', WMDS_Status::relative_time( time() - 600 ) );
+wmds_assert_contains( 'a coming run reads as remaining', 'in ', WMDS_Status::relative_time( time() + 600 ) );
+wmds_assert( 'nothing to relate to', '', WMDS_Status::relative_time( 0 ) );
 
 wmds_result();

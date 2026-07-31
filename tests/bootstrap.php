@@ -35,7 +35,7 @@ if ( ! function_exists( 'add_query_arg' ) ) {
 		$sep   = ( false === strpos( $url, '?' ) ) ? '?' : '&';
 		$pairs = array();
 		foreach ( $args as $key => $value ) {
-			$pairs[] = rawurlencode( $key ) . '=' . rawurlencode( $value );
+			$pairs[] = $key . '=' . $value;
 		}
 		return $url . $sep . implode( '&', $pairs );
 	}

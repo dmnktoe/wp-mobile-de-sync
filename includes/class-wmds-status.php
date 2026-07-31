@@ -109,7 +109,7 @@ class WMDS_Status {
 		$last = get_option( WMDS_Importer::OPT_LAST_RUN, array() );
 		$last = is_array( $last ) ? $last : array();
 
-		$last_ts = ( ! empty( $last['time'] ) ) ? (int) get_gmt_from_date( $last['time'], 'U' ) : 0;
+		$last_ts = self::timestamp( isset( $last['time'] ) ? $last['time'] : '' );
 
 		$configured = WMDS_Settings::is_configured();
 		$running    = (bool) get_transient( WMDS_Importer::LOCK );
@@ -139,15 +139,71 @@ class WMDS_Status {
 	}
 
 	/**
+	 * @param string $mysql Local time in MySQL format, as the importer stores it.
+	 * @return int Timestamp, 0 when there is nothing usable.
+	 */
+	public static function timestamp( $mysql ) {
+		$mysql = trim( (string) $mysql );
+		if ( '' === $mysql ) {
+			return 0;
+		}
+
+		return (int) get_gmt_from_date( $mysql, 'U' );
+	}
+
+	/**
 	 * @param int $timestamp
-	 * @return string Local date and time, or an em dash.
+	 * @return string Date and time in the site's own formats, or an em dash.
 	 */
 	public static function local_time( $timestamp ) {
+		$timestamp = (int) $timestamp;
 		if ( ! $timestamp ) {
 			return '—';
 		}
 
-		return get_date_from_gmt( gmdate( 'Y-m-d H:i:s', $timestamp ), 'Y-m-d H:i' );
+		return sprintf(
+			/* translators: 1: date in the site's format, 2: time in the site's format. */
+			__( '%1$s at %2$s', 'wp-mobile-de-sync' ),
+			wp_date( (string) get_option( 'date_format', 'Y-m-d' ), $timestamp ),
+			wp_date( (string) get_option( 'time_format', 'H:i' ), $timestamp )
+		);
+	}
+
+	/**
+	 * @param int $timestamp
+	 * @return string e.g. "5 mins ago", empty without a timestamp.
+	 */
+	public static function relative_time( $timestamp ) {
+		$timestamp = (int) $timestamp;
+		if ( ! $timestamp ) {
+			return '';
+		}
+
+		$now = time();
+
+		if ( $timestamp > $now ) {
+			return sprintf(
+				/* translators: %s: a human-readable duration, e.g. "12 mins". */
+				__( 'in %s', 'wp-mobile-de-sync' ),
+				human_time_diff( $now, $timestamp )
+			);
+		}
+
+		return sprintf(
+			/* translators: %s: a human-readable duration, e.g. "12 mins". */
+			__( '%s ago', 'wp-mobile-de-sync' ),
+			human_time_diff( $timestamp, $now )
+		);
+	}
+
+	/**
+	 * @param int $timestamp
+	 * @return string ISO 8601 for the datetime attribute, empty without one.
+	 */
+	public static function iso_time( $timestamp ) {
+		$timestamp = (int) $timestamp;
+
+		return $timestamp ? wp_date( 'c', $timestamp ) : '';
 	}
 
 	/**

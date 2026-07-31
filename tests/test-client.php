@@ -39,6 +39,12 @@ $inc = $client->search_url( 1, 100, '2026-07-30T10:00:00+02:00' );
 wmds_assert_contains( 'time filter set', 'modificationTime.min=', $inc );
 wmds_assert_contains( 'plus sign encoded', '%2B02%3A00', $inc );
 wmds_assert_contains( 'sorted ascending', 'sort.order=ASCENDING', $inc );
+wmds_assert( 'no raw plus in the URL', false, strpos( $inc, '+' ) );
+wmds_assert( 'no raw colon in the offset', false, strpos( $inc, '00:00' ) );
+
+$utc = $client->search_url( 1, 100, '2026-07-30T10:00:00+00:00' );
+wmds_assert_contains( 'UTC offset encoded too', 'modificationTime.min=2026-07-30T10%3A00%3A00%2B00%3A00', $utc );
+
 wmds_assert( 'no sorting without a time filter', false, strpos( $client->search_url(), 'sort.field' ) );
 
 wmds_section( 'Response: valid search result' );

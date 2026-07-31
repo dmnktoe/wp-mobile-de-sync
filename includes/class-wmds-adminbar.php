@@ -110,7 +110,7 @@ class WMDS_Adminbar {
 					'title'  => sprintf(
 						/* translators: 1: date and time of the last run, 2: its result. */
 						esc_html__( 'Last run: %1$s — %2$s', 'wp-mobile-de-sync' ),
-						esc_html( isset( $status['last']['time'] ) ? $status['last']['time'] : '—' ),
+						esc_html( WMDS_Status::local_time( $status['last_ts'] ) ),
 						esc_html( WMDS_Status::summarise( $status['last'] ) )
 					),
 					'href'   => WMDS_Status::settings_url( 'status' ),

@@ -184,7 +184,7 @@ msgstr "Bereiche der Einstellungen"
 msgid "Vehicles published"
 msgstr "Veröffentlichte Fahrzeuge"
 
-#: includes/class-wmds-admin.php:612 includes/class-wmds-admin.php:940
+#: includes/class-wmds-admin.php:604 includes/class-wmds-admin.php:917
 msgid "Last run"
 msgstr "Letzter Lauf"
 
@@ -193,8 +193,8 @@ msgid "not scheduled"
 msgstr "nicht eingeplant"
 
 #: includes/class-wmds-admin.php:624
-msgid "Next run in"
-msgstr "Nächster Lauf in"
+msgid "Next run"
+msgstr "Nächster Lauf"
 
 #: includes/class-wmds-admin.php:631 includes/class-wmds-admin.php:957
 msgid "incremental"
@@ -352,6 +352,10 @@ msgstr "Alle 30 Minuten"
 #: includes/class-wmds-admin.php:833
 msgid "Hourly"
 msgstr "Stündlich"
+
+#: includes/class-wmds-admin.php:812
+msgid "Once a day"
+msgstr "Einmal täglich"
 
 #: includes/class-wmds-admin.php:846
 msgid "A run fetches only what changed and is therefore cheap. Once a day a full reconciliation runs in addition – only after one of those are sold vehicles moved to the trash."
@@ -523,7 +527,7 @@ msgid "Force a full sync"
 msgstr "Vollständigen Sync erzwingen"
 
 #: includes/class-wmds-admin.php:1133
-msgid "Discards the watermark. The next run reads every ad again instead of only the changed ones, and it is the first one allowed to remove sold vehicles."
+msgid "Discards the change marker. The next run reads every ad again instead of only the changed ones, and it is the first one allowed to remove sold vehicles."
 msgstr "Verwirft den Änderungsstand. Der nächste Lauf liest wieder jede Anzeige statt nur der geänderten und darf als Erster verkaufte Fahrzeuge entfernen."
 
 #: includes/class-wmds-admin.php:1140
@@ -531,7 +535,7 @@ msgid "Force"
 msgstr "Erzwingen"
 
 #: includes/class-wmds-admin.php:1142
-msgid "This discards the watermark, so the next run re-reads the whole inventory. Continue?"
+msgid "This discards the change marker, so the next run re-reads the whole inventory. Continue?"
 msgstr "Damit wird der Änderungsstand verworfen, der nächste Lauf liest den gesamten Bestand neu ein. Fortfahren?"
 
 #: includes/class-wmds-admin.php:1149
@@ -1111,3 +1115,15 @@ msgstr "Ausstattung"
 #: templates/single-fahrzeuge.php:166
 msgid "Further information on the official fuel consumption and the official specific CO₂ emissions of new passenger cars can be found in the guide on fuel consumption, CO₂ emissions and electricity consumption of new passenger cars, available free of charge at all points of sale and at %s."
 msgstr "Weitere Informationen zum offiziellen Kraftstoffverbrauch und zu den offiziellen spezifischen CO₂-Emissionen neuer Personenkraftwagen können dem „Leitfaden über den Kraftstoffverbrauch, die CO₂-Emissionen und den Stromverbrauch neuer Personenkraftwagen“ entnommen werden, der an allen Verkaufsstellen und bei der Deutschen Automobil Treuhand GmbH unter %s unentgeltlich erhältlich ist."
+
+#: includes/class-wmds-status.php:160
+msgid "%1$s at %2$s"
+msgstr "%1$s um %2$s"
+
+#: includes/class-wmds-status.php:181
+msgid "in %s"
+msgstr "in %s"
+
+#: includes/class-wmds-status.php:188
+msgid "%s ago"
+msgstr "vor %s"

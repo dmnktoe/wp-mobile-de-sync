@@ -1,5 +1,12 @@
 # wp-mobile-de-sync
 
+[![Release](https://img.shields.io/github/v/release/dmnktoe/wp-mobile-de-sync?label=release&color=21759b)](https://github.com/dmnktoe/wp-mobile-de-sync/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/dmnktoe/wp-mobile-de-sync/total?label=downloads&color=21759b)](https://github.com/dmnktoe/wp-mobile-de-sync/releases)
+[![CI](https://img.shields.io/github/actions/workflow/status/dmnktoe/wp-mobile-de-sync/ci.yml?branch=main&label=CI)](https://github.com/dmnktoe/wp-mobile-de-sync/actions/workflows/ci.yml)
+[![WordPress](https://img.shields.io/badge/WordPress-5.8%2B-21759b)](https://wordpress.org/)
+[![PHP](https://img.shields.io/badge/PHP-7.0%2B-777bb4)](https://www.php.net/)
+[![License](https://img.shields.io/github/license/dmnktoe/wp-mobile-de-sync?color=blue)](https://www.gnu.org/licenses/gpl-2.0.html)
+
 Synchronises a dealer's vehicle inventory from the mobile.de **Search API**
 into the `fahrzeuge` custom post type — with bundled templates that any theme
 can override, and ready for FacetWP.

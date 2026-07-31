@@ -94,8 +94,8 @@ function wmds_mock_query( $query_string ) {
 			continue;
 		}
 		$parts       = explode( '=', $pair, 2 );
-		$key         = rawurldecode( $parts[0] );
-		$out[ $key ] = isset( $parts[1] ) ? rawurldecode( $parts[1] ) : '';
+		$key         = urldecode( $parts[0] );
+		$out[ $key ] = isset( $parts[1] ) ? urldecode( $parts[1] ) : '';
 	}
 
 	return $out;
@@ -237,7 +237,17 @@ function wmds_mock_route_search( array $state, array $query ) {
 	}
 
 	if ( isset( $query['modificationTime.min'] ) && '' !== $query['modificationTime.min'] ) {
-		$since   = strtotime( (string) $query['modificationTime.min'] );
+		$sent = (string) $query['modificationTime.min'];
+		if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(Z|[+-]\d{2}:\d{2})$/', $sent ) ) {
+			wmds_mock_fail(
+				400,
+				'invalid-search-parameter',
+				'field=modificationTime.min, code=typeMismatch, rejected-value=' . $sent
+			);
+			return;
+		}
+
+		$since   = strtotime( $sent );
 		$matched = array();
 		foreach ( $ads as $ad ) {
 			$stamp = isset( $ad['modificationDate'] ) ? strtotime( (string) $ad['modificationDate'] ) : 0;

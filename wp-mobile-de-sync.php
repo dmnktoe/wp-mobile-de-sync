@@ -3,7 +3,7 @@
  * Plugin Name: mobile.de Sync
  * Plugin URI:  https://github.com/dmnktoe/wp-mobile-de-sync
  * Description: Synchronises a dealer's vehicle inventory from the mobile.de Search API into a "fahrzeuge" custom post type. Works with FacetWP and with existing theme templates.
- * Version:     1.0.0
+ * Version:     1.0.1
  * Author:      Domenik Töfflinger
  * Author URI:  https://github.com/dmnktoe
  * License:     GPL-2.0-or-later
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'WMDS_VERSION', '1.0.0' );
+define( 'WMDS_VERSION', '1.0.1' );
 define( 'WMDS_FILE', __FILE__ );
 define( 'WMDS_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WMDS_URL', plugin_dir_url( __FILE__ ) );

@@ -537,6 +537,33 @@ class WMDS_Admin {
 	}
 
 	/**
+	 * @param int    $timestamp
+	 * @param string $mode  'absolute' for the date, 'relative' for "5 mins ago".
+	 * @param string $title Tooltip, when the other reading is not the useful one.
+	 */
+	private static function print_time( $timestamp, $mode = 'absolute', $title = '' ) {
+		$timestamp = (int) $timestamp;
+		if ( ! $timestamp ) {
+			echo '—';
+			return;
+		}
+
+		$absolute = WMDS_Status::local_time( $timestamp );
+		$relative = WMDS_Status::relative_time( $timestamp );
+
+		if ( '' === $title ) {
+			$title = ( 'relative' === $mode ) ? $absolute : $relative;
+		}
+
+		printf(
+			'<time datetime="%s" title="%s">%s</time>',
+			esc_attr( WMDS_Status::iso_time( $timestamp ) ),
+			esc_attr( $title ),
+			esc_html( 'relative' === $mode ? $relative : $absolute )
+		);
+	}
+
+	/**
 	 * @param array $status
 	 */
 	private static function render_status_card( array $status ) {
@@ -555,21 +582,27 @@ class WMDS_Admin {
 				</li>
 				<li>
 					<span class="wmds-metric-value">
-						<?php echo esc_html( ! empty( $status['last']['time'] ) ? $status['last']['time'] : '—' ); ?>
+						<?php self::print_time( $status['last_ts'], 'relative' ); ?>
 					</span>
 					<span class="wmds-metric-label"><?php esc_html_e( 'Last run', 'wp-mobile-de-sync' ); ?></span>
+					<?php if ( $status['last_ts'] ) : ?>
+						<span class="wmds-metric-note"><?php echo esc_html( WMDS_Status::local_time( $status['last_ts'] ) ); ?></span>
+					<?php endif; ?>
 				</li>
 				<li>
 					<span class="wmds-metric-value">
 						<?php
 						echo esc_html(
 							$status['next']
-								? human_time_diff( time(), $status['next'] )
+								? WMDS_Status::relative_time( $status['next'] )
 								: __( 'not scheduled', 'wp-mobile-de-sync' )
 						);
 						?>
 					</span>
-					<span class="wmds-metric-label"><?php esc_html_e( 'Next run in', 'wp-mobile-de-sync' ); ?></span>
+					<span class="wmds-metric-label"><?php esc_html_e( 'Next run', 'wp-mobile-de-sync' ); ?></span>
+					<?php if ( $status['next'] ) : ?>
+						<span class="wmds-metric-note"><?php echo esc_html( WMDS_Status::local_time( $status['next'] ) ); ?></span>
+					<?php endif; ?>
 				</li>
 				<li>
 					<span class="wmds-metric-value">
@@ -776,6 +809,7 @@ class WMDS_Admin {
 								'wmds_15min' => __( 'Every 15 minutes (recommended)', 'wp-mobile-de-sync' ),
 								'wmds_30min' => __( 'Every 30 minutes', 'wp-mobile-de-sync' ),
 								'wmds_60min' => __( 'Hourly', 'wp-mobile-de-sync' ),
+								'daily'      => __( 'Once a day', 'wp-mobile-de-sync' ),
 							);
 							foreach ( $intervals as $key => $label ) {
 								printf(
@@ -888,7 +922,7 @@ class WMDS_Admin {
 					<tbody>
 						<tr>
 							<td><?php esc_html_e( 'Time', 'wp-mobile-de-sync' ); ?></td>
-							<td><?php echo esc_html( isset( $status['last']['time'] ) ? $status['last']['time'] : '—' ); ?></td>
+							<td><?php self::print_time( $status['last_ts'] ); ?></td>
 						</tr>
 						<tr>
 							<td><?php esc_html_e( 'Type', 'wp-mobile-de-sync' ); ?></td>
@@ -980,7 +1014,9 @@ class WMDS_Admin {
 					<tbody>
 					<?php foreach ( array_slice( $log, 0, 50 ) as $entry ) : ?>
 						<tr class="<?php echo self::is_problem( $entry['message'] ) ? 'wmds-log-problem' : ''; ?>">
-							<td class="wmds-log-time"><?php echo esc_html( $entry['time'] ); ?></td>
+							<td class="wmds-log-time">
+								<?php self::print_time( WMDS_Status::timestamp( $entry['time'] ), 'absolute', $entry['time'] ); ?>
+							</td>
 							<td><?php echo esc_html( $entry['message'] ); ?></td>
 						</tr>
 					<?php endforeach; ?>
@@ -1070,7 +1106,7 @@ class WMDS_Admin {
 						<td>
 							<strong><?php esc_html_e( 'Force a full sync', 'wp-mobile-de-sync' ); ?></strong>
 							<p class="description">
-								<?php esc_html_e( 'Discards the watermark. The next run reads every ad again instead of only the changed ones, and it is the first one allowed to remove sold vehicles.', 'wp-mobile-de-sync' ); ?>
+								<?php esc_html_e( 'Discards the change marker. The next run reads every ad again instead of only the changed ones, and it is the first one allowed to remove sold vehicles.', 'wp-mobile-de-sync' ); ?>
 							</p>
 						</td>
 						<td>
@@ -1079,7 +1115,7 @@ class WMDS_Admin {
 								'full',
 								__( 'Force', 'wp-mobile-de-sync' ),
 								'secondary',
-								__( 'This discards the watermark, so the next run re-reads the whole inventory. Continue?', 'wp-mobile-de-sync' )
+								__( 'This discards the change marker, so the next run re-reads the whole inventory. Continue?', 'wp-mobile-de-sync' )
 							);
 							?>
 						</td>
