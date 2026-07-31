@@ -215,12 +215,20 @@ mobile.de and image URLs at the mock server and blocks every other host — so
 the plugin's own `wp_remote_get()` and `download_url()` calls are made, and
 answered, over real HTTP.
 
-Six scenarios run in sequence: a paginated full sync, an incremental pass with
-nothing to do, one changed vehicle, a vehicle withdrawn from the feed, wrong
-credentials, and an API outage. What is asserted afterwards is the state
+The scenarios run in sequence: the health state of a fresh install, a
+paginated full sync, an incremental pass with nothing to do, one changed
+vehicle, a single vehicle reloaded through `WMDS_Importer::refresh()`, a
+vehicle withdrawn from the feed, wrong credentials, an API outage, the German
+catalogue, and the uninstall. What is asserted afterwards is the state
 WordPress ended up in — posts, post meta, image files on disk, the featured
-image, reference-data transients, the watermark, the log and the lock — read
-back out of the database rather than out of a return value.
+image, reference-data transients, the watermark, the log, the lock and what
+`WMDS_Status::get()` makes of all of it — read back out of the database rather
+than out of a return value.
+
+The plugin is copied into the installation rather than symlinked, so the
+uninstall scenario cannot reach the working tree. It runs with
+`--skip-delete`, and afterwards the vehicles are still there while the
+plugin's own options, transients, user meta and cron events are gone.
 
 ## Customising
 

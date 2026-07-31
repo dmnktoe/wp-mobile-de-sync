@@ -87,6 +87,11 @@ function wmds_it_write_snapshot( array $data ) {
 	file_put_contents( $file, wp_json_encode( $data ) );
 }
 
+/** @return string */
+function wmds_it_german() {
+	return 'de_DE';
+}
+
 /**
  * @param string $key
  * @return mixed
@@ -101,7 +106,16 @@ $wmds_it_phase = (string) getenv( 'WMDS_IT_PHASE' );
 
 WP_CLI::log( '-- assertions: ' . $wmds_it_phase );
 
-if ( 'full-sync' === $wmds_it_phase ) {
+if ( 'unconfigured' === $wmds_it_phase ) {
+	$status = WMDS_Status::get();
+
+	wmds_it_same( 'level', WMDS_Status::UNCONFIGURED, $status['level'] );
+	wmds_it_same( 'not configured', false, $status['configured'] );
+	wmds_it_same( 'nothing imported yet', 0, $status['count'] );
+	wmds_it_same( 'no incremental state', false, $status['incremental'] );
+	wmds_it_ok( 'the state asks to be acted on', WMDS_Status::is_actionable( $status['level'] ) );
+	wmds_it_ok( 'sync event scheduled by activation', false !== wp_next_scheduled( WMDS_CRON_HOOK ) );
+} elseif ( 'full-sync' === $wmds_it_phase ) {
 	$published = wmds_it_posts();
 
 	wmds_it_same( 'two vehicles published', 2, count( $published ) );
@@ -183,6 +197,14 @@ if ( 'full-sync' === $wmds_it_phase ) {
 	);
 	wmds_it_ok( 'sync event scheduled by activation', false !== wp_next_scheduled( WMDS_CRON_HOOK ) );
 	wmds_it_ok( 'lock released', false === get_transient( WMDS_Importer::LOCK ) );
+
+	$status = WMDS_Status::get();
+	wmds_it_same( 'status level', WMDS_Status::OK, $status['level'] );
+	wmds_it_same( 'status counts the inventory', 2, $status['count'] );
+	wmds_it_same( 'status sees the watermark', true, $status['incremental'] );
+	wmds_it_same( 'status reports no run in flight', false, $status['running'] );
+	wmds_it_ok( 'status carries the next run', false !== $status['next'] );
+	wmds_it_ok( 'the state needs no action', ! WMDS_Status::is_actionable( $status['level'] ) );
 } elseif ( 'unchanged' === $wmds_it_phase ) {
 	$snapshot  = wmds_it_snapshot();
 	$published = wmds_it_posts();
@@ -234,6 +256,40 @@ if ( 'full-sync' === $wmds_it_phase ) {
 	}
 
 	wmds_it_same( 'watermark followed the change', '2026-07-29T06:59:00+00:00', (string) get_option( WMDS_Importer::OPT_WATERMARK, '' ) );
+} elseif ( 'reloaded' === $wmds_it_phase ) {
+	$snapshot  = wmds_it_snapshot();
+	$published = wmds_it_posts();
+
+	wmds_it_same( 'still two vehicles', 2, count( $published ) );
+
+	if ( isset( $published['424776053'] ) ) {
+		$rover = $published['424776053'];
+
+		wmds_it_same(
+			'the same post was reused',
+			isset( $snapshot['posts']['424776053'] ) ? (int) $snapshot['posts']['424776053'] : 0,
+			(int) $rover->ID
+		);
+		wmds_it_same( 'the freshly read title landed', 'Land Rover Defender 90 Works V8', $rover->post_title );
+		wmds_it_same( 'the detail fields survived', 'Musterhaendler GmbH', get_post_meta( $rover->ID, 'seller', true ) );
+		wmds_it_same(
+			'unchanged images were not imported again',
+			isset( $snapshot['images']['424776053'] ) ? $snapshot['images']['424776053'] : array(),
+			wmds_it_attachment_ids( $rover->ID )
+		);
+	}
+
+	wmds_it_same(
+		'the other vehicle was left alone',
+		'Volvo V90 Facelift Edition',
+		isset( $published['427312402'] ) ? $published['427312402']->post_title : ''
+	);
+
+	$log   = get_option( WMDS_Importer::OPT_LOG, array() );
+	$first = is_array( $log ) && $log ? (string) $log[0]['message'] : '';
+	wmds_it_ok( 'the reload is in the log', false !== strpos( $first, 'Reloaded 424776053 on request' ), $first );
+
+	wmds_it_same( 'the run statistics were not touched', 1, wmds_it_last_run( 'updated' ) );
 } elseif ( 'removed' === $wmds_it_phase ) {
 	$snapshot  = wmds_it_snapshot();
 	$published = wmds_it_posts();
@@ -267,6 +323,71 @@ if ( 'full-sync' === $wmds_it_phase ) {
 	wmds_it_ok( 'failure written to the log', false !== strpos( $first, 'HTTP 500' ), $first );
 
 	wmds_it_ok( 'snapshot still readable', isset( $snapshot['posts'] ) );
+} elseif ( 'translation' === $wmds_it_phase ) {
+	$mofile = WMDS_DIR . 'languages/wp-mobile-de-sync-de_DE.mo';
+
+	wmds_it_ok( 'the compiled catalogue ships', file_exists( $mofile ), $mofile );
+
+	unload_textdomain( 'wp-mobile-de-sync' );
+	add_filter( 'locale', 'wmds_it_german' );
+	load_plugin_textdomain( 'wp-mobile-de-sync', false, 'wp-mobile-de-sync/languages' );
+
+	wmds_it_same( 'WordPress resolves the locale', 'de_DE', get_locale() );
+	wmds_it_same( 'post type label', 'Fahrzeuge', __( 'Vehicles', 'wp-mobile-de-sync' ) );
+	wmds_it_same( 'settings screen title', 'Sync-Einstellungen', __( 'Sync Settings', 'wp-mobile-de-sync' ) );
+	wmds_it_same( 'an untranslated string falls through', 'wmds nonexistent', __( 'wmds nonexistent', 'wp-mobile-de-sync' ) );
+
+	remove_filter( 'locale', 'wmds_it_german' );
+} elseif ( 'uninstalled' === $wmds_it_phase ) {
+	$active = (array) get_option( 'active_plugins', array() );
+	wmds_it_ok(
+		'the plugin is deactivated',
+		! in_array( 'wp-mobile-de-sync/wp-mobile-de-sync.php', $active, true )
+	);
+
+	foreach ( array( 'wmds_settings', 'wmds_last_run', 'wmds_watermark', 'wmds_log', 'wmds_dashboard' ) as $option ) {
+		wmds_it_same( 'option ' . $option . ' removed', false, get_option( $option, false ) );
+	}
+
+	foreach ( array( 'wmds_import_lock', 'wmds_makes', 'wmds_notices_probe' ) as $transient ) {
+		wmds_it_same( 'transient ' . $transient . ' removed', false, get_transient( $transient ) );
+	}
+
+	wmds_it_same(
+		'the reference data cache is gone',
+		false,
+		get_transient( 'wmds_refdata_en_' . md5( 'fuels' ) )
+	);
+
+	$admin = get_user_by( 'login', 'admin' );
+	wmds_it_same(
+		'the dismissed notice is forgotten',
+		'',
+		$admin ? (string) get_user_meta( $admin->ID, 'wmds_dismissed', true ) : 'no admin user'
+	);
+
+	foreach ( array( 'wmds_import_event', 'wmds_full_sync_event' ) as $hook ) {
+		wmds_it_same( 'event ' . $hook . ' unscheduled', false, wp_next_scheduled( $hook ) );
+	}
+
+	$vehicles = get_posts(
+		array(
+			'post_type'   => 'fahrzeuge',
+			'post_status' => 'publish',
+			'numberposts' => 50,
+		)
+	);
+
+	wmds_it_same( 'the vehicles stayed', 1, count( $vehicles ) );
+	wmds_it_same(
+		'with their meta',
+		'424776053',
+		$vehicles ? (string) get_post_meta( $vehicles[0]->ID, 'mobileAdId', true ) : ''
+	);
+	wmds_it_ok(
+		'and their images',
+		$vehicles && count( get_attached_media( 'image', $vehicles[0]->ID ) ) > 0
+	);
 } else {
 	WP_CLI::error( 'Unknown phase: ' . $wmds_it_phase );
 }

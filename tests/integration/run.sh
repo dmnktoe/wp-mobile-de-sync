@@ -111,10 +111,19 @@ wpcli core install \
 	--skip-email
 
 say "Plugin and harness in place"
-ln -sfn "$root" "$wp_path/wp-content/plugins/wp-mobile-de-sync"
+plugin_dir="$wp_path/wp-content/plugins/wp-mobile-de-sync"
+mkdir -p "$plugin_dir"
+for item in wp-mobile-de-sync.php uninstall.php readme.txt includes templates assets languages; do
+	if [ -e "$root/$item" ]; then
+		cp -R "$root/$item" "$plugin_dir/"
+	fi
+done
 mkdir -p "$wp_path/wp-content/mu-plugins"
 cp "$root/tests/integration/mu-plugin.php" "$wp_path/wp-content/mu-plugins/wmds-mock-transport.php"
 wpcli plugin activate wp-mobile-de-sync
+
+phase unconfigured
+
 wpcli option update wmds_settings --format=json "$(
 	printf '{"username":"%s","password":"%s","seller_id":"%s","language":"en","interval":"wmds_15min"}' \
 		"$WMDS_MOCK_USER" "$WMDS_MOCK_PASS" "$WMDS_MOCK_SELLER"
@@ -180,6 +189,19 @@ scenario '{"ads":["424776053","427312402"],"modified":{"427312402":"2026-07-29T0
 wpcli wmds sync
 phase updated
 
+say "One vehicle is reloaded on request"
+scenario '{"ads":["424776053","427312402"],"modified":{"427312402":"2026-07-29T09:00:00+02:00"},"model":{"424776053":"Defender 90 Works V8","427312402":"V90 Facelift Edition"}}'
+: > "$state/requests.log"
+outcome=$(wpcli eval '$importer = new WMDS_Importer(); $result = $importer->refresh( "424776053" ); echo is_wp_error( $result ) ? "error: " . $result->get_error_message() : $result["outcome"];')
+echo "$outcome"
+[ "$outcome" = "updated" ] || fail "The reload did not report an update: $outcome"
+grep -q '/search-api/ad/424776053' "$state/requests.log" \
+	|| fail "The reload did not call the single-ad endpoint."
+if grep -q '/search-api/search' "$state/requests.log"; then
+	fail "The reload ran a search; it is meant to fetch one ad."
+fi
+phase reloaded
+
 say "A vehicle disappears from the feed"
 scenario '{"ads":["424776053"]}'
 wpcli wmds sync --full --all
@@ -196,6 +218,19 @@ phase api-error
 
 say "Status"
 wpcli wmds status
+
+say "The German catalogue translates"
+phase translation
+
+say "Uninstall keeps the vehicles and removes the plugin's own data"
+wpcli option update wmds_dashboard --format=json '{"count":5,"orderby":"date"}'
+wpcli transient set wmds_makes VOLVO
+wpcli transient set wmds_notices_probe held
+wpcli user meta update admin wmds_dismissed stale
+wpcli plugin uninstall wp-mobile-de-sync --deactivate --skip-delete
+phase uninstalled
+
+[ -f "$root/wp-mobile-de-sync.php" ] || fail "The uninstall reached the working tree."
 
 echo
 echo "All integration phases passed."
