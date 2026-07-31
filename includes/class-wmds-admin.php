@@ -515,6 +515,8 @@ class WMDS_Admin {
 			'schedule'   => __( 'Schedule', 'wp-mobile-de-sync' ),
 			'status'     => __( 'Status & log', 'wp-mobile-de-sync' ),
 			'tools'      => __( 'Tools', 'wp-mobile-de-sync' ),
+			'system'     => __( 'System', 'wp-mobile-de-sync' ),
+			'about'      => __( 'About', 'wp-mobile-de-sync' ),
 		);
 	}
 
@@ -553,6 +555,10 @@ class WMDS_Admin {
 					self::tab_status( $status );
 				} elseif ( 'tools' === $tab ) {
 					self::tab_tools( $status );
+				} elseif ( 'system' === $tab ) {
+					self::tab_system();
+				} elseif ( 'about' === $tab ) {
+					self::tab_about();
 				} else {
 					self::tab_connection();
 				}
@@ -1183,6 +1189,203 @@ class WMDS_Admin {
 					</tr>
 				</tbody>
 			</table>
+		</div>
+		<?php
+	}
+
+	private static function tab_system() {
+		$checks = WMDS_Requirements::all();
+		$tally  = WMDS_Requirements::tally();
+
+		$grouped = array();
+		foreach ( $checks as $check ) {
+			$grouped[ $check['group'] ][] = $check;
+		}
+		?>
+		<div class="wmds-card">
+			<h2><?php esc_html_e( 'Requirements', 'wp-mobile-de-sync' ); ?></h2>
+
+			<?php if ( $tally['fail'] ) : ?>
+				<p class="wmds-requirement-summary wmds-requirement-fail">
+					<?php
+					echo esc_html(
+						sprintf(
+							/* translators: %d: number of failed requirement checks. */
+							_n(
+								'%d requirement is not met. The sync cannot work reliably until it is.',
+								'%d requirements are not met. The sync cannot work reliably until they are.',
+								$tally['fail'],
+								'wp-mobile-de-sync'
+							),
+							$tally['fail']
+						)
+					);
+					?>
+				</p>
+			<?php elseif ( $tally['warn'] ) : ?>
+				<p class="wmds-requirement-summary wmds-requirement-warn">
+					<?php
+					echo esc_html(
+						sprintf(
+							/* translators: %d: number of requirement checks worth a look. */
+							_n(
+								'Everything needed is in place. %d point is worth a look.',
+								'Everything needed is in place. %d points are worth a look.',
+								$tally['warn'],
+								'wp-mobile-de-sync'
+							),
+							$tally['warn']
+						)
+					);
+					?>
+				</p>
+			<?php else : ?>
+				<p class="wmds-requirement-summary wmds-requirement-ok">
+					<?php esc_html_e( 'Every check passed.', 'wp-mobile-de-sync' ); ?>
+				</p>
+			<?php endif; ?>
+
+			<?php foreach ( $grouped as $group => $rows ) : ?>
+				<h3><?php echo esc_html( $group ); ?></h3>
+				<table class="widefat striped wmds-table wmds-requirements">
+					<tbody>
+						<?php foreach ( $rows as $row ) : ?>
+							<tr class="wmds-requirement-row-<?php echo esc_attr( $row['status'] ); ?>">
+								<td class="wmds-requirement-label"><?php echo esc_html( $row['label'] ); ?></td>
+								<td class="wmds-requirement-value">
+									<span class="wmds-requirement-badge wmds-requirement-<?php echo esc_attr( $row['status'] ); ?>">
+										<?php echo esc_html( self::requirement_marker( $row['status'] ) ); ?>
+									</span>
+									<?php echo esc_html( $row['value'] ); ?>
+									<?php if ( '' !== $row['hint'] ) : ?>
+										<p class="description"><?php echo esc_html( $row['hint'] ); ?></p>
+									<?php endif; ?>
+								</td>
+							</tr>
+						<?php endforeach; ?>
+					</tbody>
+				</table>
+			<?php endforeach; ?>
+
+			<p class="description">
+				<?php
+				printf(
+					/* translators: %s: link to the WordPress site health screen, already marked up. */
+					esc_html__( 'WordPress collects more about this server under %s.', 'wp-mobile-de-sync' ),
+					sprintf(
+						'<a href="%s">%s</a>',
+						esc_url( admin_url( 'site-health.php?tab=debug' ) ),
+						esc_html__( 'Tools → Site Health → Info', 'wp-mobile-de-sync' )
+					)
+				);
+				?>
+			</p>
+		</div>
+		<?php
+	}
+
+	/**
+	 * @param string $status
+	 * @return string
+	 */
+	private static function requirement_marker( $status ) {
+		if ( WMDS_Requirements::FAIL === $status ) {
+			return _x( 'Problem', 'requirement check', 'wp-mobile-de-sync' );
+		}
+		if ( WMDS_Requirements::WARN === $status ) {
+			return _x( 'Note', 'requirement check', 'wp-mobile-de-sync' );
+		}
+
+		return _x( 'OK', 'requirement check', 'wp-mobile-de-sync' );
+	}
+
+	private static function tab_about() {
+		$state  = WMDS_Updater::state();
+		$newer  = '' !== $state['version'] && version_compare( $state['version'], WMDS_VERSION, '>' );
+		$counts = wp_count_posts( WMDS_CPT );
+		?>
+		<div class="wmds-card">
+			<h2><?php esc_html_e( 'mobile.de Sync', 'wp-mobile-de-sync' ); ?></h2>
+
+			<p>
+				<?php esc_html_e( 'Keeps a dealer\'s inventory on mobile.de and the vehicles on this site in step. The mobile.de Search API is read on a schedule and every ad becomes a regular WordPress post that themes, FacetWP and the block editor can work with like any other.', 'wp-mobile-de-sync' ); ?>
+			</p>
+
+			<table class="widefat striped wmds-table">
+				<tbody>
+					<tr>
+						<td><?php esc_html_e( 'Installed version', 'wp-mobile-de-sync' ); ?></td>
+						<td>
+							<?php echo esc_html( WMDS_VERSION ); ?>
+							<?php if ( $newer ) : ?>
+								<strong>
+									<?php
+									echo esc_html(
+										sprintf(
+											/* translators: %s: version number of the available release. */
+											__( '- version %s is available', 'wp-mobile-de-sync' ),
+											$state['version']
+										)
+									);
+									?>
+								</strong>
+							<?php endif; ?>
+						</td>
+					</tr>
+					<tr>
+						<td><?php esc_html_e( 'Vehicles published', 'wp-mobile-de-sync' ); ?></td>
+						<td><?php echo esc_html( isset( $counts->publish ) ? (string) (int) $counts->publish : '0' ); ?></td>
+					</tr>
+					<tr>
+						<td><?php esc_html_e( 'Post type', 'wp-mobile-de-sync' ); ?></td>
+						<td><code><?php echo esc_html( WMDS_CPT ); ?></code></td>
+					</tr>
+					<tr>
+						<td><?php esc_html_e( 'Shortcodes', 'wp-mobile-de-sync' ); ?></td>
+						<td><code>[vehicles]</code> <code>[vehicle-logo]</code></td>
+					</tr>
+					<tr>
+						<td><?php esc_html_e( 'Author', 'wp-mobile-de-sync' ); ?></td>
+						<td>
+							<a href="https://github.com/dmnktoe" target="_blank" rel="noopener noreferrer">Domenik Töfflinger</a>
+						</td>
+					</tr>
+					<tr>
+						<td><?php esc_html_e( 'Licence', 'wp-mobile-de-sync' ); ?></td>
+						<td>GPL-2.0-or-later</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+		<div class="wmds-card">
+			<h2><?php esc_html_e( 'Help and source', 'wp-mobile-de-sync' ); ?></h2>
+			<ul class="wmds-links">
+				<li>
+					<a href="https://github.com/dmnktoe/wp-mobile-de-sync" target="_blank" rel="noopener noreferrer">
+						<?php esc_html_e( 'Source code on GitHub', 'wp-mobile-de-sync' ); ?>
+					</a>
+				</li>
+				<li>
+					<a href="https://github.com/dmnktoe/wp-mobile-de-sync/issues" target="_blank" rel="noopener noreferrer">
+						<?php esc_html_e( 'Report a problem', 'wp-mobile-de-sync' ); ?>
+					</a>
+				</li>
+				<li>
+					<a href="https://github.com/dmnktoe/wp-mobile-de-sync/releases" target="_blank" rel="noopener noreferrer">
+						<?php esc_html_e( 'Release notes', 'wp-mobile-de-sync' ); ?>
+					</a>
+				</li>
+				<li>
+					<a href="https://services.mobile.de/manual/search-api.html" target="_blank" rel="noopener noreferrer">
+						<?php esc_html_e( 'mobile.de Search API documentation', 'wp-mobile-de-sync' ); ?>
+					</a>
+				</li>
+			</ul>
+
+			<p class="description">
+				<?php esc_html_e( 'Not affiliated with mobile.de. Access to the Search API is arranged with mobile.de directly.', 'wp-mobile-de-sync' ); ?>
+			</p>
 		</div>
 		<?php
 	}

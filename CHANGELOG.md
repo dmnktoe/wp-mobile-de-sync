@@ -3,6 +3,42 @@
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
+## [2.0.2] – 2026-07-31
+
+### Added
+- A "System" tab that checks what the plugin needs from the server: PHP and
+  WordPress version, the extensions it uses, GD or Imagick for the images,
+  execution time and memory limit, a writable uploads folder, permalinks and
+  mod_rewrite, WP-Cron, and whether outbound requests to mobile.de and GitHub
+  are allowed at all. Each entry says what it found and what to do about it.
+- An "About" tab with the installed version, the vehicles published, the post
+  type and shortcodes the plugin registers, and links to the source, the issue
+  tracker and the API documentation.
+
+### Fixed
+- A sync run was killed by PHP's execution limit. A batch is twenty vehicles
+  with up to fifteen images each, every one of them downloaded and resized,
+  which does not fit into the sixty seconds a lot of hosting allows — the run
+  died in the middle of resizing an image and took the rest of that WP-Cron
+  run with it. A pass now lifts the limit where the host permits it and, where
+  it does not, stops on its own clock with time to spare and leaves the rest
+  pending for the next run.
+- A run killed by a fatal error left its lock behind, so every run for the next
+  fifteen minutes gave up with "an import is already running". The lock is
+  released on shutdown now and a retry is queued for a minute later.
+- A vehicle lost its images when the run was killed while they were being
+  imported: the old ones were deleted before the first new one arrived. The
+  existing gallery is now kept until at least one new image is in, so an
+  interrupted import leaves the vehicle as it was rather than empty.
+- Vehicles could come out as changed on every single run. The modification date
+  was stored as the detail call worded it while the sync plan compares it
+  against the search result, and the two need not word the same moment the same
+  way. The date the plan compares against is the one stored.
+- Updates are written into WordPress's update transient as well. The
+  `Update URI` header is the documented route, but core only evaluates it after
+  its own call to api.wordpress.org has succeeded, and takes every self-hosted
+  update down with it when that call fails.
+
 ## [2.0.1] – 2026-07-31
 
 ### Fixed

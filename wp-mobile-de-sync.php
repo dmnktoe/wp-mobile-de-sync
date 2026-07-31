@@ -3,7 +3,7 @@
  * Plugin Name: mobile.de Sync
  * Plugin URI:  https://github.com/dmnktoe/wp-mobile-de-sync
  * Description: Synchronises a dealer's vehicle inventory from the mobile.de Search API into a "fahrzeuge" custom post type. Works with FacetWP and with existing theme templates.
- * Version:     2.0.1
+ * Version:     2.0.2
  * Author:      Domenik Töfflinger
  * Author URI:  https://github.com/dmnktoe
  * License:     GPL-2.0-or-later
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'WMDS_VERSION', '2.0.1' );
+define( 'WMDS_VERSION', '2.0.2' );
 define( 'WMDS_FILE', __FILE__ );
 define( 'WMDS_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WMDS_URL', plugin_dir_url( __FILE__ ) );
@@ -50,6 +50,7 @@ WMDS_Updater::init();
 
 // The status and the admin bar are needed on the front end too, where the
 // admin screens are not loaded.
+require_once WMDS_DIR . 'includes/class-wmds-requirements.php';
 require_once WMDS_DIR . 'includes/class-wmds-status.php';
 require_once WMDS_DIR . 'includes/class-wmds-adminbar.php';
 add_action( 'init', array( 'WMDS_Adminbar', 'init' ) );

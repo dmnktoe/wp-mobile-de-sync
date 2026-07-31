@@ -1256,3 +1256,298 @@ msgstr "Feinstaubplakette gelb"
 
 msgid "Emission sticker green"
 msgstr "Feinstaubplakette grün"
+
+#: includes/class-wmds-requirements.php
+msgid "Platform"
+msgstr "Plattform"
+
+#: includes/class-wmds-requirements.php
+msgid "PHP version"
+msgstr "PHP-Version"
+
+#: includes/class-wmds-requirements.php
+msgid "The plugin needs at least PHP %s."
+msgstr "Das Plugin benötigt mindestens PHP %s."
+
+#: includes/class-wmds-requirements.php
+msgid "This release no longer gets security fixes. PHP %s or newer is worth asking your host for."
+msgstr "Für diese Version gibt es keine Sicherheitsupdates mehr. Frage deinen Hoster nach PHP %s oder neuer."
+
+#: includes/class-wmds-requirements.php
+msgid "WordPress version"
+msgstr "WordPress-Version"
+
+#: includes/class-wmds-requirements.php
+msgid "The plugin needs at least WordPress %s."
+msgstr "Das Plugin benötigt mindestens WordPress %s."
+
+#: includes/class-wmds-requirements.php
+msgid "Reads the API responses."
+msgstr "Liest die Antworten der API."
+
+#: includes/class-wmds-requirements.php
+msgid "Needed for the HTTPS calls to mobile.de."
+msgstr "Wird für die HTTPS-Aufrufe zu mobile.de benötigt."
+
+#: includes/class-wmds-requirements.php
+msgid "WordPress falls back to PHP streams without it, which is slower."
+msgstr "Ohne die Erweiterung nutzt WordPress PHP-Streams, das ist langsamer."
+
+#: includes/class-wmds-requirements.php
+msgid "Without it, umlauts in descriptions can be cut off mid-character."
+msgstr "Ohne die Erweiterung können Umlaute in Beschreibungen mitten im Zeichen abgeschnitten werden."
+
+#: includes/class-wmds-requirements.php
+msgid "PHP extensions"
+msgstr "PHP-Erweiterungen"
+
+#: includes/class-wmds-requirements.php
+msgid "available"
+msgstr "vorhanden"
+
+#: includes/class-wmds-requirements.php
+msgid "missing"
+msgstr "fehlt"
+
+#: includes/class-wmds-requirements.php
+msgid "Image processing"
+msgstr "Bildbearbeitung"
+
+#: includes/class-wmds-requirements.php
+msgid "Without GD or Imagick, WordPress cannot make the thumbnail sizes for vehicle images."
+msgstr "Ohne GD oder Imagick kann WordPress keine Vorschaugrößen für Fahrzeugbilder erzeugen."
+
+#: includes/class-wmds-requirements.php
+msgid "no limit"
+msgstr "kein Limit"
+
+#: includes/class-wmds-requirements.php
+msgid "Low, but the plugin is allowed to raise it for the duration of a run."
+msgstr "Niedrig, das Plugin darf den Wert für die Dauer eines Laufs aber anheben."
+
+#: includes/class-wmds-requirements.php
+msgid "set_time_limit() is disabled here, so a run has to stop after a few vehicles and continue on the next one. %d seconds would let it work through a whole batch."
+msgstr "set_time_limit() ist hier deaktiviert, deshalb muss ein Lauf nach einigen Fahrzeugen aufhören und beim nächsten weitermachen. Mit %d Sekunden käme er durch einen ganzen Stapel."
+
+#: includes/class-wmds-requirements.php
+msgid "Limits"
+msgstr "Limits"
+
+#: includes/class-wmds-requirements.php
+msgid "Execution time"
+msgstr "Ausführungszeit"
+
+#: includes/class-wmds-requirements.php
+msgid "Memory limit"
+msgstr "Speicherlimit"
+
+#: includes/class-wmds-requirements.php
+msgid "Resizing large vehicle photos can run out of memory below %s."
+msgstr "Unter %s kann beim Verkleinern großer Fahrzeugfotos der Speicher ausgehen."
+
+#: includes/class-wmds-requirements.php
+msgid "WordPress"
+msgstr "WordPress"
+
+#: includes/class-wmds-requirements.php
+msgid "Uploads folder"
+msgstr "Uploads-Verzeichnis"
+
+#: includes/class-wmds-requirements.php
+msgid "writable"
+msgstr "beschreibbar"
+
+#: includes/class-wmds-requirements.php
+msgid "not writable"
+msgstr "nicht beschreibbar"
+
+#: includes/class-wmds-requirements.php
+msgid "Vehicle images are stored in the media library and cannot be written without it."
+msgstr "Fahrzeugbilder liegen in der Mediathek und lassen sich ohne Schreibrecht nicht ablegen."
+
+#: includes/class-wmds-requirements.php
+msgid "Permalinks"
+msgstr "Permalinks"
+
+#: includes/class-wmds-requirements.php
+msgid "pretty"
+msgstr "sprechend"
+
+#: includes/class-wmds-requirements.php
+msgid "plain"
+msgstr "einfach"
+
+#: includes/class-wmds-requirements.php
+msgid "Vehicle pages work either way, but their addresses stay numeric."
+msgstr "Fahrzeugseiten funktionieren so oder so, ihre Adressen bleiben aber numerisch."
+
+#: includes/class-wmds-requirements.php
+msgid "URL rewriting"
+msgstr "URL-Umschreibung"
+
+#: includes/class-wmds-requirements.php
+msgid "WP-Cron"
+msgstr "WP-Cron"
+
+#: includes/class-wmds-requirements.php
+msgid "disabled"
+msgstr "deaktiviert"
+
+#: includes/class-wmds-requirements.php
+msgid "enabled"
+msgstr "aktiviert"
+
+#: includes/class-wmds-requirements.php
+msgid "The recommended setting, as long as a system cron calls wp-cron.php regularly."
+msgstr "Die empfohlene Einstellung – vorausgesetzt, ein System-Cron ruft wp-cron.php regelmäßig auf."
+
+#: includes/class-wmds-requirements.php
+msgid "Runs are triggered by page views. On a quiet site they are delayed accordingly."
+msgstr "Läufe werden durch Seitenaufrufe ausgelöst. Bei wenig Verkehr verzögern sie sich entsprechend."
+
+#: includes/class-wmds-requirements.php
+msgid "Rewriting is handled by the server configuration."
+msgstr "Die Umschreibung erledigt die Serverkonfiguration."
+
+#: includes/class-wmds-requirements.php
+msgid "not detectable"
+msgstr "nicht ermittelbar"
+
+#: includes/class-wmds-requirements.php
+msgid "The server does not report its modules. If vehicle pages open, rewriting works."
+msgstr "Der Server meldet seine Module nicht. Wenn Fahrzeugseiten sich öffnen, funktioniert die Umschreibung."
+
+#: includes/class-wmds-requirements.php
+msgid "mod_rewrite active"
+msgstr "mod_rewrite aktiv"
+
+#: includes/class-wmds-requirements.php
+msgid "mod_rewrite missing"
+msgstr "mod_rewrite fehlt"
+
+#: includes/class-wmds-requirements.php
+msgid "Without it, pretty permalinks for vehicle pages cannot work."
+msgstr "Ohne das Modul können sprechende Permalinks für Fahrzeugseiten nicht funktionieren."
+
+#: includes/class-wmds-requirements.php
+msgid "Outbound requests"
+msgstr "Ausgehende Verbindungen"
+
+#: includes/class-wmds-requirements.php
+msgid "blocked"
+msgstr "blockiert"
+
+#: includes/class-wmds-requirements.php
+msgid "allowed"
+msgstr "erlaubt"
+
+#: includes/class-wmds-requirements.php
+msgid "WP_HTTP_BLOCK_EXTERNAL is set and these hosts are not in WP_ACCESSIBLE_HOSTS: %s"
+msgstr "WP_HTTP_BLOCK_EXTERNAL ist gesetzt und diese Hosts stehen nicht in WP_ACCESSIBLE_HOSTS: %s"
+
+#: includes/class-wmds-admin.php
+msgid "System"
+msgstr "System"
+
+#: includes/class-wmds-admin.php
+msgid "About"
+msgstr "Über"
+
+#: includes/class-wmds-admin.php
+msgid "Check for updates"
+msgstr "Nach Updates suchen"
+
+#: includes/class-wmds-admin.php
+msgid "Requirements"
+msgstr "Systemvoraussetzungen"
+
+#: includes/class-wmds-admin.php
+msgid "%d requirement is not met. The sync cannot work reliably until it is."
+msgid_plural "%d requirements are not met. The sync cannot work reliably until they are."
+msgstr[0] "%d Voraussetzung ist nicht erfüllt. Bis dahin kann die Synchronisation nicht zuverlässig arbeiten."
+msgstr[1] "%d Voraussetzungen sind nicht erfüllt. Bis dahin kann die Synchronisation nicht zuverlässig arbeiten."
+
+#: includes/class-wmds-admin.php
+msgid "Everything needed is in place. %d point is worth a look."
+msgid_plural "Everything needed is in place. %d points are worth a look."
+msgstr[0] "Alles Nötige ist vorhanden. %d Punkt lohnt einen Blick."
+msgstr[1] "Alles Nötige ist vorhanden. %d Punkte lohnen einen Blick."
+
+#: includes/class-wmds-admin.php
+msgid "Every check passed."
+msgstr "Alle Prüfungen bestanden."
+
+#: includes/class-wmds-admin.php
+msgid "WordPress collects more about this server under %s."
+msgstr "Mehr über diesen Server sammelt WordPress unter %s."
+
+#: includes/class-wmds-admin.php
+msgid "Tools → Site Health → Info"
+msgstr "Werkzeuge → Website-Zustand → Infos"
+
+#: includes/class-wmds-admin.php
+msgctxt "requirement check"
+msgid "Problem"
+msgstr "Problem"
+
+#: includes/class-wmds-admin.php
+msgctxt "requirement check"
+msgid "Note"
+msgstr "Hinweis"
+
+#: includes/class-wmds-admin.php
+msgctxt "requirement check"
+msgid "OK"
+msgstr "OK"
+
+#: includes/class-wmds-admin.php
+msgid "Keeps a dealer's inventory on mobile.de and the vehicles on this site in step. The mobile.de Search API is read on a schedule and every ad becomes a regular WordPress post that themes, FacetWP and the block editor can work with like any other."
+msgstr "Hält den Bestand eines Händlers auf mobile.de und die Fahrzeuge auf dieser Seite im Gleichstand. Die mobile.de Search-API wird nach Zeitplan gelesen, und jedes Inserat wird ein ganz normaler WordPress-Beitrag, mit dem Themes, FacetWP und der Block-Editor umgehen können wie mit jedem anderen."
+
+#: includes/class-wmds-admin.php
+msgid "Installed version"
+msgstr "Installierte Version"
+
+#: includes/class-wmds-admin.php
+msgid "- version %s is available"
+msgstr "– Version %s ist verfügbar"
+
+#: includes/class-wmds-admin.php
+msgid "Post type"
+msgstr "Inhaltstyp"
+
+#: includes/class-wmds-admin.php
+msgid "Shortcodes"
+msgstr "Shortcodes"
+
+#: includes/class-wmds-admin.php
+msgid "Author"
+msgstr "Autor"
+
+#: includes/class-wmds-admin.php
+msgid "Licence"
+msgstr "Lizenz"
+
+#: includes/class-wmds-admin.php
+msgid "Help and source"
+msgstr "Hilfe und Quellcode"
+
+#: includes/class-wmds-admin.php
+msgid "Source code on GitHub"
+msgstr "Quellcode auf GitHub"
+
+#: includes/class-wmds-admin.php
+msgid "Report a problem"
+msgstr "Problem melden"
+
+#: includes/class-wmds-admin.php
+msgid "Release notes"
+msgstr "Versionshinweise"
+
+#: includes/class-wmds-admin.php
+msgid "mobile.de Search API documentation"
+msgstr "Dokumentation der mobile.de Search-API"
+
+#: includes/class-wmds-admin.php
+msgid "Not affiliated with mobile.de. Access to the Search API is arranged with mobile.de directly."
+msgstr "Kein offizielles Angebot von mobile.de. Der Zugang zur Search-API wird direkt mit mobile.de vereinbart."

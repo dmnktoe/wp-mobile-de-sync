@@ -21,6 +21,18 @@ class WMDS_Importer {
 
 	const MAX_IMAGES = 15;
 
+	/**
+	 * Share of max_execution_time a pass may spend before it stops on its own.
+	 * The remainder is the safety margin for the vehicle still in flight.
+	 */
+	const BUDGET_SHARE = 0.6;
+
+	/** Ceiling for a single pass when PHP imposes no execution limit. */
+	const MAX_RUNTIME = 300;
+
+	/** Floor for the budget, so a tiny limit still gets a vehicle done. */
+	const MIN_RUNTIME = 20;
+
 	/** @var WMDS_Client */
 	private $client;
 	/** @var WMDS_Json_Mapper */
@@ -36,9 +48,12 @@ class WMDS_Importer {
 	}
 
 	/**
-	 * @param array $args full  Full reconciliation instead of incremental.
-	 *                    force Re-read unchanged vehicles as well.
-	 *                    batch Override the batch size for this pass.
+	 * @param array $args full   Full reconciliation instead of incremental.
+	 *                    force  Re-read unchanged vehicles as well.
+	 *                    batch  Override the batch size for this pass.
+	 *                    budget Seconds the vehicle loop may spend, overriding
+	 *                           what the execution limit allows. 0 stops after
+	 *                           the first vehicle.
 	 * @return array|WP_Error Statistics, or an error.
 	 */
 	public function run( array $args = array() ) {
@@ -53,16 +68,68 @@ class WMDS_Importer {
 		}
 
 		self::touch_lock();
+		self::guard_lock();
 
 		$stats = $this->execute(
 			! empty( $args['full'] ),
 			! empty( $args['force'] ),
-			isset( $args['batch'] ) ? max( 1, (int) $args['batch'] ) : self::BATCH
+			isset( $args['batch'] ) ? max( 1, (int) $args['batch'] ) : self::BATCH,
+			time() + ( isset( $args['budget'] ) ? max( 0, (int) $args['budget'] ) : self::budget() )
 		);
 
 		delete_transient( self::LOCK );
 
 		return $stats;
+	}
+
+	/**
+	 * Lifts PHP's execution limit for this pass where the host allows it, and
+	 * reports the seconds the pass may run either way.
+	 *
+	 * Cron runs get whatever max_execution_time the host sets - 60 seconds on
+	 * a lot of shared hosting, which a batch of vehicles with images blows
+	 * through. Raising the limit is the first attempt; the budget is what
+	 * keeps the pass finite when the host does not allow it.
+	 *
+	 * @return int Seconds this pass may spend on vehicles.
+	 */
+	private static function budget() {
+		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- disabled on many hosts, the budget below covers that case.
+		@set_time_limit( 0 );
+
+		$limit = (int) ini_get( 'max_execution_time' );
+
+		$budget = ( $limit > 0 ) ? (int) floor( $limit * self::BUDGET_SHARE ) : self::MAX_RUNTIME;
+
+		return max( self::MIN_RUNTIME, min( self::MAX_RUNTIME, $budget ) );
+	}
+
+	/**
+	 * Releases the lock when the pass dies on a fatal error.
+	 *
+	 * Without this the transient sits there for its full TTL and every cron
+	 * run in that window bails out with "an import is already running", which
+	 * turns a single crash into a quarter of an hour of standstill.
+	 */
+	private static function guard_lock() {
+		register_shutdown_function( array( __CLASS__, 'release_on_fatal' ) );
+	}
+
+	/**
+	 * Shutdown handler. Public because PHP has to be able to call it.
+	 */
+	public static function release_on_fatal() {
+		$error = error_get_last();
+
+		if ( ! $error || ! in_array( $error['type'], array( E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR ), true ) ) {
+			return;
+		}
+		if ( ! self::locked_since() ) {
+			return;
+		}
+
+		self::unlock();
+		wp_schedule_single_event( time() + 60, WMDS_CRON_HOOK );
 	}
 
 	public static function touch_lock() {
@@ -88,9 +155,10 @@ class WMDS_Importer {
 	 * @param bool $full
 	 * @param bool $force
 	 * @param int  $batch
+	 * @param int  $deadline Unix time the vehicle loop has to stop by.
 	 * @return array|WP_Error
 	 */
-	private function execute( $full, $force, $batch ) {
+	private function execute( $full, $force, $batch, $deadline = 0 ) {
 		$watermark = $full ? '' : (string) get_option( self::OPT_WATERMARK, '' );
 		$is_full   = ( '' === $watermark );
 
@@ -134,9 +202,29 @@ class WMDS_Importer {
 		$updated = 0;
 		$images  = 0;
 		$failed  = 0;
+		$done    = 0;
 
 		foreach ( $todo as $ad ) {
+			if ( $deadline && $done && time() >= $deadline ) {
+				$left     = count( $todo ) - $done;
+				$pending += $left;
+
+				$this->log(
+					sprintf(
+						'Pass stopped after %d vehicles to stay inside the execution limit, %d still to go.',
+						$done,
+						$left
+					)
+				);
+				break;
+			}
+
 			self::touch_lock();
+
+			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- disabled on many hosts, the deadline above covers that case.
+			@set_time_limit( 0 );
+
+			++$done;
 
 			$outcome = $this->process( $ad, $known, $images );
 			if ( 'created' === $outcome ) {
@@ -250,6 +338,8 @@ class WMDS_Importer {
 	private function process( array $ad, array $known, &$images, $detail = null ) {
 		$ad_id = (string) $ad['mobileAdId'];
 
+		$listed = isset( $ad['modificationDate'] ) ? (string) $ad['modificationDate'] : '';
+
 		if ( null === $detail ) {
 			$detail = $this->client->ad( $ad_id );
 		}
@@ -290,7 +380,7 @@ class WMDS_Importer {
 		$post_id = (int) $result;
 
 		update_post_meta( $post_id, self::META_AD_ID, $ad_id );
-		update_post_meta( $post_id, self::META_MODIFIED, $mapped['modified'] );
+		update_post_meta( $post_id, self::META_MODIFIED, '' !== $listed ? $listed : $mapped['modified'] );
 
 		$hash = WMDS_Sync_Plan::content_hash( $mapped );
 		if ( (string) get_post_meta( $post_id, self::META_HASH, true ) !== $hash ) {
@@ -341,9 +431,7 @@ class WMDS_Importer {
 		require_once ABSPATH . 'wp-admin/includes/media.php';
 		require_once ABSPATH . 'wp-admin/includes/image.php';
 
-		foreach ( get_attached_media( 'image', $post_id ) as $old ) {
-			wp_delete_attachment( $old->ID, true );
-		}
+		$replaced = get_attached_media( 'image', $post_id );
 
 		$first    = 0;
 		$imported = array();
@@ -374,8 +462,14 @@ class WMDS_Importer {
 			}
 		}
 
-		if ( $first ) {
-			set_post_thumbnail( $post_id, $first );
+		if ( ! $first ) {
+			return $imported;
+		}
+
+		set_post_thumbnail( $post_id, $first );
+
+		foreach ( $replaced as $old ) {
+			wp_delete_attachment( $old->ID, true );
 		}
 
 		return $imported;

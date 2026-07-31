@@ -23,6 +23,7 @@ class WMDS_Updater {
 		self::$slug     = dirname( self::$basename );
 
 		add_filter( 'update_plugins_' . self::HOST, array( __CLASS__, 'check' ), 10, 3 );
+		add_filter( 'site_transient_update_plugins', array( __CLASS__, 'inject' ) );
 		add_filter( 'plugins_api', array( __CLASS__, 'details' ), 10, 3 );
 		add_action( 'upgrader_process_complete', array( __CLASS__, 'after_update' ), 10, 2 );
 		add_action( 'after_plugin_row_' . self::$basename, array( __CLASS__, 'row_notice' ) );
@@ -44,6 +45,14 @@ class WMDS_Updater {
 			return $update;
 		}
 
+		return self::item( $release );
+	}
+
+	/**
+	 * @param array $release
+	 * @return array The shape WordPress stores in the update transient.
+	 */
+	private static function item( array $release ) {
 		return array(
 			'id'           => self::HOST . '/' . self::REPO,
 			'slug'         => self::$slug,
@@ -57,6 +66,67 @@ class WMDS_Updater {
 			'requires_php' => $release['requires_php'],
 			'icons'        => self::icons(),
 		);
+	}
+
+	/**
+	 * Writes the result into the transient WordPress reads, as a second route
+	 * next to the Update URI header.
+	 *
+	 * The header and update_plugins_{$hostname} are the documented way, but
+	 * core only walks that list once its own call to api.wordpress.org has
+	 * returned a 200 - a request this plugin has no part in. When it fails,
+	 * every self-hosted update silently goes missing with it. Filling the
+	 * transient in as it is read does not depend on that request.
+	 *
+	 * @param mixed $value The cached transient.
+	 * @return mixed
+	 */
+	public static function inject( $value ) {
+		if ( ! is_object( $value ) || '' === self::$basename ) {
+			return $value;
+		}
+
+		$cached  = get_transient( self::CACHE );
+		$release = self::usable( $cached )
+			? ( is_array( $cached['release'] ) ? $cached['release'] : false )
+			: ( self::checking() ? self::release() : false );
+
+		if ( ! $release ) {
+			return $value;
+		}
+
+		if ( ! isset( $value->response ) || ! is_array( $value->response ) ) {
+			$value->response = array();
+		}
+		if ( ! isset( $value->no_update ) || ! is_array( $value->no_update ) ) {
+			$value->no_update = array();
+		}
+
+		$item = (object) self::item( $release );
+
+		if ( version_compare( $release['version'], WMDS_VERSION, '>' ) ) {
+			$value->response[ self::$basename ] = $item;
+			unset( $value->no_update[ self::$basename ] );
+		} else {
+			$value->no_update[ self::$basename ] = $item;
+			unset( $value->response[ self::$basename ] );
+		}
+
+		return $value;
+	}
+
+	/**
+	 * @return bool Whether the current request is one that may spend an HTTP
+	 *              call on looking up a release.
+	 */
+	private static function checking() {
+		if ( self::forced() || wp_doing_cron() ) {
+			return true;
+		}
+
+		$pagenow = isset( $GLOBALS['pagenow'] ) ? (string) $GLOBALS['pagenow'] : '';
+
+		return in_array( $pagenow, array( 'update-core.php', 'plugins.php', 'update.php' ), true );
 	}
 
 	/**

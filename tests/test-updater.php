@@ -38,6 +38,12 @@ if ( ! function_exists( 'is_admin' ) ) {
 	}
 }
 
+if ( ! function_exists( 'wp_doing_cron' ) ) {
+	function wp_doing_cron() {
+		return ! empty( $GLOBALS['wmds_test_cron'] );
+	}
+}
+
 if ( ! function_exists( 'delete_transient' ) ) {
 	function delete_transient( $key ) {
 		unset( $GLOBALS['wmds_test_transients'][ $key ] );
@@ -275,5 +281,53 @@ wmds_assert( 'and no version is claimed with it', '', $state['version'] );
 WMDS_Updater::flush();
 
 wmds_assert( 'flushing leaves nothing behind', '', WMDS_Updater::state()['error'] );
+
+wmds_section( 'The update is written into the transient as well' );
+
+// Installed is 1.0.0 throughout this file.
+wmds_seed_lookup( '2.0.1' );
+
+$transient = WMDS_Updater::inject( (object) array( 'last_checked' => time() ) );
+
+wmds_assert( 'listed as an update', true, isset( $transient->response[ $basename ] ) );
+wmds_assert( 'with the new version', '2.0.1', $transient->response[ $basename ]->new_version );
+wmds_assert_contains( 'and the ZIP to install', '.zip', $transient->response[ $basename ]->package );
+wmds_assert( 'not also filed as current', false, isset( $transient->no_update[ $basename ] ) );
+
+wmds_section( 'Being up to date is reported as such' );
+
+wmds_seed_lookup( '1.0.0' );
+
+$transient = WMDS_Updater::inject( (object) array( 'last_checked' => time() ) );
+
+wmds_assert( 'no update offered', false, isset( $transient->response[ $basename ] ) );
+wmds_assert( 'filed as current instead', true, isset( $transient->no_update[ $basename ] ) );
+
+wmds_section( 'A stale entry from an earlier check is corrected' );
+
+wmds_seed_lookup( '2.0.1' );
+
+$stale = (object) array(
+	'last_checked' => time(),
+	'no_update'    => array( $basename => (object) array( 'new_version' => '1.0.0' ) ),
+);
+
+$transient = WMDS_Updater::inject( $stale );
+
+wmds_assert( 'moved over to the updates', '2.0.1', $transient->response[ $basename ]->new_version );
+wmds_assert( 'and no longer counted as current', false, isset( $transient->no_update[ $basename ] ) );
+
+wmds_section( 'Nothing is invented without a lookup' );
+
+WMDS_Updater::flush();
+$GLOBALS['wmds_http_calls'] = 0;
+
+$untouched = (object) array( 'last_checked' => time() );
+$transient = WMDS_Updater::inject( $untouched );
+
+wmds_assert( 'no HTTP call on an ordinary page', 0, $GLOBALS['wmds_http_calls'] );
+wmds_assert( 'and nothing added', false, isset( $transient->response[ $basename ] ) );
+
+wmds_assert( 'a transient that is not an object is passed through', false, WMDS_Updater::inject( false ) );
 
 wmds_result();
