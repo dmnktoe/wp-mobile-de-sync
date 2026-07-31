@@ -555,8 +555,8 @@ $three_images = array(
 list( $importer, $client ) = wmds_setup(
 	array( wmds_ad( '111', '2026-07-28T18:29:13+02:00', array( 'images' => $three_images ) ) )
 );
-$stats   = $importer->run();
-$post_id = wmds_post_for( '111' );
+$stats                     = $importer->run();
+$post_id                   = wmds_post_for( '111' );
 
 wmds_assert( 'two of three landed', 2, $stats['images'] );
 // The decisive assertion: only what arrived is on file. Storing all three
@@ -576,7 +576,7 @@ $GLOBALS['wp_fake']['downloaded'] = array();
 list( $importer, $client ) = wmds_setup(
 	array( wmds_ad( '111', '2026-07-28T18:29:13+02:00', array( 'images' => $three_images ) ) )
 );
-$stats = $importer->run( array( 'force' => true ) );
+$stats                     = $importer->run( array( 'force' => true ) );
 
 wmds_assert( 'all three now', 3, $stats['images'] );
 wmds_assert( 'complete set on file', array( 'a', 'b', 'c' ), get_post_meta( $post_id, WMDS_Importer::META_IMAGES, true ) );
@@ -584,10 +584,10 @@ wmds_assert( 'complete set on file', array( 'a', 'b', 'c' ), get_post_meta( $pos
 wmds_section( 'A complete set is not fetched again' );
 
 $GLOBALS['wp_fake']['downloaded'] = array();
-list( $importer, $client ) = wmds_setup(
+list( $importer, $client )        = wmds_setup(
 	array( wmds_ad( '111', '2026-07-28T18:29:13+02:00', array( 'images' => $three_images ) ) )
 );
-$stats = $importer->run();
+$stats                            = $importer->run();
 
 wmds_assert( 'nothing re-downloaded', 0, count( wmds_fake( 'downloaded' ) ) );
 wmds_assert( 'skipped as unchanged', 1, $stats['skipped'] );
@@ -606,18 +606,18 @@ foreach ( range( 1, WMDS_Importer::MAX_IMAGES + 5 ) as $n ) {
 list( $importer, $client ) = wmds_setup(
 	array( wmds_ad( '111', '2026-07-28T18:29:13+02:00', array( 'images' => $many ) ) )
 );
-$stats   = $importer->run();
-$post_id = wmds_post_for( '111' );
+$stats                     = $importer->run();
+$post_id                   = wmds_post_for( '111' );
 
 wmds_assert( 'capped at MAX_IMAGES', WMDS_Importer::MAX_IMAGES, $stats['images'] );
 
 // Without capping before the comparison, the stored 15 would differ from the
 // feed's 20 on every run and every run would re-download all fifteen.
 $GLOBALS['wp_fake']['downloaded'] = array();
-list( $importer, $client ) = wmds_setup(
+list( $importer, $client )        = wmds_setup(
 	array( wmds_ad( '111', '2026-07-28T18:29:13+02:00', array( 'images' => $many ) ) )
 );
-$stats = $importer->run( array( 'force' => true ) );
+$stats                            = $importer->run( array( 'force' => true ) );
 
 wmds_assert( 'a forced re-read does not re-download', 0, count( wmds_fake( 'downloaded' ) ) );
 wmds_assert( 'and adds no images', 0, $stats['images'] );
@@ -642,28 +642,28 @@ foreach ( array( '1', '2', '3', '4' ) as $seed ) {
 	$ads[] = wmds_ad( $seed );
 }
 list( $importer, $client ) = wmds_setup( $ads );
-$importer->run( array( 'full' => true ) );
 
-$sold = wmds_post_for( '5' );
-$kept = wmds_post_for( '1' );
+// Vehicle 5 is the one that vanishes from the feed. Give it a gallery before
+// the run, because that is what has to survive being trashed.
+$sold                                       = wmds_post_for( '5' );
+$GLOBALS['wp_fake']['attachments'][ $sold ] = array( 901, 902 );
+
+$importer->run( array( 'full' => true ) );
 
 wmds_assert( 'the sold one is in the trash', 'trash', wmds_fake( 'posts' )[ $sold ]['post_status'] );
 // The recovery window is the point of using the trash: restoring the post has
 // to bring the gallery back, so removal must not touch the attachments.
-wmds_assert( 'its images survive the trashing', true, ! empty( wmds_fake( 'attachments' )[ $kept ] ) );
+wmds_assert( 'its images survive the trashing', 2, count( wmds_fake( 'attachments' )[ $sold ] ) );
 
 wmds_section( 'Permanent deletion takes the images with it' );
 
-$before = count( wmds_fake( 'attachments' )[ $kept ] );
-wmds_assert( 'images on file to begin with', true, $before > 0 );
-
-WMDS_Importer::delete_attachments( $kept );
-wmds_assert( 'attachments gone', 0, count( wmds_fake( 'attachments' )[ $kept ] ) );
+WMDS_Importer::delete_attachments( $sold );
+wmds_assert( 'attachments gone', 0, count( wmds_fake( 'attachments' )[ $sold ] ) );
 
 wmds_section( 'Other post types are left alone' );
 
 wmds_fake_reset();
-$other = wp_insert_post(
+$other                                       = wp_insert_post(
 	array(
 		'post_type'  => 'post',
 		'post_title' => 'An ordinary post',
