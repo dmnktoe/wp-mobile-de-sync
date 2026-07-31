@@ -38,6 +38,8 @@ wmds_section( 'Search URL: incremental sync sets the time filter and sorting' );
 $inc = $client->search_url( 1, 100, '2026-07-30T10:00:00+02:00' );
 wmds_assert_contains( 'time filter set', 'modificationTime.min=', $inc );
 wmds_assert_contains( 'plus sign encoded', '%2B02%3A00', $inc );
+wmds_assert( 'no raw plus reaches the query', false, strpos( $inc, ':00+02:00' ) );
+wmds_assert( 'no raw colon reaches the query', false, strpos( $inc, 'min=2026-07-30T10:00' ) );
 wmds_assert_contains( 'sorted ascending', 'sort.order=ASCENDING', $inc );
 wmds_assert( 'no sorting without a time filter', false, strpos( $client->search_url(), 'sort.field' ) );
 

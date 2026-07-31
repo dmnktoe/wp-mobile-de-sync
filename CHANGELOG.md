@@ -62,6 +62,17 @@ versioning follows [Semantic Versioning](https://semver.org/).
   CI runs it on every push.
 
 ### Fixed
+- The search query left unencoded. `add_query_arg()` hands values through
+  untouched — `build_query()` calls `_http_build_query()` with
+  `$urlencode = false` — so the watermark of an incremental run went out as
+  `modificationTime.min=2026-07-28T20:06:51+00:00`, with a raw plus where a
+  query string means a space. A dealer name containing an ampersand would
+  have split into two parameters. The query is now assembled with
+  `rawurlencode()`.
+
+  The stub in `tests/bootstrap.php` encoded where WordPress does not, so a
+  test asserting "plus sign encoded" passed against a URL the plugin never
+  produced. The stub now behaves like the function it stands in for.
 - A partial image failure was recorded as a complete import. As soon as one
   image of a vehicle arrived, the hashes of **all** of them were stored, so a
   vehicle that lost image 7 of 15 to a timeout never got it back — the run

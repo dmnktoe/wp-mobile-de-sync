@@ -190,8 +190,8 @@ phase full-sync
 say "Incremental sync without changes"
 : > "$state/requests.log"
 wpcli wmds sync
-grep -q 'modificationTime.min=' "$state/requests.log" \
-	|| fail "The incremental run did not send a watermark."
+grep -q 'modificationTime.min=2026-07-28T20%3A06%3A51%2B00%3A00' "$state/requests.log" \
+	|| fail "The watermark did not reach the wire URL-encoded."
 phase unchanged
 
 say "One vehicle changes"

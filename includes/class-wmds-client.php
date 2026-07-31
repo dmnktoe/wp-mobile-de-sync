@@ -67,7 +67,20 @@ class WMDS_Client {
 			$args['sort.order']           = 'ASCENDING';
 		}
 
-		return add_query_arg( $args, self::BASE . '/search' );
+		return self::BASE . '/search?' . self::query( $args );
+	}
+
+	/**
+	 * @param array $args
+	 * @return string
+	 */
+	private static function query( array $args ) {
+		$pairs = array();
+		foreach ( $args as $key => $value ) {
+			$pairs[] = rawurlencode( $key ) . '=' . rawurlencode( $value );
+		}
+
+		return implode( '&', $pairs );
 	}
 
 	/**
