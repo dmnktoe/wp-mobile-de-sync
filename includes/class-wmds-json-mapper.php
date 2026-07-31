@@ -410,12 +410,10 @@ class WMDS_Json_Mapper {
 				continue;
 			}
 
-			$key = self::screaming_snake( $field );
+			$key  = self::screaming_snake( $field );
+			$name = isset( self::$feature_aliases[ $key ] ) ? self::$feature_aliases[ $key ] : $key;
 
-			foreach ( array( $key, isset( self::$feature_aliases[ $key ] ) ? self::$feature_aliases[ $key ] : '' ) as $name ) {
-				if ( '' === $name || isset( $out[ $name ] ) ) {
-					continue;
-				}
+			if ( ! isset( $out[ $name ] ) ) {
 				$out[ $name ] = isset( $labels[ $name ] ) ? $labels[ $name ] : self::humanise( $name );
 			}
 		}

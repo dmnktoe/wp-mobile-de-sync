@@ -263,7 +263,7 @@ Every template is resolved through the same hierarchy, first match wins:
 |---|---|
 | `single-fahrzeuge.php` | the detail page |
 | `archive-fahrzeuge.php` | the vehicle archive |
-| `mob_vehicle-list.php` | `[fahrzeuge-anzeigen]` |
+| `mob_vehicle-list.php` | `[vehicles]`, and its alias `[fahrzeuge-anzeigen]` |
 | `parts/vehicle-card.php` | one card, used by the last two |
 
 The card is a part of its own, so a theme can restyle the grid item without

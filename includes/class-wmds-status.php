@@ -134,6 +134,20 @@ class WMDS_Status {
 		);
 	}
 
+	/**
+	 * @param bool $ok
+	 */
+	public static function record_test( $ok ) {
+		update_option(
+			self::OPT_LAST_TEST,
+			array(
+				'time' => current_time( 'mysql' ),
+				'ok'   => (bool) $ok,
+			),
+			false
+		);
+	}
+
 	/** @return bool Whether a connection test or a sync run has succeeded. */
 	public static function tested() {
 		$test = get_option( self::OPT_LAST_TEST, array() );

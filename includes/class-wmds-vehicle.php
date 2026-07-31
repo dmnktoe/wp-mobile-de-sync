@@ -233,8 +233,9 @@ class WMDS_Vehicle {
 	public function features() {
 		$out = array();
 
-		$stored = array_filter( explode( ',', $this->get( 'feature_keys' ) ) );
-		$keys   = $stored ? $stored : WMDS_Json_Mapper::feature_keys();
+		$keys = isset( $this->meta['feature_keys'] )
+			? array_filter( explode( ',', $this->get( 'feature_keys' ) ) )
+			: WMDS_Json_Mapper::feature_keys();
 
 		foreach ( $keys as $key ) {
 			$label = $this->get( $key );

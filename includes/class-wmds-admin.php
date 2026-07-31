@@ -221,14 +221,7 @@ class WMDS_Admin {
 	private static function test_result() {
 		$result = WMDS_Settings::client()->search( 1, 1 );
 
-		update_option(
-			WMDS_Status::OPT_LAST_TEST,
-			array(
-				'time' => current_time( 'mysql' ),
-				'ok'   => ! is_wp_error( $result ),
-			),
-			false
-		);
+		WMDS_Status::record_test( ! is_wp_error( $result ) );
 
 		if ( is_wp_error( $result ) ) {
 			return array(
@@ -1118,7 +1111,14 @@ class WMDS_Admin {
 						);
 						?>
 					</p>
-					<?php self::action_button( 'unlock', __( 'Release the lock', 'wp-mobile-de-sync' ), 'secondary' ); ?>
+					<?php
+					self::action_button(
+						'unlock',
+						__( 'Release the lock', 'wp-mobile-de-sync' ),
+						'secondary',
+						__( 'Release the lock only once you are sure no import is still running. Two runs writing the same vehicles at once will conflict. Continue?', 'wp-mobile-de-sync' )
+					);
+					?>
 				</div>
 			<?php endif; ?>
 			<p class="description">

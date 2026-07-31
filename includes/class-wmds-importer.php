@@ -66,7 +66,9 @@ class WMDS_Importer {
 	}
 
 	public static function touch_lock() {
-		set_transient( self::LOCK, time(), self::LOCK_TTL );
+		$started = self::locked_since();
+
+		set_transient( self::LOCK, $started ? $started : time(), self::LOCK_TTL );
 	}
 
 	public static function unlock() {

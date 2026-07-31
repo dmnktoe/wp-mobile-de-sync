@@ -16,7 +16,7 @@ class WMDS_Stickers {
 	);
 
 	/**
-	 * @var array<string, string>
+	 * @var array<int, string>
 	 */
 	private static $groups = array(
 		'2' => 'red',

@@ -197,7 +197,9 @@ $unknown = $mapper->map( array( 'heatedWindscreen' => true ) );
 wmds_assert( 'an unknown boolean gets a readable label', 'Heated windscreen', $unknown['meta']['HEATED_WINDSCREEN'] );
 
 $legacy = $mapper->map( array( 'nonSmokerVehicle' => true ) );
-wmds_assert( 'the legacy spelling comes along', 'Non-smoker vehicle', $legacy['meta']['NONSMOKER_VEHICLE'] );
+wmds_assert( 'an alias resolves to the key the templates read', 'Non-smoker vehicle', $legacy['meta']['NONSMOKER_VEHICLE'] );
+wmds_assert( 'and only to that one', false, isset( $legacy['meta']['NON_SMOKER_VEHICLE'] ) );
+wmds_assert( 'the index carries it once', 'NONSMOKER_VEHICLE', $legacy['meta']['feature_keys'] );
 
 $off = $mapper->map( array( 'sunroof' => false ) );
 wmds_assert( 'a false boolean is no feature', false, isset( $off['meta']['SUNROOF'] ) );
