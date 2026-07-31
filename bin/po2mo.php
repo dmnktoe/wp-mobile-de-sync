@@ -39,9 +39,11 @@ function wmds_po_parse( $path ) {
 	$entries = array();
 	$current = array(
 		'id'     => null,
+		'ctx'    => '',
 		'plural' => null,
 		'str'    => array(),
 	);
+	$pending = '';
 	$field   = null;
 	$index   = 0;
 
@@ -50,15 +52,20 @@ function wmds_po_parse( $path ) {
 			return;
 		}
 
-		$key = ( null === $current['plural'] )
+		$key = ( '' === $current['ctx'] )
 			? $current['id']
-			: $current['id'] . "\0" . $current['plural'];
+			: $current['ctx'] . "\4" . $current['id'];
+
+		if ( null !== $current['plural'] ) {
+			$key .= "\0" . $current['plural'];
+		}
 
 		ksort( $current['str'] );
 		$entries[ $key ] = implode( "\0", $current['str'] );
 
 		$current = array(
 			'id'     => null,
+			'ctx'    => '',
 			'plural' => null,
 			'str'    => array(),
 		);
@@ -71,6 +78,13 @@ function wmds_po_parse( $path ) {
 			continue;
 		}
 
+		if ( 0 === strpos( $line, 'msgctxt ' ) ) {
+			$flush();
+			$pending = wmds_po_chunk( $line );
+			$field   = 'ctx';
+			continue;
+		}
+
 		if ( 0 === strpos( $line, 'msgid_plural ' ) ) {
 			$current['plural'] = wmds_po_chunk( $line );
 			$field             = 'plural';
@@ -79,8 +93,10 @@ function wmds_po_parse( $path ) {
 
 		if ( 0 === strpos( $line, 'msgid ' ) ) {
 			$flush();
-			$current['id'] = wmds_po_chunk( $line );
-			$field         = 'id';
+			$current['ctx'] = $pending;
+			$pending        = '';
+			$current['id']  = wmds_po_chunk( $line );
+			$field          = 'id';
 			continue;
 		}
 
@@ -103,6 +119,8 @@ function wmds_po_parse( $path ) {
 
 			if ( 'id' === $field ) {
 				$current['id'] .= $chunk;
+			} elseif ( 'ctx' === $field ) {
+				$pending .= $chunk;
 			} elseif ( 'plural' === $field ) {
 				$current['plural'] .= $chunk;
 			} else {
@@ -144,6 +162,10 @@ function wmds_mo_build( array $entries ) {
 		$cursor  += strlen( $str ) + 1;
 	}
 
+	// The hash table is empty, but its address still has to sit right behind
+	// the translation table: WordPress derives that table's length from
+	// hash_addr - translations_addr and refuses the file when the two do not
+	// come out at total * 8.
 	$header = pack(
 		'VVVVVVV',
 		0x950412de,
@@ -152,7 +174,7 @@ function wmds_mo_build( array $entries ) {
 		28,
 		28 + ( $count * 8 ),
 		0,
-		0
+		$ids_start
 	);
 
 	return $header . $id_tbl . $str_tbl . $ids . $strings;
