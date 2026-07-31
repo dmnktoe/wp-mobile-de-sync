@@ -528,4 +528,150 @@ wmds_assert( 'nothing skipped', 0, $stats['skipped'] );
 wmds_assert( 'updated', 1, $stats['updated'] );
 wmds_assert( 'detail call happened', array( '111' ), $client->fetched );
 
+// ====================================================================
+// 9. Image bookkeeping
+// ====================================================================
+
+wmds_section( 'A partial image failure is not recorded as complete' );
+
+wmds_fake_reset();
+$GLOBALS['wp_fake']['unloadable'] = array( 'https://img.example.invalid/111-b.jpg' );
+
+$three_images = array(
+	array(
+		'hash' => 'a',
+		'xxxl' => 'https://img.example.invalid/111-a.jpg',
+	),
+	array(
+		'hash' => 'b',
+		'xxxl' => 'https://img.example.invalid/111-b.jpg',
+	),
+	array(
+		'hash' => 'c',
+		'xxxl' => 'https://img.example.invalid/111-c.jpg',
+	),
+);
+
+list( $importer, $client ) = wmds_setup(
+	array( wmds_ad( '111', '2026-07-28T18:29:13+02:00', array( 'images' => $three_images ) ) )
+);
+$stats   = $importer->run();
+$post_id = wmds_post_for( '111' );
+
+wmds_assert( 'two of three landed', 2, $stats['images'] );
+// The decisive assertion: only what arrived is on file. Storing all three
+// would mark the vehicle complete and it would never be repaired.
+wmds_assert( 'only the successful hashes stored', array( 'a', 'c' ), get_post_meta( $post_id, WMDS_Importer::META_IMAGES, true ) );
+wmds_assert(
+	'the gap is still visible to the next run',
+	true,
+	WMDS_Sync_Plan::images_changed( get_post_meta( $post_id, WMDS_Importer::META_IMAGES, true ), $three_images )
+);
+
+wmds_section( 'The next run repairs it' );
+
+$GLOBALS['wp_fake']['unloadable'] = array();
+$GLOBALS['wp_fake']['downloaded'] = array();
+
+list( $importer, $client ) = wmds_setup(
+	array( wmds_ad( '111', '2026-07-28T18:29:13+02:00', array( 'images' => $three_images ) ) )
+);
+$stats = $importer->run( array( 'force' => true ) );
+
+wmds_assert( 'all three now', 3, $stats['images'] );
+wmds_assert( 'complete set on file', array( 'a', 'b', 'c' ), get_post_meta( $post_id, WMDS_Importer::META_IMAGES, true ) );
+
+wmds_section( 'A complete set is not fetched again' );
+
+$GLOBALS['wp_fake']['downloaded'] = array();
+list( $importer, $client ) = wmds_setup(
+	array( wmds_ad( '111', '2026-07-28T18:29:13+02:00', array( 'images' => $three_images ) ) )
+);
+$stats = $importer->run();
+
+wmds_assert( 'nothing re-downloaded', 0, count( wmds_fake( 'downloaded' ) ) );
+wmds_assert( 'skipped as unchanged', 1, $stats['skipped'] );
+
+wmds_section( 'More images than the cap does not loop forever' );
+
+wmds_fake_reset();
+$many = array();
+foreach ( range( 1, WMDS_Importer::MAX_IMAGES + 5 ) as $n ) {
+	$many[] = array(
+		'hash' => 'h' . $n,
+		'xxxl' => 'https://img.example.invalid/111-' . $n . '.jpg',
+	);
+}
+
+list( $importer, $client ) = wmds_setup(
+	array( wmds_ad( '111', '2026-07-28T18:29:13+02:00', array( 'images' => $many ) ) )
+);
+$stats   = $importer->run();
+$post_id = wmds_post_for( '111' );
+
+wmds_assert( 'capped at MAX_IMAGES', WMDS_Importer::MAX_IMAGES, $stats['images'] );
+
+// Without capping before the comparison, the stored 15 would differ from the
+// feed's 20 on every run and every run would re-download all fifteen.
+$GLOBALS['wp_fake']['downloaded'] = array();
+list( $importer, $client ) = wmds_setup(
+	array( wmds_ad( '111', '2026-07-28T18:29:13+02:00', array( 'images' => $many ) ) )
+);
+$stats = $importer->run( array( 'force' => true ) );
+
+wmds_assert( 'a forced re-read does not re-download', 0, count( wmds_fake( 'downloaded' ) ) );
+wmds_assert( 'and adds no images', 0, $stats['images'] );
+
+// ====================================================================
+// 10. Attachment cleanup
+// ====================================================================
+
+// What is NOT covered here: that delete_attachments() is wired to
+// before_delete_post rather than to trashing. That is a line in the main
+// plugin file and needs a real WordPress to exercise.
+
+wmds_section( 'A sold vehicle goes to the trash with its gallery intact' );
+
+wmds_fake_reset();
+foreach ( array( '1', '2', '3', '4', '5' ) as $seed ) {
+	wmds_fake_seed_vehicle( $seed );
+}
+
+$ads = array();
+foreach ( array( '1', '2', '3', '4' ) as $seed ) {
+	$ads[] = wmds_ad( $seed );
+}
+list( $importer, $client ) = wmds_setup( $ads );
+$importer->run( array( 'full' => true ) );
+
+$sold = wmds_post_for( '5' );
+$kept = wmds_post_for( '1' );
+
+wmds_assert( 'the sold one is in the trash', 'trash', wmds_fake( 'posts' )[ $sold ]['post_status'] );
+// The recovery window is the point of using the trash: restoring the post has
+// to bring the gallery back, so removal must not touch the attachments.
+wmds_assert( 'its images survive the trashing', true, ! empty( wmds_fake( 'attachments' )[ $kept ] ) );
+
+wmds_section( 'Permanent deletion takes the images with it' );
+
+$before = count( wmds_fake( 'attachments' )[ $kept ] );
+wmds_assert( 'images on file to begin with', true, $before > 0 );
+
+WMDS_Importer::delete_attachments( $kept );
+wmds_assert( 'attachments gone', 0, count( wmds_fake( 'attachments' )[ $kept ] ) );
+
+wmds_section( 'Other post types are left alone' );
+
+wmds_fake_reset();
+$other = wp_insert_post(
+	array(
+		'post_type'  => 'post',
+		'post_title' => 'An ordinary post',
+	)
+);
+$GLOBALS['wp_fake']['attachments'][ $other ] = array( 901, 902 );
+
+WMDS_Importer::delete_attachments( $other );
+wmds_assert( 'untouched', 2, count( wmds_fake( 'attachments' )[ $other ] ) );
+
 wmds_result();

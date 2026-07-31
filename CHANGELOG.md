@@ -3,6 +3,28 @@
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Fixed
+- A partial image failure was recorded as a complete import. As soon as one
+  image of a vehicle arrived, the hashes of **all** of them were stored, so a
+  vehicle that lost image 7 of 15 to a timeout never got it back — the run
+  reported success and the gap became permanent. Only the images that actually
+  landed are recorded now, which leaves the difference visible and repairs it
+  on the next run.
+- A vehicle's images stayed in the media library forever once the vehicle was
+  gone. Deleting a vehicle for good now deletes its images with it. Trashing
+  deliberately does not: a vehicle in the trash can be restored, and restoring
+  it has to bring the gallery back — that recovery window is why removal uses
+  the trash in the first place. WordPress empties the trash on its own
+  schedule, so the images do go eventually.
+
+### Changed
+- The per-vehicle image cap is applied before the hash comparison rather than
+  inside the import. With more images in the feed than the cap allows, the
+  stored list would otherwise differ from the feed on every run and every run
+  would re-download the whole gallery.
+
 ## [1.0.0] – 2026-07-30
 
 First release.
