@@ -70,4 +70,4 @@ jobs:
 
             Requires at least: 5.8
             Requires PHP: 7.0
-            Tested up to: 6.8
+            Tested up to: 7.0

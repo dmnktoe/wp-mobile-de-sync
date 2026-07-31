@@ -51,6 +51,19 @@ class WMDS_Updater {
 			'package'      => $release['package'],
 			'tested'       => $release['tested'],
 			'requires_php' => $release['requires_php'],
+			'icons'        => self::icons(),
+		);
+	}
+
+	/**
+	 * @return array<string,string> Icon URLs, keyed as WordPress asks for them.
+	 */
+	private static function icons() {
+		$url = WMDS_URL . 'assets/icon.svg';
+
+		return array(
+			'svg'     => $url,
+			'default' => $url,
 		);
 	}
 
@@ -81,6 +94,7 @@ class WMDS_Updater {
 			'tested'        => $release['tested'],
 			'last_updated'  => $release['date'],
 			'download_link' => $release['package'],
+			'icons'         => self::icons(),
 			'sections'      => array(
 				'description' => wpautop( esc_html__( 'Synchronises a dealer\'s vehicle inventory from the mobile.de Search API into a "fahrzeuge" custom post type. Works with FacetWP and with existing theme templates.', 'wp-mobile-de-sync' ) ),
 				'changelog'   => $release['changelog'],
