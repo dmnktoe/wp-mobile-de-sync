@@ -4,7 +4,7 @@ Tags: mobile.de, vehicles, dealership, import, facetwp
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 2.0.0
+Stable tag: 2.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -112,6 +112,15 @@ Pkw-EnVKV, so the bundled German catalogue carries the statutory wording rather
 than a translation of the English source.
 
 == Changelog ==
+
+= 2.0.1 =
+* Fixed: 2.0.0 was never offered as an update. The lookup against GitHub was
+  cached for six hours with no way around it, so a site that had checked while
+  1.0.2 was current kept being told 1.0.2 was current. The cache lives an hour
+  now, is dropped when the installed version changes, and "Check again" gets
+  past it.
+* New: "Check for updates" on the plugins screen, and a failed check now states
+  its reason there instead of looking like "you are up to date".
 
 = 2.0.0 =
 * The shortcodes are English: `[vehicles]` and `[vehicle-logo]`. The German

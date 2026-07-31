@@ -3,6 +3,27 @@
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
+## [2.0.1] – 2026-07-31
+
+### Fixed
+- 2.0.0 never showed up as an update. The lookup against GitHub was cached for
+  six hours and nothing could get past that cache — not the plugins screen, not
+  "Check again" on Dashboard → Updates. A site that had looked while 1.0.2 was
+  the newest release kept being told 1.0.2 was the newest release, and 2.0.0
+  came out under two hours later. The cache lives an hour now, is dropped as
+  soon as the installed version changes, and "Check again", WP-CLI and the new
+  `wmds_force_update_check` filter go straight past it.
+- The update check told WordPress the PHP version a release needs but not the
+  WordPress version, so the compatibility line on the updates screen had
+  nothing to go on.
+
+### Added
+- "Check for updates" next to "Settings" on the plugins screen. It discards
+  both caches and takes you to the updates screen with a forced check.
+- A failed check states its reason under the plugin on the plugins screen. A
+  used-up GitHub rate limit, a blocked outbound request and a release without a
+  ZIP were all indistinguishable from "you are up to date".
+
 ## [2.0.0] – 2026-07-31
 
 ### Changed
