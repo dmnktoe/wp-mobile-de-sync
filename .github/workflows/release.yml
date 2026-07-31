@@ -46,6 +46,7 @@ jobs:
           rsync -a --exclude-from=- ./ build/$SLUG/ <<'EOF'
           .git/
           .github/
+          bin/
           build/
           tests/
           vendor/

@@ -5,6 +5,53 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+- A German translation ships with the plugin. Until now a plugin written for
+  German dealerships presented itself in English on every screen.
+  `bin/po2mo.php` compiles the catalogue, because the project has no build step
+  and `msgfmt` is not installed everywhere.
+- An admin bar item carries the sync state and the inventory size — on the
+  front end as well, which is where a stale inventory is actually noticed. Its
+  menu holds the last result, the time to the next run, "Sync now", and on a
+  vehicle page a link to the source ad plus a reload for that one vehicle.
+- A dashboard widget with the newest vehicles, configurable in count and sort
+  order, plus an entry in "At a Glance".
+- The vehicle list shows photo, make and model, price, mileage, first
+  registration and the ad ID. Price, mileage and first registration sort;
+  vehicles missing the sorted-on value stay in the list rather than dropping
+  out of it. A filter by make and the row actions "Reload from mobile.de" and
+  "View on mobile.de" come with it.
+- The edit form states that the importer owns the record, and a meta box shows
+  the ad ID, the modification date, the photo count and a reload button. The
+  importer used to overwrite manual edits without ever having said so.
+- A full sync can be forced from the settings screen. The capability existed —
+  `wmds_force_full_sync` discards the watermark — but hung off the daily cron
+  event only, with no way to reach it.
+- A notice on every admin screen when the sync needs attention, dismissible per
+  user and re-armed when the state changes to something else. A broken sync was
+  previously invisible from anywhere but its own settings page.
+- A "Settings" link on the plugins screen, a checklist that carries a fresh
+  install through setup, a log that filters down to problems and can be
+  downloaded or cleared, and a button that deletes the stored credentials.
+- `WMDS_Importer::refresh()` re-reads a single ad. Unlike a scheduled run it
+  fails loudly: a manual repair that silently writes a half-mapped record would
+  be worse than one that does nothing.
+
+### Changed
+- The settings screen is split into Connection, Schedule, Status & log and
+  Tools, with the health state above the tabs.
+- Actions on the settings screen now go through `admin-post.php` and leave
+  through a redirect. Previously every action hung off `admin_init` on a plain
+  POST, so reloading the page after "Sync now" ran the sync again.
+- "Test connection" and "Sync now" run over AJAX. The sync drives one batch per
+  request and reports real progress, instead of holding a single request open
+  across the whole inventory and hoping it finishes before the PHP timeout.
+- Seller ID and dealer name are an explicit either/or now, and saving clears
+  the unused one. Two equal-looking fields, only one of which the client ever
+  sends, invited exactly the wrong guess.
+- The label language is a list of the languages the reference data actually
+  comes in, not a free-text field.
+
 ### Fixed
 - A partial image failure was recorded as a complete import. As soon as one
   image of a vehicle arrived, the hashes of **all** of them were stored, so a

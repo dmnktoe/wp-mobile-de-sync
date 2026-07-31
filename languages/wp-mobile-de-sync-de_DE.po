@@ -1,0 +1,1113 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: wp-mobile-de-sync 1.0.0\n"
+"Report-Msgid-Bugs-To: https://github.com/dmnktoe/wp-mobile-de-sync/issues\n"
+"Language: de_DE\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Domain: wp-mobile-de-sync\n"
+
+#: wp-mobile-de-sync.php:79 wp-mobile-de-sync.php:81
+msgid "Vehicles"
+msgstr "Fahrzeuge"
+
+#: wp-mobile-de-sync.php:80 includes/class-wmds-vehicle.php:158
+msgid "Vehicle"
+msgstr "Fahrzeug"
+
+#: wp-mobile-de-sync.php:82
+msgid "All Vehicles"
+msgstr "Alle Fahrzeuge"
+
+#: wp-mobile-de-sync.php:83
+msgid "Add New"
+msgstr "Erstellen"
+
+#: wp-mobile-de-sync.php:84
+msgid "Add New Vehicle"
+msgstr "Neues Fahrzeug"
+
+#: wp-mobile-de-sync.php:85
+msgid "Edit Vehicle"
+msgstr "Fahrzeug bearbeiten"
+
+#: wp-mobile-de-sync.php:86
+msgid "View Vehicle"
+msgstr "Fahrzeug ansehen"
+
+#: wp-mobile-de-sync.php:87
+msgid "Search Vehicles"
+msgstr "Fahrzeuge durchsuchen"
+
+#: wp-mobile-de-sync.php:88
+msgid "No vehicles found"
+msgstr "Keine Fahrzeuge gefunden"
+
+#. translators: %d: number of minutes between sync runs.
+#: wp-mobile-de-sync.php:181
+msgid "Every %d minutes (mobile.de Sync)"
+msgstr "Alle %d Minuten (mobile.de Sync)"
+
+#: includes/class-wmds-admin.php:33
+msgid "Sync Settings"
+msgstr "Sync-Einstellungen"
+
+#: includes/class-wmds-admin.php:50
+msgid "Settings"
+msgstr "Einstellungen"
+
+#: includes/class-wmds-admin.php:82
+msgid "Testing the connection…"
+msgstr "Verbindung wird getestet …"
+
+#: includes/class-wmds-admin.php:83
+msgid "Starting…"
+msgstr "Wird gestartet …"
+
+#. translators: 1: vehicles processed so far, 2: total to process.
+#: includes/class-wmds-admin.php:85
+msgid "%1$d of %2$d vehicles processed"
+msgstr "%1$d von %2$d Fahrzeugen verarbeitet"
+
+#. translators: 1: vehicles processed so far, 2: total to process.
+#: includes/class-wmds-admin.php:86
+msgid "Sync finished."
+msgstr "Sync abgeschlossen."
+
+#. translators: 1: vehicles processed so far, 2: total to process.
+#: includes/class-wmds-admin.php:87
+msgid "The request failed. The browser could not reach WordPress."
+msgstr "Die Anfrage ist fehlgeschlagen. Der Browser konnte WordPress nicht erreichen."
+
+#: includes/class-wmds-admin.php:101 includes/class-wmds-admin.php:408
+msgid "You are not allowed to do this."
+msgstr "Dafür fehlt die Berechtigung."
+
+#: includes/class-wmds-admin.php:196
+msgid "Settings saved."
+msgstr "Einstellungen gespeichert."
+
+#: includes/class-wmds-admin.php:209
+msgid "Credentials deleted. Nothing is imported until new ones are stored."
+msgstr "Zugangsdaten gelöscht. Bis neue hinterlegt sind, wird nichts importiert."
+
+#. translators: %s: error message returned by the API.
+#: includes/class-wmds-admin.php:241
+msgid "Connection test failed: %s"
+msgstr "Verbindungstest fehlgeschlagen: %s"
+
+#. translators: %d: number of vehicles in the inventory.
+#: includes/class-wmds-admin.php:249
+msgid "Connection OK – %d vehicles in the inventory."
+msgstr "Verbindung in Ordnung – %d Fahrzeuge im Bestand."
+
+#. translators: %d: maximum number of ads reachable through pagination.
+#: includes/class-wmds-admin.php:256
+msgid "Warning: across paginated pages the API hands out at most %d vehicles, so a reconciliation would be incomplete."
+msgstr "Achtung: Über paginierte Seiten gibt die API höchstens %d Fahrzeuge heraus, ein Abgleich wäre also unvollständig."
+
+#. translators: %s: error message from the import run.
+#: includes/class-wmds-admin.php:275
+msgid "Run failed: %s"
+msgstr "Lauf fehlgeschlagen: %s"
+
+#. translators: %d: number of vehicles still pending.
+#: includes/class-wmds-admin.php:287
+msgid "%d vehicles still pending – the rest continues automatically."
+msgstr "Noch %d Fahrzeuge offen – der Rest läuft automatisch weiter."
+
+#: includes/class-wmds-admin.php:315
+msgid "Watermark discarded. The next run reads the whole inventory again and is the first one allowed to remove sold vehicles."
+msgstr "Änderungsstand verworfen. Der nächste Lauf liest den gesamten Bestand neu ein und darf als Erster verkaufte Fahrzeuge entfernen."
+
+#: includes/class-wmds-admin.php:324
+msgid "Reference data discarded. It will be fetched again on the next run."
+msgstr "Referenzdaten verworfen. Sie werden beim nächsten Lauf neu geholt."
+
+#: includes/class-wmds-admin.php:330
+msgid "Log cleared."
+msgstr "Protokoll geleert."
+
+#: includes/class-wmds-admin.php:342
+msgid "That is not a vehicle."
+msgstr "Das ist kein Fahrzeug."
+
+#: includes/class-wmds-admin.php:348
+msgid "This vehicle has no mobile.de ad ID and cannot be reloaded."
+msgstr "Zu diesem Fahrzeug gibt es keine mobile.de-Anzeigen-ID, es lässt sich nicht neu einlesen."
+
+#. translators: %s: error message from the API.
+#: includes/class-wmds-admin.php:363
+msgid "Reload failed: %s"
+msgstr "Neu einlesen fehlgeschlagen: %s"
+
+#. translators: %s: the vehicle title.
+#: includes/class-wmds-admin.php:376
+msgid "“%s” was read again from mobile.de."
+msgstr "„%s“ wurde erneut von mobile.de eingelesen."
+
+#: includes/class-wmds-admin.php:526
+msgid "mobile.de Sync:"
+msgstr "mobile.de Sync:"
+
+#: includes/class-wmds-admin.php:529
+msgid "Open settings"
+msgstr "Einstellungen öffnen"
+
+#: includes/class-wmds-admin.php:540 includes/class-wmds-admin.php:1083
+msgid "Connection"
+msgstr "Verbindung"
+
+#: includes/class-wmds-admin.php:541
+msgid "Schedule"
+msgstr "Zeitplan"
+
+#: includes/class-wmds-admin.php:542
+msgid "Status & log"
+msgstr "Status & Protokoll"
+
+#: includes/class-wmds-admin.php:543
+msgid "Tools"
+msgstr "Werkzeuge"
+
+#: includes/class-wmds-admin.php:559
+msgid "mobile.de Sync"
+msgstr "mobile.de Sync"
+
+#: includes/class-wmds-admin.php:565
+msgid "Settings sections"
+msgstr "Bereiche der Einstellungen"
+
+#: includes/class-wmds-admin.php:606
+msgid "Vehicles published"
+msgstr "Veröffentlichte Fahrzeuge"
+
+#: includes/class-wmds-admin.php:612 includes/class-wmds-admin.php:940
+msgid "Last run"
+msgstr "Letzter Lauf"
+
+#: includes/class-wmds-admin.php:620 includes/class-wmds-admin.php:926
+msgid "not scheduled"
+msgstr "nicht eingeplant"
+
+#: includes/class-wmds-admin.php:624
+msgid "Next run in"
+msgstr "Nächster Lauf in"
+
+#: includes/class-wmds-admin.php:631 includes/class-wmds-admin.php:957
+msgid "incremental"
+msgstr "inkrementell"
+
+#: includes/class-wmds-admin.php:632
+msgid "full"
+msgstr "vollständig"
+
+#: includes/class-wmds-admin.php:636
+msgid "Next run type"
+msgstr "Art des nächsten Laufs"
+
+#: includes/class-wmds-admin.php:657
+msgid "Store the mobile.de credentials"
+msgstr "Zugangsdaten von mobile.de hinterlegen"
+
+#: includes/class-wmds-admin.php:659
+msgid "Enter now"
+msgstr "Jetzt eintragen"
+
+#: includes/class-wmds-admin.php:663
+msgid "Test the connection"
+msgstr "Verbindung testen"
+
+#: includes/class-wmds-admin.php:665
+msgid "Run the test"
+msgstr "Test starten"
+
+#: includes/class-wmds-admin.php:669
+msgid "Import the inventory once"
+msgstr "Bestand einmal importieren"
+
+#: includes/class-wmds-admin.php:671
+msgid "Start the import"
+msgstr "Import starten"
+
+#: includes/class-wmds-admin.php:675
+msgid "Confirm the schedule is running"
+msgstr "Prüfen, ob der Zeitplan läuft"
+
+#: includes/class-wmds-admin.php:677
+msgid "Check"
+msgstr "Prüfen"
+
+#: includes/class-wmds-admin.php:682
+msgid "Getting started"
+msgstr "Erste Schritte"
+
+#: includes/class-wmds-admin.php:715
+msgid "API credentials"
+msgstr "API-Zugangsdaten"
+
+#: includes/class-wmds-admin.php:719
+msgid "Username"
+msgstr "Benutzername"
+
+#: includes/class-wmds-admin.php:724
+msgid "Your mobile.de API username."
+msgstr "Der API-Benutzername von mobile.de."
+
+#: includes/class-wmds-admin.php:729
+msgid "Password"
+msgstr "Passwort"
+
+#: includes/class-wmds-admin.php:735
+msgid "········ (stored)"
+msgstr "········ (hinterlegt)"
+
+#: includes/class-wmds-admin.php:738
+msgid "Show password"
+msgstr "Passwort anzeigen"
+
+#: includes/class-wmds-admin.php:743
+msgid "Stored unencrypted in the WordPress database, as is usual for options. Leave empty to keep the stored password."
+msgstr "Wird unverschlüsselt in der WordPress-Datenbank abgelegt, wie bei Optionen üblich. Leer lassen, um das hinterlegte Passwort zu behalten."
+
+#: includes/class-wmds-admin.php:751
+msgid "Which inventory"
+msgstr "Welcher Bestand"
+
+#: includes/class-wmds-admin.php:753
+msgid "Pick one route. Saving clears the other one, so what this form shows is what the plugin actually sends."
+msgstr "Einen der beiden Wege wählen. Beim Speichern wird der andere geleert, damit hier steht, was das Plugin tatsächlich sendet."
+
+#: includes/class-wmds-admin.php:759
+msgid "Seller ID"
+msgstr "Verkäufer-ID"
+
+#: includes/class-wmds-admin.php:760
+msgid "recommended"
+msgstr "empfohlen"
+
+#: includes/class-wmds-admin.php:764
+msgid "e.g. 12345678"
+msgstr "z. B. 12345678"
+
+#: includes/class-wmds-admin.php:767
+msgid "The dealer's numeric identifier and the only route mobile.de documents for addressing an inventory."
+msgstr "Die numerische Kennung des Händlers und der einzige Weg, den mobile.de für die Adressierung eines Bestands dokumentiert."
+
+#: includes/class-wmds-admin.php:773
+msgid "Dealer name (vanity)"
+msgstr "Händlername (Vanity)"
+
+#: includes/class-wmds-admin.php:774
+msgid "undocumented"
+msgstr "undokumentiert"
+
+#: includes/class-wmds-admin.php:778
+msgid "e.g. EXAMPLEDEALER"
+msgstr "z. B. BEISPIELHAENDLER"
+
+#. translators: %s: the URL pattern home.mobile.de/NAME, already marked up.
+#: includes/class-wmds-admin.php:784
+msgid "The name from %s. This parameter is undocumented and may disappear at any time."
+msgstr "Der Name aus %s. Dieser Parameter ist undokumentiert und kann jederzeit verschwinden."
+
+#: includes/class-wmds-admin.php:793 includes/class-wmds-admin.php:869
+msgid "Save"
+msgstr "Speichern"
+
+#: includes/class-wmds-admin.php:798 includes/class-wmds-admin.php:805
+msgid "Delete credentials"
+msgstr "Zugangsdaten löschen"
+
+#: includes/class-wmds-admin.php:800
+msgid "Removes username, password and the addressing from the database. Already imported vehicles stay untouched."
+msgstr "Entfernt Benutzername, Passwort und die Adressierung aus der Datenbank. Bereits importierte Fahrzeuge bleiben unangetastet."
+
+#: includes/class-wmds-admin.php:807
+msgid "Delete the stored credentials?"
+msgstr "Die hinterlegten Zugangsdaten löschen?"
+
+#: includes/class-wmds-admin.php:822
+msgid "Interval"
+msgstr "Intervall"
+
+#: includes/class-wmds-admin.php:825
+msgid "Run every"
+msgstr "Lauf alle"
+
+#: includes/class-wmds-admin.php:830
+msgid "Every 5 minutes"
+msgstr "Alle 5 Minuten"
+
+#: includes/class-wmds-admin.php:831
+msgid "Every 15 minutes (recommended)"
+msgstr "Alle 15 Minuten (empfohlen)"
+
+#: includes/class-wmds-admin.php:832
+msgid "Every 30 minutes"
+msgstr "Alle 30 Minuten"
+
+#: includes/class-wmds-admin.php:833
+msgid "Hourly"
+msgstr "Stündlich"
+
+#: includes/class-wmds-admin.php:846
+msgid "A run fetches only what changed and is therefore cheap. Once a day a full reconciliation runs in addition – only after one of those are sold vehicles moved to the trash."
+msgstr "Ein Lauf holt nur, was sich geändert hat, und ist deshalb günstig. Einmal täglich läuft zusätzlich ein vollständiger Abgleich – erst danach wandern verkaufte Fahrzeuge in den Papierkorb."
+
+#: includes/class-wmds-admin.php:851
+msgid "Label language"
+msgstr "Sprache der Bezeichnungen"
+
+#: includes/class-wmds-admin.php:855
+msgid "Site language"
+msgstr "Sprache der Website"
+
+#: includes/class-wmds-admin.php:864
+msgid "Language of the reference-data labels (transmission, fuel, colours …). These are resolved at import time, so a change takes effect after the next full sync."
+msgstr "Sprache der Bezeichnungen aus den Referenzdaten (Getriebe, Kraftstoff, Farben …). Sie werden beim Import aufgelöst, eine Änderung greift deshalb erst nach dem nächsten vollständigen Sync."
+
+#: includes/class-wmds-admin.php:874
+msgid "How WordPress triggers this"
+msgstr "Wie WordPress das auslöst"
+
+#: includes/class-wmds-admin.php:885
+msgid "German"
+msgstr "Deutsch"
+
+#: includes/class-wmds-admin.php:886
+msgid "English"
+msgstr "Englisch"
+
+#: includes/class-wmds-admin.php:887
+msgid "French"
+msgstr "Französisch"
+
+#: includes/class-wmds-admin.php:888
+msgid "Italian"
+msgstr "Italienisch"
+
+#: includes/class-wmds-admin.php:889
+msgid "Spanish"
+msgstr "Spanisch"
+
+#: includes/class-wmds-admin.php:890
+msgid "Dutch"
+msgstr "Niederländisch"
+
+#: includes/class-wmds-admin.php:891
+msgid "Polish"
+msgstr "Polnisch"
+
+#. translators: 1: DISABLE_WP_CRON, 2: wp cron event run --due-now, 3: wp-cron.php - all marked up as code.
+#: includes/class-wmds-admin.php:906
+msgid "<strong>WP-Cron is disabled</strong> (%1$s). That is the recommended setting – provided a system cron calls %2$s or %3$s regularly. Without that, no sync happens at all."
+msgstr "<strong>WP-Cron ist deaktiviert</strong> (%1$s). Das ist die empfohlene Einstellung – vorausgesetzt, ein System-Cron ruft regelmäßig %2$s oder %3$s auf. Ohne das findet überhaupt kein Sync statt."
+
+#. translators: %s: the DISABLE_WP_CRON define, already marked up as code.
+#: includes/class-wmds-admin.php:916
+msgid "<strong>WP-Cron is triggered by page views, not by a clock.</strong> With little traffic on the site, runs are delayed accordingly. More reliable is %s plus a cron job at your host."
+msgstr "<strong>WP-Cron wird von Seitenaufrufen ausgelöst, nicht von einer Uhr.</strong> Bei wenig Verkehr auf der Website verzögern sich die Läufe entsprechend. Zuverlässiger ist %s zusammen mit einem Cronjob beim Hoster."
+
+#: includes/class-wmds-admin.php:925
+msgid "Next scheduled run:"
+msgstr "Nächster geplanter Lauf:"
+
+#: includes/class-wmds-admin.php:942
+msgid "No run has completed yet."
+msgstr "Bisher ist kein Lauf durchgelaufen."
+
+#: includes/class-wmds-admin.php:947 includes/class-wmds-admin.php:1033
+msgid "Time"
+msgstr "Zeitpunkt"
+
+#: includes/class-wmds-admin.php:951
+msgid "Type"
+msgstr "Art"
+
+#: includes/class-wmds-admin.php:956
+msgid "full reconciliation"
+msgstr "vollständiger Abgleich"
+
+#: includes/class-wmds-admin.php:963
+msgid "Result"
+msgstr "Ergebnis"
+
+#: includes/class-wmds-admin.php:968
+msgid "Failed"
+msgstr "Fehlgeschlagen"
+
+#. translators: %d: number of vehicles that could not be processed.
+#: includes/class-wmds-admin.php:974
+msgid "%d vehicles could not be processed"
+msgstr "%d Fahrzeuge konnten nicht verarbeitet werden"
+
+#: includes/class-wmds-admin.php:984
+msgid "Still queued"
+msgstr "Noch in der Warteschlange"
+
+#. translators: %d: number of vehicles still pending.
+#: includes/class-wmds-admin.php:990
+msgid "%d vehicles"
+msgstr "%d Fahrzeuge"
+
+#: includes/class-wmds-admin.php:1005
+msgid "Log"
+msgstr "Protokoll"
+
+#: includes/class-wmds-admin.php:1010
+msgid "Problems only"
+msgstr "Nur Probleme"
+
+#: includes/class-wmds-admin.php:1013
+msgid "Download"
+msgstr "Herunterladen"
+
+#: includes/class-wmds-admin.php:1018
+msgid "Clear"
+msgstr "Leeren"
+
+#: includes/class-wmds-admin.php:1020
+msgid "Clear the log?"
+msgstr "Das Protokoll leeren?"
+
+#: includes/class-wmds-admin.php:1028
+msgid "The log is empty."
+msgstr "Das Protokoll ist leer."
+
+#: includes/class-wmds-admin.php:1034
+msgid "Message"
+msgstr "Meldung"
+
+#: includes/class-wmds-admin.php:1075
+msgid "Store the credentials first."
+msgstr "Zuerst die Zugangsdaten hinterlegen."
+
+#: includes/class-wmds-admin.php:1077
+msgid "Go to the connection settings"
+msgstr "Zu den Verbindungseinstellungen"
+
+#: includes/class-wmds-admin.php:1084
+msgid "Asks mobile.de for a single vehicle. Writes nothing."
+msgstr "Fragt bei mobile.de ein einzelnes Fahrzeug ab. Schreibt nichts."
+
+#: includes/class-wmds-admin.php:1087 includes/class-wmds-admin.php:1092
+msgid "Test connection"
+msgstr "Verbindung testen"
+
+#: includes/class-wmds-admin.php:1097
+msgid "Import"
+msgstr "Import"
+
+#: includes/class-wmds-admin.php:1099
+msgid "Runs the sync in batches of 20 vehicles and keeps going until nothing is left. Leaving this page stops it — the schedule picks the rest up on its own."
+msgstr "Führt den Sync in Paketen von 20 Fahrzeugen aus, bis nichts mehr offen ist. Wer diese Seite verlässt, bricht ihn ab – den Rest holt der Zeitplan von selbst nach."
+
+#: includes/class-wmds-admin.php:1103 includes/class-wmds-admin.php:1112 includes/class-wmds-adminbar.php:178
+msgid "Sync now"
+msgstr "Jetzt synchronisieren"
+
+#. translators: %s: the WP-CLI command, already marked up.
+#: includes/class-wmds-admin.php:1118
+msgid "For the very first import of a large inventory the command line has no time limit and is the better route: %s"
+msgstr "Für den allerersten Import eines großen Bestands kennt die Kommandozeile kein Zeitlimit und ist der bessere Weg: %s"
+
+#: includes/class-wmds-admin.php:1126
+msgid "Maintenance"
+msgstr "Wartung"
+
+#: includes/class-wmds-admin.php:1131
+msgid "Force a full sync"
+msgstr "Vollständigen Sync erzwingen"
+
+#: includes/class-wmds-admin.php:1133
+msgid "Discards the watermark. The next run reads every ad again instead of only the changed ones, and it is the first one allowed to remove sold vehicles."
+msgstr "Verwirft den Änderungsstand. Der nächste Lauf liest wieder jede Anzeige statt nur der geänderten und darf als Erster verkaufte Fahrzeuge entfernen."
+
+#: includes/class-wmds-admin.php:1140
+msgid "Force"
+msgstr "Erzwingen"
+
+#: includes/class-wmds-admin.php:1142
+msgid "This discards the watermark, so the next run re-reads the whole inventory. Continue?"
+msgstr "Damit wird der Änderungsstand verworfen, der nächste Lauf liest den gesamten Bestand neu ein. Fortfahren?"
+
+#: includes/class-wmds-admin.php:1149
+msgid "Re-fetch reference data"
+msgstr "Referenzdaten neu holen"
+
+#: includes/class-wmds-admin.php:1151
+msgid "Throws away the cached labels for transmission, fuel and colours, plus the logo index."
+msgstr "Wirft die zwischengespeicherten Bezeichnungen für Getriebe, Kraftstoff und Farben weg, dazu den Logo-Index."
+
+#: includes/class-wmds-admin.php:1155
+msgid "Discard"
+msgstr "Verwerfen"
+
+#. translators: %d: number of vehicles in the inventory.
+#: includes/class-wmds-adminbar.php:66 templates/archive-fahrzeuge.php:23
+msgid "%d vehicle"
+msgid_plural "%d vehicles"
+msgstr[0] "%d Fahrzeug"
+msgstr[1] "%d Fahrzeuge"
+
+#: includes/class-wmds-adminbar.php:63
+msgid "mobile.de"
+msgstr "mobile.de"
+
+#: includes/class-wmds-adminbar.php:104
+msgid "Enter credentials"
+msgstr "Zugangsdaten eintragen"
+
+#. translators: 1: date and time of the last run, 2: its result.
+#: includes/class-wmds-adminbar.php:119
+msgid "Last run: %1$s — %2$s"
+msgstr "Letzter Lauf: %1$s — %2$s"
+
+#. translators: %s: a human-readable duration, e.g. "12 mins".
+#: includes/class-wmds-adminbar.php:135
+msgid "Next run in %s"
+msgstr "Nächster Lauf in %s"
+
+#: includes/class-wmds-adminbar.php:138
+msgid "No run scheduled"
+msgstr "Kein Lauf eingeplant"
+
+#. translators: %d: number of vehicles still queued.
+#: includes/class-wmds-adminbar.php:150
+msgid "%d vehicles still queued"
+msgstr "Noch %d Fahrzeuge in der Warteschlange"
+
+#: includes/class-wmds-adminbar.php:168 includes/class-wmds-dashboard.php:237
+msgid "All vehicles"
+msgstr "Alle Fahrzeuge"
+
+#: includes/class-wmds-adminbar.php:188 includes/class-wmds-dashboard.php:244
+msgid "Sync settings"
+msgstr "Sync-Einstellungen"
+
+#: includes/class-wmds-adminbar.php:219 includes/class-wmds-posts.php:426
+msgid "Reload this vehicle"
+msgstr "Dieses Fahrzeug neu einlesen"
+
+#: includes/class-wmds-adminbar.php:230 includes/class-wmds-posts.php:418
+msgid "View the ad on mobile.de"
+msgstr "Anzeige auf mobile.de ansehen"
+
+#. translators: %s: number of vehicles, already formatted.
+#: includes/class-wmds-dashboard.php:260
+msgid "%s Vehicle"
+msgid_plural "%s Vehicles"
+msgstr[0] "%s Fahrzeug"
+msgstr[1] "%s Fahrzeuge"
+
+#: includes/class-wmds-dashboard.php:29
+msgid "mobile.de — newest vehicles"
+msgstr "mobile.de – neueste Fahrzeuge"
+
+#: includes/class-wmds-dashboard.php:61
+msgid "Newest import first"
+msgstr "Zuletzt importierte zuerst"
+
+#: includes/class-wmds-dashboard.php:62
+msgid "Most recently changed first"
+msgstr "Zuletzt geänderte zuerst"
+
+#: includes/class-wmds-dashboard.php:63
+msgid "Most expensive first"
+msgstr "Teuerste zuerst"
+
+#: includes/class-wmds-dashboard.php:87
+msgid "Number of vehicles"
+msgstr "Anzahl der Fahrzeuge"
+
+#: includes/class-wmds-dashboard.php:95
+msgid "Sort by"
+msgstr "Sortierung"
+
+#: includes/class-wmds-dashboard.php:115
+msgid "No vehicles yet."
+msgstr "Noch keine Fahrzeuge."
+
+#. translators: %s: date and time of the last run.
+#: includes/class-wmds-dashboard.php:147
+msgid "last run %s"
+msgstr "letzter Lauf %s"
+
+#: includes/class-wmds-dashboard.php:160
+msgid "Open sync settings"
+msgstr "Sync-Einstellungen öffnen"
+
+#: includes/class-wmds-json-mapper.php:194
+msgid "New inspection on purchase"
+msgstr "HU/AU neu bei Kauf"
+
+#: includes/class-wmds-json-mapper.php:226
+msgid "Immediately"
+msgstr "Sofort"
+
+#: includes/class-wmds-json-mapper.php:288
+msgid "ABS"
+msgstr "ABS"
+
+#: includes/class-wmds-json-mapper.php:289
+msgid "Rain sensor"
+msgstr "Regensensor"
+
+#: includes/class-wmds-json-mapper.php:290
+msgid "Auxiliary heating"
+msgstr "Standheizung"
+
+#: includes/class-wmds-json-mapper.php:291
+msgid "Central locking"
+msgstr "Zentralverriegelung"
+
+#: includes/class-wmds-json-mapper.php:292
+msgid "Electrically adjustable seats"
+msgstr "Elektrisch verstellbare Sitze"
+
+#: includes/class-wmds-json-mapper.php:293
+msgid "Electrically adjustable mirrors"
+msgstr "Elektrisch verstellbare Außenspiegel"
+
+#: includes/class-wmds-json-mapper.php:294
+msgid "Heated seats"
+msgstr "Sitzheizung"
+
+#: includes/class-wmds-json-mapper.php:295
+msgid "Electric windows"
+msgstr "Elektrische Fensterheber"
+
+#: includes/class-wmds-json-mapper.php:296
+msgid "ESP"
+msgstr "ESP"
+
+#: includes/class-wmds-json-mapper.php:297
+msgid "Front fog lights"
+msgstr "Nebelscheinwerfer"
+
+#: includes/class-wmds-json-mapper.php:298
+msgid "Full service history"
+msgstr "Scheckheftgepflegt"
+
+#: includes/class-wmds-json-mapper.php:299
+msgid "Head-up display"
+msgstr "Head-up-Display"
+
+#: includes/class-wmds-json-mapper.php:300
+msgid "Immobiliser"
+msgstr "Wegfahrsperre"
+
+#: includes/class-wmds-json-mapper.php:301
+msgid "Isofix"
+msgstr "Isofix"
+
+#: includes/class-wmds-json-mapper.php:302
+msgid "Light sensor"
+msgstr "Lichtsensor"
+
+#: includes/class-wmds-json-mapper.php:303
+msgid "Metallic paint"
+msgstr "Metallic-Lackierung"
+
+#: includes/class-wmds-json-mapper.php:304
+msgid "Multifunction steering wheel"
+msgstr "Multifunktionslenkrad"
+
+#: includes/class-wmds-json-mapper.php:305
+msgid "Navigation system"
+msgstr "Navigationssystem"
+
+#: includes/class-wmds-json-mapper.php:306
+msgid "Panoramic glass roof"
+msgstr "Panorama-Glasdach"
+
+#: includes/class-wmds-json-mapper.php:307
+msgid "Power steering"
+msgstr "Servolenkung"
+
+#: includes/class-wmds-json-mapper.php:308
+msgid "Start/stop system"
+msgstr "Start-Stopp-Automatik"
+
+#: includes/class-wmds-json-mapper.php:309
+msgid "Sunroof"
+msgstr "Schiebedach"
+
+#: includes/class-wmds-json-mapper.php:310
+msgid "Traction control"
+msgstr "Traktionskontrolle"
+
+#: includes/class-wmds-json-mapper.php:311
+msgid "Xenon headlights"
+msgstr "Xenon-Scheinwerfer"
+
+#: includes/class-wmds-json-mapper.php:312
+msgid "Cornering lights"
+msgstr "Kurvenlicht"
+
+#: includes/class-wmds-json-mapper.php:313
+msgid "Daytime running lights"
+msgstr "Tagfahrlicht"
+
+#: includes/class-wmds-json-mapper.php:314
+msgid "Cruise control"
+msgstr "Tempomat"
+
+#: includes/class-wmds-json-mapper.php:315
+msgid "Parking sensors"
+msgstr "Einparkhilfe"
+
+#: includes/class-wmds-posts.php:57
+msgid "Photo"
+msgstr "Foto"
+
+#: includes/class-wmds-posts.php:63
+msgid "Make & model"
+msgstr "Marke & Modell"
+
+#: includes/class-wmds-posts.php:64
+msgid "Price"
+msgstr "Preis"
+
+#: includes/class-wmds-posts.php:65 includes/class-wmds-vehicle.php:144 includes/class-wmds-vehicle.php:163
+msgid "Mileage"
+msgstr "Kilometerstand"
+
+#: includes/class-wmds-posts.php:66 includes/class-wmds-vehicle.php:145 includes/class-wmds-vehicle.php:161
+msgid "First registration"
+msgstr "Erstzulassung"
+
+#: includes/class-wmds-posts.php:67
+msgid "mobile.de ad"
+msgstr "mobile.de-Anzeige"
+
+#: includes/class-wmds-posts.php:131
+msgid "No photo imported"
+msgstr "Kein Foto importiert"
+
+#: includes/class-wmds-posts.php:166
+msgid "Created by hand, not by the importer. A sync leaves it alone."
+msgstr "Von Hand angelegt, nicht vom Importer. Ein Sync lässt es unangetastet."
+
+#: includes/class-wmds-posts.php:167
+msgid "not synced"
+msgstr "nicht synchronisiert"
+
+#: includes/class-wmds-posts.php:232
+msgid "Filter by make"
+msgstr "Nach Marke filtern"
+
+#: includes/class-wmds-posts.php:234
+msgid "All makes"
+msgstr "Alle Marken"
+
+#: includes/class-wmds-posts.php:359
+msgid "Reload from mobile.de"
+msgstr "Von mobile.de neu einlesen"
+
+#: includes/class-wmds-posts.php:367
+msgid "View on mobile.de"
+msgstr "Auf mobile.de ansehen"
+
+#: includes/class-wmds-posts.php:377
+msgid "mobile.de source"
+msgstr "Quelle bei mobile.de"
+
+#: includes/class-wmds-posts.php:392
+msgid "This vehicle was not created by the importer. A sync leaves it alone."
+msgstr "Dieses Fahrzeug stammt nicht vom Importer. Ein Sync lässt es unangetastet."
+
+#: includes/class-wmds-posts.php:398
+msgid "Ad ID"
+msgstr "Anzeigen-ID"
+
+#: includes/class-wmds-posts.php:399
+msgid "Changed on mobile.de"
+msgstr "Geändert auf mobile.de"
+
+#: includes/class-wmds-posts.php:400
+msgid "Photos imported"
+msgstr "Importierte Fotos"
+
+#: includes/class-wmds-posts.php:452
+msgid "Managed by the importer."
+msgstr "Wird vom Importer verwaltet."
+
+#: includes/class-wmds-posts.php:453
+msgid "Title, description, fields and photos are overwritten as soon as the ad changes on mobile.de. Edit the ad there, not here."
+msgstr "Titel, Beschreibung, Felder und Fotos werden überschrieben, sobald sich die Anzeige auf mobile.de ändert. Die Anzeige dort bearbeiten, nicht hier."
+
+#: includes/class-wmds-status.php:80
+msgid "Not configured"
+msgstr "Nicht konfiguriert"
+
+#: includes/class-wmds-status.php:81
+msgid "Sync running"
+msgstr "Sync läuft"
+
+#: includes/class-wmds-status.php:82
+msgid "Waiting for the first run"
+msgstr "Wartet auf den ersten Lauf"
+
+#: includes/class-wmds-status.php:83
+msgid "Sync overdue"
+msgstr "Sync überfällig"
+
+#: includes/class-wmds-status.php:84
+msgid "Last run had failures"
+msgstr "Letzter Lauf mit Fehlern"
+
+#: includes/class-wmds-status.php:85
+msgid "Up to date"
+msgstr "Aktuell"
+
+#: includes/class-wmds-status.php:99
+msgid "Username, password and the seller ID (or a dealer name instead) are missing. Nothing is imported until they are stored."
+msgstr "Benutzername, Passwort und die Verkäufer-ID (oder ersatzweise ein Händlername) fehlen. Bis sie hinterlegt sind, wird nichts importiert."
+
+#: includes/class-wmds-status.php:100
+msgid "An import is in progress. Large inventories are processed in batches across several runs."
+msgstr "Ein Import läuft gerade. Große Bestände werden in Paketen über mehrere Läufe verarbeitet."
+
+#: includes/class-wmds-status.php:101
+msgid "The credentials are stored, but no run has completed yet. Start the first import from the tools below."
+msgstr "Die Zugangsdaten sind hinterlegt, aber es ist noch kein Lauf durchgelaufen. Den ersten Import unten unter „Werkzeuge“ starten."
+
+#: includes/class-wmds-status.php:102
+msgid "The last run is more than six hours old. The schedule is most likely not being triggered — check the cron setup."
+msgstr "Der letzte Lauf ist mehr als sechs Stunden her. Höchstwahrscheinlich wird der Zeitplan nicht ausgelöst – die Cron-Einrichtung prüfen."
+
+#: includes/class-wmds-status.php:103
+msgid "Some vehicles could not be processed in the last run. The log below names them."
+msgstr "Im letzten Lauf ließen sich einige Fahrzeuge nicht verarbeiten. Das Protokoll unten benennt sie."
+
+#: includes/class-wmds-status.php:104
+msgid "The inventory is in sync."
+msgstr "Der Bestand ist synchron."
+
+#. translators: 1: seen, 2: created, 3: updated, 4: skipped, 5: removed, 6: images.
+#: includes/class-wmds-status.php:179
+msgid "%1$d seen · %2$d created · %3$d updated · %4$d skipped · %5$d removed · %6$d images"
+msgstr "%1$d gesehen · %2$d angelegt · %3$d aktualisiert · %4$d übersprungen · %5$d entfernt · %6$d Bilder"
+
+#: includes/class-wmds-updater.php:85
+msgid "Synchronises a dealer's vehicle inventory from the mobile.de Search API into a \"fahrzeuge\" custom post type. Works with FacetWP and with existing theme templates."
+msgstr "Synchronisiert den Fahrzeugbestand eines Händlers aus der mobile.de-Such-API in den Custom Post Type „fahrzeuge“. Arbeitet mit FacetWP und mit vorhandenen Theme-Templates zusammen."
+
+#: includes/class-wmds-updater.php:233
+msgid "No notes for this version."
+msgstr "Keine Hinweise zu dieser Version."
+
+#: includes/class-wmds-vehicle.php:64
+msgid "VAT not reclaimable"
+msgstr "MwSt. nicht ausweisbar"
+
+#: includes/class-wmds-vehicle.php:69
+msgid "incl. VAT"
+msgstr "inkl. MwSt."
+
+#. translators: %s: VAT rate as a number, e.g. 19.
+#: includes/class-wmds-vehicle.php:73
+msgid "incl. %s%% VAT"
+msgstr "inkl. %s %% MwSt."
+
+#. translators: %s: mileage, already formatted with separators.
+#: includes/class-wmds-vehicle.php:83
+msgid "%s km"
+msgstr "%s km"
+
+#. translators: 1: power in kilowatts, 2: the same power in metric horsepower.
+#: includes/class-wmds-vehicle.php:94
+msgid "%1$d kW (%2$d hp)"
+msgstr "%1$d kW (%2$d PS)"
+
+#. translators: %s: expiry month and year, e.g. 11.2027.
+#: includes/class-wmds-vehicle.php:110
+msgid "Inspection valid until %s"
+msgstr "HU gültig bis %s"
+
+#: includes/class-wmds-vehicle.php:126
+msgid "Available immediately"
+msgstr "Sofort verfügbar"
+
+#. translators: %s: a date, e.g. 01.09.2026.
+#: includes/class-wmds-vehicle.php:135
+msgid "Available from %s"
+msgstr "Verfügbar ab %s"
+
+#: includes/class-wmds-vehicle.php:146 includes/class-wmds-vehicle.php:168
+msgid "Power"
+msgstr "Leistung"
+
+#: includes/class-wmds-vehicle.php:147 includes/class-wmds-vehicle.php:169
+msgid "Transmission"
+msgstr "Getriebe"
+
+#: includes/class-wmds-vehicle.php:148 includes/class-wmds-vehicle.php:170
+msgid "Fuel"
+msgstr "Kraftstoff"
+
+#: includes/class-wmds-vehicle.php:159
+msgid "Body type"
+msgstr "Fahrzeugtyp"
+
+#: includes/class-wmds-vehicle.php:160
+msgid "Condition"
+msgstr "Zustand"
+
+#: includes/class-wmds-vehicle.php:162
+msgid "Model year"
+msgstr "Baujahr"
+
+#: includes/class-wmds-vehicle.php:164
+msgid "Previous owners"
+msgstr "Fahrzeughalter"
+
+#: includes/class-wmds-vehicle.php:165
+msgid "Inspection"
+msgstr "HU"
+
+#: includes/class-wmds-vehicle.php:167
+msgid "Engine & transmission"
+msgstr "Motor & Getriebe"
+
+#: includes/class-wmds-vehicle.php:171
+msgid "Displacement"
+msgstr "Hubraum"
+
+#: includes/class-wmds-vehicle.php:171
+msgid "cm³"
+msgstr "cm³"
+
+#: includes/class-wmds-vehicle.php:173
+msgid "Exterior & interior"
+msgstr "Außen & Innen"
+
+#: includes/class-wmds-vehicle.php:174
+msgid "Exterior colour"
+msgstr "Außenfarbe"
+
+#: includes/class-wmds-vehicle.php:175
+msgid "Paint name"
+msgstr "Farbbezeichnung"
+
+#: includes/class-wmds-vehicle.php:176
+msgid "Interior"
+msgstr "Innenausstattung"
+
+#: includes/class-wmds-vehicle.php:177
+msgid "Doors"
+msgstr "Türen"
+
+#: includes/class-wmds-vehicle.php:178
+msgid "Seats"
+msgstr "Sitzplätze"
+
+#: includes/class-wmds-vehicle.php:180
+msgid "Energy & environment"
+msgstr "Energie & Umwelt"
+
+#: includes/class-wmds-vehicle.php:181
+msgid "Emission class"
+msgstr "Schadstoffklasse"
+
+#: includes/class-wmds-vehicle.php:182
+msgid "Emissions sticker"
+msgstr "Umweltplakette"
+
+#: includes/class-wmds-vehicle.php:183
+msgid "Consumption, combined"
+msgstr "Verbrauch, kombiniert"
+
+#: includes/class-wmds-vehicle.php:183 includes/class-wmds-vehicle.php:184 includes/class-wmds-vehicle.php:185
+msgid "l/100 km"
+msgstr "l/100 km"
+
+#: includes/class-wmds-vehicle.php:184
+msgid "Consumption, urban"
+msgstr "Verbrauch, innerorts"
+
+#: includes/class-wmds-vehicle.php:185
+msgid "Consumption, extra-urban"
+msgstr "Verbrauch, außerorts"
+
+#: includes/class-wmds-vehicle.php:186
+msgid "CO₂ emissions, combined"
+msgstr "CO₂-Emissionen, kombiniert"
+
+#: includes/class-wmds-vehicle.php:186
+msgid "g/km"
+msgstr "g/km"
+
+#: includes/class-wmds-vehicle.php:187
+msgid "Power consumption, combined"
+msgstr "Stromverbrauch, kombiniert"
+
+#: includes/class-wmds-vehicle.php:187
+msgid "kWh/100 km"
+msgstr "kWh/100 km"
+
+#: includes/class-wmds-vehicle.php:189
+msgid "Other"
+msgstr "Sonstiges"
+
+#: includes/class-wmds-vehicle.php:190
+msgid "Listing number"
+msgstr "Anzeigennummer"
+
+#: includes/class-wmds-vehicle.php:191
+msgid "Schwacke code"
+msgstr "Schwacke-Code"
+
+#: includes/class-wmds-vehicle.php:232
+msgid "Damaged, unrepaired"
+msgstr "Unfallfahrzeug, nicht repariert"
+
+#: includes/class-wmds-vehicle.php:235
+msgid "Not roadworthy"
+msgstr "Nicht fahrbereit"
+
+#: templates/archive-fahrzeuge.php:91
+msgid "&laquo; Previous"
+msgstr "&laquo; Zurück"
+
+#: templates/archive-fahrzeuge.php:92
+msgid "Next &raquo;"
+msgstr "Weiter &raquo;"
+
+#: templates/archive-fahrzeuge.php:100 templates/mob_vehicle-list.php:118
+msgid "No vehicles are available at the moment."
+msgstr "Zurzeit sind keine Fahrzeuge verfügbar."
+
+#: templates/single-fahrzeuge.php:92
+msgid "Enquiry"
+msgstr "Anfrage"
+
+#. translators: %s: the vehicle title.
+#: templates/single-fahrzeuge.php:109
+msgid "Enquiry about %s"
+msgstr "Anfrage zu %s"
+
+#: templates/single-fahrzeuge.php:112
+msgid "Send an e-mail"
+msgstr "E-Mail senden"
+
+#: templates/single-fahrzeuge.php:123
+msgid "Description"
+msgstr "Beschreibung"
+
+#: templates/single-fahrzeuge.php:131
+msgid "Specifications"
+msgstr "Technische Daten"
+
+#: templates/single-fahrzeuge.php:151
+msgid "Features"
+msgstr "Ausstattung"
+
+#. translators: %s: link to the guide, already marked up as an anchor.
+#: templates/single-fahrzeuge.php:166
+msgid "Further information on the official fuel consumption and the official specific CO₂ emissions of new passenger cars can be found in the guide on fuel consumption, CO₂ emissions and electricity consumption of new passenger cars, available free of charge at all points of sale and at %s."
+msgstr "Weitere Informationen zum offiziellen Kraftstoffverbrauch und zu den offiziellen spezifischen CO₂-Emissionen neuer Personenkraftwagen können dem „Leitfaden über den Kraftstoffverbrauch, die CO₂-Emissionen und den Stromverbrauch neuer Personenkraftwagen“ entnommen werden, der an allen Verkaufsstellen und bei der Deutschen Automobil Treuhand GmbH unter %s unentgeltlich erhältlich ist."
