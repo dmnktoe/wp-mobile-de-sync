@@ -184,10 +184,6 @@ class WMDS_Importer {
 	}
 
 	/**
-	 * Re-reads one ad on request. Unlike a scheduled run this fails loudly:
-	 * it is a manual repair for a single vehicle, and silently writing a
-	 * half-mapped record would be worse than not writing at all.
-	 *
 	 * @param string $ad_id
 	 * @return array|WP_Error
 	 */
@@ -364,9 +360,7 @@ class WMDS_Importer {
 		return $imported;
 	}
 
-	/**
-	 * @return array
-	 */
+	/** @return array */
 	private function known_map() {
 		global $wpdb;
 

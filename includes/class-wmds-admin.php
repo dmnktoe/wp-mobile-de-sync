@@ -59,11 +59,6 @@ class WMDS_Admin {
 		return isset( $_GET['page'] ) && self::PAGE === $_GET['page']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- a screen check, not a state change.
 	}
 
-	/**
-	 * Both go on every admin screen: the admin bar carries its state as a
-	 * colour on every page, and the cross-screen notice can appear anywhere
-	 * and has to stay dismissed once dismissed.
-	 */
 	public static function assets() {
 		wp_enqueue_style( 'wmds-admin', WMDS_URL . 'assets/admin.css', array(), WMDS_VERSION );
 		wp_enqueue_script( 'wmds-admin', WMDS_URL . 'assets/admin.js', array(), WMDS_VERSION, true );
@@ -85,12 +80,6 @@ class WMDS_Admin {
 		);
 	}
 
-	// ---- Actions ----
-
-	/**
-	 * Every state change arrives here through admin-post.php and leaves
-	 * through a redirect, so a reload never repeats it.
-	 */
 	public static function handle() {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( esc_html__( 'You are not allowed to do this.', 'wp-mobile-de-sync' ), '', array( 'response' => 403 ) );
@@ -169,8 +158,6 @@ class WMDS_Admin {
 			'interval' => sanitize_key( wp_unslash( $_POST['wmds_interval'] ?? 'wmds_15min' ) ),
 		);
 
-		// Only one addressing route is kept, so what the form shows is what
-		// the client actually sends.
 		if ( 'dealer' === $mode ) {
 			$values['seller_id'] = '';
 			$values['dealer']    = sanitize_text_field( wp_unslash( $_POST['wmds_dealer'] ?? '' ) );
@@ -222,9 +209,7 @@ class WMDS_Admin {
 		self::notice( $result['ok'] ? 'success' : 'error', $result['message'] );
 	}
 
-	/**
-	 * @return array{ok:bool,message:string}
-	 */
+	/** @return array{ok:bool,message:string} */
 	private static function test_result() {
 		$result = WMDS_Settings::client()->search( 1, 1 );
 
@@ -325,11 +310,6 @@ class WMDS_Admin {
 		self::notice( 'success', __( 'Log cleared.', 'wp-mobile-de-sync' ) );
 	}
 
-	/**
-	 * Re-reads a single vehicle. Both fingerprints are dropped first, so the
-	 * run rewrites the fields and fetches the photos again — that is what
-	 * makes this useful as a repair for one broken vehicle.
-	 */
 	private static function do_refresh() {
 		$post_id = isset( $_REQUEST['post'] ) ? (int) $_REQUEST['post'] : 0; // phpcs:ignore WordPress.Security.NonceVerification -- verified in handle() before this runs.
 
@@ -374,9 +354,6 @@ class WMDS_Admin {
 		);
 	}
 
-	/**
-	 * Sends the log as a text file and ends the request.
-	 */
 	private static function export_log() {
 		$log = get_option( WMDS_Importer::OPT_LOG, array() );
 		$log = is_array( $log ) ? $log : array();
@@ -392,12 +369,6 @@ class WMDS_Admin {
 		exit;
 	}
 
-	// ---- AJAX ----
-
-	/**
-	 * Refuses the request outright unless the caller may administer the
-	 * plugin and carries a fresh nonce.
-	 */
 	private static function verify_ajax() {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_send_json_error( array( 'message' => __( 'You are not allowed to do this.', 'wp-mobile-de-sync' ) ), 403 );
@@ -413,11 +384,6 @@ class WMDS_Admin {
 		wp_send_json_success( $result );
 	}
 
-	/**
-	 * One pass per request. The importer already works in batches and
-	 * reports what is left, so the browser can drive the loop and show real
-	 * progress instead of a spinner over a request that may time out.
-	 */
 	public static function ajax_sync() {
 		self::verify_ajax();
 
@@ -449,8 +415,6 @@ class WMDS_Admin {
 		wp_send_json_success();
 	}
 
-	// ---- Notices ----
-
 	/**
 	 * @param string $type    One of success, error, warning or info.
 	 * @param string $message Text shown to the user.
@@ -470,9 +434,7 @@ class WMDS_Admin {
 		set_transient( self::NOTICES . get_current_user_id(), self::$notices, 60 );
 	}
 
-	/**
-	 * @return array<int, array{type:string,message:string}>
-	 */
+	/** @return array<int, array{type:string,message:string}> */
 	private static function take() {
 		$key     = self::NOTICES . get_current_user_id();
 		$stashed = get_transient( $key );
@@ -495,11 +457,6 @@ class WMDS_Admin {
 		}
 	}
 
-	/**
-	 * A broken sync is invisible from the rest of the admin, so it gets one
-	 * line on every screen — dismissible, and re-armed when the state
-	 * changes to something else.
-	 */
 	public static function global_notice() {
 		if ( self::on_page() || ! current_user_can( 'manage_options' ) ) {
 			return;
@@ -525,11 +482,7 @@ class WMDS_Admin {
 		);
 	}
 
-	// ---- Screen ----
-
-	/**
-	 * @return array<string,string>
-	 */
+	/** @return array<string,string> */
 	private static function tabs() {
 		return array(
 			'connection' => __( 'Connection', 'wp-mobile-de-sync' ),
@@ -636,9 +589,6 @@ class WMDS_Admin {
 	}
 
 	/**
-	 * Shown until the plugin has done its job once. Four steps, each with
-	 * the one link that completes it.
-	 *
 	 * @param array $status
 	 */
 	private static function render_checklist( array $status ) {
@@ -872,9 +822,7 @@ class WMDS_Admin {
 		<?php
 	}
 
-	/**
-	 * @return array<string,string>
-	 */
+	/** @return array<string,string> */
 	private static function languages() {
 		return array(
 			'de' => __( 'German', 'wp-mobile-de-sync' ),
@@ -1044,9 +992,6 @@ class WMDS_Admin {
 	}
 
 	/**
-	 * The importer writes prose, not levels. These are the words it uses
-	 * when something went wrong.
-	 *
 	 * @param string $message
 	 * @return bool
 	 */

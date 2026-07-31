@@ -591,8 +591,6 @@ $importer->run();
 $post_id = wmds_post_for( '777' );
 wmds_assert( 'imported first', true, $post_id > 0 );
 
-// The detail response is a superset of the search fields, so a reload can
-// work from it alone - the search list is never consulted.
 $client->details['777'] = array_merge(
 	wmds_ad( '777' ),
 	wmds_detail( '777' ),

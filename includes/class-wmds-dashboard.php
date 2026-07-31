@@ -3,10 +3,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * The dashboard side of the plugin: a widget with the newest vehicles and an
- * entry in "At a Glance".
- */
 class WMDS_Dashboard {
 	const WIDGET = 'wmds_latest_vehicles';
 	const OPTION = 'wmds_dashboard';
@@ -32,9 +28,7 @@ class WMDS_Dashboard {
 		);
 	}
 
-	/**
-	 * @return array{count:int,orderby:string}
-	 */
+	/** @return array{count:int,orderby:string} */
 	public static function options() {
 		$stored = get_option( self::OPTION, array() );
 		$stored = is_array( $stored ) ? $stored : array();
@@ -53,9 +47,7 @@ class WMDS_Dashboard {
 		);
 	}
 
-	/**
-	 * @return array<string,string>
-	 */
+	/** @return array<string,string> */
 	private static function orders() {
 		return array(
 			'date'     => __( 'Newest import first', 'wp-mobile-de-sync' ),
@@ -64,9 +56,6 @@ class WMDS_Dashboard {
 		);
 	}
 
-	/**
-	 * The widget's own settings form, shown behind "Configure".
-	 */
 	public static function configure() {
 		if ( isset( $_POST[ self::WIDGET ] ) && is_array( $_POST[ self::WIDGET ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- wp_dashboard_setup verifies the dashboard nonce before calling the control callback.
 			$submitted = wp_unslash( $_POST[ self::WIDGET ] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- both members are sanitised below.
@@ -126,10 +115,6 @@ class WMDS_Dashboard {
 		self::render_footer();
 	}
 
-	/**
-	 * Only the parts of the state a non-administrator can act on; the repair
-	 * links stay behind manage_options.
-	 */
 	private static function render_status() {
 		$status = WMDS_Status::get();
 

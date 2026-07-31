@@ -3,10 +3,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * Sync state in the admin bar — deliberately on the front end too, because
- * that is where a dealer notices that the inventory on the page is stale.
- */
 class WMDS_Adminbar {
 	const ID = 'wmds';
 
@@ -52,9 +48,6 @@ class WMDS_Adminbar {
 	}
 
 	/**
-	 * The bar itself: an icon that carries the state as a colour, plus the
-	 * inventory size. Everything else lives in the drop-down.
-	 *
 	 * @param array $status
 	 * @return string
 	 */
@@ -196,9 +189,6 @@ class WMDS_Adminbar {
 	}
 
 	/**
-	 * On a vehicle page the two things worth reaching in one click: the
-	 * source ad, and a repair for this one vehicle.
-	 *
 	 * @param WP_Admin_Bar $bar
 	 * @param int          $post_id
 	 */

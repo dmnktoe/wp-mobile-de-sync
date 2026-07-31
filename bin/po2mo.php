@@ -1,24 +1,10 @@
 <?php
-/**
- * Compiles a .po file into the .mo file WordPress loads at runtime.
- *
- * The project deliberately has no build step and no Composer requirement, and
- * msgfmt is not installed everywhere, so the one binary format the plugin
- * needs is produced by the plugin's own tooling.
- *
- *   php bin/po2mo.php languages/wp-mobile-de-sync-de_DE.po
- *   php bin/po2mo.php languages/*.po
- *
- * @package wp-mobile-de-sync
- */
 
 if ( 'cli' !== PHP_SAPI ) {
 	exit( 1 );
 }
 
 /**
- * Turns the escaped string of a .po line back into its value.
- *
  * @param string $line A line that contains one quoted chunk.
  * @return string
  */
@@ -143,8 +129,6 @@ function wmds_mo_build( array $entries ) {
 	$id_tbl  = '';
 	$str_tbl = '';
 
-	// Header is 28 bytes, then two tables of 8 bytes per entry. The string
-	// data starts after both of them.
 	$ids_start = 28 + ( $count * 16 );
 
 	foreach ( $entries as $id => $str ) {
@@ -153,7 +137,6 @@ function wmds_mo_build( array $entries ) {
 		$strings .= $str . "\0";
 	}
 
-	// The translation offsets are only known once the id block has its size.
 	$cursor = $ids_start + strlen( $ids );
 
 	foreach ( $entries as $str ) {

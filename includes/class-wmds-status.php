@@ -3,11 +3,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * The one health verdict the whole admin UI hangs off: admin bar, dashboard
- * widget, settings header and the global notice all read from here, so they
- * cannot contradict each other.
- */
 class WMDS_Status {
 	const PAGE  = 'wmds-settings';
 	const NONCE = 'wmds_admin';
@@ -22,10 +17,6 @@ class WMDS_Status {
 	const OK           = 'ok';
 
 	/**
-	 * Kept free of WordPress so the precedence is testable on its own. The
-	 * order is deliberate: a running import outranks a stale timestamp,
-	 * because "it is working on it right now" is the more useful answer.
-	 *
 	 * @param bool  $configured Whether credentials and a seller are stored.
 	 * @param bool  $running    Whether the import lock is held.
 	 * @param array $last       Statistics of the last run, empty when none.
@@ -89,8 +80,6 @@ class WMDS_Status {
 	}
 
 	/**
-	 * A sentence that says what to do about it, not just what happened.
-	 *
 	 * @param string $level
 	 * @return string
 	 */
@@ -108,8 +97,6 @@ class WMDS_Status {
 	}
 
 	/**
-	 * Levels worth interrupting somebody over on an unrelated admin screen.
-	 *
 	 * @param string $level
 	 * @return bool
 	 */
@@ -117,15 +104,11 @@ class WMDS_Status {
 		return in_array( $level, array( self::UNCONFIGURED, self::STALE, self::FAILED ), true );
 	}
 
-	/**
-	 * @return array Everything the UI needs, read once.
-	 */
+	/** @return array Everything the UI needs, read once. */
 	public static function get() {
 		$last = get_option( WMDS_Importer::OPT_LAST_RUN, array() );
 		$last = is_array( $last ) ? $last : array();
 
-		// The run stamps its time in site-local MySQL format; comparing it
-		// against time() only works once it is back in UTC.
 		$last_ts = ( ! empty( $last['time'] ) ) ? (int) get_gmt_from_date( $last['time'], 'U' ) : 0;
 
 		$configured = WMDS_Settings::is_configured();
@@ -148,9 +131,7 @@ class WMDS_Status {
 		);
 	}
 
-	/**
-	 * @return int Published vehicles.
-	 */
+	/** @return int Published vehicles. */
 	public static function count() {
 		$counts = wp_count_posts( WMDS_CPT );
 
@@ -202,10 +183,6 @@ class WMDS_Status {
 	}
 
 	/**
-	 * A nonce-protected link to one of the admin actions. Lives here rather
-	 * than on WMDS_Admin because the admin bar builds these on the front end,
-	 * where the admin classes are not loaded.
-	 *
 	 * @param string $action One of the wmds_action names.
 	 * @param array  $args   Extra query arguments.
 	 * @return string

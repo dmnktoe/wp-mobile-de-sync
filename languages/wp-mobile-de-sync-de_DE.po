@@ -1,14 +1,3 @@
-# German translation for wp-mobile-de-sync.
-#
-# The source language of the plugin is English; this file is the German
-# shipping translation. One string is not a translation at all: the
-# consumption disclaimer on the vehicle detail page is prescribed verbatim
-# by the Pkw-EnVKV, so it carries the statutory wording.
-#
-# After editing, rebuild the binary catalogue:
-#
-#   php bin/po2mo.php languages/wp-mobile-de-sync-de_DE.po
-#
 msgid ""
 msgstr ""
 "Project-Id-Version: wp-mobile-de-sync 1.0.0\n"

@@ -1,9 +1,3 @@
-/**
- * Admin behaviour for mobile.de Sync.
- *
- * No build step and no framework: the plugin ships the file it serves.
- * Everything here degrades — the forms work without it.
- */
 ( function () {
 	'use strict';
 
@@ -12,11 +6,6 @@
 
 	var MAX_STEPS = 200;
 
-	/**
-	 * @param {string} template A printf-style string with %1$d style tokens.
-	 * @param {Array}  values
-	 * @return {string}
-	 */
 	function format( template, values ) {
 		return String( template || '' ).replace( /%(\d+)\$d/g, function ( match, index ) {
 			var value = values[ parseInt( index, 10 ) - 1 ];
@@ -25,11 +14,6 @@
 		} );
 	}
 
-	/**
-	 * @param {string}   action
-	 * @param {Object}   data
-	 * @param {Function} done  Receives ( ok, payload ).
-	 */
 	function post( action, data, done ) {
 		var body = new window.FormData();
 
@@ -53,11 +37,6 @@
 		} );
 	}
 
-	/**
-	 * @param {string} id
-	 * @param {string} message
-	 * @param {string} state ok|error
-	 */
 	function result( id, message, state ) {
 		var box = document.getElementById( id );
 
@@ -69,10 +48,6 @@
 		box.className = 'wmds-result' + ( state ? ' wmds-result-' + state : '' );
 	}
 
-	/* ------------------------------------------------------------ *
-	 * Confirmations
-	 * ------------------------------------------------------------ */
-
 	function bindConfirmations() {
 		document.addEventListener( 'click', function ( event ) {
 			var button = event.target.closest( '[data-wmds-confirm]' );
@@ -82,10 +57,6 @@
 			}
 		} );
 	}
-
-	/* ------------------------------------------------------------ *
-	 * Password field
-	 * ------------------------------------------------------------ */
 
 	function bindPasswordToggle() {
 		var toggle = document.querySelector( '.wmds-toggle-password' );
@@ -113,10 +84,6 @@
 		} );
 	}
 
-	/* ------------------------------------------------------------ *
-	 * Seller addressing: only the selected route stays visible
-	 * ------------------------------------------------------------ */
-
 	function bindSellerMode() {
 		var radios = document.querySelectorAll( 'input[name="wmds_seller_mode"]' );
 
@@ -143,10 +110,6 @@
 		apply();
 	}
 
-	/* ------------------------------------------------------------ *
-	 * Connection test
-	 * ------------------------------------------------------------ */
-
 	function bindTest() {
 		var button = document.getElementById( 'wmds-test' );
 
@@ -171,10 +134,6 @@
 			} );
 		} );
 	}
-
-	/* ------------------------------------------------------------ *
-	 * Sync, one batch per request
-	 * ------------------------------------------------------------ */
 
 	function bindSync() {
 		var button = document.getElementById( 'wmds-sync' );
@@ -240,10 +199,6 @@
 		} );
 	}
 
-	/* ------------------------------------------------------------ *
-	 * Log filter
-	 * ------------------------------------------------------------ */
-
 	function bindLogFilter() {
 		var checkbox = document.getElementById( 'wmds-log-errors-only' );
 
@@ -260,10 +215,6 @@
 			);
 		} );
 	}
-
-	/* ------------------------------------------------------------ *
-	 * Dismissing the cross-screen notice, so it stays dismissed
-	 * ------------------------------------------------------------ */
 
 	function bindNoticeDismiss() {
 		var notice = document.querySelector( '.wmds-global-notice' );

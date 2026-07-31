@@ -3,10 +3,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * The vehicle screens: a list that shows what a vehicle actually is, and an
- * edit form that admits the data is owned by the importer.
- */
 class WMDS_Posts {
 	const MAKES_CACHE = 'wmds_makes';
 	const METABOX     = 'wmds_source';
@@ -184,12 +180,7 @@ class WMDS_Posts {
 		return $columns;
 	}
 
-	/**
-	 * The meta keys behind the sortable columns, each with the type the
-	 * comparison needs.
-	 *
-	 * @return array<string, array{key:string,type:string}>
-	 */
+	/** @return array<string, array{key:string,type:string}> */
 	private static function sort_map() {
 		return array(
 			'wmds_price'   => array(
@@ -231,9 +222,7 @@ class WMDS_Posts {
 		<?php
 	}
 
-	/**
-	 * @return string[] Distinct makes in the inventory.
-	 */
+	/** @return string[] Distinct makes in the inventory. */
 	private static function makes() {
 		$cached = get_transient( self::MAKES_CACHE );
 		if ( is_array( $cached ) ) {
@@ -292,9 +281,6 @@ class WMDS_Posts {
 	}
 
 	/**
-	 * Vehicles without the sorted-on value must not fall out of the list, so
-	 * the clause pairs EXISTS with NOT EXISTS instead of joining on meta_key.
-	 *
 	 * @param WP_Query $query
 	 */
 	private static function apply_sort( $query ) {
@@ -308,8 +294,6 @@ class WMDS_Posts {
 		$field = $map[ $orderby ];
 		$order = ( 'ASC' === strtoupper( (string) $query->get( 'order' ) ) ) ? 'ASC' : 'DESC';
 
-		// The OR lives in its own nested group. Putting it at the top level
-		// would OR it with the make filter and quietly return everything.
 		$meta   = (array) $query->get( 'meta_query' );
 		$meta[] = array(
 			'relation'    => 'OR',
@@ -418,15 +402,6 @@ class WMDS_Posts {
 		}
 	}
 
-	/**
-	 * The importer overwrites title, description, meta and photos on every
-	 * change it detects. Saying so on the form is cheaper than explaining
-	 * afterwards why an edit disappeared.
-	 *
-	 * Hooked to admin_notices rather than edit_form_after_title, because the
-	 * latter never fires under the block editor - which is what this post type
-	 * gets, having show_in_rest and editor support.
-	 */
 	public static function edit_notice() {
 		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
 		if ( ! $screen || 'post' !== $screen->base || WMDS_CPT !== $screen->post_type ) {
