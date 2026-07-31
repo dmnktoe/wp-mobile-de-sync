@@ -4,7 +4,7 @@ Tags: mobile.de, vehicles, dealership, import, facetwp
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 1.0.2
+Stable tag: 1.0.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -111,6 +111,16 @@ Pkw-EnVKV, so the bundled German catalogue carries the statutory wording rather
 than a translation of the English source.
 
 == Changelog ==
+
+= 1.0.3 =
+* Fixed: `[fahrzeuge-anzeigen]` rendered unstyled on ordinary pages. The
+  stylesheet was tied to the post type, so any page carrying the shortcode
+  loaded the markup without the grid.
+* Templates are now looked up in `wp-mobile-de-sync/` in the child theme and
+  in the parent theme as well as in the theme root, through the new
+  `wmds_template` filter.
+* The vehicle card is a template part of its own, shared by the archive and
+  the shortcode and overridable on its own.
 
 = 1.0.2 =
 * The plugin has an icon. The updates screen showed the grey placeholder plug

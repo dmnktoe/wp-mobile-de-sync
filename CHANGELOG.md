@@ -3,6 +3,31 @@
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
+## [1.0.3] – 2026-07-31
+
+### Fixed
+- `[fahrzeuge-anzeigen]` rendered as an unstyled list on ordinary pages. The
+  stylesheet was enqueued for `is_singular( 'fahrzeuge' )` and the post type
+  archive only, and a page carrying the shortcode is neither — so the markup
+  arrived without the grid that lays it out. The decision now follows the
+  templates rather than the post type: a post whose content contains the
+  shortcode counts, and the shortcode itself enqueues the file when it runs,
+  which also covers a widget, a page builder or a template part the main
+  query knows nothing about. The `wmds_enqueue_styles` filter still switches
+  the file off everywhere.
+
+### Added
+- A template hierarchy. All four templates are resolved through
+  `WMDS_Templates::locate()`, which looks in `wp-mobile-de-sync/` in the
+  stylesheet directory, then in the template directory, then in the theme
+  root — the place an earlier solution expected `mob_vehicle-list.php`, which
+  therefore keeps working — and falls back to the bundled file. The new
+  `wmds_template` filter has the last word.
+- `templates/parts/vehicle-card.php`. The archive and the shortcode rendered
+  the same card twice, in two copies that had already begun to drift. It is
+  one template part now, taking a heading level and whether to show warnings,
+  and a theme can override the card without copying the loop around it.
+
 ## [1.0.2] – 2026-07-31
 
 ### Added

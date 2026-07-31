@@ -71,48 +71,9 @@ if ( $wmds_vehicles->have_posts() ) : ?>
 		<?php
 		while ( $wmds_vehicles->have_posts() ) :
 			$wmds_vehicles->the_post();
-			$vehicle = new WMDS_Vehicle();
-			?>
-			<li class="wmds-card">
-				<a class="wmds-card__link" href="<?php the_permalink(); ?>">
-					<div class="wmds-card__image">
-						<?php if ( has_post_thumbnail() ) : ?>
-							<?php the_post_thumbnail( 'medium_large', array( 'loading' => 'lazy' ) ); ?>
-						<?php else : ?>
-							<span class="wmds-card__placeholder" aria-hidden="true"></span>
-						<?php endif; ?>
-					</div>
-
-					<div class="wmds-card__body">
-						<h3 class="wmds-card__title"><?php the_title(); ?></h3>
-
-						<?php if ( $vehicle->has( 'category' ) || $vehicle->has( 'condition' ) ) : ?>
-							<p class="wmds-card__meta">
-								<?php echo esc_html( trim( $vehicle->get( 'category' ) . ' · ' . $vehicle->get( 'condition' ), ' ·' ) ); ?>
-							</p>
-						<?php endif; ?>
-
-						<?php if ( $vehicle->highlights() ) : ?>
-							<ul class="wmds-card__facts">
-								<?php foreach ( $vehicle->highlights() as $wmds_label => $wmds_value ) : ?>
-									<li>
-										<span class="wmds-card__fact-label"><?php echo esc_html( $wmds_label ); ?></span>
-										<span class="wmds-card__fact-value"><?php echo esc_html( $wmds_value ); ?></span>
-									</li>
-								<?php endforeach; ?>
-							</ul>
-						<?php endif; ?>
-
-						<?php if ( $vehicle->price() ) : ?>
-							<p class="wmds-card__price">
-								<?php echo esc_html( $vehicle->price() ); ?>
-								<small><?php echo esc_html( $vehicle->vat_note() ); ?></small>
-							</p>
-						<?php endif; ?>
-					</div>
-				</a>
-			</li>
-		<?php endwhile; ?>
+			WMDS_Templates::render( 'parts/vehicle-card.php', array( 'heading' => 'h3' ) );
+		endwhile;
+		?>
 	</ul>
 <?php else : ?>
 	<p class="wmds-empty"><?php esc_html_e( 'No vehicles are available at the moment.', 'wp-mobile-de-sync' ); ?></p>
