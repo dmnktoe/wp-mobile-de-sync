@@ -3,20 +3,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * Central configuration.
- *
- * Credentials and settings live exclusively in this plugin's own
- * 'wmds_settings' option and are edited on the plugin's settings screen.
- * Nothing reads options belonging to other plugins.
- */
 class WMDS_Settings {
-
 	const OPTION = 'wmds_settings';
 
 	/**
-	 * Reads one setting.
-	 *
 	 * @param string $key      Setting name.
 	 * @param string $fallback Returned when the setting is unset or empty.
 	 * @return mixed
@@ -40,11 +30,6 @@ class WMDS_Settings {
 	}
 
 	/**
-	 * Language for reference-data labels, as an ISO 639-1 code.
-	 *
-	 * Defaults to the site's own language, so a fresh install shows labels
-	 * the site's editors can read.
-	 *
 	 * @return string
 	 */
 	public static function language() {
@@ -59,29 +44,15 @@ class WMDS_Settings {
 		return preg_match( '/^[a-z]{2}$/', $code ) ? $code : 'en';
 	}
 
-	/**
-	 * Numeric mobile.de seller ID.
-	 *
-	 * The preferred way to address an inventory: customerId is the only
-	 * documented parameter for it, verified against a live feed.
-	 */
 	public static function seller_id() {
 		return preg_replace( '/\D/', '', (string) self::get( 'seller_id' ) );
 	}
 
-	/**
-	 * Public dealer vanity name, used for the dealer= search.
-	 *
-	 * Fallback only: dealer= appears in no official parameter list and may
-	 * disappear at any time. Useful when only the vanity name is known.
-	 */
 	public static function dealer() {
 		return trim( (string) self::get( 'dealer' ) );
 	}
 
 	/**
-	 * Cron interval, as a key registered by wmds_cron_schedules().
-	 *
 	 * @return string
 	 */
 	public static function interval() {
@@ -92,8 +63,6 @@ class WMDS_Settings {
 	}
 
 	/**
-	 * Fully configured API client.
-	 *
 	 * @return WMDS_Client
 	 */
 	public static function client() {
@@ -105,10 +74,6 @@ class WMDS_Settings {
 		);
 	}
 
-	/**
-	 * Are all required values present? Username, password, and at least one
-	 * of the two ways to name the dealer.
-	 */
 	public static function is_configured() {
 		return '' !== self::username()
 			&& '' !== self::password()
@@ -116,8 +81,6 @@ class WMDS_Settings {
 	}
 
 	/**
-	 * Merges values into the stored settings.
-	 *
 	 * @param array $values Setting name => value.
 	 */
 	public static function update( array $values ) {

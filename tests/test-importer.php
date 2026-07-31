@@ -1,18 +1,4 @@
 <?php
-/**
- * WMDS_Importer::run() from end to end.
- *
- * Covers what actually happens in production: initial import, follow-up run
- * with nothing changed, a changed vehicle, swapped photos, batching across
- * several passes, an API outage, and the removal of sold vehicles including
- * all three safety guards.
- *
- * The WordPress side comes from tests/wp-fake.php in process memory; the API
- * side from a client stub. What this does NOT cover is documented at the top
- * of wp-fake.php.
- *
- *   php tests/test-importer.php
- */
 
 define( 'ABSPATH', __DIR__ . '/wp-stubs/' );
 define( 'WMDS_CPT', 'fahrzeuge' );
@@ -27,13 +13,7 @@ require_once dirname( __DIR__ ) . '/includes/class-wmds-sync-plan.php';
 require_once dirname( __DIR__ ) . '/includes/class-wmds-importer.php';
 require_once __DIR__ . '/wp-fake.php';
 
-// --------------------------------------------------------------------
-// Test data
-// --------------------------------------------------------------------
-
 /**
- * An ad in the shape a search result delivers.
- *
  * @param string $id
  * @param string $modified
  * @param array  $overrides
@@ -74,15 +54,12 @@ function wmds_ad( $id, $modified = '2026-07-28T18:29:13+02:00', array $overrides
 }
 
 /**
- * The extra fields only the single-ad call supplies.
- *
  * @param string $id
  * @return array
  */
 function wmds_detail( $id ) {
 	return array(
 		'mobileAdId'           => $id,
-		// The feed carries CREOLE here: \\ is the line break.
 		'description'          => 'First line\\\\Second line',
 		'plainTextDescription' => "First line\nSecond line",
 		'seller'               => array(
@@ -100,8 +77,6 @@ function wmds_detail( $id ) {
 }
 
 /**
- * Builds a ready-to-use pair of stub client and importer.
- *
  * @param array $ads       Ads of the search result.
  * @param array $overrides Further properties for the client.
  * @return array array( WMDS_Importer, WMDS_Fake_Client )
@@ -129,7 +104,6 @@ function wmds_setup( array $ads, array $overrides = array() ) {
 	return array( new WMDS_Importer( $client, $mapper ), $client );
 }
 
-/** Post ID for an ad ID, read out of the stub. */
 function wmds_post_for( $ad_id ) {
 	foreach ( wmds_fake( 'meta' ) as $post_id => $meta ) {
 		if ( isset( $meta[ WMDS_Importer::META_AD_ID ] ) && (string) $ad_id === (string) $meta[ WMDS_Importer::META_AD_ID ] ) {
@@ -139,10 +113,6 @@ function wmds_post_for( $ad_id ) {
 
 	return 0;
 }
-
-// ====================================================================
-// 1. Abort conditions before the first API call
-// ====================================================================
 
 wmds_section( 'Preconditions' );
 
@@ -162,10 +132,6 @@ list( $importer, $client ) = wmds_setup( array( wmds_ad( '1' ) ) );
 $result                    = $importer->run();
 wmds_assert( 'import already running: error', 'wmds_locked', $result->get_error_code() );
 wmds_assert( 'a locked run does not call the API', 0, count( $client->searched ) );
-
-// ====================================================================
-// 2. Initial import
-// ====================================================================
 
 wmds_section( 'Initial import: empty site, two vehicles in the feed' );
 
@@ -225,10 +191,6 @@ wmds_assert_contains( 'log entry written', 'Full sync', get_option( WMDS_Importe
 wmds_assert( 'exactly one inventory query', 1, $GLOBALS['wpdb']->queries );
 wmds_assert( 'no follow-up scheduled', 0, count( wmds_fake( 'scheduled' ) ) );
 
-// ====================================================================
-// 3. Follow-up run with nothing changed
-// ====================================================================
-
 wmds_section( 'Follow-up run: nothing changed' );
 
 $GLOBALS['wpdb']->queries  = 0;
@@ -242,10 +204,6 @@ wmds_assert( 'no detail call', 0, count( $client->fetched ) );
 wmds_assert( 'no images re-downloaded', 0, $stats['images'] );
 wmds_assert( 'still two posts', 2, count( wmds_fake( 'posts' ) ) );
 wmds_assert( 'watermark was sent along', true, '' !== $client->searched[0]['since'] );
-
-// ====================================================================
-// 4. A changed vehicle
-// ====================================================================
 
 wmds_section( 'A vehicle changed on mobile.de' );
 
@@ -294,10 +252,6 @@ wmds_assert(
 );
 wmds_assert( 'only one attachment on the post', 1, count( wmds_fake( 'attachments' )[ wmds_post_for( '111' ) ] ) );
 
-// ====================================================================
-// 5. Batching
-// ====================================================================
-
 wmds_section( 'More work than fits into one pass' );
 
 wmds_fake_reset();
@@ -325,10 +279,6 @@ wmds_assert( 'nothing pending any more', 0, $stats['pending'] );
 wmds_assert( 'all five created', 5, count( wmds_fake( 'posts' ) ) );
 wmds_assert( 'only now the watermark', true, '' !== (string) get_option( WMDS_Importer::OPT_WATERMARK, '' ) );
 
-// ====================================================================
-// 6. Failures
-// ====================================================================
-
 wmds_section( 'The API answers with an error' );
 
 wmds_fake_reset();
@@ -351,7 +301,7 @@ wmds_section( 'The detail call fails, the search result stands' );
 
 wmds_fake_reset();
 list( $importer, $client ) = wmds_setup( array( wmds_ad( '111' ) ) );
-$client->details           = array(); // no detail registered
+$client->details           = array();
 $stats                     = $importer->run();
 
 wmds_assert( 'vehicle created regardless', 1, $stats['created'] );
@@ -403,10 +353,6 @@ wmds_assert_contains(
 	'This reconciliation is incomplete',
 	get_option( WMDS_Importer::OPT_LOG )[1]['message']
 );
-
-// ====================================================================
-// 7. Removing sold vehicles
-// ====================================================================
 
 wmds_section( 'Removal: the normal case after a full sync' );
 
@@ -512,10 +458,6 @@ wmds_assert( 'no second post', 1, count( wmds_fake( 'posts' ) ) );
 wmds_assert( 'the existing one was updated', 1, $stats['updated'] );
 wmds_assert( 'published again', 'publish', wmds_fake( 'posts' )[ $post_id ]['post_status'] );
 
-// ====================================================================
-// 8. Forcing a re-read
-// ====================================================================
-
 wmds_section( 'force: re-read unchanged vehicles anyway' );
 
 wmds_fake_reset();
@@ -527,10 +469,6 @@ $stats                     = $importer->run( array( 'force' => true ) );
 wmds_assert( 'nothing skipped', 0, $stats['skipped'] );
 wmds_assert( 'updated', 1, $stats['updated'] );
 wmds_assert( 'detail call happened', array( '111' ), $client->fetched );
-
-// ====================================================================
-// 9. Image bookkeeping
-// ====================================================================
 
 wmds_section( 'A partial image failure is not recorded as complete' );
 
@@ -559,8 +497,6 @@ $stats                     = $importer->run();
 $post_id                   = wmds_post_for( '111' );
 
 wmds_assert( 'two of three landed', 2, $stats['images'] );
-// The decisive assertion: only what arrived is on file. Storing all three
-// would mark the vehicle complete and it would never be repaired.
 wmds_assert( 'only the successful hashes stored', array( 'a', 'c' ), get_post_meta( $post_id, WMDS_Importer::META_IMAGES, true ) );
 wmds_assert(
 	'the gap is still visible to the next run',
@@ -611,8 +547,6 @@ $post_id                   = wmds_post_for( '111' );
 
 wmds_assert( 'capped at MAX_IMAGES', WMDS_Importer::MAX_IMAGES, $stats['images'] );
 
-// Without capping before the comparison, the stored 15 would differ from the
-// feed's 20 on every run and every run would re-download all fifteen.
 $GLOBALS['wp_fake']['downloaded'] = array();
 list( $importer, $client )        = wmds_setup(
 	array( wmds_ad( '111', '2026-07-28T18:29:13+02:00', array( 'images' => $many ) ) )
@@ -621,14 +555,6 @@ $stats                            = $importer->run( array( 'force' => true ) );
 
 wmds_assert( 'a forced re-read does not re-download', 0, count( wmds_fake( 'downloaded' ) ) );
 wmds_assert( 'and adds no images', 0, $stats['images'] );
-
-// ====================================================================
-// 10. Attachment cleanup
-// ====================================================================
-
-// What is NOT covered here: that delete_attachments() is wired to
-// before_delete_post rather than to trashing. That is a line in the main
-// plugin file and needs a real WordPress to exercise.
 
 wmds_section( 'A sold vehicle goes to the trash with its gallery intact' );
 
@@ -643,16 +569,12 @@ foreach ( array( '1', '2', '3', '4' ) as $seed ) {
 }
 list( $importer, $client ) = wmds_setup( $ads );
 
-// Vehicle 5 is the one that vanishes from the feed. Give it a gallery before
-// the run, because that is what has to survive being trashed.
 $sold                                       = wmds_post_for( '5' );
 $GLOBALS['wp_fake']['attachments'][ $sold ] = array( 901, 902 );
 
 $importer->run( array( 'full' => true ) );
 
 wmds_assert( 'the sold one is in the trash', 'trash', wmds_fake( 'posts' )[ $sold ]['post_status'] );
-// The recovery window is the point of using the trash: restoring the post has
-// to bring the gallery back, so removal must not touch the attachments.
 wmds_assert( 'its images survive the trashing', 2, count( wmds_fake( 'attachments' )[ $sold ] ) );
 
 wmds_section( 'Permanent deletion takes the images with it' );

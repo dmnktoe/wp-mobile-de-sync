@@ -3,17 +3,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * Read model for a vehicle.
- *
- * Templates should be markup, not field checks. Depending on how thoroughly
- * a dealer maintains their listings, a vehicle has twenty or eighty populated
- * fields; without this layer every template is half isset() calls.
- *
- * Everything returned here is ready for output. Escape it and print it.
- */
 class WMDS_Vehicle {
-
 	/** @var int */
 	private $post_id;
 
@@ -55,10 +45,6 @@ class WMDS_Vehicle {
 		return $this->post_id;
 	}
 
-	// --------------------------------------------------------------------
-	// Price
-	// --------------------------------------------------------------------
-
 	/** @return string e.g. "42,999 €" */
 	public function price() {
 		$price = $this->get( 'price' );
@@ -71,12 +57,6 @@ class WMDS_Vehicle {
 	}
 
 	/**
-	 * VAT note.
-	 *
-	 * The feed only supplies a VAT rate when VAT is actually reclaimable.
-	 * Its absence means margin-scheme taxation - a material difference for
-	 * business buyers, so it is stated rather than left blank.
-	 *
 	 * @return string
 	 */
 	public function vat_note() {
@@ -92,10 +72,6 @@ class WMDS_Vehicle {
 		/* translators: %s: VAT rate as a number, e.g. 19. */
 		return sprintf( __( 'incl. %s%% VAT', 'wp-mobile-de-sync' ), rtrim( rtrim( $rate, '0' ), '.,' ) );
 	}
-
-	// --------------------------------------------------------------------
-	// Key figures
-	// --------------------------------------------------------------------
 
 	/** @return string e.g. "129,000 km" */
 	public function mileage() {
@@ -119,8 +95,6 @@ class WMDS_Vehicle {
 	}
 
 	/**
-	 * First registration as MM.YYYY.
-	 *
 	 * @return string
 	 */
 	public function first_registration() {
@@ -128,13 +102,6 @@ class WMDS_Vehicle {
 	}
 
 	/**
-	 * Roadworthiness inspection.
-	 *
-	 * Two cases, and for dealers the second is the more common one: either
-	 * there is an expiry date, or the vehicle gets a fresh inspection on
-	 * purchase. Reading only the date leaves such inventories permanently
-	 * blank.
-	 *
 	 * @return string
 	 */
 	public function inspection() {
@@ -152,8 +119,6 @@ class WMDS_Vehicle {
 	}
 
 	/**
-	 * Availability as a complete sentence, or an empty string.
-	 *
 	 * @return string
 	 */
 	public function availability_note() {
@@ -170,13 +135,7 @@ class WMDS_Vehicle {
 		return sprintf( __( 'Available from %s', 'wp-mobile-de-sync' ), $from );
 	}
 
-	// --------------------------------------------------------------------
-	// Groupings for output
-	// --------------------------------------------------------------------
-
 	/**
-	 * The headline figures, as label => value.
-	 *
 	 * @return array<string, string>
 	 */
 	public function highlights() {
@@ -192,8 +151,6 @@ class WMDS_Vehicle {
 	}
 
 	/**
-	 * All detail values, grouped.
-	 *
 	 * @return array<string, array<string, string>>
 	 */
 	public function specifications() {
@@ -248,8 +205,6 @@ class WMDS_Vehicle {
 	}
 
 	/**
-	 * Labels of the features this vehicle has.
-	 *
 	 * @return string[]
 	 */
 	public function features() {
@@ -268,8 +223,6 @@ class WMDS_Vehicle {
 	}
 
 	/**
-	 * Warnings that have to stand out.
-	 *
 	 * @return string[]
 	 */
 	public function warnings() {
@@ -284,10 +237,6 @@ class WMDS_Vehicle {
 
 		return $out;
 	}
-
-	// --------------------------------------------------------------------
-	// Seller, images, logo
-	// --------------------------------------------------------------------
 
 	/** @return string */
 	public function seller() {
@@ -310,8 +259,6 @@ class WMDS_Vehicle {
 		$area    = $this->get( 'seller_phone_area_code' );
 
 		if ( '' === $country ) {
-			// Without a country code the national format is the correct one,
-			// and there the leading zero of the area code belongs.
 			return trim( $area . ' ' . $number );
 		}
 
@@ -329,8 +276,6 @@ class WMDS_Vehicle {
 	}
 
 	/**
-	 * The vehicle's image attachments.
-	 *
 	 * @param string $size
 	 * @return array<int, array{url:string,thumb:string,alt:string}>
 	 */
@@ -369,13 +314,7 @@ class WMDS_Vehicle {
 		return $out;
 	}
 
-	// --------------------------------------------------------------------
-	// Helpers
-	// --------------------------------------------------------------------
-
 	/**
-	 * Appends a unit to a value, or returns an empty string.
-	 *
 	 * @param string $key
 	 * @param string $unit
 	 * @return string
@@ -387,8 +326,6 @@ class WMDS_Vehicle {
 	}
 
 	/**
-	 * YYYY-MM-DD to MM.YYYY, without going through time zones.
-	 *
 	 * @param string $value
 	 * @return string
 	 */

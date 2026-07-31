@@ -23,18 +23,11 @@ define( 'WMDS_FILE', __FILE__ );
 define( 'WMDS_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WMDS_URL', plugin_dir_url( __FILE__ ) );
 
-// The custom post type. Slug and name are part of the data contract: facets,
-// theme templates and custom queries all depend on them, and they appear in
-// public URLs. Renaming breaks every existing installation.
 define( 'WMDS_CPT', 'fahrzeuge' );
 
-// Regular run: fetches only what changed.
 define( 'WMDS_CRON_HOOK', 'wmds_import_event' );
-// Daily: discards the watermark and thereby forces a full reconciliation.
 define( 'WMDS_CRON_FULL_HOOK', 'wmds_full_sync_event' );
 
-// Base URL for the list-view icons (mileage.svg, fuel.svg, …). Override in
-// wp-config.php; the default points at the conventional directory.
 if ( ! defined( 'WMDS_ICONS' ) ) {
 	define( 'WMDS_ICONS', content_url( '/icons/' ) );
 }
@@ -50,8 +43,6 @@ require_once WMDS_DIR . 'includes/class-wmds-importer.php';
 require_once WMDS_DIR . 'includes/class-wmds-logos.php';
 require_once WMDS_DIR . 'includes/class-wmds-vehicle.php';
 
-// Updates via GitHub releases. The `Update URI` header above decides which
-// filter fires; without it WordPress never calls WMDS_Updater.
 require_once WMDS_DIR . 'includes/class-wmds-updater.php';
 add_action( 'init', array( 'WMDS_Updater', 'init' ) );
 
@@ -65,22 +56,10 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 }
 
 add_action( 'init', 'wmds_load_textdomain' );
-/**
- * Load translations.
- *
- * Source strings are English; German and any other language ship as
- * translations under /languages.
- */
 function wmds_load_textdomain() {
 	load_plugin_textdomain( 'wp-mobile-de-sync', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
 }
 
-/**
- * Register the "fahrzeuge" custom post type.
- *
- * Slug and rewrite rules keep existing URLs intact: /fahrzeuge/ as the
- * archive and /fahrzeuge/{slug}/ as the detail page.
- */
 function wmds_register_cpt() {
 	register_post_type(
 		WMDS_CPT,
@@ -112,21 +91,15 @@ function wmds_register_cpt() {
 			'menu_position'      => 25,
 			'menu_icon'          => 'dashicons-car',
 			'supports'           => array( 'title', 'editor', 'thumbnail', 'custom-fields' ),
-			// Important for FacetWP: the post type must be discoverable.
 			'show_in_rest'       => true,
 		)
 	);
 }
 add_action( 'init', 'wmds_register_cpt' );
 
-// Clean up a vehicle's images when the vehicle is deleted for good. Trashing
-// leaves them alone on purpose, so a restore brings the gallery back.
 add_action( 'before_delete_post', array( 'WMDS_Importer', 'delete_attachments' ) );
 
 /**
- * Template loader. Prefers theme overrides, falls back to the bundled
- * templates.
- *
  * @param string $template
  * @return string
  */
@@ -139,7 +112,6 @@ function wmds_template_loader( $template ) {
 		return $template;
 	}
 
-	// The theme wins.
 	if ( file_exists( get_stylesheet_directory() . '/' . $file ) ) {
 		return $template;
 	}
@@ -151,12 +123,6 @@ function wmds_template_loader( $template ) {
 add_filter( 'template_include', 'wmds_template_loader' );
 
 /**
- * Shortcode [fahrzeuge-anzeigen] - renders the list view.
- *
- * Both parameters look unused here but are not: the included template reads
- * $atts out of this scope. Passing them explicitly would mean giving the
- * template a function signature, which would break theme overrides.
- *
  * @param array  $atts    Shortcode attributes, consumed by the template.
  * @param string $content Enclosed content, unused.
  * @return string
@@ -176,18 +142,10 @@ function wmds_shortcode_getcars( $atts, $content = null ) { // phpcs:ignore Gene
 add_shortcode( 'fahrzeuge-anzeigen', 'wmds_shortcode_getcars' );
 
 add_action( 'wp_enqueue_scripts', 'wmds_enqueue_styles' );
-/**
- * Stylesheet for the bundled templates.
- *
- * Loaded only where vehicles actually appear. If the theme brings its own
- * templates the file is redundant, and the filter switches it off.
- */
 function wmds_enqueue_styles() {
 	$needed = is_singular( WMDS_CPT ) || is_post_type_archive( WMDS_CPT );
 
 	/**
-	 * Whether the bundled stylesheet is loaded.
-	 *
 	 * @param bool $needed
 	 */
 	if ( ! apply_filters( 'wmds_enqueue_styles', $needed ) ) {
@@ -196,19 +154,6 @@ function wmds_enqueue_styles() {
 
 	wp_enqueue_style( 'wmds', WMDS_URL . 'assets/wmds.css', array(), WMDS_VERSION );
 }
-
-// ---------------------------------------------------------------------------
-// Schedule
-//
-// WP-Cron is the interface here, not the timer: it is triggered by page
-// views, not by a clock. On a low-traffic site "every 15 minutes" really
-// means "eventually". A real cron job is therefore recommended per install:
-//
-// define( 'DISABLE_WP_CRON', true );          // wp-config.php
-// */15 * * * * cd /path && wp cron event run --due-now
-//
-// The settings screen points this out when neither mechanism fires.
-// ---------------------------------------------------------------------------
 
 add_filter( 'cron_schedules', 'wmds_cron_schedules' );
 /**
@@ -230,7 +175,6 @@ function wmds_cron_schedules( $schedules ) {
 }
 
 add_action( WMDS_CRON_HOOK, 'wmds_run_import' );
-/** Regular run. */
 function wmds_run_import() {
 	if ( ! WMDS_Settings::is_configured() ) {
 		return;
@@ -240,17 +184,11 @@ function wmds_run_import() {
 }
 
 add_action( WMDS_CRON_FULL_HOOK, 'wmds_force_full_sync' );
-/**
- * Discard the watermark once a day. The next regular run is a full
- * reconciliation as a result – and only after one of those is anything
- * ever removed.
- */
 function wmds_force_full_sync() {
 	delete_option( WMDS_Importer::OPT_WATERMARK );
 }
 
 register_activation_hook( __FILE__, 'wmds_activate' );
-/** Register the post type, flush rewrites and arm the schedule. */
 function wmds_activate() {
 	wmds_register_cpt();
 	flush_rewrite_rules();
@@ -264,7 +202,6 @@ function wmds_activate() {
 }
 
 register_deactivation_hook( __FILE__, 'wmds_deactivate' );
-/** Clear the schedule and the run lock, flush rewrites. */
 function wmds_deactivate() {
 	wp_clear_scheduled_hook( WMDS_CRON_HOOK );
 	wp_clear_scheduled_hook( WMDS_CRON_FULL_HOOK );

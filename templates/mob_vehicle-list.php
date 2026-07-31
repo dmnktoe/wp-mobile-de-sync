@@ -1,28 +1,4 @@
 <?php
-/**
- * Output of the [fahrzeuge-anzeigen] shortcode.
- *
- * Fallback template. A theme's own mob_vehicle-list.php takes precedence, so
- * established sites keep the presentation they already had.
- *
- * Attributes:
- *   posts_per_page  how many (default 6, -1 for all)
- *   make            manufacturer, e.g. "Audi"
- *   model           model
- *   condition       used / new
- *   fuel            diesel / petrol / …
- *   gearbox         manual / automatic
- *   orderby / order sorting, default date descending
- *   meta_key        meta field to sort by, e.g. price_raw
- *
- * The German attribute names marke, modell, zustand, kraftstoffart and
- * getriebe still work as aliases: they appear in the page content of existing
- * sites, and silently dropping them would change what those pages show.
- *
- * $atts and $content come from the calling shortcode.
- *
- * @package wp-mobile-de-sync
- */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -36,7 +12,6 @@ $wmds_atts = shortcode_atts(
 		'condition'      => '',
 		'fuel'           => '',
 		'gearbox'        => '',
-		// Deprecated aliases, see the file header.
 		'marke'          => '',
 		'modell'         => '',
 		'zustand'        => '',
@@ -63,11 +38,6 @@ if ( '' !== $wmds_atts['meta_key'] ) {
 	$wmds_query_args['meta_key'] = sanitize_key( $wmds_atts['meta_key'] ); // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- sorting by a meta field is what the attribute is for.
 }
 
-// The attributes filter on the same meta fields the facets use. Important:
-// they have to be translated into a meta_query - handed to WP_Query as
-// unknown keys they simply do nothing.
-//
-// The English name wins; the alias only applies when it is empty.
 $wmds_filters = array(
 	'make'      => $wmds_atts['make'] ? $wmds_atts['make'] : $wmds_atts['marke'],
 	'model'     => $wmds_atts['model'] ? $wmds_atts['model'] : $wmds_atts['modell'],

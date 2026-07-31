@@ -3,42 +3,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * Client for the mobile.de Search API in the current data format (New JSON).
- *
- * Why this format and not the older XML:
- *   - Legacy XML is marked deprecated by mobile.de.
- *   - Field names are fully documented; the XML route required guessing
- *     several paths, and every guess was wrong.
- *   - No XML namespace XPath. That removes an entire class of bug: absolute
- *     paths in SimpleXML are document-wide rather than node-relative, so with
- *     several vehicles per page every one of them gets the first one's values.
- *   - Images carry an MD5 hash, which is what makes a swapped photo
- *     detectable at all.
- *
- * Two endpoints, because a search result carries fewer fields than the
- * single-ad call. Verified against a live feed: the formatted description
- * (description) and the seller name (companyName) exist ONLY in the single-ad
- * call; a search result has just plainTextDescription. The importer therefore
- * fetches details selectively for new and changed vehicles, identified via
- * modificationDate.
- *
- * Every response is validated before it is used. An error becomes a WP_Error,
- * never an exception or a fatal. In particular, an error response is never
- * processed as if it were a result list.
- */
 class WMDS_Client {
-
 	const BASE   = 'https://services.mobile.de/search-api';
 	const ACCEPT = 'application/vnd.de.mobile.api+json';
 
-	/** Largest page size the API allows. */
 	const MAX_PAGE_SIZE = 100;
 
-	/**
-	 * Hard API ceiling: at most 2000 ads are reachable through paginated
-	 * pages. Beyond that, further pages come back empty.
-	 */
 	const PAGINATION_CAP = 2000;
 
 	/** @var string */
@@ -74,17 +44,6 @@ class WMDS_Client {
 	}
 
 	/**
-	 * Builds the search URL.
-	 *
-	 * Prefers the documented customerId parameter with the numeric seller ID.
-	 * The dealer= parameter appears in no official parameter list - it works,
-	 * but it can disappear at any time, so it stays a fallback only.
-	 *
-	 * Verified against a live feed: customerId works on its own, with no
-	 * accompanying parameters.
-	 *
-	 * Public so the URL construction is testable without an HTTP call.
-	 *
 	 * @param int    $page           1-based.
 	 * @param int    $per_page       max. 100.
 	 * @param string $modified_since Optional, ISO-8601. Only ads changed since.
@@ -104,20 +63,14 @@ class WMDS_Client {
 
 		if ( '' !== trim( (string) $modified_since ) ) {
 			$args['modificationTime.min'] = trim( (string) $modified_since );
-			// Oldest first: if a run aborts, the progress made up to that
-			// point is still usable.
-			$args['sort.field'] = 'modificationTime';
-			$args['sort.order'] = 'ASCENDING';
+			$args['sort.field']           = 'modificationTime';
+			$args['sort.order']           = 'ASCENDING';
 		}
 
-		// add_query_arg already encodes the values - encode nothing here, or
-		// it ends up double-encoded.
 		return add_query_arg( $args, self::BASE . '/search' );
 	}
 
 	/**
-	 * Fetches one page of the dealer search.
-	 *
 	 * @param int    $page
 	 * @param int    $per_page
 	 * @param string $modified_since
@@ -136,15 +89,11 @@ class WMDS_Client {
 			'total'     => $total,
 			'max_pages' => isset( $data['maxPages'] ) ? max( 1, (int) $data['maxPages'] ) : 1,
 			'page_size' => isset( $data['pageSize'] ) ? (int) $data['pageSize'] : (int) $per_page,
-			// Past the ceiling, vehicles stay unreachable. The importer has
-			// to log that, or the run looks successful.
 			'capped'    => $total > self::PAGINATION_CAP,
 		);
 	}
 
 	/**
-	 * Fetches a single ad with the full field set.
-	 *
 	 * @param string $ad_id Ad ID. Deliberately a string - per the mobile.de
 	 *                      changelog the format grows to up to 16 digits
 	 *                      from 08/2026.
@@ -160,8 +109,6 @@ class WMDS_Client {
 	}
 
 	/**
-	 * Performs the HTTP request and returns a validated array or a WP_Error.
-	 *
 	 * @param string $url
 	 * @return array|WP_Error
 	 */
@@ -194,11 +141,6 @@ class WMDS_Client {
 	}
 
 	/**
-	 * Evaluates a response's status code and body.
-	 *
-	 * Static and free of the WordPress HTTP layer, so the whole error path is
-	 * testable without a network.
-	 *
 	 * @param int    $code
 	 * @param string $body
 	 * @return array|WP_Error
@@ -233,8 +175,6 @@ class WMDS_Client {
 			);
 		}
 
-		// The API can return an error list even with HTTP 200, e.g. for
-		// outdated search parameters.
 		if ( isset( $data['errors'] ) && ! empty( $data['errors'] ) ) {
 			return new WP_Error( 'wmds_api_error', 'mobile.de reports: ' . self::error_message( $body ) );
 		}
@@ -243,12 +183,6 @@ class WMDS_Client {
 	}
 
 	/**
-	 * Extracts a readable message from an error body.
-	 *
-	 * Covers both shapes the API actually sends:
-	 *   {"errors":[{"key":"invalid-search-parameter","message":"...","args":[...]}]}
-	 *   {"title":"Not Acceptable","detail":"Acceptable representations: ...","status":406}
-	 *
 	 * @param string $body
 	 * @return string Empty string when there is nothing usable in it.
 	 */
@@ -263,7 +197,6 @@ class WMDS_Client {
 			return '';
 		}
 
-		// Shape one: application/problem+json.
 		if ( isset( $data['detail'] ) || isset( $data['title'] ) ) {
 			$parts = array();
 			if ( ! empty( $data['title'] ) ) {
@@ -292,7 +225,6 @@ class WMDS_Client {
 				$text = '' === $text ? (string) $error['message'] : $text . ' (' . $error['message'] . ')';
 			}
 
-			// args often names the specific field being rejected.
 			if ( ! empty( $error['args'] ) && is_array( $error['args'] ) ) {
 				$args = array();
 				foreach ( $error['args'] as $arg ) {

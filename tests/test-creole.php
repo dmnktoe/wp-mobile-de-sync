@@ -1,25 +1,10 @@
 <?php
-/**
- * Tests for WMDS_Creole.
- *
- *     php tests/test-creole.php
- *
- * The main case is a real, unmodified vehicle description from the feed.
- * That is exactly where a Markdown parser falls apart.
- */
 
 require_once __DIR__ . '/bootstrap.php';
 require_once __DIR__ . '/../includes/class-wmds-creole.php';
 
-// --------------------------------------------------------------------
-// A real description from the feed
-// --------------------------------------------------------------------
-
 wmds_section( 'A real vehicle description from the feed' );
 
-// This is how the value sits in memory after json_decode(): the four
-// backslashes between "etc." and "Further" are two CREOLE breaks, the two
-// before "Driver" are one.
 $real = '**The following modifications were made: 108 kW with intercooler, suspension, wheels and tyres, sports steering wheel, Recaro seats, LED headlights, navigation, sound system, camera, auxiliary heating, boot conversion with commercial registration etc.\\\\\\\\Further equipment:**\\\\Driver/passenger airbag, brake assist, body: 3-door, tinted glazing';
 
 $html = WMDS_Creole::to_html( $real );
@@ -29,13 +14,8 @@ wmds_assert_contains( 'bold opened', '<strong>', $html );
 wmds_assert_contains( 'bold closed', '</strong>', $html );
 wmds_assert_contains( 'text at the start', 'The following modifications were made', $html );
 wmds_assert_contains( 'text at the end', 'tinted glazing', $html );
-// The double break inside the bold run separates two paragraphs.
 wmds_assert( 'two paragraphs', 2, substr_count( $html, '<p>' ) );
 wmds_assert( 'one break in the second paragraph', 1, substr_count( $html, '<br>' ) );
-
-// --------------------------------------------------------------------
-// Individual rules
-// --------------------------------------------------------------------
 
 wmds_section( 'Line break: two backslashes' );
 
@@ -69,16 +49,10 @@ wmds_assert(
 	'<p>Ausstattung:</p><ul><li>Navi</li></ul>',
 	WMDS_Creole::to_html( 'Ausstattung:\\\\* Navi\\\\' )
 );
-// An asterisk with no following space is not a bullet.
 wmds_assert( 'asterisk without a space', '<p>*not a bullet</p>', WMDS_Creole::to_html( '*not a bullet' ) );
-
-// --------------------------------------------------------------------
-// Entities and safety
-// --------------------------------------------------------------------
 
 wmds_section( 'HTML entities from the feed' );
 
-// A real value from the feed: the API leaves &quot; inside the colour name.
 wmds_assert(
 	'manufacturerColorName',
 	'BLACK SOLID "STONE" / Solid',

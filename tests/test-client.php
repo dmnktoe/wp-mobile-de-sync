@@ -1,21 +1,8 @@
 <?php
-/**
- * Tests for WMDS_Client and WMDS_Refdata.
- *
- *     php tests/test-client.php
- *
- * No network: URL construction and response evaluation are deliberately built
- * as pure static functions. The error bodies below are real mobile.de API
- * responses, not invented ones.
- */
 
 require_once __DIR__ . '/bootstrap.php';
 require_once __DIR__ . '/../includes/class-wmds-client.php';
 require_once __DIR__ . '/../includes/class-wmds-refdata.php';
-
-// --------------------------------------------------------------------
-// URL construction
-// --------------------------------------------------------------------
 
 wmds_section( 'Search URL: prefers the documented customerId' );
 
@@ -36,8 +23,6 @@ wmds_assert( 'customerId NOT set', false, strpos( $url_fb, 'customerId=' ) );
 
 wmds_section( 'Search URL: no double encoding' );
 
-// Calling rawurlencode() on a value that add_query_arg then encodes again
-// produces nonsense as soon as the dealer name contains a special character.
 $umlaut = new WMDS_Client( 'user', 'pass', '', 'AUTO & MEHR' );
 wmds_assert_contains( 'encoded once', 'dealer=AUTO%20%26%20MEHR', $umlaut->search_url() );
 wmds_assert( 'not encoded twice', false, strpos( $umlaut->search_url(), '%2520' ) );
@@ -56,10 +41,6 @@ wmds_assert_contains( 'plus sign encoded', '%2B02%3A00', $inc );
 wmds_assert_contains( 'sorted ascending', 'sort.order=ASCENDING', $inc );
 wmds_assert( 'no sorting without a time filter', false, strpos( $client->search_url(), 'sort.field' ) );
 
-// --------------------------------------------------------------------
-// Response evaluation
-// --------------------------------------------------------------------
-
 wmds_section( 'Response: valid search result' );
 
 $ok = WMDS_Client::interpret( 200, '{"total":143,"currentPage":1,"maxPages":2,"pageSize":100,"ads":[{"mobileAdId":"424776053"}]}' );
@@ -73,15 +54,12 @@ $e401 = WMDS_Client::interpret( 401, '' );
 wmds_assert( '401 is a WP_Error', true, is_wp_error( $e401 ) );
 wmds_assert_contains( '401 carries a hint', 'check the credentials', $e401->get_error_message() );
 
-// The API's actual answer to Accept: application/json - this is how we
-// established that no "Legacy JSON" exists.
 $body406 = '{"detail":"Acceptable representations: [application/xml, application/vnd.de.mobile.api+xml, application/vnd.de.mobile.api+json].","instance":"/search","status":406,"title":"Not Acceptable"}';
 $e406    = WMDS_Client::interpret( 406, $body406 );
 wmds_assert( '406 is a WP_Error', true, is_wp_error( $e406 ) );
 wmds_assert_contains( '406 states the reason', 'Not Acceptable', $e406->get_error_message() );
 wmds_assert_contains( '406 lists the accepted formats', 'Acceptable representations', $e406->get_error_message() );
 
-// Error response naming a field: must never pass as a result list.
 $body400 = '{"errors":[{"key":"invalid-search-parameter","message":"Invalid search parameter","args":[{"key":"field","value":"customerId"},{"key":"code","value":"typeMismatch"}]}]}';
 $e400    = WMDS_Client::interpret( 400, $body400 );
 wmds_assert( '400 is a WP_Error', true, is_wp_error( $e400 ) );
@@ -101,10 +79,6 @@ $empty = WMDS_Client::interpret( 200, '{"total":0,"currentPage":1,"maxPages":1,"
 wmds_assert( 'no error', false, is_wp_error( $empty ) );
 wmds_assert( 'total 0', 0, $empty['total'] );
 
-// --------------------------------------------------------------------
-// Reference data
-// --------------------------------------------------------------------
-
 wmds_section( 'Refdata: a real /refdata/gearboxes response' );
 
 $gearboxes = '{"values":[{"name":"MANUAL_GEAR","description":"Schaltgetriebe","url":"https://services.mobile.de/refdata/gearboxes/MANUAL_GEAR"},{"name":"SEMIAUTOMATIC_GEAR","description":"Halbautomatik","url":"https://services.mobile.de/refdata/gearboxes/SEMIAUTOMATIC_GEAR"},{"name":"AUTOMATIC_GEAR","description":"Automatik","url":"https://services.mobile.de/refdata/gearboxes/AUTOMATIC_GEAR"}]}';
@@ -122,13 +96,12 @@ wmds_assert( 'entry without a description is dropped', array(), WMDS_Refdata::pa
 
 wmds_section( 'Refdata: falls back to the key when the table is missing' );
 
-/** Refdata without a network: only gearboxes returns a table. */
 class WMDS_Refdata_Stub extends WMDS_Refdata {
 	protected function fetch( $path ) {
 		if ( 'gearboxes' === $path ) {
 			return array( 'MANUAL_GEAR' => 'Schaltgetriebe' );
 		}
-		return array(); // fetch failed
+		return array();
 	}
 }
 

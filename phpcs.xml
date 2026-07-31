@@ -57,6 +57,19 @@
 		<exclude name="Generic.Commenting.DocComment.MissingShort"/>
 
 		<!--
+			This project carries no explanatory comments: the code says what it
+			does, and the rationale lives in README.md and CHANGELOG.md rather
+			than beside the lines. Requiring a doc comment on every function and
+			class would contradict that - it would force back exactly the prose
+			that was deliberately removed. What remains are @param, @return and
+			@var tags, which are type information rather than explanation, and
+			the annotations phpcs itself needs.
+		-->
+		<exclude name="Squiz.Commenting.FunctionComment.Missing"/>
+		<exclude name="Squiz.Commenting.ClassComment.Missing"/>
+		<exclude name="Squiz.Commenting.VariableComment.Missing"/>
+
+		<!--
 			WordPress' own signatures use $default, $list, $string and $class.
 			The stubs and wrappers here mirror them deliberately; renaming
 			would make them diverge from what they stand in for.
@@ -148,16 +161,7 @@
 		Generic.Commenting standards: referencing a whole standard ADDS every
 		sniff in it rather than narrowing what is already active.
 	-->
-	<rule ref="Squiz.Commenting.FunctionComment.Missing">
-		<exclude-pattern>tests/*</exclude-pattern>
-	</rule>
 	<rule ref="Squiz.Commenting.FunctionComment.MissingParamTag">
-		<exclude-pattern>tests/*</exclude-pattern>
-	</rule>
-	<rule ref="Squiz.Commenting.VariableComment.Missing">
-		<exclude-pattern>tests/*</exclude-pattern>
-	</rule>
-	<rule ref="Squiz.Commenting.ClassComment.Missing">
 		<exclude-pattern>tests/*</exclude-pattern>
 	</rule>
 	<rule ref="Squiz.Commenting.InlineComment.InvalidEndChar">

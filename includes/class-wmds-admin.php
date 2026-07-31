@@ -3,21 +3,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * Settings screen: credentials, schedule diagnostics, manual actions, log.
- */
 class WMDS_Admin {
-
 	const PAGE  = 'wmds-settings';
 	const NONCE = 'wmds_admin';
 
-	/** Hook the settings screen into the admin. */
 	public static function init() {
 		add_action( 'admin_menu', array( __CLASS__, 'menu' ) );
 		add_action( 'admin_init', array( __CLASS__, 'handle' ) );
 	}
 
-	/** Register the settings page under the vehicles menu. */
 	public static function menu() {
 		add_submenu_page(
 			'edit.php?post_type=' . WMDS_CPT,
@@ -29,16 +23,6 @@ class WMDS_Admin {
 		);
 	}
 
-	// --------------------------------------------------------------------
-	// Actions
-	// --------------------------------------------------------------------
-
-	/**
-	 * Dispatches a posted action.
-	 *
-	 * This is the single place where the request is authorised: capability
-	 * first, then the nonce. Everything below runs only after both passed.
-	 */
 	public static function handle() {
 		if ( ! isset( $_POST['wmds_action'] ) || ! current_user_can( 'manage_options' ) ) {
 			return;
@@ -65,28 +49,16 @@ class WMDS_Admin {
 		}
 	}
 
-	/**
-	 * Stores the submitted settings.
-	 *
-	 * Only ever reached through handle(), which checks the capability and
-	 * calls check_admin_referer() first - hence the nonce annotations below.
-	 */
 	private static function save() {
 		// phpcs:disable WordPress.Security.NonceVerification.Missing -- verified in handle() before this runs.
 		$values = array(
 			'username'  => sanitize_text_field( wp_unslash( $_POST['wmds_username'] ?? '' ) ),
-			// preg_replace to digits only is the sanitisation here; phpcs does
-			// not recognise it as one.
 			'seller_id' => preg_replace( '/\D/', '', wp_unslash( $_POST['wmds_seller_id'] ?? '' ) ), // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			'dealer'    => sanitize_text_field( wp_unslash( $_POST['wmds_dealer'] ?? '' ) ),
 			'language'  => sanitize_key( wp_unslash( $_POST['wmds_language'] ?? '' ) ),
 			'interval'  => sanitize_key( wp_unslash( $_POST['wmds_interval'] ?? 'wmds_15min' ) ),
 		);
 
-		// Do NOT run the password through sanitize_text_field: it strips angle
-		// brackets and surrounding whitespace, silently breaking valid
-		// passwords. An empty field means "leave unchanged", so the stored
-		// value never has to appear in the form.
 		$password = (string) wp_unslash( $_POST['wmds_password'] ?? '' ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- deliberately unsanitised, see above.
 		if ( '' !== $password ) {
 			$values['password'] = $password;
@@ -99,7 +71,6 @@ class WMDS_Admin {
 		add_settings_error( 'wmds', 'saved', __( 'Settings saved.', 'wp-mobile-de-sync' ), 'updated' );
 	}
 
-	/** Apply an interval change to the scheduled cron event. */
 	private static function resync_schedule() {
 		$current = wp_get_schedule( WMDS_CRON_HOOK );
 		$wanted  = WMDS_Settings::interval();
@@ -112,7 +83,6 @@ class WMDS_Admin {
 		wp_schedule_event( time() + 60, $wanted, WMDS_CRON_HOOK );
 	}
 
-	/** Performs a one-vehicle search and reports the outcome. */
 	private static function test() {
 		$result = WMDS_Settings::client()->search( 1, 1 );
 
@@ -147,10 +117,7 @@ class WMDS_Admin {
 		add_settings_error( 'wmds', 'test', $message, 'updated' );
 	}
 
-	/** Runs a full sync from the admin and reports the statistics. */
 	private static function sync() {
-		// A full sync from the admin can outlive the default limit; the CLI is
-		// the better route, but the button must not simply time out.
 		@set_time_limit( 0 ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- disabled on many hosts, the failure is harmless.
 
 		$importer = new WMDS_Importer();
@@ -192,11 +159,6 @@ class WMDS_Admin {
 		add_settings_error( 'wmds', 'sync', $message, 'updated' );
 	}
 
-	// --------------------------------------------------------------------
-	// Output
-	// --------------------------------------------------------------------
-
-	/** Renders the settings screen. */
 	public static function render() {
 		$last = get_option( WMDS_Importer::OPT_LAST_RUN, array() );
 		$log  = get_option( WMDS_Importer::OPT_LOG, array() );
@@ -431,13 +393,6 @@ class WMDS_Admin {
 		<?php
 	}
 
-	/**
-	 * Points out when the schedule is effectively not running.
-	 *
-	 * WP-Cron is triggered by page views. On a low-traffic dealer site "every
-	 * 15 minutes" therefore means "eventually" - something that otherwise only
-	 * surfaces when somebody reports a missing vehicle.
-	 */
 	private static function render_cron_notice() {
 		$disabled = defined( 'DISABLE_WP_CRON' ) && DISABLE_WP_CRON;
 		$last     = get_option( WMDS_Importer::OPT_LAST_RUN, array() );

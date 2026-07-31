@@ -1,17 +1,10 @@
 <?php
-/**
- * Tests for WMDS_Json_Mapper against anonymised but structurally real
- * mobile.de API responses.
- *
- *     php tests/test-json-mapper.php
- */
 
 require_once __DIR__ . '/bootstrap.php';
 require_once __DIR__ . '/../includes/class-wmds-creole.php';
 require_once __DIR__ . '/../includes/class-wmds-refdata.php';
 require_once __DIR__ . '/../includes/class-wmds-json-mapper.php';
 
-/** Refdata without a network, holding exactly the values in the fixtures. */
 class WMDS_Refdata_Fake extends WMDS_Refdata {
 	protected function fetch( $path ) {
 		$tables = array(
@@ -62,15 +55,9 @@ if ( ! $search || ! $detail ) {
 $defender = $mapper->map( $search['ads'][0] );
 $volvo    = $mapper->map( $search['ads'][1] );
 
-// --------------------------------------------------------------------
-// Grunddaten
-// --------------------------------------------------------------------
-
 wmds_section( 'Vehicle 1: basics and refdata resolution' );
 
 wmds_assert( 'ad_id', '424776053', $defender['ad_id'] );
-// The model name is already inside modelDescription; it must not appear
-// im Titel landen ("Land Rover Defender Defender 90 ...").
 wmds_assert( 'title without a duplicated model', 'Land Rover Defender 90 Standheizung Kamera LED Recaro', $defender['title'] );
 wmds_assert( 'Marke uebersetzt', 'Land Rover', $defender['meta']['make'] );
 wmds_assert( 'make_key sprachunabhaengig', 'LAND ROVER', $defender['meta']['make_key'] );
@@ -102,21 +89,11 @@ wmds_assert( 'Verbrauch kombiniert', '10', $defender['meta']['emissionFuelConsum
 wmds_assert( 'CO2', '265', $defender['meta']['emissionFuelConsumption_CO2'] );
 wmds_assert( 'Verbrauch innerorts fehlt -> leer', '', $defender['meta']['emissionFuelConsumption_Inner'] );
 
-// --------------------------------------------------------------------
-// Mehrwertsteuer
-// --------------------------------------------------------------------
-
 wmds_section( 'VAT: derived from vatRate, not from a dedicated field' );
 
-// There is no vatable field; vatRate exists only when VAT is reclaimable.
-// The templates compare literally.
 wmds_assert( 'without vatRate -> false', 'false', $defender['meta']['vatable'] );
 wmds_assert( 'mit vatRate -> true', 'true', $volvo['meta']['vatable'] );
 wmds_assert( 'Satz mitgefuehrt', '19.00', $volvo['meta']['vat_rate'] );
-
-// --------------------------------------------------------------------
-// Inspection and previous owners
-// --------------------------------------------------------------------
 
 wmds_section( 'Inspection: generalInspection absent, newHuAu carries the statement' );
 
@@ -128,10 +105,6 @@ wmds_section( 'Vorbesitzer' );
 
 wmds_assert( 'not stated -> empty', '', $defender['meta']['owners'] );
 wmds_assert( 'angegeben', '1', $volvo['meta']['owners'] );
-
-// --------------------------------------------------------------------
-// Ausstattung
-// --------------------------------------------------------------------
 
 wmds_section( 'Features: all 28 template keys are covered' );
 
@@ -149,7 +122,6 @@ wmds_assert( 'Defender has no ESP', false, isset( $defender['meta']['ESP'] ) );
 
 wmds_section( 'Ausstattung: Enums' );
 
-// Both vehicles have LED_HEADLIGHTS - the xenon rule must not fire.
 wmds_assert( 'no xenon when LED', false, isset( $defender['meta']['XENON_HEADLIGHTS'] ) );
 wmds_assert( 'daytime running lights detected', 'Daytime running lights', $defender['meta']['DAYTIME_RUNNING_LIGHTS'] );
 wmds_assert( 'cruise control only on the Volvo', 'Cruise control', $volvo['meta']['CRUISE_CONTROL'] );
@@ -157,13 +129,8 @@ wmds_assert( 'Defender without cruise control', false, isset( $defender['meta'][
 
 wmds_section( 'Features: lists - a reversing camera is not parking sensors' );
 
-// The feed lists REAR_VIEW_CAM in the same array as the sensors.
 wmds_assert( 'camera only -> no parking sensors', false, isset( $defender['meta']['PARKING_SENSORS'] ) );
 wmds_assert( 'with sensors -> parking sensors', 'Parking sensors', $volvo['meta']['PARKING_SENSORS'] );
-
-// --------------------------------------------------------------------
-// Entitaeten
-// --------------------------------------------------------------------
 
 wmds_section( 'HTML entities in a field value are decoded' );
 
@@ -173,21 +140,12 @@ wmds_assert(
 	$volvo['meta']['manufacturer_color_name']
 );
 
-// --------------------------------------------------------------------
-// Bilder
-// --------------------------------------------------------------------
-
 wmds_section( 'Bilder: groesste Repraesentation plus Hash' );
 
 wmds_assert( 'ein Bild', 1, count( $defender['images'] ) );
 wmds_assert( 'groesste gewaehlt', 'https://img.example.invalid/a-xxxl.jpg', $defender['images'][0]['url'] );
 wmds_assert( 'Hash uebernommen', '99c3997d960b89eae1b66fb104c8d8a2', $defender['images'][0]['hash'] );
-// The second vehicle has no xxl/xl/l - it has to fall back to xxxl or icon.
 wmds_assert( 'Rueckfall auf vorhandene Groesse', 'https://img.example.invalid/b-xxxl.jpg', $volvo['images'][0]['url'] );
-
-// --------------------------------------------------------------------
-// Suchergebnis vs. Einzelabruf
-// --------------------------------------------------------------------
 
 wmds_section( 'A search result has neither description nor seller name' );
 
@@ -198,7 +156,6 @@ wmds_assert( 'e-mail is present', 'kontakt@example.invalid', $defender['meta']['
 
 wmds_section( 'Detail call layered over the search result' );
 
-// This is what the importer does: array_merge, the detail call wins.
 $merged = $mapper->map( array_merge( $search['ads'][0], $detail ) );
 
 wmds_assert( 'Verkaeufername vorhanden', 'Musterhaendler GmbH', $merged['meta']['seller'] );
@@ -216,10 +173,6 @@ wmds_assert( 'no backslash', false, strpos( $desc, '\\' ) );
 wmds_assert( 'two paragraphs', 2, substr_count( $desc, '<p>' ) );
 wmds_assert_contains( 'special characters preserved', 'intercooler', $desc );
 wmds_assert_contains( 'post_content is the plain text', 'The following modifications', $merged['description'] );
-
-// --------------------------------------------------------------------
-// Robustheit
-// --------------------------------------------------------------------
 
 wmds_section( 'Incomplete ads do not blow up' );
 

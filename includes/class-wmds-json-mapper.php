@@ -3,39 +3,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * Translates an ad in the current mobile.de format (New JSON) into the meta
- * structure that theme templates and FacetWP facets expect.
- *
- * Expects the most complete array available. The importer therefore layers
- * the single-ad response over the search result (array_merge), because on a
- * live feed:
- *   - description (formatted) is absent from the search result entirely, and
- *     plainTextDescription is an empty string there
- *   - companyName and the seller's phone numbers exist only in the single-ad
- *     call; seller.phones is an empty array in a search result
- *
- * All key values (DIESEL, MANUAL_GEAR, BLACK ...) are resolved to readable
- * labels through WMDS_Refdata. Without a refdata instance the keys survive
- * unchanged - the import still runs.
- */
 class WMDS_Json_Mapper {
-
 	/**
-	 * The 28 feature keys the templates query.
-	 *
-	 * The current data format has no common features list; the individual
-	 * features live in separate fields of three different shapes. The labels
-	 * therefore come from us, which also makes them identical across every
-	 * site rather than dependent on what the API happens to return.
-	 *
-	 * Labels are resolved through feature_labels() at map time, so they
-	 * are stored in the site's language.
-	 *
-	 * type: bool  - field is true
-	 *       enum  - field has a value; 'values' narrows it further
-	 *       list  - field is a list containing one of 'values'
-	 *
 	 * @var array<string, array>
 	 */
 	private static $features = array(
@@ -150,8 +119,6 @@ class WMDS_Json_Mapper {
 			'field'  => 'speedControl',
 			'values' => array( 'CRUISE_CONTROL', 'ADAPTIVE_CRUISE_CONTROL' ),
 		),
-		// A reversing camera alone is not parking sensors - the feed lists
-		// REAR_VIEW_CAM in the same array.
 		'PARKING_SENSORS'           => array(
 			'type'   => 'list',
 			'field'  => 'parkingAssistants',
@@ -180,32 +147,20 @@ class WMDS_Json_Mapper {
 
 		$meta = array();
 
-		/* --- Make, model, category --------------------------------------- */
-
 		$make_key = isset( $ad['make'] ) ? (string) $ad['make'] : '';
 		$make     = $this->label( 'make', $make_key, $class );
 
 		$meta['make']      = $make;
-		$meta['make_key']  = $make_key; // Language independent, drives the logo lookup.
+		$meta['make_key']  = $make_key;
 		$meta['model']     = isset( $ad['model'] ) ? (string) $ad['model'] : '';
 		$meta['category']  = $this->label( 'category', $this->str( $ad, 'category' ), $class );
 		$meta['condition'] = $this->label( 'condition', $this->str( $ad, 'condition' ), $class );
 
-		/*
-		--- Title ---------------------------------------------------------
-		 * Per the documentation modelDescription is "also used as ad title
-		 * together with the make". The model name is already in there -
-		 * prefixing model as well would produce "Land Rover Defender Defender
-		 * 90 ...". The feed's detailPageUrl slug confirms make +
-		 * modelDescription.
-		 */
 		$model_desc = WMDS_Creole::decode_field( $this->str( $ad, 'modelDescription' ) );
 		$title      = trim( $make . ' ' . ( '' !== $model_desc ? $model_desc : $meta['model'] ) );
 		if ( '' === $title ) {
 			$title = 'Vehicle ' . $ad_id;
 		}
-
-		/* --- Price --------------------------------------------------------- */
 
 		$price = isset( $ad['price'] ) && is_array( $ad['price'] ) ? $ad['price'] : array();
 		$gross = isset( $price['consumerPriceGross'] ) ? (string) $price['consumerPriceGross'] : '';
@@ -213,16 +168,11 @@ class WMDS_Json_Mapper {
 		$meta['price']    = ( '' !== $gross ) ? self::number( (float) $gross ) : '';
 		$meta['currency'] = isset( $price['currency'] ) ? (string) $price['currency'] : 'EUR';
 
-		// There is no dedicated vatable field. vatRate is present only when
-		// VAT is actually reclaimable, so its presence is the signal. The
-		// templates compare literally against 'false', hence these two values.
 		$meta['vatable']  = isset( $price['vatRate'] ) && '' !== $price['vatRate'] ? 'true' : 'false';
 		$meta['vat_rate'] = isset( $price['vatRate'] ) ? (string) $price['vatRate'] : '';
 
 		$meta['price_raw']       = ( '' !== $gross ) ? (int) round( (float) $gross ) : '';
 		$meta['price_raw_short'] = self::price_bucket( $meta['price_raw'] );
-
-		/* --- Key figures ---------------------------------------------------- */
 
 		$mileage             = isset( $ad['mileage'] ) ? (int) $ad['mileage'] : null;
 		$meta['mileage']     = ( null !== $mileage ) ? self::number( $mileage ) : '';
@@ -236,33 +186,23 @@ class WMDS_Json_Mapper {
 		$meta['gearbox']    = $this->label( 'gearbox', $this->str( $ad, 'gearbox' ), $class );
 		$meta['door_count'] = $this->label( 'doors', $this->str( $ad, 'doors' ), $class );
 
-		/* --- Registration, inspection, history ------------------------------ */
-
 		$first_reg                      = $this->str( $ad, 'firstRegistration' );
 		$meta['firstRegistration']      = self::format_month( $first_reg );
 		$meta['firstRegistration_year'] = self::year( $first_reg );
 
-		// generalInspection is optional and dealers who sell with a fresh
-		// inspection do not fill it in - they set newHuAu instead. Both are
-		// mapped; the template decides.
 		$meta['nextInspection'] = self::format_month( $this->str( $ad, 'generalInspection' ) );
 		$meta['newHuAu']        = ! empty( $ad['newHuAu'] ) ? __( 'New inspection on purchase', 'wp-mobile-de-sync' ) : '';
 
 		$meta['construction-year'] = $this->str( $ad, 'constructionYear' );
 		$meta['owners']            = $this->str( $ad, 'numberOfPreviousOwners' );
 
-		// The templates compare literally against 'false'.
 		$meta['damageRepaired'] = ! empty( $ad['damageUnrepaired'] ) ? 'true' : 'false';
 		$meta['roadWorthy']     = ! empty( $ad['roadworthy'] ) ? 'true' : 'false';
-
-		/* --- Colours, interior ---------------------------------------------- */
 
 		$meta['exteriorColor']           = $this->label( 'exteriorColor', $this->str( $ad, 'exteriorColor' ), $class );
 		$meta['manufacturer_color_name'] = WMDS_Creole::decode_field( $this->str( $ad, 'manufacturerColorName' ) );
 		$meta['interior_type']           = $this->label( 'interiorType', $this->str( $ad, 'interiorType' ), $class );
 		$meta['interior_color']          = $this->label( 'interiorColor', $this->str( $ad, 'interiorColor' ), $class );
-
-		/* --- Emissions and consumption --------------------------------------- */
 
 		$meta['emissionClass']   = $this->label( 'emissionClass', $this->str( $ad, 'emissionClass' ), $class );
 		$meta['emissionSticker'] = $this->label( 'emissionSticker', $this->str( $ad, 'emissionSticker' ), $class );
@@ -280,15 +220,8 @@ class WMDS_Json_Mapper {
 			'co2'
 		);
 
-		/*
-		--- Availability ---------------------------------------------------
-		 * Per the documentation deliveryPeriod applies to new vehicles only.
-		 * A value of at most one day means immediately available.
-		 */
 		$meta['available_from'] = '';
-		// A separate, language-independent flag: comparing the display string
-		// against a translated literal breaks the moment it is translated.
-		$meta['available_now'] = '';
+		$meta['available_now']  = '';
 		if ( isset( $ad['deliveryPeriod'] ) && (int) $ad['deliveryPeriod'] <= 1 ) {
 			$meta['available_from'] = __( 'Immediately', 'wp-mobile-de-sync' );
 			$meta['available_now']  = 'true';
@@ -296,13 +229,9 @@ class WMDS_Json_Mapper {
 			$meta['available_from'] = self::format_day( $this->str( $ad, 'deliveryDate' ) );
 		}
 
-		/* --- Other ----------------------------------------------------------- */
-
 		$meta['vehicleListingID'] = $ad_id;
 		$meta['schwacke-code']    = $this->str( $ad, 'schwackeCode' );
 		$meta['detail_page_url']  = $this->str( $ad, 'detailPageUrl' );
-
-		/* --- Seller ------------------------------------------------------------ */
 
 		$seller = isset( $ad['seller'] ) && is_array( $ad['seller'] ) ? $ad['seller'] : array();
 
@@ -318,19 +247,13 @@ class WMDS_Json_Mapper {
 			}
 		}
 
-		/* --- Features ---------------------------------------------------------- */
-
 		$labels = self::feature_labels();
 
 		foreach ( self::$features as $key => $rule ) {
 			if ( self::has_feature( $ad, $rule ) ) {
-				// Translated at map time, because the label is stored in
-				// post meta - exactly like the refdata labels above.
 				$meta[ $key ] = isset( $labels[ $key ] ) ? $labels[ $key ] : $key;
 			}
 		}
-
-		/* --- Description ------------------------------------------------------- */
 
 		$description = $this->str( $ad, 'description' );
 		$plain       = $this->str( $ad, 'plainTextDescription' );
@@ -347,17 +270,7 @@ class WMDS_Json_Mapper {
 		);
 	}
 
-	// --------------------------------------------------------------------
-	// Helpers
-	// --------------------------------------------------------------------
-
 	/**
-	 * Formats a whole number for display, following the site's locale.
-	 *
-	 * An English site gets 78,000, a German one 78.000. The value is stored
-	 * in post meta, so the formatting is fixed at import time - same as the
-	 * refdata labels.
-	 *
 	 * @param float|int $value
 	 * @return string
 	 */
@@ -368,12 +281,6 @@ class WMDS_Json_Mapper {
 	}
 
 	/**
-	 * Labels for the feature keys.
-	 *
-	 * A method rather than a property, because __() cannot run in a static
-	 * property initialiser - and passing a variable to __() would leave the
-	 * strings invisible to the extractor. Here they are plain literals.
-	 *
 	 * @return array<string, string>
 	 */
 	private static function feature_labels() {
@@ -410,8 +317,6 @@ class WMDS_Json_Mapper {
 	}
 
 	/**
-	 * Tests one feature rule against an ad.
-	 *
 	 * @param array $ad
 	 * @param array $rule
 	 * @return bool
@@ -448,9 +353,6 @@ class WMDS_Json_Mapper {
 	}
 
 	/**
-	 * Collects the images with their hash. The hash is what lets the importer
-	 * notice that a dealer swapped a photo.
-	 *
 	 * @param array $ad
 	 * @return array<int, array{url:string,hash:string}>
 	 */
@@ -459,7 +361,6 @@ class WMDS_Json_Mapper {
 			return array();
 		}
 
-		// Largest first; not every representation is always present.
 		$sizes = array( 'xxxl', 'xxl', 'xl', 'l', 'm', 's', 'icon' );
 		$out   = array();
 
@@ -482,8 +383,6 @@ class WMDS_Json_Mapper {
 	}
 
 	/**
-	 * Reads a nested value without notices when a level is missing.
-	 *
 	 * @param array    $data
 	 * @param string[] $path
 	 * @return array
@@ -499,8 +398,6 @@ class WMDS_Json_Mapper {
 	}
 
 	/**
-	 * Scalar field value as a trimmed string. Arrays and null yield ''.
-	 *
 	 * @param array  $data
 	 * @param string $key
 	 * @return string
@@ -529,9 +426,6 @@ class WMDS_Json_Mapper {
 	}
 
 	/**
-	 * Normalises yyyyMM or yyyy-MM to yyyy-MM-01, so strtotime() works in the
-	 * template.
-	 *
 	 * @param string $value
 	 * @return string
 	 */
@@ -547,8 +441,6 @@ class WMDS_Json_Mapper {
 	}
 
 	/**
-	 * ISO date or timestamp to DD.MM.YYYY.
-	 *
 	 * @param string $value
 	 * @return string
 	 */
@@ -572,8 +464,6 @@ class WMDS_Json_Mapper {
 	}
 
 	/**
-	 * Coarse price bucket for the price_raw_short FacetWP facet.
-	 *
 	 * @param int|string $price
 	 * @return string
 	 */
@@ -601,8 +491,6 @@ class WMDS_Json_Mapper {
 	}
 
 	/**
-	 * The feature keys covered. For tests and diagnostics.
-	 *
 	 * @return string[]
 	 */
 	public static function feature_keys() {
