@@ -84,6 +84,16 @@ exit( 1 );
 ' "$db_host" "$db_user" "$db_secret" 2> /dev/null || fail "No database at $db_host."
 
 say "Fresh workspace"
+case "$work" in
+	/*/?*) ;;
+	*) fail "WMDS_IT_WORKDIR must be an absolute path below the root, got '$work'." ;;
+esac
+if [ "$work" = "${HOME:-}" ]; then
+	fail "WMDS_IT_WORKDIR points at the home directory."
+fi
+case "$root/" in
+	"$work"/*) fail "WMDS_IT_WORKDIR contains the checkout at $root." ;;
+esac
 rm -rf "$work"
 mkdir -p "$wp_path" "$state"
 echo "$work"
