@@ -4,54 +4,56 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$wmds_atts = shortcode_atts(
-	array(
-		'posts_per_page' => 6,
-		'make'           => '',
-		'model'          => '',
-		'condition'      => '',
-		'fuel'           => '',
-		'gearbox'        => '',
-		'marke'          => '',
-		'modell'         => '',
-		'zustand'        => '',
-		'kraftstoffart'  => '',
-		'getriebe'       => '',
-		'orderby'        => 'date',
-		'order'          => 'DESC',
-		'meta_key'       => '', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- an attribute name, not a query.
-	),
-	isset( $atts ) && is_array( $atts ) ? $atts : array(),
-	'fahrzeuge-anzeigen'
+$wmds_atts = isset( $atts ) && is_array( $atts ) ? $atts : array();
+
+$wmds_controls = array(
+	'posts_per_page' => 6,
+	'orderby'        => 'date',
+	'order'          => 'DESC',
+	'meta_key'       => '', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- an attribute name, not a query.
 );
+
+$wmds_legacy = array(
+	'marke'         => 'make',
+	'modell'        => 'model',
+	'zustand'       => 'condition',
+	'kraftstoffart' => 'fuel',
+	'getriebe'      => 'gearbox',
+	'anzahl'        => 'posts_per_page',
+);
+
+$wmds_settings = $wmds_controls;
+$wmds_filters  = array();
+
+foreach ( $wmds_atts as $wmds_key => $wmds_value ) {
+	$wmds_key = isset( $wmds_legacy[ $wmds_key ] ) ? $wmds_legacy[ $wmds_key ] : $wmds_key;
+
+	if ( array_key_exists( $wmds_key, $wmds_controls ) ) {
+		$wmds_settings[ $wmds_key ] = $wmds_value;
+		continue;
+	}
+
+	$wmds_value = is_array( $wmds_value ) ? array_filter( $wmds_value ) : trim( (string) $wmds_value );
+	if ( $wmds_value ) {
+		$wmds_filters[ $wmds_key ] = $wmds_value;
+	}
+}
 
 $wmds_query_args = array(
 	'post_type'      => WMDS_CPT,
 	'post_status'    => 'publish',
-	'posts_per_page' => (int) $wmds_atts['posts_per_page'],
-	'orderby'        => sanitize_key( $wmds_atts['orderby'] ),
-	'order'          => ( 'ASC' === strtoupper( $wmds_atts['order'] ) ) ? 'ASC' : 'DESC',
+	'posts_per_page' => (int) $wmds_settings['posts_per_page'],
+	'orderby'        => sanitize_key( $wmds_settings['orderby'] ),
+	'order'          => ( 'ASC' === strtoupper( $wmds_settings['order'] ) ) ? 'ASC' : 'DESC',
 	'no_found_rows'  => true,
 );
 
-if ( '' !== $wmds_atts['meta_key'] ) {
-	$wmds_query_args['meta_key'] = sanitize_key( $wmds_atts['meta_key'] ); // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- sorting by a meta field is what the attribute is for.
+if ( '' !== $wmds_settings['meta_key'] ) {
+	$wmds_query_args['meta_key'] = sanitize_key( $wmds_settings['meta_key'] ); // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- sorting by a meta field is what the attribute is for.
 }
-
-$wmds_filters = array(
-	'make'      => $wmds_atts['make'] ? $wmds_atts['make'] : $wmds_atts['marke'],
-	'model'     => $wmds_atts['model'] ? $wmds_atts['model'] : $wmds_atts['modell'],
-	'condition' => $wmds_atts['condition'] ? $wmds_atts['condition'] : $wmds_atts['zustand'],
-	'fuel'      => $wmds_atts['fuel'] ? $wmds_atts['fuel'] : $wmds_atts['kraftstoffart'],
-	'gearbox'   => $wmds_atts['gearbox'] ? $wmds_atts['gearbox'] : $wmds_atts['getriebe'],
-);
 
 $wmds_meta_query = array();
 foreach ( $wmds_filters as $wmds_key => $wmds_value ) {
-	$wmds_value = is_array( $wmds_value ) ? array_filter( $wmds_value ) : trim( (string) $wmds_value );
-	if ( ! $wmds_value ) {
-		continue;
-	}
 	$wmds_meta_query[] = array(
 		'key'     => $wmds_key,
 		'value'   => $wmds_value,
@@ -71,48 +73,9 @@ if ( $wmds_vehicles->have_posts() ) : ?>
 		<?php
 		while ( $wmds_vehicles->have_posts() ) :
 			$wmds_vehicles->the_post();
-			$vehicle = new WMDS_Vehicle();
-			?>
-			<li class="wmds-card">
-				<a class="wmds-card__link" href="<?php the_permalink(); ?>">
-					<div class="wmds-card__image">
-						<?php if ( has_post_thumbnail() ) : ?>
-							<?php the_post_thumbnail( 'medium_large', array( 'loading' => 'lazy' ) ); ?>
-						<?php else : ?>
-							<span class="wmds-card__placeholder" aria-hidden="true"></span>
-						<?php endif; ?>
-					</div>
-
-					<div class="wmds-card__body">
-						<h3 class="wmds-card__title"><?php the_title(); ?></h3>
-
-						<?php if ( $vehicle->has( 'category' ) || $vehicle->has( 'condition' ) ) : ?>
-							<p class="wmds-card__meta">
-								<?php echo esc_html( trim( $vehicle->get( 'category' ) . ' · ' . $vehicle->get( 'condition' ), ' ·' ) ); ?>
-							</p>
-						<?php endif; ?>
-
-						<?php if ( $vehicle->highlights() ) : ?>
-							<ul class="wmds-card__facts">
-								<?php foreach ( $vehicle->highlights() as $wmds_label => $wmds_value ) : ?>
-									<li>
-										<span class="wmds-card__fact-label"><?php echo esc_html( $wmds_label ); ?></span>
-										<span class="wmds-card__fact-value"><?php echo esc_html( $wmds_value ); ?></span>
-									</li>
-								<?php endforeach; ?>
-							</ul>
-						<?php endif; ?>
-
-						<?php if ( $vehicle->price() ) : ?>
-							<p class="wmds-card__price">
-								<?php echo esc_html( $vehicle->price() ); ?>
-								<small><?php echo esc_html( $vehicle->vat_note() ); ?></small>
-							</p>
-						<?php endif; ?>
-					</div>
-				</a>
-			</li>
-		<?php endwhile; ?>
+			WMDS_Templates::render( 'parts/vehicle-card.php', array( 'heading' => 'h3' ) );
+		endwhile;
+		?>
 	</ul>
 <?php else : ?>
 	<p class="wmds-empty"><?php esc_html_e( 'No vehicles are available at the moment.', 'wp-mobile-de-sync' ); ?></p>

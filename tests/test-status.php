@@ -2,6 +2,8 @@
 
 require_once __DIR__ . '/bootstrap.php';
 
+$GLOBALS['wmds_test_options'] = array();
+
 if ( ! function_exists( 'get_option' ) ) {
 	function get_option( $key, $default = false ) {
 		$formats = array(
@@ -9,7 +11,17 @@ if ( ! function_exists( 'get_option' ) ) {
 			'time_format' => 'H:i',
 		);
 
+		if ( isset( $GLOBALS['wmds_test_options'][ $key ] ) ) {
+			return $GLOBALS['wmds_test_options'][ $key ];
+		}
+
 		return isset( $formats[ $key ] ) ? $formats[ $key ] : $default;
+	}
+}
+
+if ( ! class_exists( 'WMDS_Importer' ) ) {
+	class WMDS_Importer {
+		const OPT_LAST_RUN = 'wmds_last_run';
 	}
 }
 
@@ -165,5 +177,22 @@ wmds_assert( 'without a timestamp there is no attribute', '', WMDS_Status::iso_t
 wmds_assert_contains( 'a past run reads as elapsed', 'ago', WMDS_Status::relative_time( time() - 600 ) );
 wmds_assert_contains( 'a coming run reads as remaining', 'in ', WMDS_Status::relative_time( time() + 600 ) );
 wmds_assert( 'nothing to relate to', '', WMDS_Status::relative_time( 0 ) );
+
+wmds_section( 'A connection test counts as tested, whether or not a sync has run' );
+
+$GLOBALS['wmds_test_options'] = array();
+wmds_assert( 'nothing tried yet', false, WMDS_Status::tested() );
+
+$GLOBALS['wmds_test_options'][ WMDS_Status::OPT_LAST_TEST ] = array(
+	'time' => '2026-07-31 10:00:00',
+	'ok'   => false,
+);
+wmds_assert( 'a failed test does not count', false, WMDS_Status::tested() );
+
+$GLOBALS['wmds_test_options'][ WMDS_Status::OPT_LAST_TEST ]['ok'] = true;
+wmds_assert( 'a passing test counts', true, WMDS_Status::tested() );
+
+$GLOBALS['wmds_test_options'] = array( WMDS_Importer::OPT_LAST_RUN => $ok );
+wmds_assert( 'so does a sync that has run', true, WMDS_Status::tested() );
 
 wmds_result();

@@ -30,6 +30,8 @@ class WMDS_Refdata {
 		'emissionSticker' => 'emissionstickers',
 		'usageType'       => 'usagetypes',
 		'climatisation'   => 'climatisations',
+		'airbag'          => 'airbags',
+		'countryVersion'  => 'countries',
 		'category'        => 'classes/%class%/categories',
 		'make'            => 'classes/%class%/makes',
 	);

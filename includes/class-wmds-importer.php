@@ -52,7 +52,7 @@ class WMDS_Importer {
 			return new WP_Error( 'wmds_locked', 'An import is already running.' );
 		}
 
-		set_transient( self::LOCK, time(), self::LOCK_TTL );
+		self::touch_lock();
 
 		$stats = $this->execute(
 			! empty( $args['full'] ),
@@ -63,6 +63,25 @@ class WMDS_Importer {
 		delete_transient( self::LOCK );
 
 		return $stats;
+	}
+
+	public static function touch_lock() {
+		$started = self::locked_since();
+
+		set_transient( self::LOCK, $started ? $started : time(), self::LOCK_TTL );
+	}
+
+	public static function unlock() {
+		delete_transient( self::LOCK );
+	}
+
+	/**
+	 * @return int Unix time the running import started, 0 when none is held.
+	 */
+	public static function locked_since() {
+		$since = get_transient( self::LOCK );
+
+		return is_numeric( $since ) ? (int) $since : 0;
 	}
 
 	/**
@@ -117,6 +136,8 @@ class WMDS_Importer {
 		$failed  = 0;
 
 		foreach ( $todo as $ad ) {
+			self::touch_lock();
+
 			$outcome = $this->process( $ad, $known, $images );
 			if ( 'created' === $outcome ) {
 				++$created;

@@ -163,10 +163,12 @@ class WMDS_Logos {
 }
 
 /**
- * @param array $atts
+ * @param array  $atts
+ * @param string $content
+ * @param string $tag
  * @return string
  */
-function wmds_shortcode_logo( $atts ) {
+function wmds_shortcode_logo( $atts, $content = null, $tag = 'vehicle-logo' ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter -- the signature WordPress calls a shortcode with.
 	$atts = shortcode_atts(
 		array(
 			'make'  => '',
@@ -174,7 +176,7 @@ function wmds_shortcode_logo( $atts ) {
 			'class' => '',
 		),
 		$atts,
-		'fahrzeug-logo'
+		$tag
 	);
 
 	$make = $atts['make'];
@@ -202,4 +204,5 @@ function wmds_shortcode_logo( $atts ) {
 		esc_attr( (int) $atts['width'] )
 	);
 }
+add_shortcode( 'vehicle-logo', 'wmds_shortcode_logo' );
 add_shortcode( 'fahrzeug-logo', 'wmds_shortcode_logo' );

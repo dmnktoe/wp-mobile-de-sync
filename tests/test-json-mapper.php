@@ -187,4 +187,40 @@ $ohne_refdata = new WMDS_Json_Mapper();
 $raw          = $ohne_refdata->map( $search['ads'][0] );
 wmds_assert( 'without refdata the key survives', 'MANUAL_GEAR', $raw['meta']['gearbox'] );
 
+wmds_section( 'Whatever the feed sets counts as a feature, rule or no rule' );
+
+wmds_assert( 'alloyWheels has no rule and arrives anyway', 'Alloy wheels', $merged['meta']['ALLOY_WHEELS'] );
+wmds_assert( 'the index lists what was found', true, false !== strpos( $merged['meta']['feature_keys'], 'ALLOY_WHEELS' ) );
+wmds_assert( 'newHuAu keeps the key the templates read', 'New inspection on purchase', $merged['meta']['HU_AU_NEU'] );
+
+$unknown = $mapper->map( array( 'heatedWindscreen' => true ) );
+wmds_assert( 'an unknown boolean gets a readable label', 'Heated windscreen', $unknown['meta']['HEATED_WINDSCREEN'] );
+
+$legacy = $mapper->map( array( 'nonSmokerVehicle' => true ) );
+wmds_assert( 'an alias resolves to the key the templates read', 'Non-smoker vehicle', $legacy['meta']['NONSMOKER_VEHICLE'] );
+wmds_assert( 'and only to that one', false, isset( $legacy['meta']['NON_SMOKER_VEHICLE'] ) );
+wmds_assert( 'the index carries it once', 'NONSMOKER_VEHICLE', $legacy['meta']['feature_keys'] );
+
+$off = $mapper->map( array( 'sunroof' => false ) );
+wmds_assert( 'a false boolean is no feature', false, isset( $off['meta']['SUNROOF'] ) );
+
+$damaged = $mapper->map( array( 'damageUnrepaired' => true ) );
+wmds_assert( 'damage is not equipment', false, isset( $damaged['meta']['DAMAGE_UNREPAIRED'] ) );
+
+wmds_section( 'The fields the earlier templates read' );
+
+wmds_assert( 'cubicCapacity beside cubic_capacity', $merged['meta']['cubic_capacity'], $merged['meta']['cubicCapacity'] );
+wmds_assert( 'roadworthy beside roadWorthy', $merged['meta']['roadWorthy'], $merged['meta']['roadworthy'] );
+wmds_assert( 'seller_company_name beside seller', $merged['meta']['seller'], $merged['meta']['seller_company_name'] );
+wmds_assert( 'the vehicle class is readable', 'Car', $merged['meta']['class'] );
+wmds_assert( 'the class key survives too', 'Car', $merged['meta']['class_key'] );
+wmds_assert( 'the street', 'Musterstrasse 1', $merged['meta']['seller_street'] );
+wmds_assert( 'postcode', '12345', $merged['meta']['seller_zipcode'] );
+wmds_assert( 'city', 'Musterstadt', $merged['meta']['seller_city'] );
+wmds_assert( 'the seller ID', '99999999', $merged['meta']['seller_id'] );
+wmds_assert( 'selling since', '06.04.2016', $merged['meta']['seller_since'] );
+wmds_assert( 'climatisation', 'MANUAL_CLIMATISATION', $merged['meta']['climatisation'] );
+wmds_assert( 'parking assistants read as prose', 'Rear view cam', $merged['meta']['parking-assistants'] );
+wmds_assert( 'a field the feed omits stays empty', '', $merged['meta']['axles'] );
+
 wmds_result();

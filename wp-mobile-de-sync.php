@@ -3,7 +3,7 @@
  * Plugin Name: mobile.de Sync
  * Plugin URI:  https://github.com/dmnktoe/wp-mobile-de-sync
  * Description: Synchronises a dealer's vehicle inventory from the mobile.de Search API into a "fahrzeuge" custom post type. Works with FacetWP and with existing theme templates.
- * Version:     1.0.2
+ * Version:     2.0.0
  * Author:      Domenik Töfflinger
  * Author URI:  https://github.com/dmnktoe
  * License:     GPL-2.0-or-later
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'WMDS_VERSION', '1.0.2' );
+define( 'WMDS_VERSION', '2.0.0' );
 define( 'WMDS_FILE', __FILE__ );
 define( 'WMDS_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WMDS_URL', plugin_dir_url( __FILE__ ) );
@@ -41,7 +41,9 @@ require_once WMDS_DIR . 'includes/class-wmds-json-mapper.php';
 require_once WMDS_DIR . 'includes/class-wmds-sync-plan.php';
 require_once WMDS_DIR . 'includes/class-wmds-importer.php';
 require_once WMDS_DIR . 'includes/class-wmds-logos.php';
+require_once WMDS_DIR . 'includes/class-wmds-stickers.php';
 require_once WMDS_DIR . 'includes/class-wmds-vehicle.php';
+require_once WMDS_DIR . 'includes/class-wmds-templates.php';
 
 require_once WMDS_DIR . 'includes/class-wmds-updater.php';
 add_action( 'init', array( 'WMDS_Updater', 'init' ) );
@@ -110,61 +112,7 @@ add_action( 'init', 'wmds_register_cpt' );
 
 add_action( 'before_delete_post', array( 'WMDS_Importer', 'delete_attachments' ) );
 
-/**
- * @param string $template
- * @return string
- */
-function wmds_template_loader( $template ) {
-	if ( is_singular( WMDS_CPT ) ) {
-		$file = 'single-fahrzeuge.php';
-	} elseif ( is_post_type_archive( WMDS_CPT ) ) {
-		$file = 'archive-fahrzeuge.php';
-	} else {
-		return $template;
-	}
-
-	if ( file_exists( get_stylesheet_directory() . '/' . $file ) ) {
-		return $template;
-	}
-
-	$candidate = WMDS_DIR . 'templates/' . $file;
-
-	return file_exists( $candidate ) ? $candidate : $template;
-}
-add_filter( 'template_include', 'wmds_template_loader' );
-
-/**
- * @param array  $atts    Shortcode attributes, consumed by the template.
- * @param string $content Enclosed content, unused.
- * @return string
- */
-function wmds_shortcode_getcars( $atts, $content = null ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter -- see above.
-	ob_start();
-	$theme_tpl = get_stylesheet_directory() . '/mob_vehicle-list.php';
-	if ( file_exists( $theme_tpl ) ) {
-		include $theme_tpl;
-	} else {
-		include WMDS_DIR . 'templates/mob_vehicle-list.php';
-	}
-	$output = ob_get_clean();
-	wp_reset_postdata();
-	return $output;
-}
-add_shortcode( 'fahrzeuge-anzeigen', 'wmds_shortcode_getcars' );
-
-add_action( 'wp_enqueue_scripts', 'wmds_enqueue_styles' );
-function wmds_enqueue_styles() {
-	$needed = is_singular( WMDS_CPT ) || is_post_type_archive( WMDS_CPT );
-
-	/**
-	 * @param bool $needed
-	 */
-	if ( ! apply_filters( 'wmds_enqueue_styles', $needed ) ) {
-		return;
-	}
-
-	wp_enqueue_style( 'wmds', WMDS_URL . 'assets/wmds.css', array(), WMDS_VERSION );
-}
+WMDS_Templates::init();
 
 add_filter( 'cron_schedules', 'wmds_cron_schedules' );
 /**

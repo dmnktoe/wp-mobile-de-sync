@@ -205,6 +205,23 @@ $features = $v->features();
 wmds_assert( 'only set features', 2, count( $features ) );
 wmds_assert( 'sorted alphabetically', array( 'ABS', 'Central locking' ), $features );
 
+$stored = wmds_vehicle_with(
+	array(
+		'feature_keys' => 'BLUETOOTH',
+		'BLUETOOTH'    => 'Bluetooth',
+		$keys[0]       => 'Central locking',
+	)
+);
+wmds_assert( 'the stored index decides', array( 'Bluetooth' ), $stored->features() );
+
+$emptied = wmds_vehicle_with(
+	array(
+		'feature_keys' => '',
+		'ABS'          => 'ABS',
+	)
+);
+wmds_assert( 'an emptied index is an answer, not a gap', array(), $emptied->features() );
+
 wmds_section( 'Warnings' );
 
 $v = wmds_vehicle_with( array( 'damageRepaired' => 'true' ) );

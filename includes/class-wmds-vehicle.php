@@ -102,6 +102,29 @@ class WMDS_Vehicle {
 	}
 
 	/**
+	 * @return string Empty when the vehicle carries no sticker.
+	 */
+	public function emission_sticker_url() {
+		return WMDS_Stickers::url( $this->sticker_key() );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function emission_sticker_label() {
+		return WMDS_Stickers::label( $this->sticker_key() );
+	}
+
+	/**
+	 * @return string
+	 */
+	private function sticker_key() {
+		$key = $this->get( 'emissionSticker_key' );
+
+		return '' !== $key ? $key : $this->get( 'emissionSticker' );
+	}
+
+	/**
 	 * @return string
 	 */
 	public function inspection() {
@@ -210,7 +233,11 @@ class WMDS_Vehicle {
 	public function features() {
 		$out = array();
 
-		foreach ( WMDS_Json_Mapper::feature_keys() as $key ) {
+		$keys = isset( $this->meta['feature_keys'] )
+			? array_filter( explode( ',', $this->get( 'feature_keys' ) ) )
+			: WMDS_Json_Mapper::feature_keys();
+
+		foreach ( $keys as $key ) {
 			$label = $this->get( $key );
 			if ( '' !== $label ) {
 				$out[] = $label;

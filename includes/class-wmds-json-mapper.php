@@ -126,6 +126,27 @@ class WMDS_Json_Mapper {
 		),
 	);
 
+	/**
+	 * @var string[]
+	 */
+	private static $feature_skip = array(
+		'accidentDamaged',
+		'commercial',
+		'damageUnrepaired',
+		'metallic',
+		'newHuAu',
+		'roadworthy',
+	);
+
+	/**
+	 * @var array<string, string>
+	 */
+	private static $feature_aliases = array(
+		'NON_SMOKER_VEHICLE'          => 'NONSMOKER_VEHICLE',
+		'VEGETABLE_OIL_FUEL_SUITABLE' => 'VEGETABLEOILFUEL_SUITABLE',
+		'PLUGIN_HYBRID'               => 'HYBRID_PLUGIN',
+	);
+
 	/** @var WMDS_Refdata|null */
 	private $refdata;
 
@@ -153,6 +174,8 @@ class WMDS_Json_Mapper {
 		$meta['make']      = $make;
 		$meta['make_key']  = $make_key;
 		$meta['model']     = isset( $ad['model'] ) ? (string) $ad['model'] : '';
+		$meta['class']     = self::vehicle_class_label( $class );
+		$meta['class_key'] = $class;
 		$meta['category']  = $this->label( 'category', $this->str( $ad, 'category' ), $class );
 		$meta['condition'] = $this->label( 'condition', $this->str( $ad, 'condition' ), $class );
 
@@ -180,7 +203,13 @@ class WMDS_Json_Mapper {
 
 		$meta['power']          = isset( $ad['power'] ) ? (int) $ad['power'] : '';
 		$meta['cubic_capacity'] = $this->str( $ad, 'cubicCapacity' );
+		$meta['cubicCapacity']  = $meta['cubic_capacity'];
 		$meta['num_seats']      = $this->str( $ad, 'seats' );
+
+		$meta['axles']          = $this->str( $ad, 'axles' );
+		$meta['height']         = $this->str( $ad, 'height' );
+		$meta['length']         = $this->str( $ad, 'length' );
+		$meta['countryVersion'] = $this->label( 'countryVersion', $this->str( $ad, 'countryVersion' ), $class );
 
 		$meta['fuel']       = $this->label( 'fuel', $this->str( $ad, 'fuel' ), $class );
 		$meta['gearbox']    = $this->label( 'gearbox', $this->str( $ad, 'gearbox' ), $class );
@@ -198,14 +227,22 @@ class WMDS_Json_Mapper {
 
 		$meta['damageRepaired'] = ! empty( $ad['damageUnrepaired'] ) ? 'true' : 'false';
 		$meta['roadWorthy']     = ! empty( $ad['roadworthy'] ) ? 'true' : 'false';
+		$meta['roadworthy']     = $meta['roadWorthy'];
 
 		$meta['exteriorColor']           = $this->label( 'exteriorColor', $this->str( $ad, 'exteriorColor' ), $class );
 		$meta['manufacturer_color_name'] = WMDS_Creole::decode_field( $this->str( $ad, 'manufacturerColorName' ) );
 		$meta['interior_type']           = $this->label( 'interiorType', $this->str( $ad, 'interiorType' ), $class );
 		$meta['interior_color']          = $this->label( 'interiorColor', $this->str( $ad, 'interiorColor' ), $class );
 
-		$meta['emissionClass']   = $this->label( 'emissionClass', $this->str( $ad, 'emissionClass' ), $class );
-		$meta['emissionSticker'] = $this->label( 'emissionSticker', $this->str( $ad, 'emissionSticker' ), $class );
+		$meta['emissionClass']       = $this->label( 'emissionClass', $this->str( $ad, 'emissionClass' ), $class );
+		$sticker_key                 = $this->str( $ad, 'emissionSticker' );
+		$meta['emissionSticker']     = $this->label( 'emissionSticker', $sticker_key, $class );
+		$meta['emissionSticker_key'] = $sticker_key;
+
+		$meta['climatisation'] = $this->label( 'climatisation', $this->str( $ad, 'climatisation' ), $class );
+		$meta['airbag']        = $this->label( 'airbag', $this->str( $ad, 'airbag' ), $class );
+
+		$meta['parking-assistants'] = self::join_list( $ad, 'parkingAssistants' );
 
 		$fuel_c                                   = self::dig( $ad, array( 'consumptions', 'fuel' ) );
 		$meta['emissionFuelConsumption_Combined'] = $this->str( $fuel_c, 'combined' );
@@ -235,8 +272,19 @@ class WMDS_Json_Mapper {
 
 		$seller = isset( $ad['seller'] ) && is_array( $ad['seller'] ) ? $ad['seller'] : array();
 
-		$meta['seller']       = $this->str( $seller, 'companyName' );
-		$meta['seller_email'] = $this->str( $seller, 'email' );
+		$meta['seller']              = $this->str( $seller, 'companyName' );
+		$meta['seller_company_name'] = $meta['seller'];
+		$meta['seller_email']        = $this->str( $seller, 'email' );
+		$meta['seller_id']           = $this->str( $seller, 'mobileSellerId' );
+		$meta['seller_since']        = self::format_day( $this->str( $seller, 'mobileSellerSince' ) );
+		$meta['seller_homepage']     = $this->str( $seller, 'homepage' );
+
+		$address = isset( $seller['address'] ) && is_array( $seller['address'] ) ? $seller['address'] : array();
+
+		$meta['seller_street']  = $this->str( $address, 'street' );
+		$meta['seller_zipcode'] = $this->str( $address, 'zipcode' );
+		$meta['seller_city']    = $this->str( $address, 'city' );
+		$meta['seller_country'] = $this->str( $address, 'country' );
 
 		if ( ! empty( $seller['phones'] ) && is_array( $seller['phones'] ) ) {
 			$phone = reset( $seller['phones'] );
@@ -247,13 +295,13 @@ class WMDS_Json_Mapper {
 			}
 		}
 
-		$labels = self::feature_labels();
+		$features = self::collect_features( $ad );
 
-		foreach ( self::$features as $key => $rule ) {
-			if ( self::has_feature( $ad, $rule ) ) {
-				$meta[ $key ] = isset( $labels[ $key ] ) ? $labels[ $key ] : $key;
-			}
+		foreach ( $features as $key => $label ) {
+			$meta[ $key ] = $label;
 		}
+
+		$meta['feature_keys'] = implode( ',', array_keys( $features ) );
 
 		$description = $this->str( $ad, 'description' );
 		$plain       = $this->str( $ad, 'plainTextDescription' );
@@ -285,35 +333,163 @@ class WMDS_Json_Mapper {
 	 */
 	private static function feature_labels() {
 		return array(
-			'ABS'                       => __( 'ABS', 'wp-mobile-de-sync' ),
-			'AUTOMATIC_RAIN_SENSOR'     => __( 'Rain sensor', 'wp-mobile-de-sync' ),
-			'AUXILIARY_HEATING'         => __( 'Auxiliary heating', 'wp-mobile-de-sync' ),
-			'CENTRAL_LOCKING'           => __( 'Central locking', 'wp-mobile-de-sync' ),
-			'ELECTRIC_ADJUSTABLE_SEATS' => __( 'Electrically adjustable seats', 'wp-mobile-de-sync' ),
-			'ELECTRIC_EXTERIOR_MIRRORS' => __( 'Electrically adjustable mirrors', 'wp-mobile-de-sync' ),
-			'ELECTRIC_HEATED_SEATS'     => __( 'Heated seats', 'wp-mobile-de-sync' ),
-			'ELECTRIC_WINDOWS'          => __( 'Electric windows', 'wp-mobile-de-sync' ),
-			'ESP'                       => __( 'ESP', 'wp-mobile-de-sync' ),
-			'FRONT_FOG_LIGHTS'          => __( 'Front fog lights', 'wp-mobile-de-sync' ),
-			'FULL_SERVICE_HISTORY'      => __( 'Full service history', 'wp-mobile-de-sync' ),
-			'HEAD_UP_DISPLAY'           => __( 'Head-up display', 'wp-mobile-de-sync' ),
-			'IMMOBILIZER'               => __( 'Immobiliser', 'wp-mobile-de-sync' ),
-			'ISOFIX'                    => __( 'Isofix', 'wp-mobile-de-sync' ),
-			'LIGHT_SENSOR'              => __( 'Light sensor', 'wp-mobile-de-sync' ),
-			'METALLIC'                  => __( 'Metallic paint', 'wp-mobile-de-sync' ),
-			'MULTIFUNCTIONAL_WHEEL'     => __( 'Multifunction steering wheel', 'wp-mobile-de-sync' ),
-			'NAVIGATION_SYSTEM'         => __( 'Navigation system', 'wp-mobile-de-sync' ),
-			'PANORAMIC_GLASS_ROOF'      => __( 'Panoramic glass roof', 'wp-mobile-de-sync' ),
-			'POWER_ASSISTED_STEERING'   => __( 'Power steering', 'wp-mobile-de-sync' ),
-			'START_STOP_SYSTEM'         => __( 'Start/stop system', 'wp-mobile-de-sync' ),
-			'SUNROOF'                   => __( 'Sunroof', 'wp-mobile-de-sync' ),
-			'TRACTION_CONTROL_SYSTEM'   => __( 'Traction control', 'wp-mobile-de-sync' ),
-			'XENON_HEADLIGHTS'          => __( 'Xenon headlights', 'wp-mobile-de-sync' ),
-			'BENDING_LIGHTS'            => __( 'Cornering lights', 'wp-mobile-de-sync' ),
-			'DAYTIME_RUNNING_LIGHTS'    => __( 'Daytime running lights', 'wp-mobile-de-sync' ),
-			'CRUISE_CONTROL'            => __( 'Cruise control', 'wp-mobile-de-sync' ),
-			'PARKING_SENSORS'           => __( 'Parking sensors', 'wp-mobile-de-sync' ),
+			'ABS'                         => __( 'ABS', 'wp-mobile-de-sync' ),
+			'AUTOMATIC_RAIN_SENSOR'       => __( 'Rain sensor', 'wp-mobile-de-sync' ),
+			'AUXILIARY_HEATING'           => __( 'Auxiliary heating', 'wp-mobile-de-sync' ),
+			'CENTRAL_LOCKING'             => __( 'Central locking', 'wp-mobile-de-sync' ),
+			'ELECTRIC_ADJUSTABLE_SEATS'   => __( 'Electrically adjustable seats', 'wp-mobile-de-sync' ),
+			'ELECTRIC_EXTERIOR_MIRRORS'   => __( 'Electrically adjustable mirrors', 'wp-mobile-de-sync' ),
+			'ELECTRIC_HEATED_SEATS'       => __( 'Heated seats', 'wp-mobile-de-sync' ),
+			'ELECTRIC_WINDOWS'            => __( 'Electric windows', 'wp-mobile-de-sync' ),
+			'ESP'                         => __( 'ESP', 'wp-mobile-de-sync' ),
+			'FRONT_FOG_LIGHTS'            => __( 'Front fog lights', 'wp-mobile-de-sync' ),
+			'FULL_SERVICE_HISTORY'        => __( 'Full service history', 'wp-mobile-de-sync' ),
+			'HEAD_UP_DISPLAY'             => __( 'Head-up display', 'wp-mobile-de-sync' ),
+			'IMMOBILIZER'                 => __( 'Immobiliser', 'wp-mobile-de-sync' ),
+			'ISOFIX'                      => __( 'Isofix', 'wp-mobile-de-sync' ),
+			'LIGHT_SENSOR'                => __( 'Light sensor', 'wp-mobile-de-sync' ),
+			'METALLIC'                    => __( 'Metallic paint', 'wp-mobile-de-sync' ),
+			'MULTIFUNCTIONAL_WHEEL'       => __( 'Multifunction steering wheel', 'wp-mobile-de-sync' ),
+			'NAVIGATION_SYSTEM'           => __( 'Navigation system', 'wp-mobile-de-sync' ),
+			'PANORAMIC_GLASS_ROOF'        => __( 'Panoramic glass roof', 'wp-mobile-de-sync' ),
+			'POWER_ASSISTED_STEERING'     => __( 'Power steering', 'wp-mobile-de-sync' ),
+			'START_STOP_SYSTEM'           => __( 'Start/stop system', 'wp-mobile-de-sync' ),
+			'SUNROOF'                     => __( 'Sunroof', 'wp-mobile-de-sync' ),
+			'TRACTION_CONTROL_SYSTEM'     => __( 'Traction control', 'wp-mobile-de-sync' ),
+			'XENON_HEADLIGHTS'            => __( 'Xenon headlights', 'wp-mobile-de-sync' ),
+			'BENDING_LIGHTS'              => __( 'Cornering lights', 'wp-mobile-de-sync' ),
+			'DAYTIME_RUNNING_LIGHTS'      => __( 'Daytime running lights', 'wp-mobile-de-sync' ),
+			'CRUISE_CONTROL'              => __( 'Cruise control', 'wp-mobile-de-sync' ),
+			'PARKING_SENSORS'             => __( 'Parking sensors', 'wp-mobile-de-sync' ),
+
+			'AIR_SUSPENSION'              => __( 'Air suspension', 'wp-mobile-de-sync' ),
+			'ALLOY_WHEELS'                => __( 'Alloy wheels', 'wp-mobile-de-sync' ),
+			'BIODIESEL_SUITABLE'          => __( 'Suitable for biodiesel', 'wp-mobile-de-sync' ),
+			'BLUETOOTH'                   => __( 'Bluetooth', 'wp-mobile-de-sync' ),
+			'CD_MULTICHANGER'             => __( 'CD multichanger', 'wp-mobile-de-sync' ),
+			'CD_PLAYER'                   => __( 'CD player', 'wp-mobile-de-sync' ),
+			'DISABLED_ACCESSIBLE'         => __( 'Disabled accessible', 'wp-mobile-de-sync' ),
+			'E10_ENABLED'                 => __( 'E10 compatible', 'wp-mobile-de-sync' ),
+			'EXPORT'                      => __( 'Export vehicle', 'wp-mobile-de-sync' ),
+			'HANDS_FREE_PHONE_SYSTEM'     => __( 'Hands-free system', 'wp-mobile-de-sync' ),
+			'HU_AU_NEU'                   => __( 'New inspection on purchase', 'wp-mobile-de-sync' ),
+			'HYBRID_PLUGIN'               => __( 'Plug-in hybrid', 'wp-mobile-de-sync' ),
+			'MP3_INTERFACE'               => __( 'MP3 interface', 'wp-mobile-de-sync' ),
+			'NONSMOKER_VEHICLE'           => __( 'Non-smoker vehicle', 'wp-mobile-de-sync' ),
+			'ON_BOARD_COMPUTER'           => __( 'On-board computer', 'wp-mobile-de-sync' ),
+			'PARTICULATE_FILTER_DIESEL'   => __( 'Diesel particulate filter', 'wp-mobile-de-sync' ),
+			'PERFORMANCE_HANDLING_SYSTEM' => __( 'Sport suspension', 'wp-mobile-de-sync' ),
+			'ROOF_RAILS'                  => __( 'Roof rails', 'wp-mobile-de-sync' ),
+			'SKI_BAG'                     => __( 'Ski bag', 'wp-mobile-de-sync' ),
+			'SPORT_PACKAGE'               => __( 'Sport package', 'wp-mobile-de-sync' ),
+			'SPORT_SEATS'                 => __( 'Sport seats', 'wp-mobile-de-sync' ),
+			'TAXI'                        => __( 'Taxi or rental car', 'wp-mobile-de-sync' ),
+			'TRAILER_COUPLING'            => __( 'Trailer coupling', 'wp-mobile-de-sync' ),
+			'TUNER'                       => __( 'Radio', 'wp-mobile-de-sync' ),
+			'VEGETABLEOILFUEL_SUITABLE'   => __( 'Suitable for vegetable oil', 'wp-mobile-de-sync' ),
+			'WARRANTY'                    => __( 'Warranty', 'wp-mobile-de-sync' ),
 		);
+	}
+
+	/**
+	 * @param array $ad
+	 * @return array<string, string>
+	 */
+	private static function collect_features( array $ad ) {
+		$labels = self::feature_labels();
+		$out    = array();
+
+		foreach ( self::$features as $key => $rule ) {
+			if ( self::has_feature( $ad, $rule ) ) {
+				$out[ $key ] = isset( $labels[ $key ] ) ? $labels[ $key ] : self::humanise( $key );
+			}
+		}
+
+		foreach ( $ad as $field => $value ) {
+			if ( true !== $value || in_array( $field, self::$feature_skip, true ) ) {
+				continue;
+			}
+
+			$key  = self::screaming_snake( $field );
+			$name = isset( self::$feature_aliases[ $key ] ) ? self::$feature_aliases[ $key ] : $key;
+
+			if ( ! isset( $out[ $name ] ) ) {
+				$out[ $name ] = isset( $labels[ $name ] ) ? $labels[ $name ] : self::humanise( $name );
+			}
+		}
+
+		if ( ! empty( $ad['newHuAu'] ) ) {
+			$out['HU_AU_NEU'] = __( 'New inspection on purchase', 'wp-mobile-de-sync' );
+		}
+
+		ksort( $out );
+
+		return $out;
+	}
+
+	/**
+	 * @param string $field
+	 * @return string
+	 */
+	private static function screaming_snake( $field ) {
+		$field = preg_replace( '/([a-z0-9])([A-Z])/', '$1_$2', (string) $field );
+
+		return strtoupper( (string) $field );
+	}
+
+	/**
+	 * @param string $key
+	 * @return string
+	 */
+	private static function humanise( $key ) {
+		$words = strtolower( str_replace( '_', ' ', (string) $key ) );
+
+		return ucfirst( $words );
+	}
+
+	/**
+	 * @param string $class
+	 * @return string
+	 */
+	private static function vehicle_class_label( $class ) {
+		$labels = array(
+			'Car'                 => __( 'Car', 'wp-mobile-de-sync' ),
+			'Motorbike'           => __( 'Motorbike', 'wp-mobile-de-sync' ),
+			'Motorhome'           => __( 'Motorhome', 'wp-mobile-de-sync' ),
+			'VanUpTo7500'         => __( 'Van up to 7.5 t', 'wp-mobile-de-sync' ),
+			'TruckOver7500'       => __( 'Truck over 7.5 t', 'wp-mobile-de-sync' ),
+			'Trailer'             => __( 'Trailer', 'wp-mobile-de-sync' ),
+			'SemiTrailer'         => __( 'Semi-trailer', 'wp-mobile-de-sync' ),
+			'SemiTrailerTruck'    => __( 'Semi-trailer truck', 'wp-mobile-de-sync' ),
+			'Bus'                 => __( 'Bus', 'wp-mobile-de-sync' ),
+			'AgriculturalVehicle' => __( 'Agricultural vehicle', 'wp-mobile-de-sync' ),
+			'ConstructionMachine' => __( 'Construction machine', 'wp-mobile-de-sync' ),
+			'ForkLiftTruck'       => __( 'Forklift truck', 'wp-mobile-de-sync' ),
+		);
+
+		$class = (string) $class;
+
+		return isset( $labels[ $class ] ) ? $labels[ $class ] : $class;
+	}
+
+	/**
+	 * @param array  $ad
+	 * @param string $field
+	 * @return string
+	 */
+	private static function join_list( array $ad, $field ) {
+		if ( empty( $ad[ $field ] ) || ! is_array( $ad[ $field ] ) ) {
+			return '';
+		}
+
+		$out = array();
+		foreach ( $ad[ $field ] as $value ) {
+			if ( is_string( $value ) && '' !== $value ) {
+				$out[] = self::humanise( $value );
+			}
+		}
+
+		return implode( ', ', $out );
 	}
 
 	/**

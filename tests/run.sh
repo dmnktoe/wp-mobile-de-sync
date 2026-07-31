@@ -10,7 +10,7 @@ cd "$(dirname "$0")/.."
 status=0
 
 echo "== php -l across all PHP files =="
-for file in wp-mobile-de-sync.php includes/*.php templates/*.php tests/*.php tests/integration/*.php bin/*.php; do
+for file in wp-mobile-de-sync.php includes/*.php templates/*.php templates/parts/*.php tests/*.php tests/integration/*.php bin/*.php; do
 	php -l "$file" > /dev/null || status=1
 done
 [ "$status" -eq 0 ] && echo "   no syntax errors"

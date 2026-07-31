@@ -114,6 +114,8 @@ class WMDS_CLI {
 		$client = WMDS_Settings::client();
 		$result = $client->search( 1, 1 );
 
+		WMDS_Status::record_test( ! is_wp_error( $result ) );
+
 		if ( is_wp_error( $result ) ) {
 			WP_CLI::error( $result->get_error_message() );
 		}

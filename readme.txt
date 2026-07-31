@@ -4,7 +4,7 @@ Tags: mobile.de, vehicles, dealership, import, facetwp
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 1.0.2
+Stable tag: 2.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -16,9 +16,10 @@ Fetches a dealer's vehicle inventory through the mobile.de Search API and
 stores it as WordPress posts. The vehicle data lives in post meta under stable
 field names — ready to use for your own templates, queries and filters.
 
-* CPT `fahrzeuge`, shortcode `[fahrzeuge-anzeigen]`
+* CPT `fahrzeuge`, shortcode `[vehicles]`
 * One meta key per property, directly usable as FacetWP facet sources
-* Manufacturer logos via `[fahrzeug-logo]`, extendable without a plugin update
+* Manufacturer logos via `[vehicle-logo]`, extendable without a plugin update
+* German emission stickers via `[emission-sticker]`
 * Incremental sync: each run fetches only what changed
 * WP-CLI: `wp wmds sync`, `status`, `test`, `flush-cache`
 * German translation included
@@ -111,6 +112,32 @@ Pkw-EnVKV, so the bundled German catalogue carries the statutory wording rather
 than a translation of the English source.
 
 == Changelog ==
+
+= 2.0.0 =
+* The shortcodes are English: `[vehicles]` and `[vehicle-logo]`. The German
+  names keep working, so no page needs editing.
+* `[vehicles]` filters on any meta key. `[vehicles fuel="Diesel" make="Audi"]`
+  needs no whitelist, and the five old filter attributes still apply.
+* Fixed: the shortcode rendered unstyled on ordinary pages. The stylesheet was
+  tied to the post type, so any page carrying the shortcode loaded the markup
+  without the grid.
+* Fixed: "Test the connection" never turned green on the checklist, because it
+  read the last sync run rather than whether a test had passed.
+* Fixed: an import cut short by a PHP time limit left its lock behind and
+  blocked every following run for 15 minutes. The lock is refreshed while a run
+  works and can be released from Tools.
+* Equipment is read from whatever the feed sends instead of a fixed list of 28
+  features, so Bluetooth, CD player, radio, alloy wheels, tow bar and the rest
+  arrive on their own.
+* New fields: vehicle class, climatisation, airbag, country version, axles,
+  height, length, parking assistants and the full seller address.
+* Templates are looked up in `wp-mobile-de-sync/` in the child and parent theme
+  as well as in the theme root, through the new `wmds_template` filter.
+* The vehicle card is a template part of its own, shared by the archive and the
+  shortcode and overridable on its own.
+* The German emission stickers ship as SVG and are rendered by the new
+  `[emission-sticker]` shortcode, so no other plugin has to supply the images.
+* Upgrading needs one full sync for the new fields: `wp wmds sync --full --all`
 
 = 1.0.2 =
 * The plugin has an icon. The updates screen showed the grey placeholder plug

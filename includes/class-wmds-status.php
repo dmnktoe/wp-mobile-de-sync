@@ -7,6 +7,8 @@ class WMDS_Status {
 	const PAGE  = 'wmds-settings';
 	const NONCE = 'wmds_admin';
 
+	const OPT_LAST_TEST = 'wmds_last_test';
+
 	const STALE_AFTER = 21600;
 
 	const UNCONFIGURED = 'unconfigured';
@@ -124,11 +126,38 @@ class WMDS_Status {
 			'running'     => $running,
 			'count'       => self::count(),
 			'last'        => $last,
+			'tested'      => self::tested(),
 			'last_ts'     => $last_ts,
 			'next'        => wp_next_scheduled( WMDS_CRON_HOOK ),
 			'pending'     => isset( $last['pending'] ) ? (int) $last['pending'] : 0,
 			'incremental' => '' !== (string) get_option( WMDS_Importer::OPT_WATERMARK, '' ),
 		);
+	}
+
+	/**
+	 * @param bool $ok
+	 */
+	public static function record_test( $ok ) {
+		update_option(
+			self::OPT_LAST_TEST,
+			array(
+				'time' => current_time( 'mysql' ),
+				'ok'   => (bool) $ok,
+			),
+			false
+		);
+	}
+
+	/** @return bool Whether a connection test or a sync run has succeeded. */
+	public static function tested() {
+		$test = get_option( self::OPT_LAST_TEST, array() );
+		if ( is_array( $test ) && ! empty( $test['ok'] ) ) {
+			return true;
+		}
+
+		$last = get_option( WMDS_Importer::OPT_LAST_RUN, array() );
+
+		return is_array( $last ) && ! empty( $last );
 	}
 
 	/** @return int Published vehicles. */

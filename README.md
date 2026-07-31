@@ -17,8 +17,8 @@ Vehicle data lands in post meta under stable field names. That is the
 interface for templates, facets and custom queries, and it does not change
 within a major version:
 
-- CPT `fahrzeuge`, shortcode `[fahrzeuge-anzeigen]`
-- one meta key per vehicle property, plus the 28 equipment features
+- CPT `fahrzeuge`, shortcodes `[vehicles]` and `[vehicle-logo]`
+- one meta key per vehicle property, plus every equipment feature the feed sets
 - FacetWP sources usable as-is (`cf/make`, `cf/price_raw`, `cf/mileage_raw`, …)
 
 ## Requirements
@@ -163,10 +163,23 @@ wp wmds flush-cache            re-fetch reference data
 
 ## Logos
 
-30 manufacturer logos ship with the plugin, output via `[fahrzeug-logo]`. For a
+30 manufacturer logos ship with the plugin, output via `[vehicle-logo]`. For a
 missing make, drop a file into `wp-content/uploads/wmds-logos/` named after the
 make (`Tesla.png`). Case, spaces and special characters do not matter — the
 lookup normalises both sides.
+
+## Emission stickers
+
+The three German Feinstaubplaketten ship with the plugin as SVG, named after
+the colour the feed reports: `assets/emission-stickers/{red,yellow,green}.svg`.
+Group 1 carries no sticker and resolves to nothing.
+
+    [emission-sticker width="40"]
+
+Inside the loop the shortcode reads `emissionSticker_key` from the vehicle; pass
+`sticker="EMISSIONSSTICKER_GREEN"` to force one. `WMDS_Stickers::url()` and
+`$vehicle->emission_sticker_url()` return the file for a template, and
+`wmds_emission_sticker_url` filters the result.
 
 ## List-view icons
 
@@ -239,15 +252,47 @@ plugin's own options, transients, user meta and cron events are gone.
 
 ## Customising
 
-Templates are taken from the theme as soon as `single-fahrzeuge.php`,
-`archive-fahrzeuge.php` or `mob_vehicle-list.php` exist in the stylesheet
-directory. The bundled templates require no CSS framework and work with the
-active theme's `get_header()` / `get_footer()`.
+Every template is resolved through the same hierarchy, first match wins:
+
+1. `wp-mobile-de-sync/<file>` in the child theme, then in the parent theme
+2. `<file>` in the child theme, then in the parent theme — where an earlier
+   solution expected `mob_vehicle-list.php`
+3. the bundled file under `templates/`
+
+| File | Rendered for |
+|---|---|
+| `single-fahrzeuge.php` | the detail page |
+| `archive-fahrzeuge.php` | the vehicle archive |
+| `mob_vehicle-list.php` | `[vehicles]`, and its alias `[fahrzeuge-anzeigen]` |
+| `parts/vehicle-card.php` | one card, used by the last two |
+
+The card is a part of its own, so a theme can restyle the grid item without
+copying the loop around it. It reads `$args['heading']` (`h2` to `h4`) and
+`$args['warnings']`. The bundled templates require no CSS framework and work
+with the active theme's `get_header()` / `get_footer()`.
+
+The bundled stylesheet loads on the vehicle archive, on a detail page and on
+any post whose content renders the shortcode; the shortcode enqueues it as
+well when it runs, which covers widgets and page builders.
 
 | Filter | Purpose |
 |---|---|
 | `wmds_logo_url` | override the logo URL |
 | `wmds_enqueue_styles` | switch off the bundled stylesheet |
+| `wmds_template` | point a template at a different file |
+
+## The shortcode
+
+    [vehicles posts_per_page="6" orderby="date" order="DESC"]
+
+Those four attributes steer the query. Every other attribute filters on the
+meta key of the same name, so nothing has to be whitelisted first:
+
+    [vehicles make="Audi" fuel="Diesel" interior_type="Teilleder"]
+
+`marke`, `modell`, `zustand`, `kraftstoffart`, `getriebe` and `anzahl` map onto
+their English counterparts, and `[fahrzeuge-anzeigen]` and `[fahrzeug-logo]`
+stay registered, so pages written against the old names keep working.
 
 If a site brings its own templates that call helper functions from an earlier
 solution, `includes/class-wmds-compat.php` provides equivalents — but only
