@@ -87,6 +87,17 @@ while ( have_posts() ) :
 				<p class="wmds-inspection"><?php echo esc_html( $vehicle->inspection() ); ?></p>
 			<?php endif; ?>
 
+			<?php
+			$wmds_sticker = $vehicle->emission_sticker_url();
+			if ( '' !== $wmds_sticker ) :
+				?>
+				<p class="wmds-sticker">
+					<img src="<?php echo esc_url( $wmds_sticker ); ?>"
+						alt="<?php echo esc_attr( $vehicle->emission_sticker_label() ); ?>"
+						width="40" height="40" loading="lazy">
+				</p>
+			<?php endif; ?>
+
 			<?php if ( $vehicle->seller_email() || $vehicle->seller_phone() ) : ?>
 				<div class="wmds-contact">
 					<h2><?php esc_html_e( 'Enquiry', 'wp-mobile-de-sync' ); ?></h2>

@@ -114,12 +114,14 @@
 	</rule>
 
 	<!--
-		class-wmds-logos.php holds the logo lookup and the one shortcode that
-		renders it. Splitting a five-line shortcode into its own file to
-		satisfy the sniff would scatter the feature, not clarify it.
+		class-wmds-logos.php and class-wmds-stickers.php each hold a lookup and
+		the one shortcode that renders it. Splitting a five-line shortcode into
+		its own file to satisfy the sniff would scatter the feature, not
+		clarify it.
 	-->
 	<rule ref="Universal.Files.SeparateFunctionsFromOO">
 		<exclude-pattern>includes/class-wmds-logos.php</exclude-pattern>
+		<exclude-pattern>includes/class-wmds-stickers.php</exclude-pattern>
 		<exclude-pattern>tests/*</exclude-pattern>
 	</rule>
 

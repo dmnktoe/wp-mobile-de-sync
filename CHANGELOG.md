@@ -50,6 +50,14 @@ versioning follows [Semantic Versioning](https://semver.org/).
   filter has the last word.
 - `templates/parts/vehicle-card.php`. The archive and the shortcode rendered
   the same card twice, in two copies that had already begun to drift.
+- The three German emission stickers, as SVG under
+  `assets/emission-stickers/`, named after the colour the feed reports.
+  `[emission-sticker]` renders one, `WMDS_Stickers::url()` and
+  `$vehicle->emission_sticker_url()` resolve it for a template, and the bundled
+  detail page shows it. Templates carried over from an earlier solution loaded
+  these images out of that plugin's directory and lost them when it went.
+  `emissionSticker_key` keeps the raw key beside the resolved label, because a
+  label reads differently in every language.
 
 ### Upgrading
 - The new fields are written at import time. One full sync fills them in:

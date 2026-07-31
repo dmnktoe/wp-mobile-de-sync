@@ -168,6 +168,19 @@ missing make, drop a file into `wp-content/uploads/wmds-logos/` named after the
 make (`Tesla.png`). Case, spaces and special characters do not matter — the
 lookup normalises both sides.
 
+## Emission stickers
+
+The three German Feinstaubplaketten ship with the plugin as SVG, named after
+the colour the feed reports: `assets/emission-stickers/{red,yellow,green}.svg`.
+Group 1 carries no sticker and resolves to nothing.
+
+    [emission-sticker width="40"]
+
+Inside the loop the shortcode reads `emissionSticker_key` from the vehicle; pass
+`sticker="EMISSIONSSTICKER_GREEN"` to force one. `WMDS_Stickers::url()` and
+`$vehicle->emission_sticker_url()` return the file for a template, and
+`wmds_emission_sticker_url` filters the result.
+
 ## List-view icons
 
 `mileage.svg`, `fuel.svg`, `gearbox.svg` and `emission.svg` are expected under

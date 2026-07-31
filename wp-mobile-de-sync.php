@@ -41,6 +41,7 @@ require_once WMDS_DIR . 'includes/class-wmds-json-mapper.php';
 require_once WMDS_DIR . 'includes/class-wmds-sync-plan.php';
 require_once WMDS_DIR . 'includes/class-wmds-importer.php';
 require_once WMDS_DIR . 'includes/class-wmds-logos.php';
+require_once WMDS_DIR . 'includes/class-wmds-stickers.php';
 require_once WMDS_DIR . 'includes/class-wmds-vehicle.php';
 require_once WMDS_DIR . 'includes/class-wmds-templates.php';
 

@@ -234,8 +234,10 @@ class WMDS_Json_Mapper {
 		$meta['interior_type']           = $this->label( 'interiorType', $this->str( $ad, 'interiorType' ), $class );
 		$meta['interior_color']          = $this->label( 'interiorColor', $this->str( $ad, 'interiorColor' ), $class );
 
-		$meta['emissionClass']   = $this->label( 'emissionClass', $this->str( $ad, 'emissionClass' ), $class );
-		$meta['emissionSticker'] = $this->label( 'emissionSticker', $this->str( $ad, 'emissionSticker' ), $class );
+		$meta['emissionClass']       = $this->label( 'emissionClass', $this->str( $ad, 'emissionClass' ), $class );
+		$sticker_key                 = $this->str( $ad, 'emissionSticker' );
+		$meta['emissionSticker']     = $this->label( 'emissionSticker', $sticker_key, $class );
+		$meta['emissionSticker_key'] = $sticker_key;
 
 		$meta['climatisation'] = $this->label( 'climatisation', $this->str( $ad, 'climatisation' ), $class );
 		$meta['airbag']        = $this->label( 'airbag', $this->str( $ad, 'airbag' ), $class );

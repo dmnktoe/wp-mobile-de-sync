@@ -1247,3 +1247,12 @@ msgstr "Sperre aufheben"
 
 msgid "An import has held the lock since %s. A run that was cut short by a PHP time limit leaves it behind; releasing it lets the next run start."
 msgstr "Seit %s hält ein Import die Sperre. Ein Lauf, den ein PHP-Zeitlimit abgeschnitten hat, lässt sie zurück; wird sie aufgehoben, kann der nächste Lauf starten."
+
+msgid "Emission sticker red"
+msgstr "Feinstaubplakette rot"
+
+msgid "Emission sticker yellow"
+msgstr "Feinstaubplakette gelb"
+
+msgid "Emission sticker green"
+msgstr "Feinstaubplakette grün"

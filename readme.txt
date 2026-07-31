@@ -19,6 +19,7 @@ field names — ready to use for your own templates, queries and filters.
 * CPT `fahrzeuge`, shortcode `[vehicles]`
 * One meta key per property, directly usable as FacetWP facet sources
 * Manufacturer logos via `[vehicle-logo]`, extendable without a plugin update
+* German emission stickers via `[emission-sticker]`
 * Incremental sync: each run fetches only what changed
 * WP-CLI: `wp wmds sync`, `status`, `test`, `flush-cache`
 * German translation included
@@ -134,6 +135,8 @@ than a translation of the English source.
   as well as in the theme root, through the new `wmds_template` filter.
 * The vehicle card is a template part of its own, shared by the archive and the
   shortcode and overridable on its own.
+* The German emission stickers ship as SVG and are rendered by the new
+  `[emission-sticker]` shortcode, so no other plugin has to supply the images.
 * Upgrading needs one full sync for the new fields: `wp wmds sync --full --all`
 
 = 1.0.2 =
