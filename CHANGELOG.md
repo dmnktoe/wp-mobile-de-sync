@@ -3,6 +3,19 @@
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
+## [1.0.2] – 2026-07-31
+
+### Added
+- An icon, in mobile.de's colours with the plugin's own mark. The updates
+  screen showed the grey placeholder plug, because `update-core.php` reads the
+  icon from the update response and ours carried none. `WMDS_Updater` supplies
+  it for the update list and for the details modal alike.
+
+### Changed
+- Tested up to WordPress 7.0, in `readme.txt` and in the release notes the
+  updater reads that value from. The end-to-end suite installs the current
+  WordPress on every run, so the claim is the one CI has been checking.
+
 ## [1.0.1] – 2026-07-31
 
 ### Fixed

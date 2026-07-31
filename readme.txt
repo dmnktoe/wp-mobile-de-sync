@@ -2,9 +2,9 @@
 Contributors: dmnktoe
 Tags: mobile.de, vehicles, dealership, import, facetwp
 Requires at least: 5.8
-Tested up to: 6.8
+Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -111,6 +111,11 @@ Pkw-EnVKV, so the bundled German catalogue carries the statutory wording rather
 than a translation of the English source.
 
 == Changelog ==
+
+= 1.0.2 =
+* The plugin has an icon. The updates screen showed the grey placeholder plug
+  because the update response carried none.
+* Tested against WordPress 7.0.
 
 = 1.0.1 =
 * Fixed: every incremental run failed with HTTP 400 because the timezone
