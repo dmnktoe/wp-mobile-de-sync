@@ -51,6 +51,12 @@ class WMDS_Admin {
 			)
 		);
 
+		$links[] = sprintf(
+			'<a href="%s">%s</a>',
+			esc_url( WMDS_Status::action_url( 'check-update' ) ),
+			esc_html__( 'Check for updates', 'wp-mobile-de-sync' )
+		);
+
 		return $links;
 	}
 
@@ -93,15 +99,16 @@ class WMDS_Admin {
 		}
 
 		$handlers = array(
-			'save'      => array( __CLASS__, 'do_save' ),
-			'test'      => array( __CLASS__, 'do_test' ),
-			'sync'      => array( __CLASS__, 'do_sync' ),
-			'full'      => array( __CLASS__, 'do_full' ),
-			'flush'     => array( __CLASS__, 'do_flush' ),
-			'clear-log' => array( __CLASS__, 'do_clear_log' ),
-			'forget'    => array( __CLASS__, 'do_forget' ),
-			'refresh'   => array( __CLASS__, 'do_refresh' ),
-			'unlock'    => array( __CLASS__, 'do_unlock' ),
+			'save'         => array( __CLASS__, 'do_save' ),
+			'test'         => array( __CLASS__, 'do_test' ),
+			'sync'         => array( __CLASS__, 'do_sync' ),
+			'full'         => array( __CLASS__, 'do_full' ),
+			'flush'        => array( __CLASS__, 'do_flush' ),
+			'clear-log'    => array( __CLASS__, 'do_clear_log' ),
+			'forget'       => array( __CLASS__, 'do_forget' ),
+			'refresh'      => array( __CLASS__, 'do_refresh' ),
+			'unlock'       => array( __CLASS__, 'do_unlock' ),
+			'check-update' => array( __CLASS__, 'do_check_update' ),
 		);
 
 		if ( isset( $handlers[ $action ] ) ) {
@@ -118,6 +125,10 @@ class WMDS_Admin {
 	 * @return string
 	 */
 	private static function redirect_target( $action ) {
+		if ( 'check-update' === $action ) {
+			return self_admin_url( 'update-core.php?force-check=1' );
+		}
+
 		if ( 'refresh' === $action ) {
 			$referer = wp_get_referer();
 			if ( $referer ) {
@@ -312,6 +323,11 @@ class WMDS_Admin {
 		WMDS_Posts::flush_makes();
 
 		self::notice( 'success', __( 'Reference data discarded. It will be fetched again on the next run.', 'wp-mobile-de-sync' ) );
+	}
+
+	private static function do_check_update() {
+		WMDS_Updater::flush();
+		delete_site_transient( 'update_plugins' );
 	}
 
 	private static function do_clear_log() {

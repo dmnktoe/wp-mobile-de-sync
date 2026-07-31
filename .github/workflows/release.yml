@@ -2,7 +2,9 @@ name: Release
 
 on:
   push:
+    branches: [main]
     tags: ['v*']
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -14,32 +16,53 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      - name: Resolve version
+        id: version
+        run: |
+          # The plugin header is a /** */ docblock, so the line starts with " * ".
+          HEADER=$(grep -m1 -E '^[ \t*]*Version:' wp-mobile-de-sync.php | sed -E 's/^[ \t*]*Version:[[:space:]]*//')
+          READMES=$(grep -m1 '^Stable tag:' readme.txt | sed 's/Stable tag:[[:space:]]*//')
+
+          if [ "$GITHUB_REF_TYPE" = tag ]; then
+            VERSION="${GITHUB_REF_NAME#v}"
+          else
+            VERSION="$HEADER"
+          fi
+
+          echo "Version=$VERSION  Plugin-Header=$HEADER  readme.txt=$READMES"
+
+          if [ "$VERSION" != "$HEADER" ] || [ "$VERSION" != "$READMES" ]; then
+            echo "::error::Tag, plugin header and readme.txt must state the same version."
+            exit 1
+          fi
+
+          if [ "$GITHUB_REF_TYPE" != tag ] \
+            && git ls-remote --exit-code --tags origin "refs/tags/v$VERSION" > /dev/null 2>&1; then
+            echo "v$VERSION is published already."
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+          fi
+
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
       - uses: shivammathur/setup-php@v2
+        if: steps.version.outputs.publish == 'true'
         with:
           php-version: '7.4'
           coverage: none
 
       # A release that fails its tests should never come into existence.
       - name: Tests
+        if: steps.version.outputs.publish == 'true'
         run: sh tests/run.sh
-
-      - name: Verify version against tag
-        run: |
-          TAG="${GITHUB_REF_NAME#v}"
-          # The plugin header is a /** */ docblock, so the line starts with " * ".
-          HEADER=$(grep -m1 -E '^[ \t*]*Version:' wp-mobile-de-sync.php | sed -E 's/^[ \t*]*Version:[[:space:]]*//')
-          READMES=$(grep -m1 '^Stable tag:' readme.txt | sed 's/Stable tag:[[:space:]]*//')
-          echo "Tag=$TAG  Plugin-Header=$HEADER  readme.txt=$READMES"
-          if [ "$TAG" != "$HEADER" ] || [ "$TAG" != "$READMES" ]; then
-            echo "::error::Tag, plugin header and readme.txt must state the same version."
-            exit 1
-          fi
 
       # The top-level folder inside the ZIP must be named exactly like the
       # plugin directory. Otherwise WordPress unpacks the update beside the
       # existing install and deactivates the plugin doing so. That is exactly
       # why GitHub's generated source download is unusable here.
       - name: Build ZIP
+        if: steps.version.outputs.publish == 'true'
         run: |
           SLUG=wp-mobile-de-sync
           mkdir -p build/$SLUG
@@ -60,8 +83,10 @@ jobs:
           unzip -l $SLUG.zip | head -20
 
       - name: Create release
+        if: steps.version.outputs.publish == 'true'
         uses: softprops/action-gh-release@v3
         with:
+          tag_name: v${{ steps.version.outputs.version }}
           files: build/wp-mobile-de-sync.zip
           generate_release_notes: true
           body: |

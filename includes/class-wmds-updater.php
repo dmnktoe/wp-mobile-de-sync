@@ -4,12 +4,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class WMDS_Updater {
-	const REPO      = 'dmnktoe/wp-mobile-de-sync';
-	const HOST      = 'github.com';
-	const API       = 'https://api.github.com/repos/';
-	const CACHE     = 'wmds_release';
-	const TTL_OK    = 21600;
-	const TTL_ERROR = 1800;
+	const REPO  = 'dmnktoe/wp-mobile-de-sync';
+	const HOST  = 'github.com';
+	const API   = 'https://api.github.com/repos/';
+	const CACHE = 'wmds_release';
+
+	const TTL_OK    = 3600;
+	const TTL_ERROR = 900;
 
 	/** @var string plugin_basename of the main file */
 	private static $basename = '';
@@ -24,6 +25,7 @@ class WMDS_Updater {
 		add_filter( 'update_plugins_' . self::HOST, array( __CLASS__, 'check' ), 10, 3 );
 		add_filter( 'plugins_api', array( __CLASS__, 'details' ), 10, 3 );
 		add_action( 'upgrader_process_complete', array( __CLASS__, 'after_update' ), 10, 2 );
+		add_action( 'after_plugin_row_' . self::$basename, array( __CLASS__, 'row_notice' ) );
 	}
 
 	/**
@@ -47,9 +49,11 @@ class WMDS_Updater {
 			'slug'         => self::$slug,
 			'plugin'       => self::$basename,
 			'version'      => $release['version'],
+			'new_version'  => $release['version'],
 			'url'          => 'https://' . self::HOST . '/' . self::REPO,
 			'package'      => $release['package'],
 			'tested'       => $release['tested'],
+			'requires'     => $release['requires'],
 			'requires_php' => $release['requires_php'],
 			'icons'        => self::icons(),
 		);
@@ -117,10 +121,68 @@ class WMDS_Updater {
 			return;
 		}
 
-		delete_transient( self::CACHE );
+		self::flush();
 		if ( class_exists( 'WMDS_Refdata' ) ) {
 			WMDS_Refdata::flush();
 		}
+	}
+
+	public static function flush() {
+		delete_transient( self::CACHE );
+	}
+
+	/**
+	 * @return array{version:string,error:string,checked:int} What the last lookup found.
+	 */
+	public static function state() {
+		$cached = get_transient( self::CACHE );
+
+		if ( ! is_array( $cached ) || ! array_key_exists( 'release', $cached ) ) {
+			return array(
+				'version' => '',
+				'error'   => '',
+				'checked' => 0,
+			);
+		}
+
+		return array(
+			'version' => isset( $cached['release']['version'] ) ? (string) $cached['release']['version'] : '',
+			'error'   => isset( $cached['error'] ) ? (string) $cached['error'] : '',
+			'checked' => isset( $cached['checked'] ) ? (int) $cached['checked'] : 0,
+		);
+	}
+
+	/**
+	 * @return bool Whether the cached lookup has to be bypassed.
+	 */
+	public static function forced() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- reads a flag out of a WordPress-built URL; nothing here changes state.
+		$forced = is_admin() && isset( $_GET['force-check'] );
+
+		if ( defined( 'WP_CLI' ) && WP_CLI ) {
+			$forced = true;
+		}
+
+		/**
+		 * @param bool $forced
+		 */
+		return (bool) apply_filters( 'wmds_force_update_check', $forced );
+	}
+
+	/**
+	 * @param mixed $cached
+	 * @return bool Whether the cached lookup may be used as it stands.
+	 */
+	private static function usable( $cached ) {
+		if ( ! is_array( $cached ) || ! array_key_exists( 'release', $cached ) ) {
+			return false;
+		}
+
+		if ( ! isset( $cached['installed'] ) || WMDS_VERSION !== $cached['installed'] ) {
+			return false;
+		}
+
+		return ! self::forced();
 	}
 
 	/**
@@ -128,11 +190,9 @@ class WMDS_Updater {
 	 */
 	private static function release() {
 		$cached = get_transient( self::CACHE );
-		if ( is_array( $cached ) ) {
-			return $cached;
-		}
-		if ( 'error' === $cached ) {
-			return false;
+
+		if ( self::usable( $cached ) ) {
+			return is_array( $cached['release'] ) ? $cached['release'] : false;
 		}
 
 		$response = wp_remote_get(
@@ -146,19 +206,87 @@ class WMDS_Updater {
 			)
 		);
 
-		$parsed = self::parse(
-			is_wp_error( $response ) ? 0 : (int) wp_remote_retrieve_response_code( $response ),
-			is_wp_error( $response ) ? '' : (string) wp_remote_retrieve_body( $response )
+		$failed = is_wp_error( $response );
+		$code   = $failed ? 0 : (int) wp_remote_retrieve_response_code( $response );
+		$body   = $failed ? '' : (string) wp_remote_retrieve_body( $response );
+
+		$parsed = self::parse( $code, $body );
+
+		set_transient(
+			self::CACHE,
+			array(
+				'installed' => WMDS_VERSION,
+				'checked'   => time(),
+				'release'   => $parsed,
+				'error'     => $parsed ? '' : self::reason( $code, $body, $failed ? $response->get_error_message() : '' ),
+			),
+			$parsed ? self::TTL_OK : self::TTL_ERROR
 		);
 
-		if ( ! $parsed ) {
-			set_transient( self::CACHE, 'error', self::TTL_ERROR );
-			return false;
+		return $parsed;
+	}
+
+	/**
+	 * @param int    $code      HTTP status, 0 when the request never got through.
+	 * @param string $body      Response body.
+	 * @param string $transport Error message of a failed request.
+	 * @return string Why the lookup came back empty.
+	 */
+	public static function reason( $code, $body, $transport = '' ) {
+		if ( '' !== $transport ) {
+			/* translators: %s: error message of the failed HTTP request. */
+			return sprintf( __( 'GitHub could not be reached: %s', 'wp-mobile-de-sync' ), $transport );
 		}
 
-		set_transient( self::CACHE, $parsed, self::TTL_OK );
+		if ( 403 === (int) $code || 429 === (int) $code ) {
+			return __( 'GitHub turned the request down. The API rate limit for this server is most likely used up; it resets within the hour.', 'wp-mobile-de-sync' );
+		}
 
-		return $parsed;
+		if ( 200 !== (int) $code ) {
+			/* translators: %d: HTTP status code GitHub answered with. */
+			return sprintf( __( 'GitHub answered with HTTP %d.', 'wp-mobile-de-sync' ), (int) $code );
+		}
+
+		$data = json_decode( (string) $body, true );
+
+		if ( ! is_array( $data ) || empty( $data['tag_name'] ) ) {
+			return __( 'GitHub did not answer with a release.', 'wp-mobile-de-sync' );
+		}
+
+		if ( ! empty( $data['draft'] ) || ! empty( $data['prerelease'] ) ) {
+			return __( 'The newest release on GitHub is a draft or a pre-release, and those are skipped.', 'wp-mobile-de-sync' );
+		}
+
+		return __( 'The newest release on GitHub carries no installable ZIP.', 'wp-mobile-de-sync' );
+	}
+
+	/**
+	 * @param string $plugin_file
+	 */
+	public static function row_notice( $plugin_file ) {
+		if ( $plugin_file !== self::$basename ) {
+			return;
+		}
+
+		$state = self::state();
+		if ( '' === $state['error'] ) {
+			return;
+		}
+
+		$columns = 4;
+		if ( isset( $GLOBALS['wp_list_table'] ) && method_exists( $GLOBALS['wp_list_table'], 'get_column_count' ) ) {
+			$columns = $GLOBALS['wp_list_table']->get_column_count();
+		}
+
+		printf(
+			'<tr class="plugin-update-tr"><td colspan="%d" class="plugin-update colspanchange"><div class="update-message notice inline notice-warning notice-alt"><p>%s</p></div></td></tr>',
+			absint( $columns ),
+			sprintf(
+				/* translators: %s: reason the update check failed. */
+				esc_html__( 'The update check against GitHub failed, so no new version can be offered here: %s', 'wp-mobile-de-sync' ),
+				esc_html( $state['error'] )
+			)
+		);
 	}
 
 	/**
@@ -255,7 +383,7 @@ class WMDS_Updater {
 			$line = trim( $line );
 
 			if ( preg_match( '/^(#{1,6})\s+(.*)$/', $line, $m ) ) {
-				$html .= self::flush( $list );
+				$html .= self::flush_list( $list );
 				$level = min( 4, max( 3, strlen( $m[1] ) ) );
 				$html .= sprintf( '<h%d>%s</h%d>', $level, $m[2], $level );
 				continue;
@@ -266,13 +394,13 @@ class WMDS_Updater {
 				continue;
 			}
 
-			$html .= self::flush( $list );
+			$html .= self::flush_list( $list );
 			if ( '' !== $line ) {
 				$html .= '<p>' . $line . '</p>';
 			}
 		}
 
-		$html = $html . self::flush( $list );
+		$html = $html . self::flush_list( $list );
 
 		return preg_replace( '/\*\*(.+?)\*\*/s', '<strong>$1</strong>', $html );
 	}
@@ -281,7 +409,7 @@ class WMDS_Updater {
 	 * @param string[] $list Emptied in place.
 	 * @return string
 	 */
-	private static function flush( array &$list ) {
+	private static function flush_list( array &$list ) {
 		if ( ! $list ) {
 			return '';
 		}
