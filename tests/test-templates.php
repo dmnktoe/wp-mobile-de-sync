@@ -1,11 +1,4 @@
 <?php
-/**
- * Template resolution and the stylesheet decision.
- *
- * The fakes here are richer than the ones in bootstrap.php: this test needs
- * filters that actually run and a style registry it can read back, so both
- * are defined before bootstrap.php gets its turn.
- */
 
 $GLOBALS['wmds_test_filters']     = array();
 $GLOBALS['wmds_test_styles']      = array();

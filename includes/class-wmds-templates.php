@@ -1,18 +1,4 @@
 <?php
-/**
- * Template resolution and the front-end stylesheet.
- *
- * Every template the plugin renders - the archive, the detail page, the
- * shortcode and the card the last two share - goes through self::locate().
- * A theme overrides any of them by dropping a file of the same name into
- * wp-mobile-de-sync/ in the stylesheet or template directory, or into the
- * theme root, which is where an earlier solution expected mob_vehicle-list.php.
- *
- * The stylesheet follows the templates instead of the post type: a page that
- * renders the shortcode gets it as well, which the post type condition alone
- * never covered.
- */
-
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -29,9 +15,7 @@ class WMDS_Templates {
 	}
 
 	/**
-	 * The theme wins, the plugin fills in.
-	 *
-	 * @param string $file Path relative to templates/, e.g. "parts/vehicle-card.php".
+	 * @param string $file Path relative to templates/.
 	 * @return string Absolute path, '' when nothing exists.
 	 */
 	public static function locate( $file ) {
@@ -53,17 +37,15 @@ class WMDS_Templates {
 		}
 
 		/**
-		 * @param string $found Absolute path to the template, '' when there is none.
-		 * @param string $file  The requested file, relative to templates/.
+		 * @param string $found
+		 * @param string $file
 		 */
 		return apply_filters( 'wmds_template', $found, $file );
 	}
 
 	/**
-	 * Renders a template. $args is in scope inside it.
-	 *
 	 * @param string $file Path relative to templates/.
-	 * @param array  $args Values the template reads.
+	 * @param array  $args Available to the template as $args.
 	 */
 	public static function render( $file, $args = array() ) {
 		$path = self::locate( $file );
@@ -75,15 +57,10 @@ class WMDS_Templates {
 	}
 
 	/**
-	 * Kept separate so the included file sees $path and $args only.
-	 *
 	 * @param string $path
 	 * @param array  $args
 	 */
 	private static function include_template( $path, $args ) {
-		// The shortcode template used to be included straight from the
-		// shortcode callback, with $atts in scope. A theme copy still expects
-		// that name, so it keeps it.
 		if ( isset( $args['atts'] ) ) {
 			$atts = $args['atts']; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- read by the included template.
 		}
@@ -115,8 +92,6 @@ class WMDS_Templates {
 	 * @return string
 	 */
 	public static function shortcode( $atts, $content = null ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter -- see above.
-		// A page carrying the shortcode is not a vehicle page, so the enqueue
-		// pass over the main query has no way of knowing the styles are needed.
 		self::maybe_enqueue( true );
 
 		ob_start();
@@ -134,8 +109,6 @@ class WMDS_Templates {
 	}
 
 	/**
-	 * A vehicle page, or a post whose content renders the shortcode.
-	 *
 	 * @return bool
 	 */
 	public static function styles_needed() {
@@ -163,14 +136,7 @@ class WMDS_Templates {
 			return;
 		}
 
-		if ( ! wp_style_is( self::HANDLE, 'registered' ) ) {
-			self::register();
-		}
-
-		// Enqueued after wp_head, the style is printed in the footer. Late is
-		// better than never: the shortcode can turn up in a widget, in a
-		// page builder or in a template part, none of which the main query
-		// knows about.
+		self::register();
 		wp_enqueue_style( self::HANDLE );
 	}
 

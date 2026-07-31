@@ -1,10 +1,4 @@
 <?php
-/**
- * One vehicle in a grid. Rendered inside the loop.
- *
- * $args['heading']  Heading level for the title, h2 to h4. Default h3.
- * $args['warnings'] Whether to show the vehicle's warnings. Default false.
- */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
