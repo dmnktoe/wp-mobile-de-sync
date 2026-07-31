@@ -1,0 +1,47 @@
+# Dependency updates.
+#
+# Dependabot rather than Renovate: it needs no app installation and no
+# credentials, and this repository has exactly two things to keep current -
+# the GitHub Actions in the workflows and the Composer dev tooling. Renovate's
+# extra configurability would buy nothing here.
+#
+# Nothing in here reaches the plugin itself. The release ZIP contains no
+# vendor/ directory; Composer is only used for the coding standards, and CI
+# validates every bump against the full test suite before it can be merged.
+
+version: 2
+
+updates:
+  # The workflows pin major versions (actions/checkout@v4). That does not
+  # cover the runtime deprecations GitHub announces against a major - the
+  # Node 20 notice in the current logs is one - so the actions still need
+  # watching.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      # One PR a month rather than three. They are reviewed together anyway.
+      actions:
+        patterns:
+          - '*'
+    commit-message:
+      prefix: 'ci'
+    labels:
+      - dependencies
+
+  - package-ecosystem: composer
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      # phpcs, WPCS and PHPCompatibility move together; splitting them
+      # produces PRs that fail until their siblings land.
+      coding-standards:
+        patterns:
+          - '*'
+    commit-message:
+      prefix: 'chore'
+      include: scope
+    labels:
+      - dependencies
