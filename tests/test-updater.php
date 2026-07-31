@@ -284,7 +284,6 @@ wmds_assert( 'flushing leaves nothing behind', '', WMDS_Updater::state()['error'
 
 wmds_section( 'The update is written into the transient as well' );
 
-// Installed is 1.0.0 throughout this file.
 wmds_seed_lookup( '2.0.1' );
 
 $transient = WMDS_Updater::inject( (object) array( 'last_checked' => time() ) );

@@ -69,15 +69,6 @@ class WMDS_Updater {
 	}
 
 	/**
-	 * Writes the result into the transient WordPress reads, as a second route
-	 * next to the Update URI header.
-	 *
-	 * The header and update_plugins_{$hostname} are the documented way, but
-	 * core only walks that list once its own call to api.wordpress.org has
-	 * returned a 200 - a request this plugin has no part in. When it fails,
-	 * every self-hosted update silently goes missing with it. Filling the
-	 * transient in as it is read does not depend on that request.
-	 *
 	 * @param mixed $value The cached transient.
 	 * @return mixed
 	 */

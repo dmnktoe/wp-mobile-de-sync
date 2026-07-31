@@ -21,17 +21,9 @@ class WMDS_Importer {
 
 	const MAX_IMAGES = 15;
 
-	/**
-	 * Share of max_execution_time a pass may spend before it stops on its own.
-	 * The remainder is the safety margin for the vehicle still in flight.
-	 */
 	const BUDGET_SHARE = 0.6;
-
-	/** Ceiling for a single pass when PHP imposes no execution limit. */
-	const MAX_RUNTIME = 300;
-
-	/** Floor for the budget, so a tiny limit still gets a vehicle done. */
-	const MIN_RUNTIME = 20;
+	const MAX_RUNTIME  = 300;
+	const MIN_RUNTIME  = 20;
 
 	/** @var WMDS_Client */
 	private $client;
@@ -83,14 +75,6 @@ class WMDS_Importer {
 	}
 
 	/**
-	 * Lifts PHP's execution limit for this pass where the host allows it, and
-	 * reports the seconds the pass may run either way.
-	 *
-	 * Cron runs get whatever max_execution_time the host sets - 60 seconds on
-	 * a lot of shared hosting, which a batch of vehicles with images blows
-	 * through. Raising the limit is the first attempt; the budget is what
-	 * keeps the pass finite when the host does not allow it.
-	 *
 	 * @return int Seconds this pass may spend on vehicles.
 	 */
 	private static function budget() {
@@ -104,20 +88,10 @@ class WMDS_Importer {
 		return max( self::MIN_RUNTIME, min( self::MAX_RUNTIME, $budget ) );
 	}
 
-	/**
-	 * Releases the lock when the pass dies on a fatal error.
-	 *
-	 * Without this the transient sits there for its full TTL and every cron
-	 * run in that window bails out with "an import is already running", which
-	 * turns a single crash into a quarter of an hour of standstill.
-	 */
 	private static function guard_lock() {
 		register_shutdown_function( array( __CLASS__, 'release_on_fatal' ) );
 	}
 
-	/**
-	 * Shutdown handler. Public because PHP has to be able to call it.
-	 */
 	public static function release_on_fatal() {
 		$error = error_get_last();
 

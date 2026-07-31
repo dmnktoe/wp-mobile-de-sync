@@ -11,13 +11,9 @@ class WMDS_Requirements {
 	const MIN_PHP = '7.0';
 	const MIN_WP  = '5.8';
 
-	/** Below this PHP is out of security support. */
-	const SUPPORTED_PHP = '8.1';
-
-	/** A pass needs room for a batch of vehicles with their images. */
+	const SUPPORTED_PHP    = '8.1';
 	const WANTED_EXECUTION = 120;
-
-	const WANTED_MEMORY = 134217728;
+	const WANTED_MEMORY    = 134217728;
 
 	/**
 	 * @return array<int,array{key:string,group:string,label:string,value:string,status:string,hint:string}>
