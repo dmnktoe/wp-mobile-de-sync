@@ -4,7 +4,7 @@ Tags: mobile.de, vehicles, dealership, import, facetwp
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 2.0.1
+Stable tag: 2.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -112,6 +112,24 @@ Pkw-EnVKV, so the bundled German catalogue carries the statutory wording rather
 than a translation of the English source.
 
 == Changelog ==
+
+= 2.1.0 =
+* New: a "System" tab that checks PHP and WordPress version, extensions, GD or
+  Imagick, execution time and memory, the uploads folder, permalinks and
+  mod_rewrite, WP-Cron and outbound requests.
+* New: an "About" tab with version, links and what the plugin registers.
+* Fixed: a sync run was killed by PHP's execution limit while resizing images,
+  which also took the rest of that WP-Cron run with it. A pass now stops on its
+  own clock and leaves the rest pending for the next run.
+* Fixed: a run killed by a fatal error left its lock behind and blocked every
+  run for the next fifteen minutes.
+* Fixed: a vehicle lost its images when a run was interrupted while importing
+  them. The existing gallery is kept until the new one is in.
+* Fixed: vehicles could come out as changed on every run and be written again
+  and again, because the stored modification date was not the one the sync
+  compares against.
+* Fixed: updates are written into the WordPress update transient as well, so a
+  failed call to api.wordpress.org no longer hides them.
 
 = 2.0.1 =
 * Fixed: 2.0.0 was never offered as an update. The lookup against GitHub was

@@ -278,6 +278,66 @@
 	white-space: nowrap;
 }
 
+.wmds-requirements td:first-child {
+	width: 240px;
+	vertical-align: top;
+}
+
+.wmds-requirement-badge {
+	border-radius: 3px;
+	display: inline-block;
+	font-size: 11px;
+	font-weight: 600;
+	line-height: 1.6;
+	margin-right: 8px;
+	min-width: 60px;
+	padding: 0 8px;
+	text-align: center;
+	text-transform: uppercase;
+}
+
+.wmds-requirement-ok {
+	background: #edfaef;
+	color: #00650f;
+}
+
+.wmds-requirement-warn {
+	background: #fcf9e8;
+	color: #7a5c00;
+}
+
+.wmds-requirement-fail {
+	background: #fcf0f1;
+	color: #8a2424;
+}
+
+.wmds-requirement-summary {
+	border-left: 4px solid transparent;
+	margin: 0 0 16px;
+	padding: 8px 12px;
+}
+
+.wmds-requirement-summary.wmds-requirement-ok {
+	border-left-color: #00a32a;
+}
+
+.wmds-requirement-summary.wmds-requirement-warn {
+	border-left-color: #dba617;
+}
+
+.wmds-requirement-summary.wmds-requirement-fail {
+	border-left-color: #d63638;
+}
+
+.wmds-requirement-row-fail td {
+	background: #fcf0f1;
+}
+
+.wmds-links {
+	list-style: disc;
+	margin: 0 0 12px 20px;
+}
+
 .wmds-log-problem td {
 	background: #fcf0f1;
 }

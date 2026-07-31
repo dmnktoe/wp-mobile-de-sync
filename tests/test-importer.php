@@ -615,6 +615,145 @@ wmds_fake_reset();
 list( $importer ) = wmds_setup( array(), array( 'credentials' => false ) );
 wmds_assert( 'without credentials', 'wmds_no_credentials', $importer->refresh( '777' )->get_error_code() );
 
+wmds_section( 'A pass stops on the clock instead of being killed by it' );
+
+wmds_fake_reset();
+$ads = array();
+foreach ( array( '1', '2', '3', '4', '5' ) as $seed ) {
+	$ads[] = wmds_ad( $seed );
+}
+
+list( $importer, $client ) = wmds_setup( $ads );
+$stats                     = $importer->run( array( 'budget' => 0 ) );
+
+wmds_assert( 'only the first vehicle was done', 1, $stats['created'] );
+wmds_assert( 'the rest is pending', 4, $stats['pending'] );
+wmds_assert( 'and comes back on the next run', true, in_array( WMDS_CRON_HOOK, wmds_fake( 'scheduled' ), true ) );
+wmds_assert( 'the lock is released either way', 0, WMDS_Importer::locked_since() );
+
+wmds_section( 'A pass cut short does not count as a full reconciliation' );
+
+wmds_fake_reset();
+foreach ( array( '1', '2', '3', '4', '5' ) as $seed ) {
+	wmds_fake_seed_vehicle( $seed, '2026-01-01T00:00:00.000Z' );
+}
+$gone = wmds_fake_seed_vehicle( '6', '2026-01-01T00:00:00.000Z' );
+
+$ads = array();
+foreach ( array( '1', '2', '3', '4', '5' ) as $seed ) {
+	$ads[] = wmds_ad( $seed );
+}
+
+list( $importer, $client ) = wmds_setup( $ads );
+$stats                     = $importer->run(
+	array(
+		'full'   => true,
+		'budget' => 0,
+	)
+);
+
+wmds_assert( 'work is left over', true, $stats['pending'] > 0 );
+wmds_assert( 'nothing was removed', 0, $stats['removed'] );
+wmds_assert( 'the vanished vehicle is still published', 'publish', wmds_fake( 'posts' )[ $gone ]['post_status'] );
+wmds_assert( 'the watermark did not move', '', (string) get_option( WMDS_Importer::OPT_WATERMARK, '' ) );
+
+wmds_section( 'A listing cut short removes nothing' );
+
+wmds_fake_reset();
+foreach ( array( '1', '2', '9' ) as $seed ) {
+	wmds_fake_seed_vehicle( $seed, '2026-01-01T00:00:00.000Z' );
+}
+$unread = wmds_post_for( '9' );
+
+list( $importer, $client ) = wmds_setup( array( wmds_ad( '1' ) ) );
+$client->pages             = array(
+	1 => array(
+		'ads'       => array( wmds_ad( '1' ) ),
+		'max_pages' => 3,
+		'capped'    => false,
+	),
+	2 => array(
+		'ads'       => array( wmds_ad( '2' ) ),
+		'max_pages' => 3,
+		'capped'    => false,
+	),
+	3 => array(
+		'ads'       => array( wmds_ad( '9' ) ),
+		'max_pages' => 3,
+		'capped'    => false,
+	),
+);
+
+$stats = $importer->run(
+	array(
+		'full'   => true,
+		'budget' => 0,
+	)
+);
+
+wmds_assert( 'it stopped before the last page', true, count( $client->searched ) < 3 );
+wmds_assert( 'the unread vehicle was not trashed', 'publish', wmds_fake( 'posts' )[ $unread ]['post_status'] );
+wmds_assert( 'nothing was removed at all', 0, $stats['removed'] );
+wmds_assert( 'the watermark did not move', '', (string) get_option( WMDS_Importer::OPT_WATERMARK, '' ) );
+wmds_assert( 'and the run comes back', true, in_array( WMDS_CRON_HOOK, wmds_fake( 'scheduled' ), true ) );
+
+wmds_section( 'Images are only replaced once the new ones are in' );
+
+wmds_fake_reset();
+list( $importer, $client ) = wmds_setup( array( wmds_ad( '111' ) ) );
+$importer->run();
+
+$post_id = wmds_post_for( '111' );
+$before  = wmds_fake( 'attachments' )[ $post_id ];
+
+wmds_assert( 'imported to begin with', true, count( $before ) > 0 );
+
+$GLOBALS['wp_fake']['unloadable'] = array( 'https://img.example.invalid/111-x.jpg' );
+
+$vanished = array(
+	array(
+		'hash' => 'x',
+		'xxxl' => 'https://img.example.invalid/111-x.jpg',
+	),
+);
+
+list( $importer, $client ) = wmds_setup(
+	array( wmds_ad( '111', '2026-07-29T10:00:00+02:00', array( 'images' => $vanished ) ) )
+);
+$stats                     = $importer->run();
+
+wmds_assert( 'nothing new landed', 0, $stats['images'] );
+wmds_assert( 'the old gallery is still there', $before, wmds_fake( 'attachments' )[ $post_id ] );
+wmds_assert( 'and so is the featured image', true, has_post_thumbnail( $post_id ) );
+
+wmds_section( 'The date stored is the one the next run compares against' );
+
+wmds_fake_reset();
+$GLOBALS['wp_fake']['unloadable'] = array();
+
+$listed                    = '2026-07-28T18:29:13+02:00';
+list( $importer, $client ) = wmds_setup( array( wmds_ad( '111', $listed ) ) );
+
+$client->details['111'] = array_merge(
+	wmds_detail( '111' ),
+	array( 'modificationDate' => '2026-07-28T16:29:13.000Z' )
+);
+
+$importer->run();
+$post_id = wmds_post_for( '111' );
+
+wmds_assert( 'the search result wins', $listed, get_post_meta( $post_id, WMDS_Importer::META_MODIFIED, true ) );
+
+list( $importer, $client ) = wmds_setup( array( wmds_ad( '111', $listed ) ) );
+$client->details['111']    = array_merge(
+	wmds_detail( '111' ),
+	array( 'modificationDate' => '2026-07-28T16:29:13.000Z' )
+);
+$stats                     = $importer->run();
+
+wmds_assert( 'so the vehicle comes out as unchanged', 1, $stats['skipped'] );
+wmds_assert( 'and is not written again', 0, $stats['updated'] );
+
 wmds_section( 'Other post types are left alone' );
 
 wmds_fake_reset();
