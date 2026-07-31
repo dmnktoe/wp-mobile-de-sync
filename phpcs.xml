@@ -203,6 +203,14 @@
 	<rule ref="Generic.Files.OneObjectStructurePerFile">
 		<exclude-pattern>tests/*</exclude-pattern>
 	</rule>
+	<!--
+		A test that exercises one class in isolation stubs the plugin classes
+		it reads constants from, rather than pulling in their dependencies.
+		The stub carries the name it stands in for on purpose.
+	-->
+	<rule ref="Generic.Classes.DuplicateClassName">
+		<exclude-pattern>tests/*</exclude-pattern>
+	</rule>
 	<rule ref="WordPress.NamingConventions.ValidFunctionName">
 		<exclude-pattern>tests/wp-fake.php</exclude-pattern>
 	</rule>

@@ -3,30 +3,57 @@
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
-## [1.0.3] – 2026-07-31
+## [2.0.0] – 2026-07-31
+
+### Changed
+- The shortcodes are English: `[vehicles]` and `[vehicle-logo]`. The German
+  names stay registered as aliases, so no page content has to be touched.
+- `[vehicles]` filters on any meta key. Attributes that are not one of
+  `posts_per_page`, `orderby`, `order` and `meta_key` become a meta query, so
+  `[vehicles fuel="Diesel" interior_type="Teilleder"]` works without the plugin
+  knowing those fields. The five German filter attributes still map onto their
+  English keys.
+- Equipment is no longer a fixed list of 28 features. Every boolean the feed
+  sets is taken as a feature and stored under the upper-case form of its field
+  name — the naming the feed itself uses, which `alloyWheels` in the fixtures
+  confirms. Curated labels stay for translation; anything unknown gets a
+  readable fallback. `feature_keys` records what a vehicle actually carries.
 
 ### Fixed
-- `[fahrzeuge-anzeigen]` rendered as an unstyled list on ordinary pages. The
-  stylesheet was enqueued for `is_singular( 'fahrzeuge' )` and the post type
-  archive only, and a page carrying the shortcode is neither — so the markup
-  arrived without the grid that lays it out. The decision now follows the
-  templates rather than the post type: a post whose content contains the
-  shortcode counts, and the shortcode itself enqueues the file when it runs,
-  which also covers a widget, a page builder or a template part the main
-  query knows nothing about. The `wmds_enqueue_styles` filter still switches
-  the file off everywhere.
+- The shortcode rendered as an unstyled list on ordinary pages. The stylesheet
+  was enqueued for `is_singular( 'fahrzeuge' )` and the post type archive only,
+  and a page carrying the shortcode is neither. The decision now follows the
+  templates: a post whose content contains the shortcode counts, and the
+  shortcode enqueues the file when it runs, which also covers a widget, a page
+  builder or a template part the main query knows nothing about.
+- "Test the connection" never turned green on the getting-started checklist. It
+  read the last sync run, and a connection test recorded nothing — so the step
+  only completed once an import had gone through. The outcome is stored now.
+- An import cut short by a PHP time limit left its lock behind, and every run
+  for the next fifteen minutes aborted with "An import is already running". The
+  lock is refreshed as the run works, so a live import holds it and a dead one
+  does not, and Tools offers to release it with the age of the run stated.
+- Three meta keys never matched what the templates of the earlier solution
+  read: `cubicCapacity`, `roadworthy` and `seller_company_name`. They are
+  written alongside the existing names.
 
 ### Added
-- A template hierarchy. All four templates are resolved through
+- Vehicle class, climatisation, airbag, country version, axles, height, length
+  and the parking assistants, plus the seller's ID, street, postcode, city,
+  country, homepage and the date they started selling. All of it was in the
+  feed and none of it was stored.
+- A template hierarchy. All templates resolve through
   `WMDS_Templates::locate()`, which looks in `wp-mobile-de-sync/` in the
-  stylesheet directory, then in the template directory, then in the theme
-  root — the place an earlier solution expected `mob_vehicle-list.php`, which
-  therefore keeps working — and falls back to the bundled file. The new
-  `wmds_template` filter has the last word.
+  stylesheet directory, then the template directory, then the theme root — the
+  place an earlier solution expected `mob_vehicle-list.php`, which therefore
+  keeps working — and falls back to the bundled file. The new `wmds_template`
+  filter has the last word.
 - `templates/parts/vehicle-card.php`. The archive and the shortcode rendered
-  the same card twice, in two copies that had already begun to drift. It is
-  one template part now, taking a heading level and whether to show warnings,
-  and a theme can override the card without copying the loop around it.
+  the same card twice, in two copies that had already begun to drift.
+
+### Upgrading
+- The new fields are written at import time. One full sync fills them in:
+  `wp wmds sync --full --all`.
 
 ## [1.0.2] – 2026-07-31
 

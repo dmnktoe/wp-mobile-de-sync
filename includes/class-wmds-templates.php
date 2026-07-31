@@ -8,10 +8,18 @@ class WMDS_Templates {
 
 	const SUBDIR = 'wp-mobile-de-sync';
 
+	/**
+	 * @var string[]
+	 */
+	private static $tags = array( 'vehicles', 'fahrzeuge-anzeigen' );
+
 	public static function init() {
 		add_filter( 'template_include', array( __CLASS__, 'template_include' ) );
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue' ) );
-		add_shortcode( 'fahrzeuge-anzeigen', array( __CLASS__, 'shortcode' ) );
+
+		foreach ( self::$tags as $tag ) {
+			add_shortcode( $tag, array( __CLASS__, 'shortcode' ) );
+		}
 	}
 
 	/**
@@ -121,8 +129,17 @@ class WMDS_Templates {
 		}
 
 		$post = get_post();
+		if ( ! $post instanceof WP_Post ) {
+			return false;
+		}
 
-		return $post instanceof WP_Post && has_shortcode( $post->post_content, 'fahrzeuge-anzeigen' );
+		foreach ( self::$tags as $tag ) {
+			if ( has_shortcode( $post->post_content, $tag ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**

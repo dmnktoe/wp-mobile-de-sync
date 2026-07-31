@@ -1127,3 +1127,123 @@ msgstr "in %s"
 #: includes/class-wmds-status.php:188
 msgid "%s ago"
 msgstr "vor %s"
+
+msgid "Car"
+msgstr "PKW"
+
+msgid "Motorbike"
+msgstr "Motorrad"
+
+msgid "Motorhome"
+msgstr "Wohnmobil"
+
+msgid "Van up to 7.5 t"
+msgstr "Transporter bis 7,5 t"
+
+msgid "Truck over 7.5 t"
+msgstr "LKW über 7,5 t"
+
+msgid "Trailer"
+msgstr "Anhänger"
+
+msgid "Semi-trailer"
+msgstr "Auflieger"
+
+msgid "Semi-trailer truck"
+msgstr "Sattelzugmaschine"
+
+msgid "Bus"
+msgstr "Bus"
+
+msgid "Agricultural vehicle"
+msgstr "Landwirtschaftliches Fahrzeug"
+
+msgid "Construction machine"
+msgstr "Baumaschine"
+
+msgid "Forklift truck"
+msgstr "Gabelstapler"
+
+msgid "Air suspension"
+msgstr "Luftfederung"
+
+msgid "Alloy wheels"
+msgstr "Leichtmetallfelgen"
+
+msgid "Suitable for biodiesel"
+msgstr "Biodiesel geeignet"
+
+msgid "Bluetooth"
+msgstr "Bluetooth"
+
+msgid "CD multichanger"
+msgstr "CD-Wechsler"
+
+msgid "CD player"
+msgstr "CD-Player"
+
+msgid "Disabled accessible"
+msgstr "Behindertengerecht"
+
+msgid "E10 compatible"
+msgstr "E10 geeignet"
+
+msgid "Export vehicle"
+msgstr "Exportfahrzeug"
+
+msgid "Hands-free system"
+msgstr "Freisprecheinrichtung"
+
+msgid "Plug-in hybrid"
+msgstr "Plug-in-Hybrid"
+
+msgid "MP3 interface"
+msgstr "MP3-Schnittstelle"
+
+msgid "Non-smoker vehicle"
+msgstr "Nichtraucherfahrzeug"
+
+msgid "On-board computer"
+msgstr "Bordcomputer"
+
+msgid "Diesel particulate filter"
+msgstr "Partikelfilter Diesel"
+
+msgid "Sport suspension"
+msgstr "Sportfahrwerk"
+
+msgid "Roof rails"
+msgstr "Dachreling"
+
+msgid "Ski bag"
+msgstr "Skisack"
+
+msgid "Sport package"
+msgstr "Sportpaket"
+
+msgid "Sport seats"
+msgstr "Sportsitze"
+
+msgid "Taxi or rental car"
+msgstr "Taxi oder Mietwagen"
+
+msgid "Trailer coupling"
+msgstr "Anhängerkupplung"
+
+msgid "Radio"
+msgstr "Radio"
+
+msgid "Suitable for vegetable oil"
+msgstr "Pflanzenöl geeignet"
+
+msgid "Warranty"
+msgstr "Garantie"
+
+msgid "The import lock has been released. You can start a new run."
+msgstr "Die Import-Sperre wurde aufgehoben. Ein neuer Lauf kann starten."
+
+msgid "Release the lock"
+msgstr "Sperre aufheben"
+
+msgid "An import has held the lock since %s. A run that was cut short by a PHP time limit leaves it behind; releasing it lets the next run start."
+msgstr "Seit %s hält ein Import die Sperre. Ein Lauf, den ein PHP-Zeitlimit abgeschnitten hat, lässt sie zurück; wird sie aufgehoben, kann der nächste Lauf starten."

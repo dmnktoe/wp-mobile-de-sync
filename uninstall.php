@@ -6,6 +6,7 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 
 delete_option( 'wmds_settings' );
 delete_option( 'wmds_last_run' );
+delete_option( 'wmds_last_test' );
 delete_option( 'wmds_watermark' );
 delete_option( 'wmds_log' );
 delete_option( 'wmds_dashboard' );

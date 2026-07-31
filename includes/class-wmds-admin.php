@@ -101,6 +101,7 @@ class WMDS_Admin {
 			'clear-log' => array( __CLASS__, 'do_clear_log' ),
 			'forget'    => array( __CLASS__, 'do_forget' ),
 			'refresh'   => array( __CLASS__, 'do_refresh' ),
+			'unlock'    => array( __CLASS__, 'do_unlock' ),
 		);
 
 		if ( isset( $handlers[ $action ] ) ) {
@@ -133,6 +134,7 @@ class WMDS_Admin {
 			'full'      => 'status',
 			'clear-log' => 'status',
 			'flush'     => 'tools',
+			'unlock'    => 'tools',
 			'forget'    => 'connection',
 		);
 
@@ -203,6 +205,12 @@ class WMDS_Admin {
 		wp_schedule_event( time() + 60, $wanted, WMDS_CRON_HOOK );
 	}
 
+	private static function do_unlock() {
+		WMDS_Importer::unlock();
+
+		self::notice( 'success', __( 'The import lock has been released. You can start a new run.', 'wp-mobile-de-sync' ) );
+	}
+
 	private static function do_test() {
 		$result = self::test_result();
 
@@ -212,6 +220,15 @@ class WMDS_Admin {
 	/** @return array{ok:bool,message:string} */
 	private static function test_result() {
 		$result = WMDS_Settings::client()->search( 1, 1 );
+
+		update_option(
+			WMDS_Status::OPT_LAST_TEST,
+			array(
+				'time' => current_time( 'mysql' ),
+				'ok'   => ! is_wp_error( $result ),
+			),
+			false
+		);
 
 		if ( is_wp_error( $result ) ) {
 			return array(
@@ -637,7 +654,7 @@ class WMDS_Admin {
 				'cta'   => __( 'Enter now', 'wp-mobile-de-sync' ),
 			),
 			array(
-				'done'  => ! empty( $status['last'] ),
+				'done'  => ! empty( $status['tested'] ),
 				'label' => __( 'Test the connection', 'wp-mobile-de-sync' ),
 				'url'   => WMDS_Status::settings_url( 'tools' ),
 				'cta'   => __( 'Run the test', 'wp-mobile-de-sync' ),
@@ -1087,6 +1104,23 @@ class WMDS_Admin {
 			<noscript>
 				<?php self::action_button( 'sync', __( 'Sync now', 'wp-mobile-de-sync' ), 'primary' ); ?>
 			</noscript>
+			<?php
+			$locked_since = WMDS_Importer::locked_since();
+			if ( $locked_since ) :
+				?>
+				<div class="wmds-result wmds-result-error">
+					<p>
+						<?php
+						printf(
+							/* translators: %s: how long ago the running import started, e.g. "20 mins". */
+							esc_html__( 'An import has held the lock since %s. A run that was cut short by a PHP time limit leaves it behind; releasing it lets the next run start.', 'wp-mobile-de-sync' ),
+							esc_html( WMDS_Status::relative_time( $locked_since ) )
+						);
+						?>
+					</p>
+					<?php self::action_button( 'unlock', __( 'Release the lock', 'wp-mobile-de-sync' ), 'secondary' ); ?>
+				</div>
+			<?php endif; ?>
 			<p class="description">
 				<?php
 				printf(

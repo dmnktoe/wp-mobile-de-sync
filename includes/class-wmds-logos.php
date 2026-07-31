@@ -174,7 +174,7 @@ function wmds_shortcode_logo( $atts ) {
 			'class' => '',
 		),
 		$atts,
-		'fahrzeug-logo'
+		'vehicle-logo'
 	);
 
 	$make = $atts['make'];
@@ -202,4 +202,5 @@ function wmds_shortcode_logo( $atts ) {
 		esc_attr( (int) $atts['width'] )
 	);
 }
+add_shortcode( 'vehicle-logo', 'wmds_shortcode_logo' );
 add_shortcode( 'fahrzeug-logo', 'wmds_shortcode_logo' );

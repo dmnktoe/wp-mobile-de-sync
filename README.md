@@ -17,8 +17,8 @@ Vehicle data lands in post meta under stable field names. That is the
 interface for templates, facets and custom queries, and it does not change
 within a major version:
 
-- CPT `fahrzeuge`, shortcode `[fahrzeuge-anzeigen]`
-- one meta key per vehicle property, plus the 28 equipment features
+- CPT `fahrzeuge`, shortcodes `[vehicles]` and `[vehicle-logo]`
+- one meta key per vehicle property, plus every equipment feature the feed sets
 - FacetWP sources usable as-is (`cf/make`, `cf/price_raw`, `cf/mileage_raw`, …)
 
 ## Requirements
@@ -163,7 +163,7 @@ wp wmds flush-cache            re-fetch reference data
 
 ## Logos
 
-30 manufacturer logos ship with the plugin, output via `[fahrzeug-logo]`. For a
+30 manufacturer logos ship with the plugin, output via `[vehicle-logo]`. For a
 missing make, drop a file into `wp-content/uploads/wmds-logos/` named after the
 make (`Tesla.png`). Case, spaces and special characters do not matter — the
 lookup normalises both sides.
@@ -267,6 +267,19 @@ well when it runs, which covers widgets and page builders.
 | `wmds_logo_url` | override the logo URL |
 | `wmds_enqueue_styles` | switch off the bundled stylesheet |
 | `wmds_template` | point a template at a different file |
+
+## The shortcode
+
+    [vehicles posts_per_page="6" orderby="date" order="DESC"]
+
+Those four attributes steer the query. Every other attribute filters on the
+meta key of the same name, so nothing has to be whitelisted first:
+
+    [vehicles make="Audi" fuel="Diesel" interior_type="Teilleder"]
+
+`marke`, `modell`, `zustand`, `kraftstoffart`, `getriebe` and `anzahl` map onto
+their English counterparts, and `[fahrzeuge-anzeigen]` and `[fahrzeug-logo]`
+stay registered, so pages written against the old names keep working.
 
 If a site brings its own templates that call helper functions from an earlier
 solution, `includes/class-wmds-compat.php` provides equivalents — but only

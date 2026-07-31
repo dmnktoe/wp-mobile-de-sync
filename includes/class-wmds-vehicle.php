@@ -210,7 +210,10 @@ class WMDS_Vehicle {
 	public function features() {
 		$out = array();
 
-		foreach ( WMDS_Json_Mapper::feature_keys() as $key ) {
+		$stored = array_filter( explode( ',', $this->get( 'feature_keys' ) ) );
+		$keys   = $stored ? $stored : WMDS_Json_Mapper::feature_keys();
+
+		foreach ( $keys as $key ) {
 			$label = $this->get( $key );
 			if ( '' !== $label ) {
 				$out[] = $label;
