@@ -1,12 +1,4 @@
 <?php
-/**
- * Tests for WMDS_Logos.
- *
- *     php tests/test-logos.php
- *
- * Checks against the files actually shipped in assets/logos/, not against a
- * list kept in the test. If a file is added or removed, this notices.
- */
 
 require_once __DIR__ . '/bootstrap.php';
 
@@ -15,15 +7,8 @@ define( 'WMDS_URL', 'https://example.invalid/wp-content/plugins/wp-mobile-de-syn
 
 require_once __DIR__ . '/../includes/class-wmds-logos.php';
 
-// --------------------------------------------------------------------
-// Normalisierung
-// --------------------------------------------------------------------
-
 wmds_section( 'Normalisation: key and file name meet' );
 
-// The feed supplies "LAND ROVER" with a space; the file is called
-// "Land Rover.png". Transforming key -> file name breaks on BMW, MINI,
-// ALPINA and INEOS, so both sides are normalised instead.
 wmds_assert( 'LAND ROVER', 'landrover', WMDS_Logos::normalize( 'LAND ROVER' ) );
 wmds_assert( 'Land Rover.png', 'landrover', WMDS_Logos::normalize( 'Land Rover' ) );
 wmds_assert( 'MERCEDES-BENZ', 'mercedesbenz', WMDS_Logos::normalize( 'MERCEDES-BENZ' ) );
@@ -36,16 +21,11 @@ wmds_assert( 'Alfa Romeo', 'alfaromeo', WMDS_Logos::normalize( 'ALFA ROMEO' ) );
 wmds_assert( 'Harley-Davidson', 'harleydavidson', WMDS_Logos::normalize( 'HARLEY-DAVIDSON' ) );
 wmds_assert( 'leer bleibt leer', '', WMDS_Logos::normalize( '   ' ) );
 
-// --------------------------------------------------------------------
-// Matching against the real files
-// --------------------------------------------------------------------
-
 wmds_section( 'Matching against assets/logos/' );
 
 $dateien = glob( WMDS_DIR . 'assets/logos/*.png' );
 wmds_assert( '30 Logos vorhanden', 30, count( (array) $dateien ) );
 
-// Schluessel, so wie mobile.de sie liefert.
 $schluessel = array(
 	'LAND ROVER'      => 'Land Rover',
 	'VOLVO'           => 'Volvo',
@@ -75,7 +55,6 @@ wmds_assert( 'Unsinn', '', WMDS_Logos::url( '###' ) );
 wmds_section( 'URL zeigt ins Plugin-Verzeichnis' );
 
 wmds_assert_contains( 'Basis-URL', WMDS_URL . 'assets/logos/', WMDS_Logos::url( 'VOLVO' ) );
-// Spaces in the file name must be encoded, or the URL breaks.
 wmds_assert_contains( 'Leerzeichen kodiert', 'Land%20Rover', WMDS_Logos::url( 'LAND ROVER' ) );
 
 wmds_result();

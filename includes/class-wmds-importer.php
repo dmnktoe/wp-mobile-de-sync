@@ -3,34 +3,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * Executes one import pass.
- *
- * Deliberately thin: the risky decisions belong to WMDS_Sync_Plan, field
- * mapping to WMDS_Json_Mapper, talking to the API to WMDS_Client. What is
- * left here is what WordPress needs - posts, meta, attachments, schedule.
- *
- * Sequence:
- *   1. Take a lock so two cron ticks cannot collide.
- *   2. Fetch the search result page by page. That is cheap and yields every
- *      ad including its modificationDate.
- *   3. WMDS_Sync_Plan decides per ad: create, update or skip.
- *   4. Detail call only for ads to create or update - description and seller
- *      data exist nowhere else.
- *   5. Upsert; images only when their hashes changed.
- *   6. After a full pass that actually finished: move vanished vehicles to
- *      the trash, guarded by the limits in the plan.
- *
- * When there is more to do than fits into one pass, the run ends cleanly and
- * reschedules itself. That keeps it inside any PHP timeout, no matter whether
- * WP-Cron or a system cron triggered it.
- */
 class WMDS_Importer {
-
-	/** Ad ID on the post. Part of the meta contract - do not rename. */
 	const META_AD_ID = 'mobileAdId';
 
-	/** Per-vehicle internal state. Leading underscore = hidden in the admin. */
 	const META_MODIFIED = '_wmds_modified';
 	const META_HASH     = '_wmds_hash';
 	const META_IMAGES   = '_wmds_image_hashes';
@@ -40,13 +15,10 @@ class WMDS_Importer {
 	const OPT_WATERMARK = 'wmds_watermark';
 	const OPT_LOG       = 'wmds_log';
 
-	/** Upper bound on vehicles processed in a single pass. */
 	const BATCH = 20;
 
-	/** How long the lock lives, in case a run dies hard. */
 	const LOCK_TTL = 900;
 
-	/** Images per vehicle. */
 	const MAX_IMAGES = 15;
 
 	/** @var WMDS_Client */
@@ -100,7 +72,6 @@ class WMDS_Importer {
 	 * @return array|WP_Error
 	 */
 	private function execute( $full, $force, $batch ) {
-		// Without a stored watermark a run is necessarily a full one.
 		$watermark = $full ? '' : (string) get_option( self::OPT_WATERMARK, '' );
 		$is_full   = ( '' === $watermark );
 
@@ -108,13 +79,11 @@ class WMDS_Importer {
 		$page   = 1;
 		$pages  = 1;
 		$capped = false;
-		$guard  = 40; // 40 pages x 100 ads covers any realistic inventory
+		$guard  = 40;
 
 		do {
 			$result = $this->client->search( $page, WMDS_Client::MAX_PAGE_SIZE, $watermark );
 			if ( is_wp_error( $result ) ) {
-				// Clean abort without deleting anything: a brief outage must
-				// not touch the inventory.
 				$this->log( 'Aborted on page ' . $page . ': ' . $result->get_error_message() );
 				return $result;
 			}
@@ -158,28 +127,21 @@ class WMDS_Importer {
 			}
 		}
 
-		// Removal happens only after a full pass that actually finished.
 		$complete = ( 0 === $pending );
 		$removal  = WMDS_Sync_Plan::removals( $plan['seen'], $known, $is_full && $complete );
 		$removed  = 0;
 
 		if ( '' !== $removal['abort'] ) {
-			// On a partial pass the abort is the normal case and not worth
-			// logging.
 			if ( $is_full && $complete ) {
 				$this->log( $removal['abort'] );
 			}
 		} else {
 			foreach ( $removal['remove'] as $post_id ) {
-				// Trash rather than delete: a bad run stays recoverable and
-				// the URL survives for a while.
 				wp_trash_post( $post_id );
 				++$removed;
 			}
 		}
 
-		// Only advance the watermark once nothing is pending - otherwise the
-		// deferred vehicles would be lost.
 		if ( $complete ) {
 			$next = WMDS_Sync_Plan::next_watermark( wp_list_pluck( $ads, 'modificationDate' ) );
 			if ( '' !== $next ) {
@@ -222,8 +184,6 @@ class WMDS_Importer {
 	}
 
 	/**
-	 * Fetches an ad's details and writes it to the database.
-	 *
 	 * @param array $ad
 	 * @param array $known
 	 * @param int   $images Counter, incremented in place.
@@ -232,9 +192,6 @@ class WMDS_Importer {
 	private function process( array $ad, array $known, &$images ) {
 		$ad_id = (string) $ad['mobileAdId'];
 
-		// Description and seller data exist only in the single-ad call: in a
-		// search result plainTextDescription is an empty string and
-		// seller.phones an empty array.
 		$detail = $this->client->ad( $ad_id );
 		if ( is_wp_error( $detail ) ) {
 			$this->log( 'Detail call failed for ' . $ad_id . ': ' . $detail->get_error_message() );
@@ -274,17 +231,12 @@ class WMDS_Importer {
 		update_post_meta( $post_id, self::META_AD_ID, $ad_id );
 		update_post_meta( $post_id, self::META_MODIFIED, $mapped['modified'] );
 
-		// Write only when something actually changed. For an unchanged
-		// vehicle that saves roughly 95 write operations.
 		$hash = WMDS_Sync_Plan::content_hash( $mapped );
 		if ( (string) get_post_meta( $post_id, self::META_HASH, true ) !== $hash ) {
 			$this->write_meta( $post_id, $mapped['meta'] );
 			update_post_meta( $post_id, self::META_HASH, $hash );
 		}
 
-		// Cap here rather than inside import_images(), so the comparison and
-		// the import see the same list. Comparing the stored hashes against an
-		// uncapped feed list would differ forever and re-import every run.
 		$wanted = array_slice( $mapped['images'], 0, self::MAX_IMAGES );
 		$stored = get_post_meta( $post_id, self::META_IMAGES, true );
 
@@ -292,10 +244,6 @@ class WMDS_Importer {
 			$imported = $this->import_images( $post_id, $wanted, $mapped['title'] );
 			$images  += count( $imported );
 
-			// Record what actually landed, not what was asked for. If one
-			// image of fifteen failed, the stored list stays different from
-			// the feed and the next run tries again - instead of the vehicle
-			// being marked complete and never repaired.
 			update_post_meta( $post_id, self::META_IMAGES, $imported );
 		}
 
@@ -303,9 +251,6 @@ class WMDS_Importer {
 	}
 
 	/**
-	 * Writes the mapped meta fields and clears out what the feed no longer
-	 * supplies.
-	 *
 	 * @param int   $post_id
 	 * @param array $meta
 	 */
@@ -320,11 +265,6 @@ class WMDS_Importer {
 	}
 
 	/**
-	 * Downloads the images and sets the first one as the featured image.
-	 *
-	 * When photos are swapped the previous attachments are removed first,
-	 * otherwise orphans pile up in the media library.
-	 *
 	 * @param int    $post_id
 	 * @param array  $images Already capped to MAX_IMAGES by the caller.
 	 * @param string $title
@@ -381,15 +321,6 @@ class WMDS_Importer {
 	}
 
 	/**
-	 * Known inventory as ad_id => ['post_id', 'modified'].
-	 *
-	 * One query instead of one per vehicle. A meta query per ad means
-	 * hundreds of queries per run on a three-digit inventory every 15
-	 * minutes, without anything necessarily having changed.
-	 *
-	 * Trashed posts are included deliberately: when a vehicle reappears the
-	 * existing post is reused instead of a second one being created.
-	 *
 	 * @return array
 	 */
 	private function known_map() {
@@ -423,15 +354,6 @@ class WMDS_Importer {
 	}
 
 	/**
-	 * Deletes a vehicle's images when the vehicle itself is deleted for good.
-	 *
-	 * Deliberately hooked to permanent deletion, not to trashing. A vehicle in
-	 * the trash can still be restored, and restoring it must bring its gallery
-	 * back - that recovery window is the whole reason removal uses the trash.
-	 * WordPress empties the trash on its own schedule, so the images do go
-	 * eventually; without this they would stay in the media library forever,
-	 * fifteen per sold vehicle.
-	 *
 	 * @param int $post_id
 	 */
 	public static function delete_attachments( $post_id ) {
@@ -446,17 +368,11 @@ class WMDS_Importer {
 		}
 	}
 
-	/** Kick off the next pass while something is still pending. */
 	private function reschedule() {
 		wp_schedule_single_event( time() + 60, WMDS_CRON_HOOK );
 	}
 
 	/**
-	 * Writes to a rolling log in the database.
-	 *
-	 * Writing only to error_log() is not enough: what a run did has to be
-	 * visible from the admin screen, without shell access to the server.
-	 *
 	 * @param string $message
 	 */
 	private function log( $message ) {

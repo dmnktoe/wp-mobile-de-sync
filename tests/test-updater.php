@@ -1,13 +1,4 @@
 <?php
-/**
- * Tests for WMDS_Updater.
- *
- *     php tests/test-updater.php
- *
- * What is checked is the evaluation of the GitHub response - when an update
- * is offered and when it deliberately is not. A wrongly served package
- * deactivates the plugin on a live site.
- */
 
 require_once __DIR__ . '/bootstrap.php';
 
@@ -18,8 +9,6 @@ if ( ! defined( 'WMDS_VERSION' ) ) {
 require_once __DIR__ . '/../includes/class-wmds-updater.php';
 
 /**
- * Builds a GitHub release API response.
- *
  * @param array $overrides
  * @return string
  */
@@ -44,10 +33,6 @@ function release_json( array $overrides = array() ) {
 	return json_encode( $data );
 }
 
-// --------------------------------------------------------------------
-// Gueltiges Release
-// --------------------------------------------------------------------
-
 wmds_section( 'A valid release is evaluated' );
 
 $release = WMDS_Updater::parse( 200, release_json() );
@@ -60,15 +45,8 @@ wmds_assert( 'Requires PHP read from the notes', '7.2', $release['requires_php']
 wmds_assert( 'Tested up to read from the notes', '6.9', $release['tested'] );
 wmds_assert( 'Requires at least falls back to the default', '5.8', $release['requires'] );
 
-// --------------------------------------------------------------------
-// Cases where no update is offered on purpose
-// --------------------------------------------------------------------
-
 wmds_section( 'No attached ZIP means no update' );
 
-// GitHub's generated source download has owner-repo-commithash as its top
-// folder. WordPress would unpack the plugin into a new directory and
-// deactivate it. Better no update than a broken one.
 wmds_assert( 'no assets', false, WMDS_Updater::parse( 200, release_json( array( 'assets' => array() ) ) ) );
 wmds_assert(
 	'fremdes Asset',
@@ -117,10 +95,6 @@ foreach ( array(
 	$r = WMDS_Updater::parse( 200, release_json( array( 'tag_name' => $tag ) ) );
 	wmds_assert( $tag, $erwartet, $r['version'] );
 }
-
-// --------------------------------------------------------------------
-// Aenderungsprotokoll
-// --------------------------------------------------------------------
 
 wmds_section( 'Release notes become plain HTML' );
 

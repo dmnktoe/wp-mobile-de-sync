@@ -3,30 +3,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * Compatibility layer for pre-existing theme templates.
- *
- * Some established sites ship their own vehicle templates in a child theme
- * that call helper functions from an earlier solution. So those templates
- * keep working untouched, equivalent replacements live here - but only when
- * they are not already defined elsewhere.
- *
- * The bundled templates need none of this; they use WMDS_Vehicle. This file
- * exists purely so that switching plugins on an existing site does not break
- * the front end, and it can go once every template has been migrated.
- */
-
 if ( ! function_exists( 'more_fields' ) ) {
 	/**
-	 * Iterates over the current post's image attachments.
-	 *
-	 * Returns the next image on every call, in the shape the existing
-	 * templates expect:
-	 *
-	 *     [ 'file' => URL, 'sizes' => [ 'thumbnail' => [ 'file' => URL ] ] ]
-	 *
-	 * Calling with true resets the pointer.
-	 *
 	 * @param bool $reset
 	 * @return array|false
 	 */
@@ -86,9 +64,6 @@ if ( ! function_exists( 'more_fields' ) ) {
 
 if ( ! function_exists( 'custom_taxonomies_terms_links' ) ) {
 	/**
-	 * Placeholder. Older templates call this function but expect nothing in
-	 * particular back.
-	 *
 	 * @return string
 	 */
 	function custom_taxonomies_terms_links() {

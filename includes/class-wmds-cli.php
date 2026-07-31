@@ -3,40 +3,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * WP-CLI commands.
- *
- * For a mid-sized dealer the initial import covers roughly 150 vehicles, each
- * with a detail call and up to 15 images. A button in the admin is the wrong
- * place for that - the web server times out first. On the command line there
- * is no time limit, and you can watch it happen.
- *
- *   wp wmds sync --full          full reconciliation (also removes sold cars)
- *   wp wmds sync --force         re-read unchanged vehicles too
- *   wp wmds sync --batch=50      vehicles per pass
- *   wp wmds status               last run, schedule, log
- *   wp wmds flush-cache          re-fetch reference data
- */
 class WMDS_CLI {
-
 	/**
-	 * Runs an import.
-	 *
-	 * ## OPTIONS
-	 *
-	 * [--full]
-	 * : Full reconciliation instead of an incremental sync. Only afterwards
-	 *   are vanished vehicles removed.
-	 *
-	 * [--force]
-	 * : Re-read unchanged vehicles as well.
-	 *
-	 * [--batch=<number>]
-	 * : How many vehicles one pass processes. Default 20.
-	 *
-	 * [--all]
-	 * : Keep going until nothing is pending.
-	 *
 	 * @param array $args
 	 * @param array $assoc
 	 */
@@ -81,23 +49,13 @@ class WMDS_CLI {
 			}
 
 			++$runs;
-			// Follow-up passes are never "full" again: the watermark stays
-			// empty while anything is pending, so they are full implicitly.
 			$options['full'] = false;
-
 		} while ( isset( $assoc['all'] ) && $stats['pending'] > 0 && $runs < 200 );
 
 		WP_CLI::success( sprintf( 'Done after %d pass(es).', $runs ) );
 	}
 
 	/**
-	 * Shows schedule, last run and log.
-	 *
-	 * ## OPTIONS
-	 *
-	 * [--log=<number>]
-	 * : How many log lines to show. Default 10.
-	 *
 	 * @param array $args
 	 * @param array $assoc
 	 */
@@ -146,21 +104,12 @@ class WMDS_CLI {
 		}
 	}
 
-	/**
-	 * Discards the cached reference data.
-	 *
-	 * Useful when mobile.de has introduced new values and vehicles show raw
-	 * keys instead of readable labels.
-	 */
 	public function flush_cache() {
 		WMDS_Refdata::flush();
 		WMDS_Logos::flush();
 		WP_CLI::success( 'Reference data and logo index discarded.' );
 	}
 
-	/**
-	 * Checks the API connection without writing anything.
-	 */
 	public function test() {
 		$client = WMDS_Settings::client();
 		$result = $client->search( 1, 1 );

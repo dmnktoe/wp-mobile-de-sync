@@ -3,25 +3,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * Manufacturer logos.
- *
- * Matching works by normalising both sides, not by transforming one into the
- * other. The key from the feed reads "LAND ROVER" - with a space, not
- * LAND_ROVER - and any rule such as ucwords() breaks on BMW, MINI, ALPINA and
- * INEOS. Instead both sides are reduced to lowercase alphanumerics:
- *
- *   "LAND ROVER"    -> landrover    <- "Land Rover.png"
- *   "MERCEDES-BENZ" -> mercedesbenz <- "Mercedes-Benz.png"
- *   "CITROEN"       -> citroen      <- "Citroën.png"
- *   "BMW"           -> bmw          <- "BMW.png"
- *
- * Sites can drop their own logos into wp-content/uploads/wmds-logos/, and
- * those win. A missing make can therefore be added without waiting for a
- * plugin update.
- */
 class WMDS_Logos {
-
 	const DIR      = 'assets/logos/';
 	const OVERRIDE = 'wmds-logos';
 
@@ -29,8 +11,6 @@ class WMDS_Logos {
 	private static $index = null;
 
 	/**
-	 * Logo URL for a mobile.de manufacturer key.
-	 *
 	 * @param string $make_key e.g. "LAND ROVER". The display name
 	 *                         ("Land Rover") works just as well.
 	 * @return string Empty string when there is no logo.
@@ -55,9 +35,6 @@ class WMDS_Logos {
 	}
 
 	/**
-	 * Reduces a manufacturer name to a comparable core: lowercase, with
-	 * diacritics folded and everything else stripped.
-	 *
 	 * @param string $value
 	 * @return string
 	 */
@@ -67,7 +44,6 @@ class WMDS_Logos {
 			return '';
 		}
 
-		// Fold diacritics so "Citroën" and "CITROEN" meet.
 		$value = strtr(
 			$value,
 			array(
@@ -109,8 +85,6 @@ class WMDS_Logos {
 	}
 
 	/**
-	 * Builds the index of available files. Overrides win.
-	 *
 	 * @return array<string, array{file:string,source:string}>
 	 */
 	private static function index() {
@@ -155,18 +129,12 @@ class WMDS_Logos {
 		return trailingslashit( $uploads['baseurl'] ) . self::OVERRIDE;
 	}
 
-	/** Drop the index, e.g. after an override file has been added. */
 	public static function flush() {
 		self::$index = null;
 	}
 }
 
 /**
- * Shortcode [fahrzeug-logo] - prints the current vehicle's logo.
- *
- * Attributes: make (overrides the manufacturer), width (default 40px),
- * class (additional CSS classes).
- *
  * @param array $atts
  * @return string
  */
@@ -187,7 +155,6 @@ function wmds_shortcode_logo( $atts ) {
 		if ( ! $post_id ) {
 			return '';
 		}
-		// make_key is language independent and therefore the better source.
 		$make = get_post_meta( $post_id, 'make_key', true );
 		if ( '' === $make ) {
 			$make = get_post_meta( $post_id, 'make', true );

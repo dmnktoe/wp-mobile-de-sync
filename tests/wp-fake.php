@@ -1,27 +1,9 @@
 <?php
-/**
- * WordPress in process memory.
- *
- * Enough to run WMDS_Importer::run() end to end: posts, post meta, options,
- * attachments, trash, schedule and downloads all live in one array and can be
- * inspected after the run.
- *
- * WHAT THIS DOES NOT COVER: the SQL query in known_map(). $wpdb is a stub that
- * assembles the inventory from memory instead of executing the query it was
- * handed. The method's contract is covered, its SQL is not - that needs a real
- * database.
- *
- * Expects tests/bootstrap.php to be loaded already (WP_Error, is_wp_error,
- * transients, assertion helpers).
- */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	define( 'ABSPATH', __DIR__ . '/wp-stubs/' );
 }
 
-/**
- * Resets the stub to its initial state.
- */
 function wmds_fake_reset() {
 	$GLOBALS['wp_fake']              = array(
 		'posts'       => array(),
@@ -40,14 +22,11 @@ function wmds_fake_reset() {
 
 wmds_fake_reset();
 
-/** Convenient access to the state. */
 function wmds_fake( $bucket = null ) {
 	return null === $bucket ? $GLOBALS['wp_fake'] : $GLOBALS['wp_fake'][ $bucket ];
 }
 
 /**
- * Creates an inventory post the way an earlier run would have left it.
- *
  * @param string $ad_id
  * @param string $modified
  * @return int Post ID
@@ -65,10 +44,6 @@ function wmds_fake_seed_vehicle( $ad_id, $modified = '2026-01-01T00:00:00.000Z' 
 
 	return $post_id;
 }
-
-// --------------------------------------------------------------------
-// Posts
-// --------------------------------------------------------------------
 
 if ( ! function_exists( 'wp_insert_post' ) ) {
 	function wp_insert_post( $postarr, $wp_error = false ) {
@@ -145,10 +120,6 @@ if ( ! function_exists( 'get_the_ID' ) ) {
 	}
 }
 
-// --------------------------------------------------------------------
-// Post meta
-// --------------------------------------------------------------------
-
 if ( ! function_exists( 'update_post_meta' ) ) {
 	function update_post_meta( $post_id, $key, $value ) {
 		$GLOBALS['wp_fake']['meta'][ (int) $post_id ][ $key ] = $value;
@@ -164,8 +135,6 @@ if ( ! function_exists( 'get_post_meta' ) ) {
 			? $GLOBALS['wp_fake']['meta'][ $post_id ]
 			: array();
 
-		// Without a key WordPress returns key => array( value ) - exactly the
-		// shape WMDS_Vehicle reads.
 		if ( '' === $key ) {
 			$out = array();
 			foreach ( $all as $k => $v ) {
@@ -189,10 +158,6 @@ if ( ! function_exists( 'delete_post_meta' ) ) {
 		return true;
 	}
 }
-
-// --------------------------------------------------------------------
-// Options and transients
-// --------------------------------------------------------------------
 
 if ( ! function_exists( 'get_option' ) ) {
 	function get_option( $key, $default = false ) {
@@ -225,10 +190,6 @@ if ( ! function_exists( 'delete_transient' ) ) {
 		return true;
 	}
 }
-
-// --------------------------------------------------------------------
-// Attachments and images
-// --------------------------------------------------------------------
 
 if ( ! function_exists( 'get_attached_media' ) ) {
 	function get_attached_media( $type, $post_id ) {
@@ -289,10 +250,6 @@ if ( ! function_exists( 'get_posts' ) ) {
 }
 
 if ( ! function_exists( 'download_url' ) ) {
-	/**
-	 * Downloads nothing, only records the URL. URLs listed in 'unloadable'
-	 * fail, which is how the partial-failure path gets exercised.
-	 */
 	function download_url( $url, $timeout = 300 ) {
 		$GLOBALS['wp_fake']['downloaded'][] = $url;
 
@@ -331,10 +288,6 @@ if ( ! function_exists( 'sanitize_file_name' ) ) {
 		return trim( $name, '-' );
 	}
 }
-
-// --------------------------------------------------------------------
-// Miscellaneous
-// --------------------------------------------------------------------
 
 if ( ! function_exists( 'wp_list_pluck' ) ) {
 	function wp_list_pluck( $list, $field ) {
@@ -389,19 +342,7 @@ if ( ! function_exists( 'esc_attr' ) ) {
 	}
 }
 
-// --------------------------------------------------------------------
-// $wpdb
-// --------------------------------------------------------------------
-
-/**
- * Answers known_map()'s query from memory.
- *
- * The SQL it is handed is deliberately not evaluated - that would need a real
- * database. What is checked is the contract: which vehicles the importer
- * considers known, trashed ones included.
- */
 class WMDS_Fake_WPDB {
-
 	public $posts    = 'wp_posts';
 	public $postmeta = 'wp_postmeta';
 
@@ -441,16 +382,7 @@ class WMDS_Fake_WPDB {
 
 $GLOBALS['wpdb'] = new WMDS_Fake_WPDB();
 
-// --------------------------------------------------------------------
-// Stubs for the importer's collaborators
-// --------------------------------------------------------------------
-
-/**
- * Client stub. Serves prepared pages and detail calls, and records what the
- * importer actually requested.
- */
 class WMDS_Fake_Client {
-
 	/** @var array page => array('ads'=>array,'max_pages'=>int,'capped'=>bool) */
 	public $pages = array();
 
@@ -503,14 +435,8 @@ class WMDS_Fake_Client {
 	}
 }
 
-/**
- * Reference-data stub: returns the key with a prefix, so a test can see
- * whether a label was resolved or not.
- */
 class WMDS_Fake_Refdata extends WMDS_Refdata {
-
 	public function __construct( $lang = 'de' ) {
-		// Deliberately no parent call: nothing gets loaded.
 	}
 
 	public function label( $field, $key, $vehicle_class = 'Car' ) {

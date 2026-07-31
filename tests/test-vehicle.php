@@ -1,14 +1,4 @@
 <?php
-/**
- * WMDS_Vehicle - the read model the templates build on.
- *
- * Two parts: first the formatting of individual values against hand-set meta
- * fields, then the end-to-end pass - a vehicle written by the real importer
- * from a real API ad, read back through the read model. Only the second part
- * proves that mapper and read model agree on the field names.
- *
- *   php tests/test-vehicle.php
- */
 
 define( 'ABSPATH', __DIR__ . '/wp-stubs/' );
 define( 'WMDS_CPT', 'fahrzeuge' );
@@ -28,8 +18,6 @@ require_once dirname( __DIR__ ) . '/includes/class-wmds-vehicle.php';
 require_once __DIR__ . '/wp-fake.php';
 
 /**
- * Creates a post with the given meta fields and returns its read model.
- *
  * @param array $meta
  * @return WMDS_Vehicle
  */
@@ -47,10 +35,6 @@ function wmds_vehicle_with( array $meta ) {
 
 	return new WMDS_Vehicle( $post_id );
 }
-
-// ====================================================================
-// 1. Access to individual fields
-// ====================================================================
 
 wmds_section( 'Access to individual fields' );
 
@@ -80,10 +64,6 @@ wmds_assert( 'no images', array(), $none->images() );
 wmds_assert( 'no highlights', array(), $none->highlights() );
 wmds_assert( 'no features', array(), $none->features() );
 wmds_assert( 'no warnings', array(), $none->warnings() );
-
-// ====================================================================
-// 2. Price and tax
-// ====================================================================
 
 wmds_section( 'Price' );
 
@@ -131,15 +111,8 @@ wmds_assert( 'trailing zeros dropped', 'incl. 19% VAT', $v->vat_note() );
 $v = wmds_vehicle_with( array( 'vatable' => 'true' ) );
 wmds_assert( 'reclaimable, no rate', 'incl. VAT', $v->vat_note() );
 
-// The decisive case: no VAT rate in the feed means margin-scheme taxation.
-// For business buyers that decides whether they can reclaim anything -
-// "not stated" would be wrong here.
 $v = wmds_vehicle_with( array( 'vatable' => 'false' ) );
 wmds_assert( 'not reclaimable is stated', 'VAT not reclaimable', $v->vat_note() );
-
-// ====================================================================
-// 3. Key figures
-// ====================================================================
 
 wmds_section( 'Key figures' );
 
@@ -166,8 +139,6 @@ wmds_section( 'Inspection: both cases' );
 $v = wmds_vehicle_with( array( 'nextInspection' => '2027-11-01' ) );
 wmds_assert( 'with a date', 'Inspection valid until 11.2027', $v->inspection() );
 
-// Dealers selling with a fresh inspection enter no expiry date. Reading only
-// nextInspection leaves such inventories permanently blank.
 $v = wmds_vehicle_with( array( 'newHuAu' => 'New inspection on purchase' ) );
 wmds_assert( 'falls back to newHuAu', 'New inspection on purchase', $v->inspection() );
 
@@ -182,19 +153,14 @@ wmds_assert( 'the date takes precedence', 'Inspection valid until 11.2027', $v->
 $v = wmds_vehicle_with( array() );
 wmds_assert( 'neither', '', $v->inspection() );
 
-// ====================================================================
-// 4. Groupings
-// ====================================================================
-
 wmds_section( 'Highlights' );
 
-$v = wmds_vehicle_with(
+$v          = wmds_vehicle_with(
 	array(
 		'mileage'           => '78,000',
 		'firstRegistration' => '2021-03-01',
 		'power'             => '150',
 		'gearbox'           => 'Automatic',
-		// Fuel is deliberately absent.
 	)
 );
 $highlights = $v->highlights();
@@ -255,14 +221,8 @@ $v = wmds_vehicle_with(
 );
 wmds_assert( 'unremarkable vehicle', array(), $v->warnings() );
 
-// Missing fields must not raise a warning - otherwise every incompletely
-// maintained vehicle carries a red box.
 $v = wmds_vehicle_with( array() );
 wmds_assert( 'no data, no warning', array(), $v->warnings() );
-
-// ====================================================================
-// 5. Seller
-// ====================================================================
 
 wmds_section( 'Phone number' );
 
@@ -291,10 +251,6 @@ $v = wmds_vehicle_with(
 );
 wmds_assert( 'no number, no fragment', '', $v->seller_phone() );
 
-// ====================================================================
-// 6. Images
-// ====================================================================
-
 wmds_section( 'Images' );
 
 wmds_fake_reset();
@@ -313,10 +269,6 @@ wmds_assert( 'both attachments', 2, count( $images ) );
 wmds_assert( 'large variant', 'https://example.invalid/bild-501-large.jpg', $images[0]['url'] );
 wmds_assert( 'thumbnail at medium size', 'https://example.invalid/bild-501-medium.jpg', $images[0]['thumb'] );
 wmds_assert( 'alt text from the title', 'Audi A4', $images[0]['alt'] );
-
-// ====================================================================
-// 7. End to end: importer writes, read model reads
-// ====================================================================
 
 wmds_section( 'End-to-end with a real ad from the fixtures' );
 
@@ -343,8 +295,6 @@ wmds_assert( 'one vehicle created', 1, $stats['created'] );
 $post_id = array_keys( wmds_fake( 'posts' ) )[0];
 $v       = new WMDS_Vehicle( $post_id );
 
-// What matters here: every one of these values passed through both the
-// mapper AND the read model. A field name only one side knows shows up.
 wmds_assert( 'price readable', true, '' !== $v->price() );
 wmds_assert( 'mileage readable', true, '' !== $v->mileage() );
 wmds_assert( 'power readable', true, '' !== $v->power() );
@@ -355,8 +305,6 @@ wmds_assert( 'phone number readable', true, '' !== $v->seller_phone() );
 wmds_assert( 'highlights complete', 5, count( $v->highlights() ) );
 wmds_assert( 'several specification groups', true, count( $v->specifications() ) >= 3 );
 wmds_assert( 'features detected', true, count( $v->features() ) > 5 );
-// Two, not one: the detail call supplies more images than the search
-// result, and the importer lets the detail win.
 wmds_assert( 'images from the detail call', 2, count( $v->images() ) );
 wmds_assert( 'VAT note present', true, '' !== $v->vat_note() );
 

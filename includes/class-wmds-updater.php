@@ -3,31 +3,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * Updates via GitHub releases, using WordPress core facilities only.
- *
- * Since 5.8 WordPress calls the `update_plugins_{hostname}` filter for every
- * plugin carrying an `Update URI` header. No update library is needed - the
- * usual candidates ship dozens of files for the same job, including their own
- * Markdown parser.
- *
- * This requires a release with an attached ZIP. GitHub's auto-generated source
- * download will not do: its top-level folder is named `owner-repo-commithash`,
- * so WordPress would unpack the plugin into a new directory and deactivate it
- * in the process. With no such asset, no update is offered at all - better
- * none than a broken one.
- *
- * The request is unauthenticated and therefore limited to 60 calls per hour
- * per IP. The result is cached, failures included.
- */
 class WMDS_Updater {
-
 	const REPO      = 'dmnktoe/wp-mobile-de-sync';
 	const HOST      = 'github.com';
 	const API       = 'https://api.github.com/repos/';
 	const CACHE     = 'wmds_release';
-	const TTL_OK    = 21600; // 6 hours
-	const TTL_ERROR = 1800;  // 30 minutes
+	const TTL_OK    = 21600;
+	const TTL_ERROR = 1800;
 
 	/** @var string plugin_basename of the main file */
 	private static $basename = '';
@@ -35,7 +17,6 @@ class WMDS_Updater {
 	/** @var string Directory name, which is also the slug */
 	private static $slug = '';
 
-	/** Hook the update, details and post-update handlers. */
 	public static function init() {
 		self::$basename = plugin_basename( WMDS_FILE );
 		self::$slug     = dirname( self::$basename );
@@ -46,11 +27,6 @@ class WMDS_Updater {
 	}
 
 	/**
-	 * Tells WordPress whether a newer version exists.
-	 *
-	 * The version comparison happens inside WordPress; this only supplies the
-	 * data.
-	 *
 	 * @param array|false $update      Result of earlier filters.
 	 * @param array       $plugin_data The plugin's header values.
 	 * @param string      $plugin_file Path relative to the plugins directory.
@@ -79,8 +55,6 @@ class WMDS_Updater {
 	}
 
 	/**
-	 * Fills the details view ("View details" in the plugins list).
-	 *
 	 * @param false|object|array $result
 	 * @param string             $action
 	 * @param object             $args
@@ -115,10 +89,6 @@ class WMDS_Updater {
 	}
 
 	/**
-	 * Discard the caches after an update.
-	 *
-	 * Reference data and the logo index may have changed with a new version.
-	 *
 	 * @param WP_Upgrader $upgrader
 	 * @param array       $extra
 	 */
@@ -140,8 +110,6 @@ class WMDS_Updater {
 	}
 
 	/**
-	 * Fetches the latest release, cached.
-	 *
 	 * @return array|false
 	 */
 	private static function release() {
@@ -170,8 +138,6 @@ class WMDS_Updater {
 		);
 
 		if ( ! $parsed ) {
-			// Remember the failure too, or every visit to the plugins screen
-			// runs into the rate limit again.
 			set_transient( self::CACHE, 'error', self::TTL_ERROR );
 			return false;
 		}
@@ -182,11 +148,6 @@ class WMDS_Updater {
 	}
 
 	/**
-	 * Evaluates the GitHub API response.
-	 *
-	 * Static and free of HTTP, so the evaluation is testable without a
-	 * network.
-	 *
 	 * @param int    $code
 	 * @param string $body
 	 * @return array|false
@@ -201,7 +162,6 @@ class WMDS_Updater {
 			return false;
 		}
 
-		// Never serve drafts or pre-releases.
 		if ( ! empty( $data['draft'] ) || ! empty( $data['prerelease'] ) ) {
 			return false;
 		}
@@ -213,9 +173,6 @@ class WMDS_Updater {
 
 		$package = self::asset( $data );
 		if ( '' === $package ) {
-			// No attached ZIP, no update: GitHub's source download has the
-			// wrong top-level folder and would deactivate the plugin while
-			// unpacking.
 			return false;
 		}
 
@@ -233,8 +190,6 @@ class WMDS_Updater {
 	}
 
 	/**
-	 * Looks for the attached plugin ZIP among the release assets.
-	 *
 	 * @param array $data
 	 * @return string
 	 */
@@ -256,8 +211,6 @@ class WMDS_Updater {
 	}
 
 	/**
-	 * Reads a value of the form "Requires PHP: 7.0" from the release notes.
-	 *
 	 * @param string $notes
 	 * @param string $label
 	 * @param string $default
@@ -271,12 +224,6 @@ class WMDS_Updater {
 	}
 
 	/**
-	 * Converts the release notes into plain HTML.
-	 *
-	 * Deliberately minimal: headings, bullets and bold are enough for a
-	 * changelog. A full Markdown parser would be far too much baggage for
-	 * this purpose.
-	 *
 	 * @param string $notes
 	 * @return string
 	 */

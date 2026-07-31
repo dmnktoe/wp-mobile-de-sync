@@ -3,34 +3,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * The decision logic of an import run, deliberately free of WordPress.
- *
- * This is the dangerous part of the import: what gets created, updated,
- * skipped - and what gets removed. That is exactly why these are pure static
- * functions with no database and no HTTP. They are fully testable, and a
- * mistake shows up in a test rather than in someone's live inventory.
- *
- * The importer itself stays a thin layer of glue on top.
- */
 class WMDS_Sync_Plan {
-
-	/**
-	 * Share of the inventory above which a removal is treated as implausible.
-	 * 0.3 = more than 30 percent in one go is suspicious.
-	 */
 	const REMOVAL_RATIO = 0.3;
 
-	/**
-	 * Absolute floor. On small inventories a percentage is useless - three of
-	 * eight vehicles is 37 percent and entirely normal. Below this number the
-	 * guard never trips.
-	 */
 	const REMOVAL_FLOOR = 3;
 
 	/**
-	 * Decides per ad what needs to happen.
-	 *
 	 * @param array $ads   Ads from the search result (raw, with mobileAdId
 	 *                     and modificationDate).
 	 * @param array $known Known inventory, as
@@ -63,8 +41,6 @@ class WMDS_Sync_Plan {
 			$modified = isset( $ad['modificationDate'] ) ? (string) $ad['modificationDate'] : '';
 			$stored   = isset( $known[ $id ]['modified'] ) ? (string) $known[ $id ]['modified'] : '';
 
-			// Unchanged: nothing to do. Saves one detail call and roughly 95
-			// meta writes per vehicle, per run.
 			if ( ! $force && '' !== $modified && $modified === $stored ) {
 				$plan['skip'][] = $id;
 				continue;
@@ -77,13 +53,6 @@ class WMDS_Sync_Plan {
 	}
 
 	/**
-	 * Determines which posts get removed - with a safety guard.
-	 *
-	 * Important: on a partial pass (incremental sync via
-	 * modificationTime.min) $seen contains only the changed vehicles.
-	 * Deleting everything else on that basis would wipe out half the
-	 * inventory. Removal therefore happens only after a full pass.
-	 *
 	 * @param string[] $seen    Ad IDs seen during the run.
 	 * @param array    $known   Known inventory, as [ ad_id => ['post_id'=>int, ...] ].
 	 * @param bool     $is_full Whether this was a complete pass.
@@ -103,13 +72,10 @@ class WMDS_Sync_Plan {
 		}
 
 		if ( ! $known ) {
-			return $result; // Nothing on file, nothing to remove.
+			return $result;
 		}
 
 		if ( ! $seen ) {
-			// An empty result despite HTTP 200 does happen, e.g. with a
-			// misspelled dealer name. That must never delete the whole
-			// inventory.
 			$result['abort'] = 'The run did not see a single vehicle.';
 			return $result;
 		}
@@ -146,13 +112,6 @@ class WMDS_Sync_Plan {
 	}
 
 	/**
-	 * Fingerprint of the mapped data.
-	 *
-	 * The importer stores it on the post and compares it on the next run. If
-	 * it matches, writing the meta fields is skipped. modificationDate alone
-	 * is not enough for this: it also changes when mobile.de touches
-	 * something internally that does not concern us at all.
-	 *
 	 * @param array $mapped Return value of WMDS_Json_Mapper::map().
 	 * @return string
 	 */
@@ -171,12 +130,6 @@ class WMDS_Sync_Plan {
 	}
 
 	/**
-	 * Compares the image hashes from the feed against the stored ones.
-	 *
-	 * The current data format supplies an MD5 checksum per image, which is
-	 * what makes a swapped photo detectable. Fetching images once and never
-	 * looking again misses every replacement.
-	 *
 	 * @param string[] $stored Hashes imported last time, in order.
 	 * @param array    $images Return value of WMDS_Json_Mapper::map()['images'].
 	 * @return bool
@@ -189,8 +142,6 @@ class WMDS_Sync_Plan {
 			}
 		}
 
-		// Without hashes in the feed there is nothing to compare. Better not
-		// to reload, or every run pulls every image again.
 		if ( ! $current ) {
 			return false;
 		}
@@ -203,12 +154,6 @@ class WMDS_Sync_Plan {
 	}
 
 	/**
-	 * Timestamp for the next run's modificationTime.min.
-	 *
-	 * Deliberately one minute behind the newest value seen: the API works at
-	 * second resolution, and an ad changed exactly during the run must not
-	 * slip through. Better to re-check a few ads than to lose one.
-	 *
 	 * @param string[] $modification_dates Every modificationDate seen this run.
 	 * @return string Empty when there was nothing usable.
 	 */

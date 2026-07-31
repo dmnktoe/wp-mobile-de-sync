@@ -1,16 +1,4 @@
 <?php
-/**
- * Vehicle detail page.
- *
- * Fallback template. A theme's own single-fahrzeuge.php takes precedence -
- * the template loader checks for it.
- *
- * Deliberately free of any CSS framework dependency: the template should look
- * usable in any theme. The markup is semantic, the layout comes from
- * assets/wmds.css and can be overridden completely.
- *
- * @package wp-mobile-de-sync
- */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -173,13 +161,6 @@ while ( have_posts() ) :
 		<footer class="wmds-legal">
 			<p>
 				<?php
-				/*
-				 * Consumption disclaimer. In Germany the Pkw-EnVKV prescribes
-				 * this wording verbatim, so the German translation must carry
-				 * the statutory text rather than a translation of the English
-				 * below. Other markets have their own requirements - check
-				 * before shipping a locale.
-				 */
 				printf(
 					/* translators: %s: link to the guide, already marked up as an anchor. */
 					esc_html__( 'Further information on the official fuel consumption and the official specific CO₂ emissions of new passenger cars can be found in the guide on fuel consumption, CO₂ emissions and electricity consumption of new passenger cars, available free of charge at all points of sale and at %s.', 'wp-mobile-de-sync' ),

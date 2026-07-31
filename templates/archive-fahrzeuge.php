@@ -1,16 +1,4 @@
 <?php
-/**
- * Archive of all vehicles.
- *
- * Fallback template. A theme's own archive-fahrzeuge.php takes precedence.
- *
- * Deliberately contains no FacetWP call: whether and where filters appear
- * belongs in the theme or on a page using the shortcode. This template only
- * makes sure the vehicles look presentable under /fahrzeuge/ with no further
- * setup.
- *
- * @package wp-mobile-de-sync
- */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;

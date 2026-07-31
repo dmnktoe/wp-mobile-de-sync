@@ -1,18 +1,8 @@
 <?php
-/**
- * Minimal WordPress stubs plus a small assertion helper.
- *
- * Deliberately without PHPUnit and without Composer: the tests must run on
- * any PHP 7 with no setup (`php tests/<file>.php`).
- */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	define( 'ABSPATH', dirname( __DIR__ ) . '/' );
 }
-
-// --------------------------------------------------------------------
-// WordPress stubs
-// --------------------------------------------------------------------
 
 if ( ! class_exists( 'WP_Error' ) ) {
 	class WP_Error {
@@ -41,10 +31,6 @@ if ( ! function_exists( 'is_wp_error' ) ) {
 }
 
 if ( ! function_exists( 'add_query_arg' ) ) {
-	/**
-	 * Simplified version: encodes the values the way WordPress does. That is
-	 * exactly why the client must not pre-encode anything.
-	 */
 	function add_query_arg( $args, $url ) {
 		$sep   = ( false === strpos( $url, '?' ) ) ? '?' : '&';
 		$pairs = array();
@@ -100,7 +86,6 @@ if ( ! function_exists( 'wp_upload_dir' ) ) {
 	}
 }
 
-/** In-process transient stub. */
 $GLOBALS['wmds_test_transients'] = array();
 
 if ( ! function_exists( 'get_transient' ) ) {
@@ -119,14 +104,12 @@ if ( ! function_exists( 'set_transient' ) ) {
 }
 
 if ( ! function_exists( 'number_format_i18n' ) ) {
-	/** English-locale formatting, matching the default source language. */
 	function number_format_i18n( $number, $decimals = 0 ) {
 		return number_format( $number, $decimals, '.', ',' );
 	}
 }
 
 if ( ! function_exists( '__' ) ) {
-	/** Translation stubs: source language is English, so pass through. */
 	function __( $text, $domain = 'default' ) {
 		return $text;
 	}
@@ -149,10 +132,6 @@ if ( ! function_exists( '__' ) ) {
 		return $text;
 	}
 }
-
-// --------------------------------------------------------------------
-// Assertion helpers
-// --------------------------------------------------------------------
 
 $GLOBALS['wmds_checks']   = 0;
 $GLOBALS['wmds_failures'] = 0;

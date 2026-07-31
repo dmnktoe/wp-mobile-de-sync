@@ -1,18 +1,8 @@
 <?php
-/**
- * Tests for WMDS_Sync_Plan.
- *
- *     php tests/test-sync-plan.php
- *
- * The focus is the removal path. A mistake there destroys a customer's
- * vehicle inventory, and does so unnoticed, because the run reports itself
- * anschliessend als erfolgreich meldet.
- */
 
 require_once __DIR__ . '/bootstrap.php';
 require_once __DIR__ . '/../includes/class-wmds-sync-plan.php';
 
-/** Baut ein Roh-Ad, wie es im Suchergebnis steht. */
 function ad( $id, $modified = '2026-07-28T18:00:00+02:00' ) {
 	return array(
 		'mobileAdId'       => $id,
@@ -20,17 +10,12 @@ function ad( $id, $modified = '2026-07-28T18:00:00+02:00' ) {
 	);
 }
 
-/** Builds one entry of the known inventory. */
 function known( $post_id, $modified = '2026-07-28T18:00:00+02:00' ) {
 	return array(
 		'post_id'  => $post_id,
 		'modified' => $modified,
 	);
 }
-
-// --------------------------------------------------------------------
-// What needs to happen?
-// --------------------------------------------------------------------
 
 wmds_section( 'Plan: anlegen, aktualisieren, ueberspringen' );
 
@@ -78,14 +63,8 @@ $ohne_datum = WMDS_Sync_Plan::build(
 );
 wmds_assert( 'sicherheitshalber aktualisieren', 1, count( $ohne_datum['update'] ) );
 
-// --------------------------------------------------------------------
-// Removal - the dangerous part
-// --------------------------------------------------------------------
-
 wmds_section( 'Removal: never after a partial pass' );
 
-// On an incremental sync, seen holds only the changed vehicles. Deleting on
-// that basis would take out half the inventory.
 $teillauf = WMDS_Sync_Plan::removals(
 	array( 'a' ),
 	array(
@@ -100,8 +79,6 @@ wmds_assert_contains( 'with a reason', 'Partial pass', $teillauf['abort'] );
 
 wmds_section( 'Removal: an empty result never deletes the inventory' );
 
-// Happens with a misspelled dealer name: HTTP 200, but
-// null Treffer.
 $leer = WMDS_Sync_Plan::removals( array(), array( 'a' => known( 1 ) ), true );
 wmds_assert( 'nichts zu entfernen', 0, count( $leer['remove'] ) );
 wmds_assert_contains( 'with a reason', 'did not see a single vehicle', $leer['abort'] );
@@ -129,8 +106,6 @@ wmds_assert( 'genau ein Post', array( 99 ), $normal['remove'] );
 
 wmds_section( 'Loeschen: Sicherheitsriegel bei unplausibler Menge' );
 
-// 50 of 100 vehicles vanish - that is not a normal day of trading, it is a
-// feed or configuration problem.
 $bestand = array();
 $gesehen = array();
 for ( $i = 1; $i <= 100; $i++ ) {
@@ -147,7 +122,6 @@ wmds_assert_contains( 'numbers stated', '50 of 100', $riegel['abort'] );
 
 wmds_section( 'Removal: just under the limit is allowed' );
 
-// 30 of 100 sits exactly on the limit and is allowed through.
 $gesehen_70 = array();
 for ( $i = 31; $i <= 100; $i++ ) {
 	$gesehen_70[] = 'ad-' . $i;
@@ -158,8 +132,6 @@ wmds_assert( '30 Posts entfernt', 30, count( $limit_case['remove'] ) );
 
 wmds_section( 'Removal: a small inventory is not blocked by the percentage' );
 
-// Three of eight is 37 percent and entirely normal. Below the absolute
-// floor the guard therefore does not trip.
 $klein = array();
 for ( $i = 1; $i <= 8; $i++ ) {
 	$klein[ 'k-' . $i ] = known( $i );
@@ -176,10 +148,6 @@ wmds_section( 'Removal: an empty inventory is harmless' );
 $nothing = WMDS_Sync_Plan::removals( array( 'a' ), array(), true );
 wmds_assert( 'no abort', '', $nothing['abort'] );
 wmds_assert( 'nichts zu entfernen', 0, count( $nothing['remove'] ) );
-
-// --------------------------------------------------------------------
-// Fingerprint and images
-// --------------------------------------------------------------------
 
 wmds_section( 'Fingerabdruck erkennt echte Aenderungen' );
 
@@ -237,8 +205,6 @@ wmds_assert( 'ein Bild ausgetauscht', true, WMDS_Sync_Plan::images_changed( arra
 wmds_assert( 'Reihenfolge geaendert', true, WMDS_Sync_Plan::images_changed( array( 'h2', 'h1' ), $images ) );
 wmds_assert( 'Bild dazugekommen', true, WMDS_Sync_Plan::images_changed( array( 'h1' ), $images ) );
 wmds_assert( 'never imported before', true, WMDS_Sync_Plan::images_changed( null, $images ) );
-// Without hashes in the feed there is nothing to compare - so do not
-// alle Bilder neu laden.
 wmds_assert(
 	'no hashes in the feed',
 	false,
@@ -253,14 +219,8 @@ wmds_assert(
 	)
 );
 
-// --------------------------------------------------------------------
-// Watermark for the next run
-// --------------------------------------------------------------------
-
 wmds_section( 'Watermark: newest value minus one minute' );
 
-// One minute of slack, so an ad changed exactly during the run does not
-// slip through next time.
 wmds_assert(
 	'the newest of several dates',
 	'2026-07-28T16:28:13+00:00',
