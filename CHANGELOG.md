@@ -3,7 +3,36 @@
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [1.0.1] – 2026-07-31
+
+### Fixed
+- Every incremental run failed with HTTP 400. `add_query_arg()` leaves the
+  values it adds unencoded, so the `+` of the timezone offset reached
+  mobile.de as a space and `modificationTime.min` was rejected as a
+  `typeMismatch`. The search URL is now built with each value encoded, and
+  the test harness no longer encodes on the client's behalf: the stub and the
+  mock server decode the way a real server does, so the same mistake fails in
+  CI instead of in production.
+- No logo for Volkswagen. The feed calls the make `VW`, the bundled file is
+  `Volkswagen.png`, and the lookup matched neither against the other.
+  Equivalent names now resolve to the same file, in both directions and for
+  uploaded logos too.
+
+### Changed
+- Dates and times follow the site's own date and time format instead of the
+  storage format `2026-07-31 11:38:12`. The last run reads as "12 mins ago"
+  with the exact time in the tooltip; the log keeps its precise stamp there.
+  Both are `<time>` elements with a machine-readable attribute.
+- "Once a day" joins the sync schedule, for inventories that change rarely
+  and hosts that would rather not run a job every 15 minutes.
+- The English strings call the watermark a change marker, which is what the
+  German catalogue has been calling it all along. The stored option keeps its
+  name.
+- README badges for release, downloads, CI, requirements and licence.
+
+## [1.0.0] – 2026-07-31
+
+First release.
 
 ### Added
 - A German translation ships with the plugin. Until now a plugin written for
@@ -80,10 +109,6 @@ versioning follows [Semantic Versioning](https://semver.org/).
   inside the import. With more images in the feed than the cap allows, the
   stored list would otherwise differ from the feed on every run and every run
   would re-download the whole gallery.
-
-## [1.0.0] – 2026-07-30
-
-First release.
 
 ### Import
 

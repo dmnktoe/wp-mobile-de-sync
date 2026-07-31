@@ -10,6 +10,11 @@ class WMDS_Logos {
 	/** @var array<string,string>|null normalised name => file name */
 	private static $index = null;
 
+	/** @var array<int, string[]> Groups of normalised names that mean the same make. */
+	private static $synonyms = array(
+		array( 'vw', 'volkswagen' ),
+	);
+
 	/**
 	 * @param string $make_key e.g. "LAND ROVER". The display name
 	 *                         ("Land Rover") works just as well.
@@ -21,13 +26,12 @@ class WMDS_Logos {
 			return '';
 		}
 
-		$index = self::index();
-		if ( ! isset( $index[ $needle ] ) ) {
+		$entry = self::find( self::index(), $needle );
+		if ( ! $entry ) {
 			return apply_filters( 'wmds_logo_url', '', $make_key );
 		}
 
-		$entry = $index[ $needle ];
-		$url   = ( 'override' === $entry['source'] )
+		$url = ( 'override' === $entry['source'] )
 			? trailingslashit( self::override_url() ) . rawurlencode( $entry['file'] )
 			: WMDS_URL . self::DIR . rawurlencode( $entry['file'] );
 
@@ -82,6 +86,30 @@ class WMDS_Logos {
 		$value = strtolower( $value );
 
 		return preg_replace( '/[^a-z0-9]/', '', $value );
+	}
+
+	/**
+	 * @param array<string, array{file:string,source:string}> $index
+	 * @param string                                          $needle Normalised make.
+	 * @return array{file:string,source:string}|null
+	 */
+	private static function find( array $index, $needle ) {
+		if ( isset( $index[ $needle ] ) ) {
+			return $index[ $needle ];
+		}
+
+		foreach ( self::$synonyms as $group ) {
+			if ( ! in_array( $needle, $group, true ) ) {
+				continue;
+			}
+			foreach ( $group as $alias ) {
+				if ( isset( $index[ $alias ] ) ) {
+					return $index[ $alias ];
+				}
+			}
+		}
+
+		return null;
 	}
 
 	/**

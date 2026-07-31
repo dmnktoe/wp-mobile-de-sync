@@ -125,12 +125,15 @@ class WMDS_Dashboard {
 			esc_html( $status['label'] )
 		);
 
-		if ( ! empty( $status['last']['time'] ) ) {
-			echo ' <span class="wmds-muted">';
+		if ( $status['last_ts'] ) {
 			printf(
-				/* translators: %s: date and time of the last run. */
+				' <span class="wmds-muted" title="%s">',
+				esc_attr( WMDS_Status::local_time( $status['last_ts'] ) )
+			);
+			printf(
+				/* translators: %s: how long ago the last run was, e.g. "12 mins ago". */
 				esc_html__( 'last run %s', 'wp-mobile-de-sync' ),
-				esc_html( $status['last']['time'] )
+				esc_html( WMDS_Status::relative_time( $status['last_ts'] ) )
 			);
 			echo '</span>';
 		}

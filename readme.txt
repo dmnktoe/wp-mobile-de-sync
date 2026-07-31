@@ -4,7 +4,7 @@ Tags: mobile.de, vehicles, dealership, import, facetwp
 Requires at least: 5.8
 Tested up to: 6.8
 Requires PHP: 7.0
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -92,7 +92,9 @@ failed, the raw key is used as a fallback. "Re-fetch reference data" fixes it.
 = A make has no logo. =
 
 Drop your own file into `wp-content/uploads/wmds-logos/`, named after the make,
-e.g. `Tesla.png`. Case and special characters do not matter.
+e.g. `Tesla.png`. Case and special characters do not matter. Where mobile.de
+and the file disagree on the name — "VW" against "Volkswagen" — either name
+finds the file.
 
 = Can I run the plugin in another language? =
 
@@ -109,6 +111,16 @@ Pkw-EnVKV, so the bundled German catalogue carries the statutory wording rather
 than a translation of the English source.
 
 == Changelog ==
+
+= 1.0.1 =
+* Fixed: every incremental run failed with HTTP 400 because the timezone
+  offset in `modificationTime.min` reached mobile.de unencoded.
+* Fixed: no logo for Volkswagen — the feed sends "VW", the file is called
+  "Volkswagen.png". Equivalent names now find the same file.
+* Dates and times follow the site's own format, with the exact stamp in the
+  tooltip.
+* New "Once a day" sync schedule.
+* The watermark is called a change marker in the English strings too.
 
 = 1.0.0 =
 * First release.

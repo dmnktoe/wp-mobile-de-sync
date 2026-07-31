@@ -94,8 +94,8 @@ function wmds_mock_query( $query_string ) {
 			continue;
 		}
 		$parts       = explode( '=', $pair, 2 );
-		$key         = rawurldecode( $parts[0] );
-		$out[ $key ] = isset( $parts[1] ) ? rawurldecode( $parts[1] ) : '';
+		$key         = urldecode( $parts[0] );
+		$out[ $key ] = isset( $parts[1] ) ? urldecode( $parts[1] ) : '';
 	}
 
 	return $out;
@@ -205,6 +205,29 @@ function wmds_mock_refdata() {
 }
 
 /**
+ * @param string $value
+ * @return int Timestamp, 0 when this is not a full ISO 8601 stamp.
+ */
+function wmds_mock_iso8601( $value ) {
+	$value = (string) $value;
+
+	foreach ( array( 'Y-m-d\TH:i:sP', 'Y-m-d\TH:i:s\Z' ) as $format ) {
+		$date   = DateTime::createFromFormat( $format, $value );
+		$errors = DateTime::getLastErrors();
+
+		if ( is_array( $errors ) && ( $errors['warning_count'] > 0 || $errors['error_count'] > 0 ) ) {
+			continue;
+		}
+
+		if ( $date instanceof DateTime && $date->format( $format ) === $value ) {
+			return (int) $date->format( 'U' );
+		}
+	}
+
+	return 0;
+}
+
+/**
  * @param array $state
  * @param array $query
  */
@@ -237,7 +260,17 @@ function wmds_mock_route_search( array $state, array $query ) {
 	}
 
 	if ( isset( $query['modificationTime.min'] ) && '' !== $query['modificationTime.min'] ) {
-		$since   = strtotime( (string) $query['modificationTime.min'] );
+		$sent  = (string) $query['modificationTime.min'];
+		$since = wmds_mock_iso8601( $sent );
+		if ( ! $since ) {
+			wmds_mock_fail(
+				400,
+				'invalid-search-parameter',
+				'field=modificationTime.min, code=typeMismatch, rejected-value=' . $sent
+			);
+			return;
+		}
+
 		$matched = array();
 		foreach ( $ads as $ad ) {
 			$stamp = isset( $ad['modificationDate'] ) ? strtotime( (string) $ad['modificationDate'] ) : 0;

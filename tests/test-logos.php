@@ -46,6 +46,12 @@ foreach ( $schluessel as $key => $erwartet_im_dateinamen ) {
 	wmds_assert_contains( $key . ' findet ein Logo', $erwartet_im_dateinamen, rawurldecode( $url ) );
 }
 
+wmds_section( 'mobile.de sends VW, the file is called Volkswagen' );
+
+wmds_assert_contains( 'VW finds a logo', 'Volkswagen', rawurldecode( WMDS_Logos::url( 'VW' ) ) );
+wmds_assert_contains( 'vw in lower case', 'Volkswagen', rawurldecode( WMDS_Logos::url( 'vw' ) ) );
+wmds_assert_contains( 'VOLKSWAGEN still works', 'Volkswagen', rawurldecode( WMDS_Logos::url( 'VOLKSWAGEN' ) ) );
+
 wmds_section( 'An unknown make yields nothing rather than a broken image' );
 
 wmds_assert( 'make with no file', '', WMDS_Logos::url( 'TESLA' ) );

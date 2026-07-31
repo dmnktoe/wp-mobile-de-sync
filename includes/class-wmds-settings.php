@@ -56,7 +56,7 @@ class WMDS_Settings {
 	 * @return string
 	 */
 	public static function interval() {
-		$allowed = array( 'wmds_5min', 'wmds_15min', 'wmds_30min', 'wmds_60min' );
+		$allowed = array( 'wmds_5min', 'wmds_15min', 'wmds_30min', 'wmds_60min', 'daily' );
 		$value   = (string) self::get( 'interval', 'wmds_15min' );
 
 		return in_array( $value, $allowed, true ) ? $value : 'wmds_15min';

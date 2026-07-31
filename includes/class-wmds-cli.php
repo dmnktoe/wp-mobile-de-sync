@@ -66,7 +66,7 @@ class WMDS_CLI {
 		WP_CLI::log( 'Interval:         ' . WMDS_Settings::interval() );
 
 		$watermark = get_option( WMDS_Importer::OPT_WATERMARK, '' );
-		WP_CLI::log( 'Watermark:        ' . ( $watermark ? $watermark : '(empty - next run is a full sync)' ) );
+		WP_CLI::log( 'Change marker:    ' . ( $watermark ? $watermark : '(empty - next run is a full sync)' ) );
 
 		$next = wp_next_scheduled( WMDS_CRON_HOOK );
 		WP_CLI::log( 'Next run:         ' . ( $next ? gmdate( 'Y-m-d H:i:s', $next ) . ' UTC' : 'not scheduled' ) );
