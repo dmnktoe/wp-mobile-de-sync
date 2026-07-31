@@ -193,6 +193,35 @@ The fixtures are anonymised but structurally real API responses.
 **Credentials and customer data do not belong in this repository.** A CI job
 checks that on every push.
 
+### Integration test
+
+Stubs prove the logic, not that the plugin works inside WordPress.
+`tests/integration/run.sh` closes that gap: it installs a real WordPress on a
+real database, activates the plugin and drives the sync through WP-CLI, while
+a local mock server answers as mobile.de from the same fixtures.
+
+```
+sh tests/integration/run.sh
+```
+
+It needs PHP with `mysqli` and `gd`, WP-CLI on the `PATH` and a MySQL to talk
+to. Database, port, workspace and WordPress version are environment variables,
+documented at the top of the script. CI runs it on every push against MySQL 8
+and the current WordPress.
+
+The plugin itself knows nothing about the test.
+`tests/integration/mu-plugin.php` hooks `pre_http_request`, points the
+mobile.de and image URLs at the mock server and blocks every other host — so
+the plugin's own `wp_remote_get()` and `download_url()` calls are made, and
+answered, over real HTTP.
+
+Six scenarios run in sequence: a paginated full sync, an incremental pass with
+nothing to do, one changed vehicle, a vehicle withdrawn from the feed, wrong
+credentials, and an API outage. What is asserted afterwards is the state
+WordPress ended up in — posts, post meta, image files on disk, the featured
+image, reference-data transients, the watermark, the log and the lock — read
+back out of the database rather than out of a return value.
+
 ## Customising
 
 Templates are taken from the theme as soon as `single-fahrzeuge.php`,

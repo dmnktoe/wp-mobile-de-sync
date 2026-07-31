@@ -51,6 +51,14 @@ versioning follows [Semantic Versioning](https://semver.org/).
   sends, invited exactly the wrong guess.
 - The label language is a list of the languages the reference data actually
   comes in, not a free-text field.
+- An integration test that runs the plugin inside a real WordPress on a real
+  database, driven through WP-CLI, with a local mock server answering as
+  mobile.de. It covers what stubs cannot: that the custom post type, the media
+  sideload, the featured image, the transient cache and the trash behave the
+  way the import expects. The plugin is untouched by it — the harness swaps the
+  transport at `pre_http_request`, so the same `wp_remote_get()` and
+  `download_url()` calls run, over real HTTP, against fixtures instead of a
+  dealer's live inventory. CI runs it on every push.
 
 ### Fixed
 - A partial image failure was recorded as a complete import. As soon as one

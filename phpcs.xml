@@ -155,6 +155,17 @@
 	<rule ref="WordPress.Security.EscapeOutput">
 		<exclude-pattern>tests/*</exclude-pattern>
 	</rule>
+
+	<!--
+		tests/integration/mock-server.php answers HTTP under php -S, outside
+		WordPress. It reads the request line from $_SERVER, and the unslash
+		and sanitise helpers this sniff asks for are WordPress functions that
+		do not exist in that process. Its only client is the test runner that
+		started it.
+	-->
+	<rule ref="WordPress.Security.ValidatedSanitizedInput">
+		<exclude-pattern>tests/integration/*</exclude-pattern>
+	</rule>
 	<rule ref="WordPress.WP.AlternativeFunctions">
 		<exclude-pattern>tests/*</exclude-pattern>
 	</rule>
