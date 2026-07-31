@@ -108,6 +108,12 @@ function wmds_mock_catalog( array $state ) {
 }
 
 /**
+ * parse_str() is unusable here: it turns "page.number" into "page_number".
+ * The decoding is rawurldecode() rather than urldecode(), so a "+" stays a
+ * plus - add_query_arg() does not encode, so the watermark reaches the
+ * server as "...T20:06:51+00:00" and a form decoder would read that offset
+ * as a space.
+ *
  * @param string $query_string
  * @return array
  */
@@ -120,7 +126,7 @@ function wmds_mock_query( $query_string ) {
 		}
 		$parts       = explode( '=', $pair, 2 );
 		$key         = rawurldecode( $parts[0] );
-		$out[ $key ] = isset( $parts[1] ) ? rawurldecode( str_replace( '+', ' ', $parts[1] ) ) : '';
+		$out[ $key ] = isset( $parts[1] ) ? rawurldecode( $parts[1] ) : '';
 	}
 
 	return $out;
