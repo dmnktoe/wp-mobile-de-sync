@@ -3,7 +3,7 @@
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
-## [2.0.2] – 2026-07-31
+## [2.1.0] – 2026-07-31
 
 ### Added
 - A "System" tab that checks what the plugin needs from the server: PHP and

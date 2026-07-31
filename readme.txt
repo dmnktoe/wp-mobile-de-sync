@@ -4,7 +4,7 @@ Tags: mobile.de, vehicles, dealership, import, facetwp
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 2.0.2
+Stable tag: 2.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -113,7 +113,7 @@ than a translation of the English source.
 
 == Changelog ==
 
-= 2.0.2 =
+= 2.1.0 =
 * New: a "System" tab that checks PHP and WordPress version, extensions, GD or
   Imagick, execution time and memory, the uploads folder, permalinks and
   mod_rewrite, WP-Cron and outbound requests.
