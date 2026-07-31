@@ -46,9 +46,20 @@ require_once WMDS_DIR . 'includes/class-wmds-vehicle.php';
 require_once WMDS_DIR . 'includes/class-wmds-updater.php';
 add_action( 'init', array( 'WMDS_Updater', 'init' ) );
 
+// The status and the admin bar are needed on the front end too, where the
+// admin screens are not loaded.
+require_once WMDS_DIR . 'includes/class-wmds-status.php';
+require_once WMDS_DIR . 'includes/class-wmds-adminbar.php';
+add_action( 'init', array( 'WMDS_Adminbar', 'init' ) );
+
 if ( is_admin() ) {
 	require_once WMDS_DIR . 'includes/class-wmds-admin.php';
+	require_once WMDS_DIR . 'includes/class-wmds-dashboard.php';
+	require_once WMDS_DIR . 'includes/class-wmds-posts.php';
+
 	add_action( 'plugins_loaded', array( 'WMDS_Admin', 'init' ) );
+	add_action( 'plugins_loaded', array( 'WMDS_Dashboard', 'init' ) );
+	add_action( 'plugins_loaded', array( 'WMDS_Posts', 'init' ) );
 }
 
 if ( defined( 'WP_CLI' ) && WP_CLI ) {

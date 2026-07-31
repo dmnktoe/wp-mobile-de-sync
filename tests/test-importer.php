@@ -582,6 +582,41 @@ wmds_section( 'Permanent deletion takes the images with it' );
 WMDS_Importer::delete_attachments( $sold );
 wmds_assert( 'attachments gone', 0, count( wmds_fake( 'attachments' )[ $sold ] ) );
 
+wmds_section( 'Reloading a single vehicle' );
+
+wmds_fake_reset();
+list( $importer, $client ) = wmds_setup( array( wmds_ad( '777' ) ) );
+$importer->run();
+
+$post_id = wmds_post_for( '777' );
+wmds_assert( 'imported first', true, $post_id > 0 );
+
+// The detail response is a superset of the search fields, so a reload can
+// work from it alone - the search list is never consulted.
+$client->details['777'] = array_merge(
+	wmds_ad( '777' ),
+	wmds_detail( '777' ),
+	array( 'mileage' => 91000 )
+);
+
+delete_post_meta( $post_id, WMDS_Importer::META_HASH );
+$before  = count( $client->searched );
+$outcome = $importer->refresh( '777' );
+
+wmds_assert( 'no error', false, is_wp_error( $outcome ) );
+wmds_assert( 'recognised as an update', 'updated', $outcome['outcome'] );
+wmds_assert( 'the new mileage landed', 91000, (int) get_post_meta( $post_id, 'mileage_raw', true ) );
+wmds_assert( 'no search call was needed', $before, count( $client->searched ) );
+
+wmds_section( 'Reloading fails loudly' );
+
+wmds_assert( 'without an ad ID', 'wmds_no_ad_id', $importer->refresh( '' )->get_error_code() );
+wmds_assert( 'for an unknown ad', 'wmds_not_found', $importer->refresh( 'does-not-exist' )->get_error_code() );
+
+wmds_fake_reset();
+list( $importer ) = wmds_setup( array(), array( 'credentials' => false ) );
+wmds_assert( 'without credentials', 'wmds_no_credentials', $importer->refresh( '777' )->get_error_code() );
+
 wmds_section( 'Other post types are left alone' );
 
 wmds_fake_reset();

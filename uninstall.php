@@ -8,14 +8,23 @@ delete_option( 'wmds_settings' );
 delete_option( 'wmds_last_run' );
 delete_option( 'wmds_watermark' );
 delete_option( 'wmds_log' );
+delete_option( 'wmds_dashboard' );
 
 wp_clear_scheduled_hook( 'wmds_import_event' );
 wp_clear_scheduled_hook( 'wmds_full_sync_event' );
 
 delete_transient( 'wmds_import_lock' );
+delete_transient( 'wmds_makes' );
+
+delete_metadata( 'user', 0, 'wmds_dismissed', '', true );
 
 global $wpdb;
-foreach ( array( '_transient_wmds_refdata_', '_transient_timeout_wmds_refdata_' ) as $prefix ) {
+foreach ( array(
+	'_transient_wmds_refdata_',
+	'_transient_timeout_wmds_refdata_',
+	'_transient_wmds_notices_',
+	'_transient_timeout_wmds_notices_',
+) as $prefix ) {
 	$wpdb->query(
 		$wpdb->prepare(
 			"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s",

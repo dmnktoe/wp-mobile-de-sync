@@ -34,6 +34,10 @@ within a major version:
 5. Run the initial import from the command line: `wp wmds sync --full --all`
 6. Re-index FacetWP.
 
+The settings screen carries a checklist through those steps and ticks each one
+off as it completes, so the state of a half-finished setup is visible rather
+than guessed at.
+
 The seller ID is the numeric dealer identifier and the only route mobile.de
 documents for addressing an inventory. If you don't have it, the vanity name
 from `home.mobile.de/NAME` works instead — but that parameter is undocumented
@@ -45,15 +49,61 @@ Source strings are English. The reference-data labels (transmission, fuel,
 colours …) come from mobile.de in whatever language you configure, defaulting
 to the site language.
 
-Plugin strings are translatable through the `wp-mobile-de-sync` text domain;
-drop a `.mo` file into `languages/`. One caveat for German sites: the
-consumption disclaimer on the detail page is prescribed verbatim by the
-Pkw-EnVKV, so a German translation must carry the statutory wording rather
-than a translation of the English source.
+Plugin strings are translatable through the `wp-mobile-de-sync` text domain.
+**A German translation ships with the plugin** under
+`languages/wp-mobile-de-sync-de_DE.po`. For another language, drop a further
+`.mo` file into the same directory.
+
+The consumption disclaimer on the detail page is prescribed verbatim by the
+Pkw-EnVKV, so the German catalogue carries the statutory wording rather than a
+translation of the English source. Keep that in mind when editing it.
+
+After changing a `.po`, rebuild the binary catalogue WordPress actually reads:
+
+```
+php bin/po2mo.php languages/wp-mobile-de-sync-de_DE.po
+```
+
+That tool exists because the project has no build step and `msgfmt` is not
+installed everywhere.
 
 Note that labels are resolved **at import time** and stored in post meta.
 Changing the site language therefore takes effect after the next full sync,
 not immediately.
+
+## In the admin
+
+The sync has one health verdict — not configured, running, waiting for the
+first run, overdue, last run had failures, up to date — and every surface reads
+it from the same place, so they cannot contradict each other:
+
+- an **admin bar item** with the inventory size and a coloured state, in the
+  back end and on the front end. Its menu carries the last result, the time
+  until the next run, “Sync now”, and on a vehicle page a link to the source ad
+  plus a reload for that one vehicle
+- a **dashboard widget** with the newest vehicles — photo, price, mileage,
+  first registration — configurable in count and sort order
+- an **entry in “At a Glance”** with the number of published vehicles
+- a **notice on every admin screen** when the sync needs attention,
+  dismissible, and re-armed when the state changes to something else
+
+The **vehicle list** shows photo, make and model, price, mileage, first
+registration and the mobile.de ad ID. Price, mileage and first registration are
+sortable; vehicles missing the sorted-on value stay in the list rather than
+falling out of it. A filter by make sits next to the date filter, and each row
+offers “Reload from mobile.de” and “View on mobile.de”.
+
+The **edit form** says outright that the importer owns the record, and a meta
+box shows the ad ID, the modification date, the number of imported photos and a
+button that re-reads this one vehicle.
+
+The **settings screen** is split into Connection, Schedule, Status & log and
+Tools, with the status card above the tabs. Every action goes through
+`admin-post.php` and leaves through a redirect, so a reload never repeats it.
+“Test connection” and “Sync now” run over AJAX; the sync drives one batch per
+request and shows real progress instead of a spinner over a request that may
+time out. The log can be filtered down to problems, downloaded and cleared, and
+a full sync can be forced without waiting for the daily reconciliation.
 
 ## Scheduling
 
@@ -126,11 +176,13 @@ define( 'WMDS_ICONS', 'https://example.com/path/to/icons/' );
 sh tests/run.sh          all tests, no PHPUnit and no Composer
 composer install         tooling for the coding standards
 composer lint            phpcs (WordPress standards + PHP compatibility)
+php bin/po2mo.php ...    rebuild a translation catalogue after editing a .po
 ```
 
 The tests run without WordPress, without PHPUnit and without Composer. The
 pure decisions — interpreting a response, mapping fields, rendering a
-description, building a plan — need only direct calls. For the import run
+description, building a plan, deciding which health state the admin shows —
+need only direct calls. For the import run
 itself `tests/wp-fake.php` provides a WordPress in process memory, so `run()`
 executes end to end: initial import, follow-up run, a change, a swapped photo,
 batching across several passes, an API outage and all three removal guards.

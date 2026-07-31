@@ -18,6 +18,7 @@
 	<file>templates</file>
 	<file>tests</file>
 	<file>uninstall.php</file>
+	<file>bin</file>
 
 	<exclude-pattern>*/vendor/*</exclude-pattern>
 	<exclude-pattern>*/node_modules/*</exclude-pattern>
@@ -132,6 +133,18 @@
 		<exclude-pattern>includes/class-wmds-importer.php</exclude-pattern>
 		<exclude-pattern>includes/class-wmds-refdata.php</exclude-pattern>
 		<exclude-pattern>uninstall.php</exclude-pattern>
+	</rule>
+
+	<!--
+		bin/ - a command-line tool, not plugin runtime. It never runs inside
+		WordPress, so WP_Filesystem does not exist for it and its output goes
+		to a terminal rather than a browser.
+	-->
+	<rule ref="WordPress.WP.AlternativeFunctions">
+		<exclude-pattern>bin/*</exclude-pattern>
+	</rule>
+	<rule ref="WordPress.Security.EscapeOutput">
+		<exclude-pattern>bin/*</exclude-pattern>
 	</rule>
 
 	<!--

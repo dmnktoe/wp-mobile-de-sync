@@ -1,0 +1,551 @@
+/**
+ * Admin styles for mobile.de Sync.
+ *
+ * Colours come from the WordPress admin palette rather than a brand of our
+ * own, so the screens keep working with the user's colour scheme.
+ */
+
+/* ---------------------------------------------------------------- *
+ * State colours, shared by every surface
+ * ---------------------------------------------------------------- */
+
+.wmds-bar-dot {
+	display: inline-block;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	vertical-align: middle;
+	background: #8c8f94;
+}
+
+.wmds-sev-ok {
+	background: #00a32a;
+}
+
+.wmds-sev-info {
+	background: #2271b1;
+}
+
+.wmds-sev-warning {
+	background: #dba617;
+}
+
+.wmds-sev-error {
+	background: #d63638;
+}
+
+.wmds-sev-bg-ok {
+	border-left: 4px solid #00a32a;
+}
+
+.wmds-sev-bg-info {
+	border-left: 4px solid #2271b1;
+}
+
+.wmds-sev-bg-warning {
+	border-left: 4px solid #dba617;
+}
+
+.wmds-sev-bg-error {
+	border-left: 4px solid #d63638;
+}
+
+.wmds-muted {
+	color: #646970;
+}
+
+/* ---------------------------------------------------------------- *
+ * Admin bar
+ * ---------------------------------------------------------------- */
+
+#wpadminbar #wp-admin-bar-wmds .wmds-bar-dot {
+	margin-left: 6px;
+}
+
+#wpadminbar #wp-admin-bar-wmds .ab-icon:before {
+	top: 2px;
+}
+
+#wpadminbar #wp-admin-bar-wmds-state .wmds-bar-dot {
+	margin-right: 4px;
+}
+
+/* ---------------------------------------------------------------- *
+ * Settings screen
+ * ---------------------------------------------------------------- */
+
+.wmds-card {
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+	padding: 16px 20px;
+	margin: 0 0 16px;
+	max-width: 900px;
+}
+
+.wmds-card h2 {
+	margin-top: 0;
+}
+
+.wmds-card-head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+}
+
+.wmds-card-head h2 {
+	margin-bottom: 8px;
+}
+
+.wmds-card-tools {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-bottom: 8px;
+}
+
+.wmds-status-card {
+	padding-left: 16px;
+}
+
+.wmds-status-head {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.wmds-status-head h2 {
+	margin: 0;
+}
+
+.wmds-status-explanation {
+	margin: 6px 0 14px;
+	color: #50575e;
+}
+
+.wmds-metrics {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 24px;
+	margin: 0;
+	padding: 12px 0 0;
+	border-top: 1px solid #f0f0f1;
+	list-style: none;
+}
+
+.wmds-metrics li {
+	margin: 0;
+}
+
+.wmds-metric-value {
+	display: block;
+	font-size: 18px;
+	font-weight: 600;
+	line-height: 1.3;
+}
+
+.wmds-metric-label {
+	display: block;
+	font-size: 12px;
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+	color: #646970;
+}
+
+.wmds-checklist {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	counter-reset: wmds-step;
+}
+
+.wmds-checklist li {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 6px 0;
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.wmds-checklist li:last-child {
+	border-bottom: 0;
+}
+
+.wmds-checklist .dashicons-yes-alt {
+	color: #00a32a;
+}
+
+.wmds-checklist .dashicons-marker {
+	color: #dba617;
+}
+
+.wmds-step-done .wmds-step-label {
+	color: #646970;
+	text-decoration: line-through;
+}
+
+.wmds-step-label {
+	flex: 1;
+}
+
+.wmds-tab-body {
+	margin-top: 16px;
+}
+
+.wmds-required {
+	color: #d63638;
+}
+
+.wmds-password {
+	display: inline-flex;
+	gap: 4px;
+	align-items: center;
+}
+
+.wmds-password .button .dashicons {
+	margin-top: 3px;
+}
+
+.wmds-seller-modes {
+	margin-top: 8px;
+}
+
+.wmds-mode {
+	display: block;
+	padding: 8px 0 4px;
+	font-size: 14px;
+}
+
+.wmds-mode em {
+	color: #646970;
+	font-style: normal;
+	font-size: 12px;
+}
+
+.wmds-mode-body {
+	padding: 0 0 12px 24px;
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.wmds-mode-body[hidden] {
+	display: none;
+}
+
+.wmds-mode-body .description {
+	margin-top: 4px;
+}
+
+.wmds-danger-card {
+	border-left: 4px solid #d63638;
+}
+
+.wmds-inline-form {
+	display: inline-block;
+	margin: 0 8px 0 0;
+}
+
+.wmds-tools {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+.wmds-tools td {
+	padding: 12px 0;
+	border-top: 1px solid #f0f0f1;
+	vertical-align: top;
+}
+
+.wmds-tools tr:first-child td {
+	border-top: 0;
+}
+
+.wmds-tools td:last-child {
+	width: 140px;
+	text-align: right;
+}
+
+.wmds-tools .description {
+	margin: 4px 0 0;
+	max-width: 60ch;
+}
+
+.wmds-table,
+.wmds-log {
+	max-width: 100%;
+}
+
+.wmds-table td:first-child {
+	width: 200px;
+}
+
+.wmds-log-time {
+	width: 160px;
+	white-space: nowrap;
+}
+
+.wmds-log-problem td {
+	background: #fcf0f1;
+}
+
+.wmds-log-problem td:last-child {
+	font-weight: 600;
+}
+
+.wmds-row-warning td {
+	background: #fcf9e8;
+}
+
+.wmds-log-filter {
+	white-space: nowrap;
+}
+
+.wmds-code {
+	background: #f6f7f7;
+	border: 1px solid #dcdcde;
+	padding: 8px 10px;
+	overflow-x: auto;
+}
+
+.wmds-result:empty {
+	display: none;
+}
+
+.wmds-result {
+	margin: 12px 0 0;
+	padding: 10px 12px;
+	border-left: 4px solid #2271b1;
+	background: #f6f7f7;
+}
+
+.wmds-result.wmds-result-error {
+	border-left-color: #d63638;
+	background: #fcf0f1;
+}
+
+.wmds-result.wmds-result-ok {
+	border-left-color: #00a32a;
+	background: #f0f6f1;
+}
+
+.wmds-progress {
+	margin: 12px 0 0;
+	max-width: 480px;
+}
+
+.wmds-progress-bar {
+	height: 8px;
+	background: #dcdcde;
+	border-radius: 4px;
+	overflow: hidden;
+}
+
+.wmds-progress-bar span {
+	display: block;
+	height: 100%;
+	width: 0;
+	background: #2271b1;
+	transition: width 0.3s ease;
+}
+
+.wmds-progress-text {
+	margin: 6px 0 0;
+	color: #50575e;
+}
+
+/* ---------------------------------------------------------------- *
+ * Vehicle list table
+ * ---------------------------------------------------------------- */
+
+.column-wmds_thumb {
+	width: 60px;
+}
+
+.column-wmds_price,
+.column-wmds_mileage,
+.column-wmds_reg {
+	width: 120px;
+}
+
+.column-wmds_ad {
+	width: 120px;
+}
+
+.wmds-col-thumb img {
+	display: block;
+	width: 50px;
+	height: 38px;
+	object-fit: cover;
+	border-radius: 2px;
+}
+
+.wmds-col-thumb-empty {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 50px;
+	height: 38px;
+	background: #f0f0f1;
+	border-radius: 2px;
+	color: #a7aaad;
+}
+
+.wmds-col-make {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.wmds-col-logo {
+	width: 24px;
+	height: 24px;
+	object-fit: contain;
+	flex: 0 0 24px;
+}
+
+.wmds-badge {
+	display: inline-block;
+	padding: 1px 7px;
+	border-radius: 9px;
+	font-size: 11px;
+	line-height: 1.6;
+	background: #f0f0f1;
+	color: #50575e;
+}
+
+.wmds-badge-warning {
+	background: #fcf9e8;
+	color: #8a6d0b;
+}
+
+.wmds-edit-notice {
+	margin: 12px 0;
+}
+
+.wmds-meta-table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+.wmds-meta-table th {
+	text-align: left;
+	font-weight: 400;
+	color: #646970;
+	padding: 3px 8px 3px 0;
+	vertical-align: top;
+}
+
+.wmds-meta-table td {
+	padding: 3px 0;
+	word-break: break-word;
+}
+
+/* ---------------------------------------------------------------- *
+ * Dashboard widget
+ * ---------------------------------------------------------------- */
+
+.wmds-widget-status {
+	margin: 0 0 12px;
+	padding: 8px 10px;
+	background: #f6f7f7;
+}
+
+.wmds-widget-status .wmds-bar-dot {
+	margin-right: 4px;
+}
+
+.wmds-widget-hint {
+	margin: -6px 0 12px;
+	color: #50575e;
+}
+
+.wmds-widget-list {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.wmds-widget-item {
+	display: flex;
+	gap: 10px;
+	align-items: center;
+	padding: 8px 0;
+	border-top: 1px solid #f0f0f1;
+}
+
+.wmds-widget-item:first-child {
+	border-top: 0;
+}
+
+.wmds-widget-thumb {
+	flex: 0 0 60px;
+}
+
+.wmds-widget-thumb img {
+	display: block;
+	width: 60px;
+	height: 45px;
+	object-fit: cover;
+	border-radius: 2px;
+}
+
+.wmds-widget-thumb-empty {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 60px;
+	height: 45px;
+	background: #f0f0f1;
+	border-radius: 2px;
+	color: #a7aaad;
+}
+
+.wmds-widget-body {
+	min-width: 0;
+}
+
+.wmds-widget-title {
+	display: block;
+	font-weight: 600;
+	text-decoration: none;
+}
+
+.wmds-widget-facts {
+	display: block;
+	color: #646970;
+	font-size: 12px;
+}
+
+.wmds-widget-empty {
+	color: #646970;
+}
+
+.wmds-widget-footer {
+	margin: 12px 0 0;
+	padding-top: 10px;
+	border-top: 1px solid #f0f0f1;
+}
+
+#dashboard_right_now .wmds-glance:before {
+	content: "\f339";
+}
+
+/* ---------------------------------------------------------------- *
+ * Narrow screens
+ * ---------------------------------------------------------------- */
+
+@media screen and (max-width: 782px) {
+	.wmds-metrics {
+		gap: 16px;
+	}
+
+	.wmds-tools td:last-child {
+		width: auto;
+		text-align: left;
+	}
+
+	.wmds-card {
+		padding: 12px 14px;
+	}
+}

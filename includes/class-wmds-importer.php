@@ -184,19 +184,63 @@ class WMDS_Importer {
 	}
 
 	/**
-	 * @param array $ad
-	 * @param array $known
-	 * @param int   $images Counter, incremented in place.
-	 * @return string created|updated|error
+	 * Re-reads one ad on request. Unlike a scheduled run this fails loudly:
+	 * it is a manual repair for a single vehicle, and silently writing a
+	 * half-mapped record would be worse than not writing at all.
+	 *
+	 * @param string $ad_id
+	 * @return array|WP_Error
 	 */
-	private function process( array $ad, array $known, &$images ) {
-		$ad_id = (string) $ad['mobileAdId'];
+	public function refresh( $ad_id ) {
+		$ad_id = trim( (string) $ad_id );
+
+		if ( '' === $ad_id ) {
+			return new WP_Error( 'wmds_no_ad_id', 'No ad ID given.' );
+		}
+		if ( ! $this->client->has_credentials() ) {
+			return new WP_Error( 'wmds_no_credentials', 'No credentials stored.' );
+		}
 
 		$detail = $this->client->ad( $ad_id );
 		if ( is_wp_error( $detail ) ) {
+			$this->log( 'Reload failed for ' . $ad_id . ': ' . $detail->get_error_message() );
+			return $detail;
+		}
+
+		$images  = 0;
+		$outcome = $this->process( array( 'mobileAdId' => $ad_id ), $this->known_map(), $images, $detail );
+
+		if ( 'error' === $outcome ) {
+			return new WP_Error( 'wmds_refresh_failed', 'The vehicle could not be saved.' );
+		}
+
+		$this->log( sprintf( 'Reloaded %s on request: %s, %d images.', $ad_id, $outcome, $images ) );
+
+		return array(
+			'outcome' => $outcome,
+			'images'  => $images,
+		);
+	}
+
+	/**
+	 * @param array      $ad
+	 * @param array      $known
+	 * @param int        $images Counter, incremented in place.
+	 * @param array|null $detail Pre-fetched single-ad response; fetched here
+	 *                           when null.
+	 * @return string created|updated|error
+	 */
+	private function process( array $ad, array $known, &$images, $detail = null ) {
+		$ad_id = (string) $ad['mobileAdId'];
+
+		if ( null === $detail ) {
+			$detail = $this->client->ad( $ad_id );
+		}
+
+		if ( is_wp_error( $detail ) ) {
 			$this->log( 'Detail call failed for ' . $ad_id . ': ' . $detail->get_error_message() );
 		} else {
-			$ad = array_merge( $ad, $detail );
+			$ad = array_merge( $ad, (array) $detail );
 		}
 
 		$mapped = $this->mapper->map( $ad );

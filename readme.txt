@@ -21,6 +21,21 @@ field names — ready to use for your own templates, queries and filters.
 * Manufacturer logos via `[fahrzeug-logo]`, extendable without a plugin update
 * Incremental sync: each run fetches only what changed
 * WP-CLI: `wp wmds sync`, `status`, `test`, `flush-cache`
+* German translation included
+
+= In the admin =
+
+The sync state — not configured, running, overdue, up to date — appears in the
+admin bar, in a dashboard widget and on every admin screen that needs to warn
+you, all reading the same verdict.
+
+The vehicle list shows photo, make and model, price, mileage, first
+registration and the ad ID, sorts by price, mileage and first registration, and
+filters by make. Each row can be reloaded from mobile.de or opened there.
+
+The settings screen is split into Connection, Schedule, Status & log and Tools.
+"Test connection" and "Sync now" run without a page reload, the sync showing
+real progress as it works through the inventory in batches.
 
 = Error handling =
 
@@ -81,16 +96,17 @@ e.g. `Tesla.png`. Case and special characters do not matter.
 
 = Can I run the plugin in another language? =
 
-Yes. Source strings are English and translatable through the
-`wp-mobile-de-sync` text domain; put a `.mo` file into `languages/`. The
-reference-data labels come from mobile.de in the language you configure.
+German ships with the plugin. Source strings are English and translatable
+through the `wp-mobile-de-sync` text domain; for another language put a further
+`.mo` file into `languages/`. The reference-data labels come from mobile.de in
+the language you configure.
 
 Note that labels are resolved at import time and stored in post meta, so a
 language change takes effect after the next full sync.
 
-German sites should be aware that the consumption disclaimer on the detail
-page is prescribed verbatim by the Pkw-EnVKV — a German translation must carry
-the statutory wording, not a translation of the English source.
+The consumption disclaimer on the detail page is prescribed verbatim by the
+Pkw-EnVKV, so the bundled German catalogue carries the statutory wording rather
+than a translation of the English source.
 
 == Changelog ==
 
