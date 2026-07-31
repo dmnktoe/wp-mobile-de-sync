@@ -1,0 +1,55 @@
+{
+  "_note": "Companion to search-2-ads.json: the /search-api/ad/{id} view of the second ad. Same anonymisation rules as ad-detail.json - seller data, VIN and image URLs are placeholders. It carries a second image the search response does not list, so an import that stops at the search payload is visible.",
+  "mobileAdId": "427312402",
+  "vin": "WVWZZZAAAZA111111",
+  "trimLine": "V90 D4 Momentum Pro",
+  "modelRange": "V90 (P)(01.2016->)",
+  "weight": 1866,
+  "cylinder": 4,
+  "fuelTankVolume": 60,
+  "driveType": "FRONT",
+  "description": "**One owner, full service history, delivered with a fresh inspection.**\\\\Equipment:\\\\* Leather upholstery\\\\* Navigation\\\\* LED headlights\\\\* Reversing camera with parking sensors front and rear",
+  "plainTextDescription": "One owner, full service history, delivered with a fresh inspection. - Equipment: - Leather upholstery - Navigation - LED headlights - Reversing camera with parking sensors front and rear",
+  "images": [
+    {
+      "hash": "1e69eb4da881ba66288e3225dc1cf338",
+      "icon": "https://img.example.invalid/b-icon.jpg",
+      "xxxl": "https://img.example.invalid/b-xxxl.jpg"
+    },
+    {
+      "hash": "7d4f0c1a2b3e4f5a6b7c8d9e0f1a2b3c",
+      "icon": "https://img.example.invalid/c-icon.jpg",
+      "xl": "https://img.example.invalid/c-xl.jpg"
+    }
+  ],
+  "seller": {
+    "mobileSellerId": "99999999",
+    "mobileSellerSince": "2016-04-06T22:00:00Z",
+    "email": "kontakt@example.invalid",
+    "geoData": {
+      "lon": 13.0,
+      "lat": 52.0
+    },
+    "companyName": "Musterhaendler GmbH",
+    "phones": [
+      {
+        "internationalPrefix": 49,
+        "nationalPrefix": "000",
+        "number": "0000000"
+      }
+    ],
+    "address": {
+      "street": "Musterstrasse 1",
+      "zipcode": "12345",
+      "city": "Musterstadt",
+      "country": "DE"
+    },
+    "type": "DEALER",
+    "commercial": true,
+    "homepage": "https://example.invalid"
+  },
+  "kba": {
+    "hsn": "9101",
+    "tsn": "BFA"
+  }
+}

@@ -45,6 +45,57 @@ jobs:
       - name: Test run
         run: sh tests/run.sh
 
+  integration:
+    name: WordPress end to end (mocked mobile.de)
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: wordpress
+          MYSQL_DATABASE: wmds_integration
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+          extensions: mysqli, gd, exif, zip
+
+      - name: Install WP-CLI
+        run: |
+          curl -sSLo wp-cli.phar \
+            https://github.com/wp-cli/wp-cli/releases/download/v2.12.0/wp-cli-2.12.0.phar
+          chmod +x wp-cli.phar
+          sudo mv wp-cli.phar /usr/local/bin/wp
+          wp --info
+
+      - name: Install WordPress, sync, assert
+        env:
+          WMDS_IT_WORKDIR: ${{ runner.temp }}/wmds-integration
+          WMDS_IT_DB_HOST: 127.0.0.1
+          WMDS_IT_DB_PASS: wordpress
+        run: sh tests/integration/run.sh
+
+      - name: Logs
+        if: failure()
+        env:
+          WMDS_IT_WORKDIR: ${{ runner.temp }}/wmds-integration
+        run: |
+          for log in "$WMDS_IT_WORKDIR/mock.log" \
+                     "$WMDS_IT_WORKDIR/state/requests.log" \
+                     "$WMDS_IT_WORKDIR/wordpress/wp-content/debug.log"; do
+            echo "----- $log"
+            tail -n 100 "$log" 2>/dev/null || echo "(missing)"
+          done
+
   phpcs:
     name: Coding standards and PHP compatibility
     runs-on: ubuntu-latest
