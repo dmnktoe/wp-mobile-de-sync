@@ -194,10 +194,23 @@ define( 'WMDS_ICONS', 'https://example.com/path/to/icons/' );
 
 ```
 sh tests/run.sh          all tests, no PHPUnit and no Composer
+sh bin/bump.sh 2.0.2     set the version everywhere it is stated
 composer install         tooling for the coding standards
 composer lint            phpcs (WordPress standards + PHP compatibility)
 php bin/po2mo.php ...    rebuild a translation catalogue after editing a .po
 ```
+
+### Releasing
+
+`sh bin/bump.sh <version>`, write the entry in `CHANGELOG.md` and `readme.txt`,
+merge to `main`. That is the whole release: the workflow reads the version out
+of the plugin header, stops if that tag already exists, runs the tests, builds
+the ZIP and publishes the tag and the release. A tag pushed by hand still works
+and does the same thing.
+
+`tests/test-version.php` holds the three places that state the version to the
+same answer and insists on a changelog entry for it, so a half-finished bump
+fails before it reaches `main`.
 
 The tests run without WordPress, without PHPUnit and without Composer. The
 pure decisions — interpreting a response, mapping fields, rendering a
