@@ -3,6 +3,26 @@
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
+## [2.1.1] – 2026-07-31
+
+### Fixed
+- The German translation never applied — not on the front end, not in the
+  admin. `bin/po2mo.php` wrote the compiled catalogue with a hash-table address
+  of zero, and WordPress derives the length of the translation table from
+  `hash_addr - translations_addr`. That subtraction came out negative, the file
+  was rejected, and every string fell back to its English source. The address
+  now points at the end of the translation table, where an empty hash table
+  would begin. Every release since the translation was added carried this.
+- Strings with a context were compiled without one, so `_x()` could never find
+  them. `msgctxt` is read now and stored under the `context \4 msgid` key
+  gettext expects.
+
+### Added
+- `tests/test-i18n.php` reads the compiled catalogue the way WordPress does,
+  including the two table-length checks that made the file unreadable, and
+  verifies context and both plural forms resolve. It also fails when the `.mo`
+  has fallen behind its `.po`.
+
 ## [2.1.0] – 2026-07-31
 
 ### Added

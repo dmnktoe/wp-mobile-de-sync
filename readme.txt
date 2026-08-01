@@ -4,7 +4,7 @@ Tags: mobile.de, vehicles, dealership, import, facetwp
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 2.1.0
+Stable tag: 2.1.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -112,6 +112,17 @@ Pkw-EnVKV, so the bundled German catalogue carries the statutory wording rather
 than a translation of the English source.
 
 == Changelog ==
+
+= 2.1.1 =
+* Fixed: the German translation never applied. The compiled catalogue was
+  written with an empty hash-table address, and WordPress derives the length of
+  the translation table from exactly that address — so it rejected the file and
+  fell back to the English source strings everywhere. Every release since the
+  translation was added was affected.
+* Fixed: strings with a context (`_x()`) were compiled without it and could
+  never be found.
+* The compiled catalogue is now checked by the test suite the way WordPress
+  reads it, including context and both plural forms.
 
 = 2.1.0 =
 * New: a "System" tab that checks PHP and WordPress version, extensions, GD or
