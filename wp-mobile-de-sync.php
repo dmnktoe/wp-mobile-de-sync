@@ -67,9 +67,17 @@ add_action( 'init', array( 'WMDS_Adminbar', 'init' ) );
 WMDS_Alerts::init();
 
 if ( is_admin() ) {
+	require_once WMDS_DIR . 'includes/class-wmds-admin-notices.php';
+	require_once WMDS_DIR . 'includes/class-wmds-admin-ui.php';
+	require_once WMDS_DIR . 'includes/class-wmds-admin-actions.php';
+	require_once WMDS_DIR . 'includes/class-wmds-admin-ajax.php';
 	require_once WMDS_DIR . 'includes/class-wmds-admin.php';
 	require_once WMDS_DIR . 'includes/class-wmds-dashboard.php';
 	require_once WMDS_DIR . 'includes/class-wmds-posts.php';
+
+	foreach ( array( 'connection', 'schedule', 'enquiries', 'status', 'tools', 'system', 'about' ) as $wmds_tab ) {
+		require_once WMDS_DIR . 'includes/tabs/class-wmds-tab-' . $wmds_tab . '.php';
+	}
 
 	add_action( 'plugins_loaded', array( 'WMDS_Admin', 'init' ) );
 	add_action( 'plugins_loaded', array( 'WMDS_Dashboard', 'init' ) );
