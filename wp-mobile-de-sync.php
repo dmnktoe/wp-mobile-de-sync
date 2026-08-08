@@ -106,6 +106,11 @@ WMDS_Templates::init();
 WMDS_Facets::init();
 WMDS_Leads::init();
 WMDS_Seo::init();
+WMDS_Smtp::init();
+
+// The two that read another plugin have to wait until it has loaded.
+add_action( 'plugins_loaded', array( 'WMDS_Cf7', 'init' ) );
+add_action( 'plugins_loaded', array( 'WMDS_Facetwp', 'init' ) );
 
 add_filter( 'cron_schedules', 'wmds_cron_schedules' );
 /**

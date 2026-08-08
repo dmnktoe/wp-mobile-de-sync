@@ -23,7 +23,8 @@ class WMDS_Requirements {
 			self::platform(),
 			self::extensions(),
 			self::limits(),
-			self::wordpress()
+			self::wordpress(),
+			WMDS_Smtp::checks()
 		);
 	}
 

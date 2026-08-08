@@ -111,7 +111,8 @@ box shows the ad ID, the modification date, the number of imported photos and a
 button that re-reads this one vehicle.
 
 The **settings screen** is split into Connection, Schedule, Enquiries,
-Status & log, Tools, System and About, with the status card above the tabs.
+Integrations, Status & log, Tools, System and About, with the status card
+above the tabs.
 Each tab is a form of its own and saves only what it owns. Every action goes through
 `admin-post.php` and leaves through a redirect, so a reload never repeats it.
 “Test connection” and “Sync now” run over AJAX; the sync drives one batch per
@@ -147,6 +148,86 @@ wrong.
     [vehicle-enquiry vehicle="123" heading="Ask us about this car"]
 
 `wmds_enquiry_recipients` has the last word on where an enquiry goes.
+
+## Integrations
+
+Three plugins turn up on a dealer site often enough to be worth meeting
+halfway. All three are optional, none is required, and what they add sits
+under **Vehicles → Sync Settings → Integrations**.
+
+### Contact Form 7
+
+A dealer who already has a form does not want a second one — the bundled
+enquiry form can be switched off on the Enquiries tab. What that form knows
+and Contact Form 7 does not is which vehicle the visitor is looking at, and
+"I am interested, when can I come by" is worth nothing without it.
+
+Put a mail tag into the **mail template** of the form. No field in the form is
+needed: the value is read from the page the form was submitted from.
+
+| Mail tag | Value |
+|---|---|
+| `[_wmds_vehicle_title]` | the title |
+| `[_wmds_vehicle_url]` | the address of the vehicle page |
+| `[_wmds_vehicle_listing]` | the listing number |
+| `[_wmds_vehicle_price]` | the price, as it is printed |
+| `[_wmds_vehicle_make]`, `[_wmds_vehicle_model]` | make and model |
+| `[_wmds_vehicle_year]`, `[_wmds_vehicle_mileage]` | first registration, mileage |
+| `[_wmds_vehicle_fuel]`, `[_wmds_vehicle_gearbox]` | fuel, transmission |
+| `[_wmds_vehicle_seller]`, `[_wmds_vehicle_seller_email]`, `[_wmds_vehicle_seller_phone]` | the seller the feed names |
+| `[_wmds_vehicle_id]` | the post ID |
+
+The same values are available as a form tag where one should travel with the
+submission and be visible in the admin:
+
+    [wmds_vehicle vehicle field:price]
+
+`field:` takes any of the names above and defaults to the title.
+
+A submission sent **from a vehicle page** is filed under **Vehicles →
+Enquiries** like any other, so a mail that is never delivered is not simply
+gone. Name, address, phone number and message are read from the form under
+whatever names it uses: the conventional ones first, then by substring, and an
+address is recognised by being one even when the field is called something
+else. Submissions from any other page are left alone. Optionally the address
+the feed carries for the vehicle is added as a recipient — to the mail that
+goes to you, never to the confirmation the visitor receives.
+
+### Mail delivery
+
+Enquiries and alerts are sent with `wp_mail()`. Without an SMTP plugin that
+means PHP's `mail()`: unauthenticated, sent from whatever address the server
+decides on, and accepted by the local sendmail whether or not anything is ever
+delivered. An enquiry in a spam folder is a lost customer, and nothing on the
+site would say so.
+
+The Integrations tab and **System** name the mailer plugin that is installed —
+WP Mail SMTP, FluentSMTP, Post SMTP, Easy WP SMTP, WP Offload SES, Mailgun,
+Brevo — and, where it can be read, what it has been told to send through. A
+plugin installed but left on `mail` is called out, because that is the setting
+that looks solved and is not.
+
+The last delivery failure WordPress reported is kept and shown with the time
+it happened, for **every** message the site sends rather than only ours: a
+contact form that cannot be delivered says just as much, and usually fails
+first. It clears itself as soon as the plugin sends one successfully.
+
+### FacetWP
+
+The plugin filters on its own since 2.2 and needs FacetWP for nothing. A site
+that was built on FacetWP before keeps working all the same, and three things
+that used to be manual stop being manual:
+
+- the meta keys appear in the facet source list under **mobile.de** with
+  readable labels, instead of being typed as `cf/price_raw` from memory
+- the sort orders the filter bar offers are offered to a FacetWP template too
+- a vehicle is re-indexed once the import has finished writing it
+
+The last one is a fix, not a convenience. FacetWP indexes when a post is
+saved; the import saves the post first and writes the meta afterwards, so what
+FacetWP indexed on its own was the state *before* the update. That is where
+stale counts came from. It can be switched off where the index is maintained
+elsewhere.
 
 ## Structured data and social previews
 
@@ -471,6 +552,12 @@ well when it runs, which covers widgets and page builders.
 | `wmds_enquiry_recipients` | decide where an enquiry is sent |
 | `wmds_alert_recipients` | decide who is told when the sync stops |
 
+| Action | Fires |
+|---|---|
+| `wmds_run_finished` | after a completed run, with its statistics |
+| `wmds_vehicle_stored` | after one vehicle is completely written — post, meta and images, which `save_post` cannot promise |
+| `wmds_mail_sent` | after the plugin handed a message to `wp_mail()` and it was accepted |
+
 Colour, spacing and radii are custom properties on `.wmds-scope`, so a theme
 can restyle the whole thing in one rule rather than selector by selector:
 
@@ -519,8 +606,9 @@ URL, so a filtered list can be linked, bookmarked, paginated and cached.
 `[vehicle-count]` prints how many vehicles the current filters leave;
 `[vehicle-count filtered="no"]` prints the size of the whole inventory.
 
-Sites that already run FacetWP keep working: the meta keys are unchanged and
-still usable as facet sources.
+Sites that already run FacetWP keep working: the meta keys are unchanged, and
+they now turn up as facet sources under their own heading rather than having
+to be typed. See [Integrations](#facetwp).
 
 ## The shortcode
 

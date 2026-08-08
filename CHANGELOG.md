@@ -3,6 +3,49 @@
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Fixed
+- The filter bar, the vehicle list and the vehicle archive died with "call to
+  undefined method" on every page that rendered them. Splitting the facet
+  engine in 2.2.0 left `selection()` on neither half, and nothing called it
+  until a page was rendered. It is back where the request is read.
+- The structure test only checked static properties, which is how a missing
+  method shipped. It now checks methods and constants too, on `self::` and on
+  the class by name, and reads the templates as well.
+
+### Added
+- Contact Form 7. A form of the site's own can ask about the vehicle the
+  visitor is looking at: `[_wmds_vehicle_title]`, `[_wmds_vehicle_price]`,
+  `[_wmds_vehicle_listing]` and ten more go straight into the mail template
+  and need no field in the form, and `[wmds_vehicle car field:price]` puts the
+  same value into the submission where it should travel with it.
+- A submission sent from a vehicle page is filed under **Vehicles →
+  Enquiries** like any other, so a mail that is never delivered is not simply
+  gone. The fields are read under whatever names the form uses — the
+  conventional ones first, then by substring, and an address is recognised by
+  being one. Optionally the address the feed carries for that vehicle is added
+  as a recipient of the mail to the dealer, never of the confirmation the
+  visitor receives.
+- Mail delivery is named rather than assumed. The Integrations and System tabs
+  report which mailer plugin is installed — WP Mail SMTP, FluentSMTP, Post
+  SMTP, Easy WP SMTP, WP Offload SES, Mailgun, Brevo — and, where it can be
+  read, what it is set to send through. One installed but left on PHP `mail()`
+  is called out, because that is the setting that looks solved and is not.
+- The last delivery failure WordPress reported is kept, with the time it
+  happened, for every message the site sends rather than only ours. It clears
+  itself as soon as the plugin sends one successfully.
+- FacetWP, for the sites that were built on it. The meta keys appear in the
+  facet source list under "mobile.de" with readable labels instead of having
+  to be typed as `cf/price_raw`, and the sort orders the filter bar offers are
+  offered to a FacetWP template too.
+- A vehicle is re-indexed once the import has finished writing it. FacetWP
+  indexes on `save_post`, the import saves the post first and writes the meta
+  afterwards, so what FacetWP indexed on its own was the state before the
+  update — the stale counts nobody could explain.
+- An **Integrations** tab for the three of them, and `wmds_vehicle_stored`
+  and `wmds_mail_sent` for anything else that needs the same two moments.
+
 ## [2.2.0] – 2026-08-08
 
 ### Added

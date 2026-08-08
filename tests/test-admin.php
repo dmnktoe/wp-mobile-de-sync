@@ -41,10 +41,13 @@ foreach ( array(
 	'logos',
 	'stickers',
 	'vehicle',
+	'smtp',
 	'requirements',
 	'status',
 	'alerts',
 	'leads',
+	'cf7',
+	'facetwp',
 	'updater',
 	'posts',
 	'admin-notices',
@@ -56,7 +59,7 @@ foreach ( array(
 	require_once dirname( __DIR__ ) . '/includes/class-wmds-' . $wmds_class . '.php';
 }
 
-foreach ( array( 'connection', 'schedule', 'enquiries', 'status', 'tools', 'system', 'about' ) as $wmds_tab ) {
+foreach ( array( 'connection', 'schedule', 'enquiries', 'integrations', 'status', 'tools', 'system', 'about' ) as $wmds_tab ) {
 	require_once dirname( __DIR__ ) . '/includes/tabs/class-wmds-tab-' . $wmds_tab . '.php';
 }
 
@@ -103,7 +106,7 @@ wmds_section( 'Every tab is still there, in the order somebody learned' );
 
 wmds_admin_fake_reset();
 
-$tabs = array( 'connection', 'schedule', 'enquiries', 'status', 'tools', 'system', 'about' );
+$tabs = array( 'connection', 'schedule', 'enquiries', 'integrations', 'status', 'tools', 'system', 'about' );
 
 foreach ( $tabs as $tab ) {
 	$markup = wmds_render_tab( $tab );
@@ -123,6 +126,9 @@ wmds_assert_contains( 'schedule: the interval', 'name="wmds_interval"', wmds_ren
 wmds_assert_contains( 'schedule: the label language', 'name="wmds_language"', wmds_render_tab( 'schedule' ) );
 wmds_assert_contains( 'enquiries: the recipient', 'name="wmds_enquiry_recipient"', wmds_render_tab( 'enquiries' ) );
 wmds_assert_contains( 'enquiries: the privacy notice', 'name="wmds_enquiry_consent"', wmds_render_tab( 'enquiries' ) );
+wmds_assert_contains( 'integrations: the Contact Form 7 record', 'name="wmds_cf7_store"', wmds_render_tab( 'integrations' ) );
+wmds_assert_contains( 'integrations: the FacetWP re-index', 'name="wmds_facetwp_reindex"', wmds_render_tab( 'integrations' ) );
+wmds_assert_contains( 'integrations: a mail tag to copy', '[_wmds_vehicle_price]', wmds_render_tab( 'integrations' ) );
 wmds_assert_contains( 'status: the alert switch', 'name="wmds_alerts_enabled"', wmds_render_tab( 'status' ) );
 wmds_assert_contains( 'status: the cooldown', 'name="wmds_alerts_cooldown"', wmds_render_tab( 'status' ) );
 

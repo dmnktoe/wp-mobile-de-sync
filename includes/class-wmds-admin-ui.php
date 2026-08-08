@@ -20,12 +20,17 @@ class WMDS_Admin_Ui {
 	 * @param string $label
 	 * @param string $type
 	 * @param string $confirm Optional confirmation prompt.
+	 * @param string $tab     Tab to return to, when it is not the usual one.
 	 */
-	public static function action_button( $action, $label, $type, $confirm = '' ) {
+	public static function action_button( $action, $label, $type, $confirm = '', $tab = '' ) {
 		printf( '<form method="post" action="%s" class="wmds-inline-form">', esc_url( admin_url( 'admin-post.php' ) ) );
 		wp_nonce_field( WMDS_Admin::NONCE );
 		echo '<input type="hidden" name="action" value="wmds">';
 		printf( '<input type="hidden" name="wmds_action" value="%s">', esc_attr( $action ) );
+
+		if ( '' !== $tab ) {
+			printf( '<input type="hidden" name="wmds_tab" value="%s">', esc_attr( $tab ) );
+		}
 
 		printf(
 			'<button type="submit" class="button button-%s"%s>%s</button>',
