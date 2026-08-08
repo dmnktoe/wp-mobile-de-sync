@@ -898,8 +898,8 @@ msgid "%1$d seen · %2$d created · %3$d updated · %4$d skipped · %5$d removed
 msgstr "%1$d gesehen · %2$d angelegt · %3$d aktualisiert · %4$d übersprungen · %5$d entfernt · %6$d Bilder"
 
 #: includes/class-wmds-updater.php:85
-msgid "Synchronises a dealer's vehicle inventory from the mobile.de Search API into a \"fahrzeuge\" custom post type. Works with FacetWP and with existing theme templates."
-msgstr "Synchronisiert den Fahrzeugbestand eines Händlers aus der mobile.de-Such-API in den Custom Post Type „fahrzeuge“. Arbeitet mit FacetWP und mit vorhandenen Theme-Templates zusammen."
+msgid "Synchronises a dealer's vehicle inventory from the mobile.de Search API into a \"fahrzeuge\" custom post type. Brings its own filters, templates and shortcodes, and works with existing theme templates."
+msgstr "Synchronisiert den Fahrzeugbestand eines Händlers aus der mobile.de-Such-API in den Custom Post Type „fahrzeuge“. Bringt eigene Filter, Templates und Shortcodes mit und arbeitet mit vorhandenen Theme-Templates zusammen."
 
 #: includes/class-wmds-updater.php:233
 msgid "No notes for this version."
@@ -1887,3 +1887,99 @@ msgstr "Anfrage senden"
 #: templates/parts/enquiry-form.php:112
 msgid "Fields marked * are required."
 msgstr "Mit * markierte Felder sind Pflichtfelder."
+
+#: includes/class-wmds-admin.php:395
+msgid "A test alert has been sent. If it does not arrive, the problem is the site's mail, not the sync."
+msgstr "Eine Testbenachrichtigung wurde verschickt. Kommt sie nicht an, liegt es an der E-Mail-Zustellung der Website, nicht am Sync."
+
+#: includes/class-wmds-admin.php:400
+msgid "WordPress could not send the mail. Alerts will not arrive either until that is fixed — an SMTP plugin is the usual answer."
+msgstr "WordPress konnte die E-Mail nicht versenden. Bis das behoben ist, kommen auch keine Benachrichtigungen an – üblicherweise hilft ein SMTP-Plugin."
+
+#: includes/class-wmds-admin.php:857
+msgid "At most once an hour"
+msgstr "Höchstens stündlich"
+
+#: includes/class-wmds-admin.php:858
+msgid "At most every six hours"
+msgstr "Höchstens alle sechs Stunden"
+
+#: includes/class-wmds-admin.php:859
+msgid "At most every twelve hours"
+msgstr "Höchstens alle zwölf Stunden"
+
+#: includes/class-wmds-admin.php:860
+msgid "At most once a day"
+msgstr "Höchstens einmal täglich"
+
+#: includes/class-wmds-admin.php:866
+msgid "Tell me when something is wrong"
+msgstr "Bescheid geben, wenn etwas nicht stimmt"
+
+#: includes/class-wmds-admin.php:868
+msgid "A sync that stops is invisible until somebody looks at this screen. Switched on, a failed or overdue run is sent by e-mail — once, not once per run — and so is the moment it works again."
+msgstr "Ein Sync, der stehen bleibt, fällt erst auf, wenn jemand auf diese Seite schaut. Eingeschaltet kommt ein fehlgeschlagener oder überfälliger Lauf per E-Mail – einmal, nicht einmal pro Lauf –, und ebenso der Moment, in dem es wieder läuft."
+
+#: includes/class-wmds-admin.php:873
+msgid "Notifications"
+msgstr "Benachrichtigungen"
+
+#: includes/class-wmds-admin.php:878
+msgid "Send an e-mail when the sync needs attention"
+msgstr "E-Mail senden, wenn der Sync Aufmerksamkeit braucht"
+
+#: includes/class-wmds-admin.php:898
+msgid "How often at most"
+msgstr "Höchstens wie oft"
+
+#: includes/class-wmds-admin.php:911
+msgid "Applies to the same problem reported again. A different problem, and the recovery, are sent straight away."
+msgstr "Gilt für dasselbe Problem, wenn es erneut auftritt. Ein anderes Problem und die Entwarnung gehen sofort raus."
+
+#: includes/class-wmds-admin.php:916
+msgid "Weekly summary"
+msgstr "Wochenübersicht"
+
+#: includes/class-wmds-admin.php:921
+msgid "Once a week, send the state of the inventory even when nothing is wrong"
+msgstr "Einmal pro Woche den Stand des Bestands senden, auch wenn alles in Ordnung ist"
+
+#: includes/class-wmds-admin.php:934
+msgid "Does it arrive"
+msgstr "Kommt sie an"
+
+#: includes/class-wmds-admin.php:936
+msgid "Sends the mail an alert would send right now, marked as a test. A WordPress installation that cannot send mail at all fails here rather than on the day it matters."
+msgstr "Verschickt genau die E-Mail, die eine Benachrichtigung jetzt senden würde, als Test markiert. Eine WordPress-Installation, die gar keine E-Mails versenden kann, scheitert hier statt am entscheidenden Tag."
+
+#: includes/class-wmds-admin.php:938
+msgid "Send a test alert"
+msgstr "Testbenachrichtigung senden"
+
+#: includes/class-wmds-alerts.php:153
+msgid "[%s] The vehicle sync is working again"
+msgstr "[%s] Der Fahrzeug-Sync läuft wieder"
+
+#: includes/class-wmds-alerts.php:157
+msgid "[%1$s] Vehicle sync: %2$s"
+msgstr "[%1$s] Fahrzeug-Sync: %2$s"
+
+#: includes/class-wmds-alerts.php:173
+msgid "Vehicles published: %d"
+msgstr "Veröffentlichte Fahrzeuge: %d"
+
+#: includes/class-wmds-alerts.php:183
+msgid "Last run at"
+msgstr "Letzter Lauf am"
+
+#: includes/class-wmds-alerts.php:188
+msgid "From the log:"
+msgstr "Aus dem Protokoll:"
+
+#: includes/class-wmds-alerts.php:210
+msgid "[%s] Vehicle sync, the week in one mail"
+msgstr "[%s] Fahrzeug-Sync, die Woche in einer E-Mail"
+
+#: includes/class-wmds-alerts.php:265
+msgid "[Test] %s"
+msgstr "[Test] %s"

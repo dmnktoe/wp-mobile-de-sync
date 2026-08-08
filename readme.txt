@@ -140,6 +140,9 @@ than a translation of the English source.
   mileage and first registration in the result.
 * New: Open Graph and Twitter cards, so a shared link shows the photo, the
   title and the price. Suppressed when an SEO plugin already emits them.
+* New: notification by e-mail when the sync fails or falls behind — once per
+  problem, not once per run, with the recovery sent straight away. Optional
+  weekly summary, and a test alert to prove the site can send mail at all.
 * Changed: the detail page no longer carries microdata; the JSON-LD replaces
   it and says more.
 * Changed: the bundled templates were reworked — themeable custom properties,

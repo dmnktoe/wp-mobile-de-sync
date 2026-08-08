@@ -194,6 +194,31 @@ define( 'DISABLE_WP_CRON', true );
 
 The settings screen warns when the last run is more than six hours old.
 
+## When it stops
+
+A sync that stops is invisible until somebody opens this screen. **Status &
+log → Tell me when something is wrong** turns that around: a failed or overdue
+run arrives by e-mail.
+
+It is deliberately quiet. The same problem is reported once and then not again
+until a cooldown has passed — an hour, six hours, twelve, or a day — because a
+sync failing every fifteen minutes should produce one mail, not ninety-six.
+A *different* problem is sent straight away, and so is the recovery: "it is
+fixed" is the one message nobody wants to wait six hours for.
+
+"Not configured" is never mailed about. A plugin nobody has set up yet is not
+a fault.
+
+**Send a test alert** sends the mail an alert would send right now. A
+WordPress installation that cannot send mail at all — no SMTP configured, the
+usual case on a fresh server — fails there rather than on the day it matters.
+
+The optional weekly summary goes out even when nothing is wrong, which is what
+makes silence evidence rather than an assumption.
+
+`wmds_alert_recipients` decides who is written to; `wmds_run_finished` fires
+with the statistics of every completed run, for anything else.
+
 **A regular run fetches only what changed.** Once a day a full reconciliation
 runs in addition — and only after one of those are sold vehicles removed.
 
@@ -364,6 +389,7 @@ well when it runs, which covers widgets and page builders.
 | `wmds_facets` | add, remove or reorder the filter components |
 | `wmds_facet_sorts` | change the sort orders on offer |
 | `wmds_enquiry_recipients` | decide where an enquiry is sent |
+| `wmds_alert_recipients` | decide who is told when the sync stops |
 
 Colour, spacing and radii are custom properties on `.wmds-scope`, so a theme
 can restyle the whole thing in one rule rather than selector by selector:

@@ -71,6 +71,12 @@ if ( ! function_exists( 'apply_filters' ) ) {
 	}
 }
 
+if ( ! function_exists( 'do_action' ) ) {
+	function do_action( $hook ) {
+		return null;
+	}
+}
+
 if ( ! function_exists( 'add_shortcode' ) ) {
 	function add_shortcode( $tag, $callback ) {
 		return true;
