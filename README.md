@@ -290,6 +290,22 @@ composer lint            phpcs (WordPress standards + PHP compatibility)
 php bin/po2mo.php ...    rebuild a translation catalogue after editing a .po
 ```
 
+### The admin screen has a net under it
+
+`tests/test-admin.php` drives `WMDS_Admin` through its real entry points:
+every tab is rendered, every action goes through `handle()`, and a redirect
+and `wp_die()` throw instead of ending the process so the test can see where
+the request wanted to go.
+
+It asserts what a refactor breaks silently rather than loudly — that every tab
+still exists and renders, that each carries its own fields, that saving one
+tab leaves the settings the other tabs own alone, that an unticked checkbox
+is stored as a no rather than ignored, that every action lands on the right
+tab, and that the screen is shut to anybody without the capability.
+
+`tests/wp-admin-fake.php` supplies the admin half of WordPress the way
+`wp-fake.php` supplies the post and media half.
+
 ### Support classes
 
 Four classes hold what the feature classes would otherwise each grow their
