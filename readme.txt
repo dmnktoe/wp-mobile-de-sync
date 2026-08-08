@@ -16,8 +16,10 @@ Fetches a dealer's vehicle inventory through the mobile.de Search API and
 stores it as WordPress posts. The vehicle data lives in post meta under stable
 field names — ready to use for your own templates, queries and filters.
 
-* CPT `fahrzeuge`, shortcode `[vehicles]`
-* One meta key per property, directly usable as FacetWP facet sources
+* CPT `fahrzeuge`, shortcodes `[vehicles]`, `[vehicle-filter]`, `[vehicle-count]`
+* Filtering of its own: dropdowns, checkboxes, radio buttons, range sliders,
+  search and sorting — no second plugin needed
+* One meta key per property, also usable as FacetWP facet sources
 * Manufacturer logos via `[vehicle-logo]`, extendable without a plugin update
 * German emission stickers via `[emission-sticker]`
 * Incremental sync: each run fetches only what changed
@@ -112,6 +114,22 @@ Pkw-EnVKV, so the bundled German catalogue carries the statutory wording rather
 than a translation of the English source.
 
 == Changelog ==
+
+= 2.2.0 =
+* New: filtering of its own. `[vehicle-filter]` renders dropdowns, radio
+  buttons, checkboxes, two-handle range sliders, a search box and eight sort
+  orders over the fields the feed already fills. No second plugin needed.
+* New: every option states how many vehicles are behind it, counted against
+  the rest of the selection rather than against the whole inventory.
+* New: the vehicle archive reads the filters directly; `[vehicles]` carries
+  them anywhere else with `filters="yes"`.
+* New: `[vehicle-count]`, and `columns`, `layout`, `pagination` and `heading`
+  on `[vehicles]`.
+* The filters live in the URL and work without JavaScript, so a filtered list
+  can be linked, bookmarked and paginated.
+* Changed: the bundled templates were reworked — themeable custom properties,
+  a dark variant, badges on the cards, a sticky summary and a gallery that
+  swaps the main image in place.
 
 = 2.1.1 =
 * Fixed: the German translation never applied. The compiled catalogue was

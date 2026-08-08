@@ -25,6 +25,8 @@ foreach ( array(
 	'_transient_timeout_wmds_refdata_',
 	'_transient_wmds_notices_',
 	'_transient_timeout_wmds_notices_',
+	'_transient_wmds_facet_',
+	'_transient_timeout_wmds_facet_',
 ) as $prefix ) {
 	$wpdb->query(
 		$wpdb->prepare(

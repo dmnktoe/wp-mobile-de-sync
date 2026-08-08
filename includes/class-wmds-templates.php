@@ -13,6 +13,13 @@ class WMDS_Templates {
 	 */
 	private static $tags = array( 'vehicles', 'fahrzeuge-anzeigen' );
 
+	/**
+	 * Shortcodes that other classes register but that still need the stylesheet.
+	 *
+	 * @var string[]
+	 */
+	private static $styled_tags = array( 'vehicle-filter', 'fahrzeug-filter', 'vehicle-count' );
+
 	public static function init() {
 		add_filter( 'template_include', array( __CLASS__, 'template_include' ) );
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue' ) );
@@ -133,7 +140,7 @@ class WMDS_Templates {
 			return false;
 		}
 
-		foreach ( self::$tags as $tag ) {
+		foreach ( array_merge( self::$tags, self::$styled_tags ) as $tag ) {
 			if ( has_shortcode( $post->post_content, $tag ) ) {
 				return true;
 			}
@@ -155,9 +162,14 @@ class WMDS_Templates {
 
 		self::register();
 		wp_enqueue_style( self::HANDLE );
+		wp_enqueue_script( self::HANDLE );
 	}
 
 	private static function register() {
+		if ( ! wp_script_is( self::HANDLE, 'registered' ) ) {
+			wp_register_script( self::HANDLE, WMDS_URL . 'assets/wmds.js', array(), WMDS_VERSION, true );
+		}
+
 		if ( wp_style_is( self::HANDLE, 'registered' ) ) {
 			return;
 		}

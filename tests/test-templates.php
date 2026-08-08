@@ -2,6 +2,7 @@
 
 $GLOBALS['wmds_test_filters']     = array();
 $GLOBALS['wmds_test_styles']      = array();
+$GLOBALS['wmds_test_scripts']     = array();
 $GLOBALS['wmds_test_theme_files'] = array();
 $GLOBALS['wmds_test_query']       = array();
 
@@ -90,6 +91,33 @@ function wp_enqueue_style( $handle ) {
 	$GLOBALS['wmds_test_styles'][ $handle ]['enqueued'] = true;
 }
 
+function wp_script_is( $handle, $state = 'enqueued' ) {
+	if ( 'registered' === $state ) {
+		return isset( $GLOBALS['wmds_test_scripts'][ $handle ] );
+	}
+
+	return ! empty( $GLOBALS['wmds_test_scripts'][ $handle ]['enqueued'] );
+}
+
+function wp_register_script( $handle, $src, $deps = array(), $version = false, $in_footer = false ) {
+	$GLOBALS['wmds_test_scripts'][ $handle ] = array(
+		'src'      => $src,
+		'version'  => $version,
+		'footer'   => $in_footer,
+		'enqueued' => false,
+	);
+
+	return true;
+}
+
+function wp_enqueue_script( $handle ) {
+	if ( ! isset( $GLOBALS['wmds_test_scripts'][ $handle ] ) ) {
+		return;
+	}
+
+	$GLOBALS['wmds_test_scripts'][ $handle ]['enqueued'] = true;
+}
+
 class WP_Post {
 	public $post_content = '';
 
@@ -109,6 +137,7 @@ require_once __DIR__ . '/../includes/class-wmds-templates.php';
 
 function wmds_test_reset() {
 	$GLOBALS['wmds_test_styles']      = array();
+	$GLOBALS['wmds_test_scripts']     = array();
 	$GLOBALS['wmds_test_theme_files'] = array();
 	$GLOBALS['wmds_test_query']       = array();
 	$GLOBALS['wmds_test_filters']     = array();

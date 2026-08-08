@@ -9,7 +9,8 @@
 
 Synchronises a dealer's vehicle inventory from the mobile.de **Search API**
 into the `fahrzeuge` custom post type — with bundled templates that any theme
-can override, and ready for FacetWP.
+can override and filtering of its own, so an inventory can be searched without
+a second plugin.
 
 ## Data contract
 
@@ -17,9 +18,11 @@ Vehicle data lands in post meta under stable field names. That is the
 interface for templates, facets and custom queries, and it does not change
 within a major version:
 
-- CPT `fahrzeuge`, shortcodes `[vehicles]` and `[vehicle-logo]`
+- CPT `fahrzeuge`, shortcodes `[vehicles]`, `[vehicle-filter]`,
+  `[vehicle-count]` and `[vehicle-logo]`
 - one meta key per vehicle property, plus every equipment feature the feed sets
-- FacetWP sources usable as-is (`cf/make`, `cf/price_raw`, `cf/mileage_raw`, …)
+- the same keys are FacetWP sources (`cf/make`, `cf/price_raw`, …) for a site
+  that already uses it
 
 ## Requirements
 
@@ -39,7 +42,8 @@ within a major version:
 3. **Vehicles → Sync Settings**: username, password, seller ID.
 4. **Test connection** — expect “Connection OK – N vehicles in the inventory”.
 5. Run the initial import from the command line: `wp wmds sync --full --all`
-6. Re-index FacetWP.
+6. If the site uses FacetWP, re-index it. The plugin's own filters need no
+   step of their own.
 
 The settings screen carries a checklist through those steps and ticks each one
 off as it completes, so the state of a half-finished setup is visible rather
@@ -278,6 +282,8 @@ Every template is resolved through the same hierarchy, first match wins:
 | `archive-fahrzeuge.php` | the vehicle archive |
 | `mob_vehicle-list.php` | `[vehicles]`, and its alias `[fahrzeuge-anzeigen]` |
 | `parts/vehicle-card.php` | one card, used by the last two |
+| `parts/vehicle-gallery.php` | the photos on the detail page |
+| `parts/filter-bar.php` | the filter components |
 
 The card is a part of its own, so a theme can restyle the grid item without
 copying the loop around it. It reads `$args['heading']` (`h2` to `h4`) and
@@ -293,13 +299,68 @@ well when it runs, which covers widgets and page builders.
 | `wmds_logo_url` | override the logo URL |
 | `wmds_enqueue_styles` | switch off the bundled stylesheet |
 | `wmds_template` | point a template at a different file |
+| `wmds_facets` | add, remove or reorder the filter components |
+| `wmds_facet_sorts` | change the sort orders on offer |
+
+Colour, spacing and radii are custom properties on `.wmds-scope`, so a theme
+can restyle the whole thing in one rule rather than selector by selector:
+
+```css
+.wmds-scope {
+	--wmds-radius: 0;
+	--wmds-line: #d8d8d8;
+	--wmds-surface: #fafafa;
+}
+```
+
+The dark variant follows `prefers-color-scheme`. A theme that knows its own
+answer overrides the properties and ours never applies.
+
+## Filtering
+
+The inventory filters itself. `[vehicle-filter]` renders one component per
+field the feed fills:
+
+| Component | Fields |
+|---|---|
+| Search box | title and description |
+| Dropdown | make, model, body type |
+| Radio buttons | condition |
+| Checkboxes | fuel, transmission, exterior colour |
+| Range slider | price, mileage, power, first registration |
+| Sort | price, mileage, first registration, power, newest |
+
+    [vehicle-filter]
+    [vehicle-filter layout="sidebar" facets="make,price,fuel"]
+    [vehicles filters="yes" pagination="yes" posts_per_page="12"]
+
+The bundled archive template already carries the bar, so `/fahrzeuge/` filters
+without a shortcode anywhere.
+
+Every option states how many vehicles are behind it. That number is counted
+against the rest of the selection rather than against the whole inventory, so
+an option that would leave nothing says so rather than promising a result it
+cannot keep. Counts and slider bounds are cached for ten minutes and dropped
+whenever a vehicle changes.
+
+The bar is a plain GET form. Without JavaScript the sliders fall back to the
+number fields they mirror and nothing else changes — the filters live in the
+URL, so a filtered list can be linked, bookmarked, paginated and cached.
+
+`[vehicle-count]` prints how many vehicles the current filters leave;
+`[vehicle-count filtered="no"]` prints the size of the whole inventory.
+
+Sites that already run FacetWP keep working: the meta keys are unchanged and
+still usable as facet sources.
 
 ## The shortcode
 
     [vehicles posts_per_page="6" orderby="date" order="DESC"]
 
-Those four attributes steer the query. Every other attribute filters on the
-meta key of the same name, so nothing has to be whitelisted first:
+Those attributes steer the query, and `columns` (2, 3 or 4), `layout`
+(`grid` or `list`), `pagination`, `heading` and `filters` steer the output.
+Every other attribute filters on the meta key of the same name, so nothing has
+to be whitelisted first:
 
     [vehicles make="Audi" fuel="Diesel" interior_type="Teilleder"]
 
