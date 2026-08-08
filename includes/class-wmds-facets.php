@@ -22,9 +22,6 @@ class WMDS_Facets {
 
 	const MAX_LENGTH = 100;
 
-	/** @var bool */
-	private static $flushed = false;
-
 	public static function init() {
 		add_shortcode( 'vehicle-filter', array( __CLASS__, 'shortcode' ) );
 		add_shortcode( 'fahrzeug-filter', array( __CLASS__, 'shortcode' ) );

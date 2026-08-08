@@ -9,6 +9,13 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class WMDS_Facet_Store {
 	/**
+	 * Whether the cache has already been dropped in this request.
+	 *
+	 * @var bool
+	 */
+	private static $flushed = false;
+
+	/**
 	 * Distinct values of a facet with the number of vehicles behind each.
 	 *
 	 * Counted against the rest of the selection, so an option that would
