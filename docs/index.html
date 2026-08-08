@@ -1,0 +1,536 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>mobile.de Sync — a WordPress plugin for dealer inventories</title>
+<meta name="description" content="Synchronises a dealer's vehicle inventory from the mobile.de Search API into WordPress. Filtering, enquiry form and structured data included.">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="mobile.de Sync">
+<meta property="og:description" content="A dealer's mobile.de inventory in WordPress — synced, filterable and searchable, with no second plugin.">
+<meta property="og:url" content="https://dmnktoe.github.io/wp-mobile-de-sync/">
+<meta name="twitter:card" content="summary">
+
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+
+<style>
+:root {
+	--ink: #1c1c1c;
+	--plum: #380050;
+	--flame: #fa3c00;
+	--flame-ink: #d63300;
+	--paper: #fff;
+	--sunken: #f7f6f8;
+	--rule: #e2dfe5;
+	--muted: #6d6875;
+	--measure: 46rem;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--ink: #ece9ef;
+		--plum: #d9c2e8;
+		--paper: #191320;
+		--sunken: #221929;
+		--rule: #3a3042;
+		--muted: #a89fb2;
+	}
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+	margin: 0;
+	background: var(--paper);
+	color: var(--ink);
+	font: 400 17px/1.7 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+	-webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; }
+
+a:focus-visible,
+button:focus-visible { outline: 2px solid var(--flame); outline-offset: 3px; }
+
+.wrap {
+	max-width: var(--measure);
+	margin: 0 auto;
+	padding: 0 1.5rem;
+}
+
+/* --- Masthead --------------------------------------------------------- */
+
+.masthead {
+	background: var(--plum);
+	color: #fff;
+	padding: 4.5rem 0 4rem;
+}
+
+@media (prefers-color-scheme: dark) {
+	.masthead { background: #2a0039; color: #fff; }
+	.masthead .lede { color: rgba(255, 255, 255, .78); }
+}
+
+.masthead__icon {
+	width: 72px;
+	height: 72px;
+	display: block;
+	margin-bottom: 1.75rem;
+}
+
+h1 {
+	margin: 0;
+	font-size: clamp(2.1rem, 6vw, 3rem);
+	font-weight: 300;
+	letter-spacing: -.02em;
+	line-height: 1.15;
+}
+
+h1 b { font-weight: 600; }
+
+.lede {
+	margin: 1.1rem 0 0;
+	max-width: 34rem;
+	font-size: 1.15rem;
+	color: rgba(255, 255, 255, .78);
+}
+
+.actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: .75rem;
+	margin-top: 2.25rem;
+}
+
+.btn {
+	display: inline-block;
+	padding: .7rem 1.3rem;
+	border: 1px solid transparent;
+	border-radius: 3px;
+	font-size: .95rem;
+	font-weight: 500;
+	text-decoration: none;
+	transition: background .12s ease, border-color .12s ease;
+}
+
+.btn--primary { background: var(--flame-ink); color: #fff; }
+.btn--primary:hover { background: #b32a00; }
+
+.btn--ghost { border-color: rgba(255, 255, 255, .4); color: #fff; }
+.btn--ghost:hover { border-color: #fff; }
+
+.masthead__meta {
+	margin: 1.5rem 0 0;
+	font-size: .85rem;
+	color: rgba(255, 255, 255, .6);
+}
+
+.masthead__meta code {
+	color: rgba(255, 255, 255, .85);
+	background: rgba(255, 255, 255, .1);
+	padding: .1em .4em;
+	border-radius: 2px;
+}
+
+/* --- Sections --------------------------------------------------------- */
+
+section { padding: 3.75rem 0; border-top: 1px solid var(--rule); }
+
+section:first-of-type { border-top: 0; }
+
+h2 {
+	margin: 0 0 .4rem;
+	font-size: 1.5rem;
+	font-weight: 600;
+	letter-spacing: -.01em;
+	color: var(--plum);
+}
+
+.sub {
+	margin: 0 0 2rem;
+	color: var(--muted);
+	max-width: 38rem;
+}
+
+/* --- Features --------------------------------------------------------- */
+
+.features {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+	gap: 2rem 2.5rem;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.features h3 {
+	margin: 0 0 .35rem;
+	font-size: 1rem;
+	font-weight: 600;
+}
+
+.features h3::before {
+	content: "";
+	display: block;
+	width: 1.75rem;
+	height: 2px;
+	background: var(--flame);
+	margin-bottom: .9rem;
+}
+
+.features p {
+	margin: 0;
+	font-size: .95rem;
+	color: var(--muted);
+}
+
+/* --- Release ---------------------------------------------------------- */
+
+.release {
+	border: 1px solid var(--rule);
+	border-radius: 3px;
+	background: var(--sunken);
+	padding: 1.5rem;
+}
+
+.release__head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: .6rem 1rem;
+	margin-bottom: 1rem;
+	padding-bottom: 1rem;
+	border-bottom: 1px solid var(--rule);
+}
+
+.release__version {
+	font-size: 1.25rem;
+	font-weight: 600;
+	color: var(--plum);
+}
+
+.tag {
+	font-size: .7rem;
+	font-weight: 600;
+	letter-spacing: .08em;
+	text-transform: uppercase;
+	padding: .2rem .5rem;
+	border-radius: 2px;
+	background: var(--flame-ink);
+	color: #fff;
+}
+
+.release__note {
+	margin-left: auto;
+	font-size: .85rem;
+	color: var(--muted);
+}
+
+.release ol { margin: 0; padding-left: 1.25rem; }
+.release li { margin-bottom: .5rem; }
+.release li:last-child { margin-bottom: 0; }
+
+.release__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: .75rem;
+	margin-top: 1.5rem;
+	padding-top: 1.25rem;
+	border-top: 1px solid var(--rule);
+}
+
+.btn--quiet { border-color: var(--rule); color: var(--ink); }
+.btn--quiet:hover { border-color: var(--plum); }
+
+/* --- Code and tables -------------------------------------------------- */
+
+pre, code {
+	font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+
+pre {
+	margin: 0;
+	padding: 1rem 1.15rem;
+	background: var(--sunken);
+	border: 1px solid var(--rule);
+	border-left: 2px solid var(--flame);
+	border-radius: 3px;
+	overflow-x: auto;
+	font-size: .875rem;
+	line-height: 1.65;
+}
+
+pre .c { color: var(--muted); }
+
+p code {
+	font-size: .875em;
+	background: var(--sunken);
+	padding: .12em .4em;
+	border-radius: 2px;
+}
+
+table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: .95rem;
+}
+
+th, td {
+	text-align: left;
+	padding: .65rem 0;
+	border-bottom: 1px solid var(--rule);
+	vertical-align: top;
+}
+
+th {
+	width: 12rem;
+	font-weight: 600;
+	color: var(--muted);
+	font-size: .82rem;
+	letter-spacing: .04em;
+	text-transform: uppercase;
+	padding-top: .8rem;
+}
+
+@media (max-width: 34rem) {
+	th, td { display: block; border: 0; padding: .1rem 0; }
+	th { padding-top: 1rem; }
+	td { padding-bottom: .6rem; border-bottom: 1px solid var(--rule); }
+}
+
+.stack > * + * { margin-top: 1.25rem; }
+
+/* --- Footer ----------------------------------------------------------- */
+
+footer {
+	border-top: 1px solid var(--rule);
+	padding: 2.5rem 0 3.5rem;
+	font-size: .875rem;
+	color: var(--muted);
+}
+
+footer a { color: var(--muted); text-decoration-color: var(--rule); }
+footer a:hover { color: var(--flame); }
+
+.footer__row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: .5rem 1.5rem;
+	justify-content: space-between;
+}
+</style>
+</head>
+<body>
+
+<header class="masthead">
+	<div class="wrap">
+		<svg class="masthead__icon" viewBox="0 0 256 256" role="img" aria-label="mobile.de Sync">
+			<rect width="256" height="256" rx="56" fill="#380050"/>
+			<g fill="none" stroke="#fa3c00" stroke-width="14" stroke-linecap="round">
+				<path d="M51.9 92.5 A84 84 0 0 1 204.1 92.5"/>
+				<path d="M204.1 163.5 A84 84 0 0 1 51.9 163.5"/>
+			</g>
+			<path d="M219.5 85.3 L215.1 116.1 L188.7 99.7 Z" fill="#fa3c00"/>
+			<path d="M36.5 170.7 L40.9 139.9 L67.3 156.3 Z" fill="#fa3c00"/>
+			<g fill="#ffffff">
+				<path d="M74 143 L82 120 A10 10 0 0 1 91 113 L165 113 A10 10 0 0 1 174 120 L182 143 A6 6 0 0 1 176 150 L80 150 A6 6 0 0 1 74 143 Z"/>
+				<path d="M96 113 L104 96 A9 9 0 0 1 112 91 L144 91 A9 9 0 0 1 152 96 L160 113 Z"/>
+			</g>
+			<g fill="#380050">
+				<circle cx="99" cy="150" r="13"/>
+				<circle cx="157" cy="150" r="13"/>
+			</g>
+			<g fill="#ffffff">
+				<circle cx="99" cy="150" r="7"/>
+				<circle cx="157" cy="150" r="7"/>
+			</g>
+		</svg>
+
+		<h1>mobile.de <b>Sync</b></h1>
+
+		<p class="lede">
+			A dealer's vehicle inventory from the mobile.de Search API, in WordPress —
+			synced, filterable and searchable, without a second plugin.
+		</p>
+
+		<div class="actions">
+			<a class="btn btn--primary"
+				href="https://github.com/dmnktoe/wp-mobile-de-sync/releases/latest/download/wp-mobile-de-sync.zip">
+				Download the plugin
+			</a>
+			<a class="btn btn--ghost" href="https://github.com/dmnktoe/wp-mobile-de-sync">
+				Source on GitHub
+			</a>
+		</div>
+
+		<p class="masthead__meta">
+			GPL-2.0-or-later · WordPress 5.8+ · PHP 7.0+ · custom post type <code>fahrzeuge</code>
+		</p>
+	</div>
+</header>
+
+<section>
+	<div class="wrap">
+		<h2>What it does</h2>
+		<p class="sub">
+			Every run fetches only what changed. Once a day a full reconciliation
+			follows, and only after one of those is a sold vehicle removed — to the
+			trash, never into the void.
+		</p>
+
+		<ul class="features">
+			<li>
+				<h3>Filtering of its own</h3>
+				<p>
+					Dropdowns, checkboxes, two-handle range sliders, search and eight sort
+					orders over the fields the feed already fills. No FacetWP required.
+				</p>
+			</li>
+			<li>
+				<h3>Counts that mean something</h3>
+				<p>
+					Every option says how many vehicles are behind it, counted against the
+					rest of the selection — so an option that would leave nothing says so.
+				</p>
+			</li>
+			<li>
+				<h3>Works without JavaScript</h3>
+				<p>
+					The filter bar is a plain GET form and the filters live in the URL, so a
+					filtered list can be linked, bookmarked, paginated and cached.
+				</p>
+			</li>
+			<li>
+				<h3>An enquiry form</h3>
+				<p>
+					Reaches the dealer by e-mail with the vehicle it is about, and is filed
+					in the database as well — so a mail that fails is not simply gone.
+				</p>
+			</li>
+			<li>
+				<h3>Structured data</h3>
+				<p>
+					A complete <code>Car</code> and <code>Offer</code> in JSON-LD, plus
+					OpenGraph cards — suppressed when an SEO plugin already emits them.
+				</p>
+			</li>
+			<li>
+				<h3>It tells you when it stops</h3>
+				<p>
+					A failed or overdue sync arrives by e-mail. Once per problem, not once
+					per run, and the recovery is sent straight away.
+				</p>
+			</li>
+		</ul>
+	</div>
+</section>
+
+<section>
+	<div class="wrap">
+		<h2>Get it</h2>
+		<p class="sub">
+			Releases are built and published from the repository. The download below
+			always points at the newest one.
+		</p>
+
+		<div class="release">
+			<div class="release__head">
+				<span class="release__version">2.2.0</span>
+				<span class="tag">Latest</span>
+				<span class="release__note">Filters · enquiries · structured data · alerts</span>
+			</div>
+
+			<ol>
+				<li>Download the ZIP and upload it under <strong>Plugins → Add New → Upload Plugin</strong>.</li>
+				<li>Deactivate any other mobile.de plugin — two importers on one post type overwrite each other.</li>
+				<li>Open <strong>Vehicles → Sync Settings</strong> and enter username, password and seller ID.</li>
+				<li>Hit <strong>Test connection</strong>, then run the first import: <code>wp wmds sync --full --all</code></li>
+			</ol>
+
+			<div class="release__actions">
+				<a class="btn btn--primary"
+					href="https://github.com/dmnktoe/wp-mobile-de-sync/releases/latest/download/wp-mobile-de-sync.zip">
+					Download ZIP
+				</a>
+				<a class="btn btn--quiet" href="https://github.com/dmnktoe/wp-mobile-de-sync/releases">
+					All releases
+				</a>
+				<a class="btn btn--quiet" href="https://github.com/dmnktoe/wp-mobile-de-sync/blob/main/CHANGELOG.md">
+					Changelog
+				</a>
+			</div>
+		</div>
+
+		<p style="margin-top:1.5rem;color:var(--muted);font-size:.95rem">
+			Updates arrive through the WordPress updates screen like any other plugin —
+			the release feed is the update channel, so there is nothing else to install.
+		</p>
+	</div>
+</section>
+
+<section>
+	<div class="wrap">
+		<h2>In a template</h2>
+		<p class="sub">The archive filters itself. Everywhere else, four shortcodes.</p>
+
+		<pre><span class="c">// The filter bar, on its own or beside a list</span>
+[vehicle-filter]
+[vehicles filters="yes" pagination="yes" posts_per_page="12"]
+
+<span class="c">// A plain grid, filtered by whatever meta key you name</span>
+[vehicles make="Audi" fuel="Diesel" columns="3"]
+
+<span class="c">// How many the current filters leave, and an enquiry form</span>
+[vehicle-count]
+[vehicle-enquiry]</pre>
+	</div>
+</section>
+
+<section>
+	<div class="wrap">
+		<h2>What it needs</h2>
+		<table>
+			<tr>
+				<th scope="row">WordPress</th>
+				<td>5.8 or newer</td>
+			</tr>
+			<tr>
+				<th scope="row">PHP</th>
+				<td>7.0 or newer — CI checks 7.0, 7.4 and 8.3 on every push</td>
+			</tr>
+			<tr>
+				<th scope="row">Extensions</th>
+				<td><code>json</code>, <code>curl</code> or <code>allow_url_fopen</code>, and <code>gd</code> or <code>imagick</code></td>
+			</tr>
+			<tr>
+				<th scope="row">Outbound access</th>
+				<td><code>services.mobile.de</code></td>
+			</tr>
+			<tr>
+				<th scope="row">Credentials</th>
+				<td>A mobile.de Search API user and the numeric seller ID</td>
+			</tr>
+			<tr>
+				<th scope="row">Optional</th>
+				<td>WP-CLI for the first import, a real cron job instead of WP-Cron</td>
+			</tr>
+		</table>
+	</div>
+</section>
+
+<footer>
+	<div class="wrap footer__row">
+		<span>GPL-2.0-or-later · built by <a href="https://github.com/dmnktoe">Domenik Töfflinger</a></span>
+		<span>
+			<a href="https://github.com/dmnktoe/wp-mobile-de-sync">Repository</a> ·
+			<a href="https://github.com/dmnktoe/wp-mobile-de-sync/issues">Issues</a> ·
+			<a href="https://services.mobile.de/manual/">API docs</a>
+		</span>
+	</div>
+</footer>
+
+</body>
+</html>

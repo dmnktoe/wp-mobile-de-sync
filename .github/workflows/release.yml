@@ -71,6 +71,7 @@ jobs:
           .github/
           bin/
           build/
+          docs/
           tests/
           vendor/
           node_modules/
