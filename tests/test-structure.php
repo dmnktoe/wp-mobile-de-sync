@@ -78,4 +78,63 @@ foreach ( $files as $file ) {
 
 wmds_assert( 'no class calls one that does not exist', array(), $missing );
 
+/*
+ * The same mistake one level down, and the one that actually shipped: when the
+ * facet engine was split, selection() was left behind on neither half. Both
+ * halves parsed, both passed phpcs, and every page carrying the filter bar
+ * died with "call to undefined method" the moment it was rendered.
+ *
+ * A member is looked for on the class it is called on, whether that is self::
+ * or the class by name, and templates are read too — they call the facade as
+ * much as the classes do.
+ */
+wmds_section( 'A method that is called exists' );
+
+$members = array();
+
+foreach ( $files as $file ) {
+	$source = (string) file_get_contents( $file );
+
+	if ( ! preg_match( '/^class (\w+)/m', $source, $m ) ) {
+		continue;
+	}
+
+	preg_match_all( '/function\s+(\w+)\s*\(/', $source, $functions );
+	preg_match_all( '/const\s+(\w+)/', $source, $constants );
+
+	$members[ $m[1] ] = array_merge( $functions[1], $constants[1] );
+}
+
+$callers = array_merge(
+	$files,
+	glob( $root . '/templates/*.php' ),
+	glob( $root . '/templates/parts/*.php' ),
+	array( $root . '/wp-mobile-de-sync.php' )
+);
+
+$undefined = array();
+
+foreach ( $callers as $file ) {
+	$source = (string) file_get_contents( $file );
+	$owner  = preg_match( '/^class (\w+)/m', $source, $m ) ? $m[1] : '';
+
+	preg_match_all( '/\b(WMDS_\w+|self|static)::(\w+)/', $source, $calls, PREG_SET_ORDER );
+
+	foreach ( $calls as $call ) {
+		$class = ( 'self' === $call[1] || 'static' === $call[1] ) ? $owner : $call[1];
+
+		if ( '' === $class || ! isset( $members[ $class ] ) ) {
+			continue;
+		}
+
+		$reference = $class . '::' . $call[2];
+
+		if ( ! in_array( $call[2], $members[ $class ], true ) && ! in_array( $reference, $undefined, true ) ) {
+			$undefined[] = $reference;
+		}
+	}
+}
+
+wmds_assert( 'no method or constant is called that was left behind', array(), $undefined );
+
 wmds_result();
