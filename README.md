@@ -7,6 +7,8 @@
 [![PHP](https://img.shields.io/badge/PHP-7.0%2B-777bb4)](https://www.php.net/)
 [![License](https://img.shields.io/github/license/dmnktoe/wp-mobile-de-sync?color=blue)](https://www.gnu.org/licenses/gpl-2.0.html)
 
+**[Project page and download](https://dmnktoe.github.io/wp-mobile-de-sync/)**
+
 Synchronises a dealer's vehicle inventory from the mobile.de **Search API**
 into the `fahrzeuge` custom post type — with bundled templates that any theme
 can override and filtering of its own, so an inventory can be searched without

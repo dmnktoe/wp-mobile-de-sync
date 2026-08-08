@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="mobile.de Sync">
+	<rect width="256" height="256" rx="56" fill="#380050"/>
+	<g fill="none" stroke="#fa3c00" stroke-width="14" stroke-linecap="round">
+		<path d="M51.9 92.5 A84 84 0 0 1 204.1 92.5"/>
+		<path d="M204.1 163.5 A84 84 0 0 1 51.9 163.5"/>
+	</g>
+	<path d="M219.5 85.3 L215.1 116.1 L188.7 99.7 Z" fill="#fa3c00"/>
+	<path d="M36.5 170.7 L40.9 139.9 L67.3 156.3 Z" fill="#fa3c00"/>
+	<g fill="#ffffff">
+		<path d="M74 143 L82 120 A10 10 0 0 1 91 113 L165 113 A10 10 0 0 1 174 120 L182 143 A6 6 0 0 1 176 150 L80 150 A6 6 0 0 1 74 143 Z"/>
+		<path d="M96 113 L104 96 A9 9 0 0 1 112 91 L144 91 A9 9 0 0 1 152 96 L160 113 Z"/>
+	</g>
+	<g fill="#380050">
+		<circle cx="99" cy="150" r="13"/>
+		<circle cx="157" cy="150" r="13"/>
+	</g>
+	<g fill="#ffffff">
+		<circle cx="99" cy="150" r="7"/>
+		<circle cx="157" cy="150" r="7"/>
+	</g>
+</svg>
