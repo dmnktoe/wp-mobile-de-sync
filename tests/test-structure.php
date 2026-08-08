@@ -18,7 +18,8 @@ $root = dirname( __DIR__ );
 
 $files = array_merge(
 	glob( $root . '/includes/*.php' ),
-	glob( $root . '/includes/tabs/*.php' )
+	glob( $root . '/includes/tabs/*.php' ),
+	glob( $root . '/includes/integrations/*.php' )
 );
 
 wmds_section( 'Every class file is readable' );

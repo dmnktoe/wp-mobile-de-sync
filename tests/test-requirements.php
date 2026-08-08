@@ -39,7 +39,7 @@ $GLOBALS['wmds_test_options'] = array( 'permalink_structure' => '/%postname%/' )
 $GLOBALS['wp_version']        = '6.4';
 
 require_once dirname( __DIR__ ) . '/includes/class-wmds-str.php';
-require_once dirname( __DIR__ ) . '/includes/class-wmds-smtp.php';
+require_once dirname( __DIR__ ) . '/includes/integrations/class-wmds-smtp.php';
 require_once dirname( __DIR__ ) . '/includes/class-wmds-requirements.php';
 
 wmds_section( 'php.ini shorthand' );

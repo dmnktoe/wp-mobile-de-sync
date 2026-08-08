@@ -61,11 +61,11 @@ require_once __DIR__ . '/../includes/class-wmds-num.php';
 require_once __DIR__ . '/../includes/class-wmds-date.php';
 require_once __DIR__ . '/../includes/class-wmds-mail.php';
 require_once __DIR__ . '/../includes/class-wmds-leads.php';
-require_once __DIR__ . '/../includes/class-wmds-cf7.php';
 require_once __DIR__ . '/../includes/class-wmds-requirements.php';
-require_once __DIR__ . '/../includes/class-wmds-smtp.php';
 require_once __DIR__ . '/../includes/class-wmds-vehicle.php';
-require_once __DIR__ . '/../includes/class-wmds-facetwp.php';
+require_once __DIR__ . '/../includes/integrations/class-wmds-cf7.php';
+require_once __DIR__ . '/../includes/integrations/class-wmds-smtp.php';
+require_once __DIR__ . '/../includes/integrations/class-wmds-facetwp.php';
 
 wmds_section( 'A mail tag names a property, or is not ours' );
 

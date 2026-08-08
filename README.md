@@ -376,9 +376,19 @@ php bin/po2mo.php ...    rebuild a translation catalogue after editing a .po
 ### How a class gets loaded
 
 `WMDS_Autoloader` resolves `WMDS_Facet_Store` to
-`includes/class-wmds-facet-store.php` and `WMDS_Tab_Tools` to
-`includes/tabs/class-wmds-tab-tools.php`. Adding a class means adding a file;
-there is no map and no list in the plugin header.
+`includes/class-wmds-facet-store.php`, `WMDS_Tab_Tools` to
+`includes/tabs/class-wmds-tab-tools.php` and `WMDS_Cf7` to
+`includes/integrations/class-wmds-cf7.php`. Adding a class means adding a
+file; there is no map and no list in the plugin header.
+
+The two subdirectories are groups, not namespaces. `tabs/` is one admin screen
+each. `integrations/` is the code that talks to another plugin: it is loaded
+on `plugins_loaded` rather than at file level, it checks that the plugin is
+there before it hooks anything, and it has to leave the site working when it
+is not. Nothing outside that folder may assume any of those plugins exists.
+`tests/test-autoloader.php` reads the directory list off the loader rather
+than repeating it, so a directory added there cannot leave the test passing on
+a tree it no longer describes.
 
 Four files are required outright anyway, and the reason is worth knowing
 before you tidy them away: **a file that does something when it loads cannot

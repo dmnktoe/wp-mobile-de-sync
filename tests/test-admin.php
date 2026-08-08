@@ -41,13 +41,10 @@ foreach ( array(
 	'logos',
 	'stickers',
 	'vehicle',
-	'smtp',
 	'requirements',
 	'status',
 	'alerts',
 	'leads',
-	'cf7',
-	'facetwp',
 	'updater',
 	'posts',
 	'admin-notices',
@@ -57,6 +54,10 @@ foreach ( array(
 	'admin',
 ) as $wmds_class ) {
 	require_once dirname( __DIR__ ) . '/includes/class-wmds-' . $wmds_class . '.php';
+}
+
+foreach ( array( 'smtp', 'cf7', 'facetwp' ) as $wmds_integration ) {
+	require_once dirname( __DIR__ ) . '/includes/integrations/class-wmds-' . $wmds_integration . '.php';
 }
 
 foreach ( array( 'connection', 'schedule', 'enquiries', 'integrations', 'status', 'tools', 'system', 'about' ) as $wmds_tab ) {
