@@ -290,6 +290,20 @@ composer lint            phpcs (WordPress standards + PHP compatibility)
 php bin/po2mo.php ...    rebuild a translation catalogue after editing a .po
 ```
 
+### How the admin screen is put together
+
+| Class | Does |
+|---|---|
+| `WMDS_Admin` | the menu, the assets, which tab is showing |
+| `WMDS_Admin_Actions` | every `admin-post.php` action and where it redirects |
+| `WMDS_Admin_Ajax` | test connection, sync, dismiss |
+| `WMDS_Admin_Notices` | the notice store and the screen-wide warning |
+| `WMDS_Admin_Ui` | the markup shared between tabs |
+| `WMDS_Tab_*` | one class per tab, in `includes/tabs/` |
+
+A tab is a class with a `render()` method. Adding one means a class, a line
+in `WMDS_Admin::tabs()` and a line in the loop that requires them.
+
 ### The admin screen has a net under it
 
 `tests/test-admin.php` drives `WMDS_Admin` through its real entry points:

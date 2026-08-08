@@ -47,9 +47,17 @@ foreach ( array(
 	'leads',
 	'updater',
 	'posts',
+	'admin-notices',
+	'admin-ui',
+	'admin-actions',
+	'admin-ajax',
 	'admin',
 ) as $wmds_class ) {
 	require_once dirname( __DIR__ ) . '/includes/class-wmds-' . $wmds_class . '.php';
+}
+
+foreach ( array( 'connection', 'schedule', 'enquiries', 'status', 'tools', 'system', 'about' ) as $wmds_tab ) {
+	require_once dirname( __DIR__ ) . '/includes/tabs/class-wmds-tab-' . $wmds_tab . '.php';
 }
 
 /**
@@ -81,7 +89,7 @@ function wmds_run_action( $action, array $post = array() ) {
 	$_REQUEST['_wpnonce'] = 'test';
 
 	try {
-		WMDS_Admin::handle();
+		WMDS_Admin_Actions::handle();
 	} catch ( WMDS_Test_Redirect $redirect ) {
 		return $redirect->url;
 	} catch ( WMDS_Test_Died $died ) {

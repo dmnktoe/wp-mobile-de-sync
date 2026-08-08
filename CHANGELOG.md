@@ -91,6 +91,15 @@ versioning follows [Semantic Versioning](https://semver.org/).
   it without copying the detail page around it.
 
 ### Changed
+- The settings screen was one class of 1686 lines holding the menu, the
+  request handler, three AJAX endpoints, the notice store, the shared markup
+  helpers and seven tab renderers. It is twelve classes now, the largest 393
+  lines: `WMDS_Admin` routes, `WMDS_Admin_Actions` handles the request,
+  `WMDS_Admin_Ajax`, `WMDS_Admin_Notices` and `WMDS_Admin_Ui` hold what their
+  names say, and each tab is a class of its own under `includes/tabs/`.
+  Nothing about the screen changed — the hook names, the actions, the fields
+  and the markup are the same, and the 51 checks from the previous release
+  say so.
 - Four support classes now hold what six others had each grown their own
   copy of. `WMDS_Str` measures, cuts and scrubs multibyte-safely, `WMDS_Date`
   reads the shapes a date arrives in, `WMDS_Mail` turns a settings field into
