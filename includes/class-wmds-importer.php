@@ -283,6 +283,11 @@ class WMDS_Importer {
 			)
 		);
 
+		/**
+		 * @param array $stats
+		 */
+		do_action( 'wmds_run_finished', $stats );
+
 		return $stats;
 	}
 

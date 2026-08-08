@@ -63,6 +63,17 @@ versioning follows [Semantic Versioning](https://semver.org/).
   imported before this falls back to its mileage.
 - Three filters: `wmds_jsonld`, `wmds_social_meta` and `wmds_seo_output`.
 
+- Notification by e-mail when the sync needs attention. A failed or an overdue
+  run is reported once and then not again until a cooldown has passed — a sync
+  that fails every fifteen minutes should produce one mail, not ninety-six a
+  day. A *different* problem, and the recovery, are sent straight away: "it is
+  fixed" is the one message nobody wants to wait six hours for.
+- A test alert, so an installation that cannot send mail at all fails on the
+  settings screen rather than on the day it matters.
+- An optional weekly summary that goes out even when nothing is wrong, so
+  silence stays evidence rather than an assumption.
+- A `wmds_run_finished` action, fired with the statistics of a completed run.
+
 ### Changed
 - The detail page no longer carries microdata. It described the same vehicle
   a second time and less completely than the JSON-LD now does, and a price

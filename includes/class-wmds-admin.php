@@ -109,6 +109,7 @@ class WMDS_Admin {
 			'refresh'      => array( __CLASS__, 'do_refresh' ),
 			'unlock'       => array( __CLASS__, 'do_unlock' ),
 			'check-update' => array( __CLASS__, 'do_check_update' ),
+			'test-alert'   => array( __CLASS__, 'do_test_alert' ),
 		);
 
 		if ( isset( $handlers[ $action ] ) ) {
@@ -139,14 +140,15 @@ class WMDS_Admin {
 		}
 
 		$tabs = array(
-			'save'      => 'connection',
-			'test'      => 'connection',
-			'sync'      => 'status',
-			'full'      => 'status',
-			'clear-log' => 'status',
-			'flush'     => 'tools',
-			'unlock'    => 'tools',
-			'forget'    => 'connection',
+			'save'       => 'connection',
+			'test'       => 'connection',
+			'sync'       => 'status',
+			'full'       => 'status',
+			'clear-log'  => 'status',
+			'test-alert' => 'status',
+			'flush'      => 'tools',
+			'unlock'     => 'tools',
+			'forget'     => 'connection',
 		);
 
 		$tab = isset( $tabs[ $action ] ) ? $tabs[ $action ] : '';
@@ -174,6 +176,8 @@ class WMDS_Admin {
 			self::save_schedule();
 		} elseif ( 'enquiries' === $tab ) {
 			self::save_enquiries();
+		} elseif ( 'status' === $tab ) {
+			self::save_alerts();
 		} else {
 			self::save_connection();
 		}
@@ -217,6 +221,27 @@ class WMDS_Admin {
 		// phpcs:enable WordPress.Security.NonceVerification
 
 		self::resync_schedule();
+	}
+
+	private static function save_alerts() {
+		// phpcs:disable WordPress.Security.NonceVerification -- verified in handle() before this runs.
+		$was_enabled = WMDS_Alerts::enabled();
+
+		WMDS_Settings::update(
+			array(
+				'alerts_enabled'   => isset( $_POST['wmds_alerts_enabled'] ) ? 'yes' : 'no',
+				'alerts_weekly'    => isset( $_POST['wmds_alerts_weekly'] ) ? 'yes' : 'no',
+				'alerts_recipient' => sanitize_text_field( wp_unslash( $_POST['wmds_alerts_recipient'] ?? '' ) ),
+				'alerts_cooldown'  => absint( wp_unslash( $_POST['wmds_alerts_cooldown'] ?? 21600 ) ),
+			)
+		);
+		// phpcs:enable WordPress.Security.NonceVerification
+
+		if ( ! $was_enabled && WMDS_Alerts::enabled() ) {
+			WMDS_Alerts::forget();
+		}
+
+		WMDS_Alerts::schedule();
 	}
 
 	private static function save_enquiries() {
@@ -371,6 +396,16 @@ class WMDS_Admin {
 	private static function do_check_update() {
 		WMDS_Updater::flush();
 		delete_site_transient( 'update_plugins' );
+	}
+
+	private static function do_test_alert() {
+		if ( WMDS_Alerts::send_test() ) {
+			self::notice( 'success', __( 'A test alert has been sent. If it does not arrive, the problem is the site\'s mail, not the sync.', 'wp-mobile-de-sync' ) );
+
+			return;
+		}
+
+		self::notice( 'error', __( 'WordPress could not send the mail. Alerts will not arrive either until that is fixed — an SMTP plugin is the usual answer.', 'wp-mobile-de-sync' ) );
 	}
 
 	private static function do_clear_log() {
@@ -868,6 +903,92 @@ class WMDS_Admin {
 		<?php
 	}
 
+	private static function render_alerts_card() {
+		$cooldowns = array(
+			3600  => __( 'At most once an hour', 'wp-mobile-de-sync' ),
+			21600 => __( 'At most every six hours', 'wp-mobile-de-sync' ),
+			43200 => __( 'At most every twelve hours', 'wp-mobile-de-sync' ),
+			86400 => __( 'At most once a day', 'wp-mobile-de-sync' ),
+		);
+
+		self::form_open( 'status' );
+		?>
+		<div class="wmds-card">
+			<h2><?php esc_html_e( 'Tell me when something is wrong', 'wp-mobile-de-sync' ); ?></h2>
+			<p class="description">
+				<?php esc_html_e( 'A sync that stops is invisible until somebody looks at this screen. Switched on, a failed or overdue run is sent by e-mail — once, not once per run — and so is the moment it works again.', 'wp-mobile-de-sync' ); ?>
+			</p>
+
+			<table class="form-table" role="presentation">
+				<tr>
+					<th scope="row"><?php esc_html_e( 'Notifications', 'wp-mobile-de-sync' ); ?></th>
+					<td>
+						<label>
+							<input type="checkbox" name="wmds_alerts_enabled" value="yes"
+								<?php checked( WMDS_Alerts::enabled() ); ?>>
+							<?php esc_html_e( 'Send an e-mail when the sync needs attention', 'wp-mobile-de-sync' ); ?>
+						</label>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row">
+						<label for="wmds_alerts_recipient"><?php esc_html_e( 'Send to', 'wp-mobile-de-sync' ); ?></label>
+					</th>
+					<td>
+						<input name="wmds_alerts_recipient" id="wmds_alerts_recipient" type="text" class="regular-text"
+							placeholder="<?php echo esc_attr( (string) get_option( 'admin_email' ) ); ?>"
+							value="<?php echo esc_attr( (string) WMDS_Settings::get( 'alerts_recipient', '' ) ); ?>">
+						<p class="description">
+							<?php esc_html_e( 'Several addresses separated by commas. Empty means the site administrator.', 'wp-mobile-de-sync' ); ?>
+						</p>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row">
+						<label for="wmds_alerts_cooldown"><?php esc_html_e( 'How often at most', 'wp-mobile-de-sync' ); ?></label>
+					</th>
+					<td>
+						<select name="wmds_alerts_cooldown" id="wmds_alerts_cooldown">
+							<?php foreach ( $cooldowns as $seconds => $label ) : ?>
+								<option value="<?php echo esc_attr( $seconds ); ?>"
+									<?php selected( WMDS_Alerts::cooldown(), $seconds ); ?>>
+									<?php echo esc_html( $label ); ?>
+								</option>
+							<?php endforeach; ?>
+						</select>
+						<p class="description">
+							<?php esc_html_e( 'Applies to the same problem reported again. A different problem, and the recovery, are sent straight away.', 'wp-mobile-de-sync' ); ?>
+						</p>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><?php esc_html_e( 'Weekly summary', 'wp-mobile-de-sync' ); ?></th>
+					<td>
+						<label>
+							<input type="checkbox" name="wmds_alerts_weekly" value="yes"
+								<?php checked( 'yes' === WMDS_Settings::get( 'alerts_weekly', 'no' ) ); ?>>
+							<?php esc_html_e( 'Once a week, send the state of the inventory even when nothing is wrong', 'wp-mobile-de-sync' ); ?>
+						</label>
+					</td>
+				</tr>
+			</table>
+
+			<?php submit_button( __( 'Save', 'wp-mobile-de-sync' ), 'secondary' ); ?>
+		</div>
+		</form>
+
+		<?php if ( WMDS_Alerts::enabled() ) : ?>
+			<div class="wmds-card">
+				<h2><?php esc_html_e( 'Does it arrive', 'wp-mobile-de-sync' ); ?></h2>
+				<p class="description">
+					<?php esc_html_e( 'Sends the mail an alert would send right now, marked as a test. A WordPress installation that cannot send mail at all fails here rather than on the day it matters.', 'wp-mobile-de-sync' ); ?>
+				</p>
+				<?php self::action_button( 'test-alert', __( 'Send a test alert', 'wp-mobile-de-sync' ), 'secondary' ); ?>
+			</div>
+		<?php endif; ?>
+		<?php
+	}
+
 	private static function tab_enquiries() {
 		self::form_open( 'enquiries' );
 		?>
@@ -1093,6 +1214,8 @@ class WMDS_Admin {
 	private static function tab_status( array $status ) {
 		$log = get_option( WMDS_Importer::OPT_LOG, array() );
 		$log = is_array( $log ) ? $log : array();
+
+		self::render_alerts_card();
 		?>
 		<div class="wmds-card">
 			<h2><?php esc_html_e( 'Last run', 'wp-mobile-de-sync' ); ?></h2>

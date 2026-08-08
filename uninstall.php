@@ -10,9 +10,12 @@ delete_option( 'wmds_last_test' );
 delete_option( 'wmds_watermark' );
 delete_option( 'wmds_log' );
 delete_option( 'wmds_dashboard' );
+delete_option( 'wmds_last_alert' );
 
 wp_clear_scheduled_hook( 'wmds_import_event' );
 wp_clear_scheduled_hook( 'wmds_full_sync_event' );
+wp_clear_scheduled_hook( 'wmds_alert_event' );
+wp_clear_scheduled_hook( 'wmds_alert_weekly_event' );
 
 delete_transient( 'wmds_import_lock' );
 delete_transient( 'wmds_makes' );

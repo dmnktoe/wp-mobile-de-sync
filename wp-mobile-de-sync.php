@@ -56,7 +56,9 @@ WMDS_Updater::init();
 require_once WMDS_DIR . 'includes/class-wmds-requirements.php';
 require_once WMDS_DIR . 'includes/class-wmds-status.php';
 require_once WMDS_DIR . 'includes/class-wmds-adminbar.php';
+require_once WMDS_DIR . 'includes/class-wmds-alerts.php';
 add_action( 'init', array( 'WMDS_Adminbar', 'init' ) );
+WMDS_Alerts::init();
 
 if ( is_admin() ) {
 	require_once WMDS_DIR . 'includes/class-wmds-admin.php';
@@ -165,12 +167,15 @@ function wmds_activate() {
 	if ( ! wp_next_scheduled( WMDS_CRON_FULL_HOOK ) ) {
 		wp_schedule_event( time() + 300, 'daily', WMDS_CRON_FULL_HOOK );
 	}
+
+	WMDS_Alerts::schedule();
 }
 
 register_deactivation_hook( __FILE__, 'wmds_deactivate' );
 function wmds_deactivate() {
 	wp_clear_scheduled_hook( WMDS_CRON_HOOK );
 	wp_clear_scheduled_hook( WMDS_CRON_FULL_HOOK );
+	WMDS_Alerts::unschedule();
 	delete_transient( WMDS_Importer::LOCK );
 	flush_rewrite_rules();
 }
