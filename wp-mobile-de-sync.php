@@ -32,6 +32,12 @@ if ( ! defined( 'WMDS_ICONS' ) ) {
 	define( 'WMDS_ICONS', content_url( '/icons/' ) );
 }
 
+// Support classes first: everything below is allowed to use them.
+require_once WMDS_DIR . 'includes/class-wmds-str.php';
+require_once WMDS_DIR . 'includes/class-wmds-num.php';
+require_once WMDS_DIR . 'includes/class-wmds-date.php';
+require_once WMDS_DIR . 'includes/class-wmds-mail.php';
+
 require_once WMDS_DIR . 'includes/class-wmds-settings.php';
 require_once WMDS_DIR . 'includes/class-wmds-compat.php';
 require_once WMDS_DIR . 'includes/class-wmds-creole.php';

@@ -357,10 +357,6 @@ class WMDS_Vehicle {
 	 * @return string
 	 */
 	private static function month( $value ) {
-		if ( preg_match( '/^(\d{4})-(\d{2})/', (string) $value, $m ) ) {
-			return $m[2] . '.' . $m[1];
-		}
-
-		return (string) $value;
+		return WMDS_Date::month_year( $value );
 	}
 }

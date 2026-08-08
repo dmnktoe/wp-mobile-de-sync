@@ -228,7 +228,7 @@ class WMDS_Seo {
 			$schema['emissionsCO2'] = $co2;
 		}
 
-		$registered = self::date( self::text( $data, 'registered' ) );
+		$registered = WMDS_Date::iso_month( self::text( $data, 'registered' ) );
 		if ( '' !== $registered ) {
 			$schema['dateVehicleFirstRegistered'] = $registered;
 		}
@@ -377,58 +377,14 @@ class WMDS_Seo {
 	 * @return string
 	 */
 	public static function describe( WMDS_Vehicle $vehicle, $title ) {
-		$text = wp_strip_all_tags( (string) $vehicle->get( 'enriched_description' ) );
-		$text = trim( preg_replace( '/\s+/u', ' ', $text ) );
+		$text = WMDS_Str::collapse( wp_strip_all_tags( (string) $vehicle->get( 'enriched_description' ) ) );
 
 		if ( '' === $text ) {
 			$parts = array_filter( array_values( $vehicle->highlights() ) );
 			$text  = trim( $title . ( $parts ? ' — ' . implode( ', ', $parts ) : '' ) );
 		}
 
-		return self::shorten( $text, self::MAX_DESCRIPTION );
-	}
-
-	/**
-	 * @param string $text
-	 * @param int    $limit
-	 * @return string
-	 */
-	public static function shorten( $text, $limit ) {
-		$text  = trim( (string) $text );
-		$count = function_exists( 'mb_strlen' ) ? mb_strlen( $text ) : strlen( $text );
-
-		if ( $count <= $limit ) {
-			return $text;
-		}
-
-		$cut  = function_exists( 'mb_substr' ) ? mb_substr( $text, 0, $limit ) : substr( $text, 0, $limit );
-		$stop = strrpos( $cut, ' ' );
-
-		if ( false !== $stop && $stop > $limit / 2 ) {
-			$cut = substr( $cut, 0, $stop );
-		}
-
-		return rtrim( $cut, " \t\n\r,;:-" ) . '…';
-	}
-
-	/**
-	 * @param string $value
-	 * @return string An ISO date, empty when there is none to be had.
-	 */
-	public static function date( $value ) {
-		$value = trim( (string) $value );
-
-		if ( preg_match( '/^(\d{4})-(\d{2})-(\d{2})$/', $value ) ) {
-			return $value;
-		}
-		if ( preg_match( '/^(\d{4})-(\d{2})$/', $value, $m ) ) {
-			return $m[1] . '-' . $m[2] . '-01';
-		}
-		if ( preg_match( '/^(\d{2})\.(\d{4})$/', $value, $m ) ) {
-			return $m[2] . '-' . $m[1] . '-01';
-		}
-
-		return '';
+		return WMDS_Str::shorten( $text, self::MAX_DESCRIPTION );
 	}
 
 	/**
@@ -464,17 +420,7 @@ class WMDS_Seo {
 	 * @return float|int|null
 	 */
 	private static function number( array $data, $key ) {
-		$value = self::text( $data, $key );
-		$value = str_replace( array( ' ', ',' ), array( '', '.' ), $value );
-
-		if ( '' === $value || ! is_numeric( $value ) ) {
-			return null;
-		}
-
-		$float = (float) $value;
-		$whole = (float) (int) $value;
-
-		return ( $whole === $float ) ? (int) $value : $float;
+		return WMDS_Num::from_feed( self::text( $data, $key ) );
 	}
 
 	/**

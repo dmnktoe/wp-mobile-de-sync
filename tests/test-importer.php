@@ -5,6 +5,9 @@ define( 'WMDS_CPT', 'fahrzeuge' );
 define( 'WMDS_CRON_HOOK', 'wmds_import_event' );
 
 require_once __DIR__ . '/bootstrap.php';
+require_once dirname( __DIR__ ) . '/includes/class-wmds-str.php';
+require_once dirname( __DIR__ ) . '/includes/class-wmds-num.php';
+require_once dirname( __DIR__ ) . '/includes/class-wmds-date.php';
 require_once dirname( __DIR__ ) . '/includes/class-wmds-client.php';
 require_once dirname( __DIR__ ) . '/includes/class-wmds-creole.php';
 require_once dirname( __DIR__ ) . '/includes/class-wmds-refdata.php';

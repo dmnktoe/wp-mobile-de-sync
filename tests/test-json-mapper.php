@@ -1,6 +1,9 @@
 <?php
 
 require_once __DIR__ . '/bootstrap.php';
+require_once __DIR__ . '/../includes/class-wmds-str.php';
+require_once __DIR__ . '/../includes/class-wmds-num.php';
+require_once __DIR__ . '/../includes/class-wmds-date.php';
 require_once __DIR__ . '/../includes/class-wmds-creole.php';
 require_once __DIR__ . '/../includes/class-wmds-refdata.php';
 require_once __DIR__ . '/../includes/class-wmds-json-mapper.php';

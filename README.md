@@ -290,6 +290,26 @@ composer lint            phpcs (WordPress standards + PHP compatibility)
 php bin/po2mo.php ...    rebuild a translation catalogue after editing a .po
 ```
 
+### Support classes
+
+Four classes hold what the feature classes would otherwise each grow their
+own copy of. They take no WordPress state and are tested on their own in
+`tests/test-support.php`.
+
+| Class | For |
+|---|---|
+| `WMDS_Str` | measuring, cutting and scrubbing text, multibyte-safe |
+| `WMDS_Num` | reading a number — see below |
+| `WMDS_Date` | the shapes a date arrives in, and the two it leaves in |
+| `WMDS_Mail` | a settings field into a recipient list, and sending |
+
+`WMDS_Num` deliberately offers no general "parse a number". A person typing
+`12.500` into a price filter means twelve and a half thousand; the API
+sending `12.500` means twelve and a half. Reading either with the other's
+rule is wrong by a factor of a thousand, so the two are named for what they
+read — `from_input()` and `from_feed()` — and there is no third function that
+would let a caller avoid the question.
+
 ### Releasing
 
 `sh bin/bump.sh <version>`, write the entry in `CHANGELOG.md` and `readme.txt`,
