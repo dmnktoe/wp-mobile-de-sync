@@ -1655,3 +1655,235 @@ msgstr "Filter zurücksetzen"
 #: templates/parts/vehicle-card.php:27
 msgid "Available now"
 msgstr "Sofort verfügbar"
+
+#: includes/class-wmds-admin.php:559 includes/class-wmds-leads.php:142
+msgid "Enquiries"
+msgstr "Anfragen"
+
+#: includes/class-wmds-admin.php:875
+msgid "The form on a vehicle page"
+msgstr "Das Formular auf der Fahrzeugseite"
+
+#: includes/class-wmds-admin.php:877
+msgid "A visitor can send an enquiry straight from the detail page. It reaches you by e-mail with the vehicle it is about, and is filed under Vehicles → Enquiries so nothing is lost when the mail is not delivered."
+msgstr "Besucher können direkt von der Detailseite aus anfragen. Die Anfrage kommt per E-Mail bei Ihnen an, samt Fahrzeug, um das es geht, und wird zusätzlich unter Fahrzeuge → Anfragen abgelegt – so geht nichts verloren, falls die E-Mail nicht ankommt."
+
+#: includes/class-wmds-admin.php:882
+msgid "Enquiry form"
+msgstr "Anfrageformular"
+
+#: includes/class-wmds-admin.php:887
+msgid "Show it on every vehicle page"
+msgstr "Auf jeder Fahrzeugseite anzeigen"
+
+#: includes/class-wmds-admin.php:893
+msgid "Switched off, the form appears only where %s is placed."
+msgstr "Ausgeschaltet erscheint das Formular nur dort, wo %s steht."
+
+#: includes/class-wmds-admin.php:902
+msgid "Send to"
+msgstr "Senden an"
+
+#: includes/class-wmds-admin.php:909
+msgid "Several addresses separated by commas. Empty means the site administrator."
+msgstr "Mehrere Adressen durch Komma getrennt. Leer bedeutet: an die Administration der Website."
+
+#: includes/class-wmds-admin.php:914
+msgid "Also to the seller"
+msgstr "Auch an den Verkäufer"
+
+#: includes/class-wmds-admin.php:919
+msgid "Copy the address the feed carries for that vehicle"
+msgstr "Kopie an die Adresse, die im Feed zu diesem Fahrzeug hinterlegt ist"
+
+#: includes/class-wmds-admin.php:924
+msgid "Confirmation"
+msgstr "Eingangsbestätigung"
+
+#: includes/class-wmds-admin.php:929
+msgid "Send the enquirer a copy of what they wrote"
+msgstr "Anfragenden eine Kopie ihrer Nachricht schicken"
+
+#: includes/class-wmds-admin.php:934
+msgid "Keep a record"
+msgstr "Aufzeichnung"
+
+#: includes/class-wmds-admin.php:939
+msgid "File every enquiry in the database"
+msgstr "Jede Anfrage in der Datenbank ablegen"
+
+#: includes/class-wmds-admin.php:942
+msgid "Without this an enquiry exists only as the e-mail it was sent as. If that e-mail fails, it is gone."
+msgstr "Ohne dies existiert eine Anfrage nur als die E-Mail, als die sie verschickt wurde. Scheitert die Zustellung, ist sie verloren."
+
+#: includes/class-wmds-admin.php:948
+msgid "Privacy notice"
+msgstr "Datenschutzhinweis"
+
+#: includes/class-wmds-admin.php:953
+msgid "Shown next to a checkbox the visitor has to tick. Leave empty to ask for no consent. A link is allowed."
+msgstr "Erscheint neben einer Checkbox, die angehakt werden muss. Leer lassen, um keine Einwilligung zu verlangen. Ein Link ist erlaubt."
+
+#: includes/class-wmds-admin.php:964
+msgid "What has come in"
+msgstr "Was eingegangen ist"
+
+#: includes/class-wmds-admin.php:967
+msgid "Open the enquiries"
+msgstr "Anfragen öffnen"
+
+#: includes/class-wmds-leads.php:52
+msgid "Contact"
+msgstr "Kontakt"
+
+#: includes/class-wmds-leads.php:54
+msgid "Received"
+msgstr "Eingegangen"
+
+#: includes/class-wmds-leads.php:98
+msgid "The enquiry"
+msgstr "Die Anfrage"
+
+#: includes/class-wmds-leads.php:111 templates/parts/enquiry-form.php:50
+msgid "Name"
+msgstr "Name"
+
+#: includes/class-wmds-leads.php:112 templates/parts/enquiry-form.php:62
+msgid "E-mail"
+msgstr "E-Mail"
+
+#: includes/class-wmds-leads.php:113 templates/parts/enquiry-form.php:73
+msgid "Phone"
+msgstr "Telefon"
+
+#: includes/class-wmds-leads.php:116
+msgid "Consent"
+msgstr "Einwilligung"
+
+#: includes/class-wmds-leads.php:117
+msgid "From"
+msgstr "Von"
+
+#: includes/class-wmds-leads.php:147
+msgid "Search enquiries"
+msgstr "Anfragen durchsuchen"
+
+#: includes/class-wmds-leads.php:148
+msgid "No enquiries yet"
+msgstr "Noch keine Anfragen"
+
+#: includes/class-wmds-leads.php:219
+msgid "Please tell us your name."
+msgstr "Bitte nennen Sie uns Ihren Namen."
+
+#: includes/class-wmds-leads.php:221
+msgid "That name is too long."
+msgstr "Dieser Name ist zu lang."
+
+#: includes/class-wmds-leads.php:226
+msgid "Please give us an e-mail address to answer to."
+msgstr "Bitte geben Sie eine E-Mail-Adresse an, an die wir antworten können."
+
+#: includes/class-wmds-leads.php:228
+msgid "That does not look like an e-mail address."
+msgstr "Das sieht nicht nach einer E-Mail-Adresse aus."
+
+#: includes/class-wmds-leads.php:233
+msgid "That does not look like a phone number."
+msgstr "Das sieht nicht nach einer Telefonnummer aus."
+
+#: includes/class-wmds-leads.php:238
+msgid "Please tell us what you would like to know."
+msgstr "Bitte schreiben Sie uns, was Sie wissen möchten."
+
+#: includes/class-wmds-leads.php:240
+msgid "A few more words, please."
+msgstr "Ein paar Worte mehr, bitte."
+
+#: includes/class-wmds-leads.php:242
+msgid "That message is too long."
+msgstr "Diese Nachricht ist zu lang."
+
+#: includes/class-wmds-leads.php:246
+msgid "Please agree to the privacy notice."
+msgstr "Bitte stimmen Sie dem Datenschutzhinweis zu."
+
+#: includes/class-wmds-leads.php:292
+msgid "[%1$s] Enquiry: %2$s"
+msgstr "[%1$s] Anfrage: %2$s"
+
+#: includes/class-wmds-leads.php:294
+msgid "[%s] Enquiry"
+msgstr "[%s] Anfrage"
+
+#: includes/class-wmds-leads.php:341
+msgid "[%s] We have your enquiry"
+msgstr "[%s] Ihre Anfrage ist angekommen"
+
+#: includes/class-wmds-leads.php:346
+msgid "Hello %s,"
+msgstr "Hallo %s,"
+
+#: includes/class-wmds-leads.php:351
+msgid "thank you for your enquiry about the %s. We will get back to you."
+msgstr "vielen Dank für Ihre Anfrage zum %s. Wir melden uns bei Ihnen."
+
+#: includes/class-wmds-leads.php:352
+msgid "thank you for your enquiry. We will get back to you."
+msgstr "vielen Dank für Ihre Anfrage. Wir melden uns bei Ihnen."
+
+#: includes/class-wmds-leads.php:360
+msgid "This is what you sent us:"
+msgstr "Das haben Sie uns geschickt:"
+
+#: includes/class-wmds-leads.php:379
+msgid "The form has expired. Please send it again."
+msgstr "Das Formular ist abgelaufen. Bitte senden Sie es erneut ab."
+
+#: includes/class-wmds-leads.php:383
+msgid "Enquiries are switched off."
+msgstr "Anfragen sind ausgeschaltet."
+
+#: includes/class-wmds-leads.php:387
+msgid "That was too quick to be real. Please try again."
+msgstr "Das ging zu schnell, um echt zu sein. Bitte versuchen Sie es noch einmal."
+
+#: includes/class-wmds-leads.php:393
+msgid "Several enquiries have already been sent from here. Please try again later."
+msgstr "Von hier wurden bereits mehrere Anfragen gesendet. Bitte versuchen Sie es später erneut."
+
+#: includes/class-wmds-leads.php:413
+msgid "The enquiry could not be sent. Please call us instead."
+msgstr "Die Anfrage konnte nicht gesendet werden. Bitte rufen Sie uns stattdessen an."
+
+#: includes/class-wmds-leads.php:458
+msgid "%1$s about %2$s"
+msgstr "%1$s zu %2$s"
+
+#: templates/parts/enquiry-form.php:12
+msgid "Enquire about this vehicle"
+msgstr "Zu diesem Fahrzeug anfragen"
+
+#: templates/parts/enquiry-form.php:28
+msgid "Thank you — your enquiry is on its way. We will get back to you."
+msgstr "Vielen Dank – Ihre Anfrage ist unterwegs. Wir melden uns bei Ihnen."
+
+#: templates/parts/enquiry-form.php:43
+msgid "Leave this field empty"
+msgstr "Dieses Feld leer lassen"
+
+#: templates/parts/enquiry-form.php:85
+msgid "Your message"
+msgstr "Ihre Nachricht"
+
+#: templates/parts/enquiry-form.php:88
+msgid "When could I come and see it?"
+msgstr "Wann könnte ich es mir ansehen?"
+
+#: templates/parts/enquiry-form.php:110
+msgid "Send the enquiry"
+msgstr "Anfrage senden"
+
+#: templates/parts/enquiry-form.php:112
+msgid "Fields marked * are required."
+msgstr "Mit * markierte Felder sind Pflichtfelder."

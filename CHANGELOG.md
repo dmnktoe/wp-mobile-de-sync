@@ -29,6 +29,24 @@ versioning follows [Semantic Versioning](https://semver.org/).
 - Two filters for themes: `wmds_facets` to add, remove or reorder the
   components, `wmds_facet_sorts` for the sort orders.
 
+- An enquiry form on the vehicle page. It reaches the dealer by e-mail with
+  the vehicle it is about — title, listing number, price and a link back —
+  and answers to the enquirer rather than to the site. Optionally it also
+  copies the address the feed carries for that vehicle, and sends the
+  enquirer a confirmation of what they wrote.
+- Every enquiry is filed under **Vehicles → Enquiries** as well, so one that
+  fails to be delivered is not simply gone. What was asked, by whom, about
+  which vehicle and under which privacy notice is on the record.
+- Three guards a person never notices: a honeypot field, a form that was
+  submitted faster than anyone could type it, and a limit of five enquiries
+  per visitor per hour. A submission that fails validation comes back with
+  what was typed still in the fields.
+- A **Enquiries** tab with the recipients, the copy to the seller, the
+  confirmation, whether to keep a record, and the privacy notice the visitor
+  has to agree to.
+- `[vehicle-enquiry]` puts the form anywhere else; a filter
+  `wmds_enquiry_recipients` has the last word on where an enquiry goes.
+
 ### Changed
 - The bundled templates were reworked. Colour, spacing and radii come from
   custom properties on `.wmds-scope`, which a theme can override in one place
@@ -40,6 +58,13 @@ versioning follows [Semantic Versioning](https://semver.org/).
   still a plain link to the full image when JavaScript is off.
 - The gallery moved into `parts/vehicle-gallery.php`, so a theme can restyle
   it without copying the detail page around it.
+
+### Fixed
+- Saving one settings tab emptied the settings the other tabs own. Each tab is
+  a form of its own and posts only its own fields, but the handler read every
+  setting out of whatever was submitted — so saving the schedule cleared the
+  username and the seller ID, and saving the connection reset the interval to
+  fifteen minutes. Each tab saves its own fields now.
 
 ## [2.1.1] – 2026-07-31
 

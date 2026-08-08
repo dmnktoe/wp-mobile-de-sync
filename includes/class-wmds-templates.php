@@ -18,7 +18,7 @@ class WMDS_Templates {
 	 *
 	 * @var string[]
 	 */
-	private static $styled_tags = array( 'vehicle-filter', 'fahrzeug-filter', 'vehicle-count' );
+	private static $styled_tags = array( 'vehicle-filter', 'fahrzeug-filter', 'vehicle-count', 'vehicle-enquiry', 'fahrzeug-anfrage' );
 
 	public static function init() {
 		add_filter( 'template_include', array( __CLASS__, 'template_include' ) );
