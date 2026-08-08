@@ -36,7 +36,8 @@ The vehicle list shows photo, make and model, price, mileage, first
 registration and the ad ID, sorts by price, mileage and first registration, and
 filters by make. Each row can be reloaded from mobile.de or opened there.
 
-The settings screen is split into Connection, Schedule, Status & log and Tools.
+The settings screen is split into Connection, Schedule, Enquiries, Status & log
+and Tools.
 "Test connection" and "Sync now" run without a page reload, the sync showing
 real progress as it works through the inventory in batches.
 
@@ -127,9 +128,19 @@ than a translation of the English source.
   on `[vehicles]`.
 * The filters live in the URL and work without JavaScript, so a filtered list
   can be linked, bookmarked and paginated.
+* New: an enquiry form on the vehicle page. It reaches the dealer by e-mail
+  with the vehicle it is about and answers to the enquirer, and every enquiry
+  is filed under Vehicles → Enquiries so a mail that fails is not simply gone.
+  Honeypot, time trap and a per-visitor limit keep the robots out.
+* New: an "Enquiries" settings tab — recipients, copy to the seller,
+  confirmation to the enquirer, and the privacy notice to agree to.
+* New: `[vehicle-enquiry]` puts the form anywhere else.
 * Changed: the bundled templates were reworked — themeable custom properties,
   a dark variant, badges on the cards, a sticky summary and a gallery that
   swaps the main image in place.
+* Fixed: saving one settings tab emptied the settings the other tabs own —
+  saving the schedule cleared the credentials, saving the connection reset the
+  interval.
 
 = 2.1.1 =
 * Fixed: the German translation never applied. The compiled catalogue was

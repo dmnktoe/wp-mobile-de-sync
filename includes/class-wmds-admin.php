@@ -161,14 +161,32 @@ class WMDS_Admin {
 		return WMDS_Status::settings_url( $tab );
 	}
 
+	/**
+	 * Saves the tab that was submitted, and only that one.
+	 *
+	 * Each tab is a form of its own and posts its own fields. Reading every
+	 * setting out of one submission emptied the ones the other tabs own.
+	 */
 	private static function do_save() {
+		$tab = isset( $_REQUEST['wmds_tab'] ) ? sanitize_key( wp_unslash( $_REQUEST['wmds_tab'] ) ) : 'connection'; // phpcs:ignore WordPress.Security.NonceVerification -- verified in handle() before this runs.
+
+		if ( 'schedule' === $tab ) {
+			self::save_schedule();
+		} elseif ( 'enquiries' === $tab ) {
+			self::save_enquiries();
+		} else {
+			self::save_connection();
+		}
+
+		self::notice( 'success', __( 'Settings saved.', 'wp-mobile-de-sync' ) );
+	}
+
+	private static function save_connection() {
 		// phpcs:disable WordPress.Security.NonceVerification -- verified in handle() before this runs.
 		$mode = isset( $_POST['wmds_seller_mode'] ) ? sanitize_key( wp_unslash( $_POST['wmds_seller_mode'] ) ) : 'id';
 
 		$values = array(
 			'username' => sanitize_text_field( wp_unslash( $_POST['wmds_username'] ?? '' ) ),
-			'language' => sanitize_key( wp_unslash( $_POST['wmds_language'] ?? '' ) ),
-			'interval' => sanitize_key( wp_unslash( $_POST['wmds_interval'] ?? 'wmds_15min' ) ),
 		);
 
 		if ( 'dealer' === $mode ) {
@@ -186,9 +204,34 @@ class WMDS_Admin {
 		// phpcs:enable WordPress.Security.NonceVerification
 
 		WMDS_Settings::update( $values );
-		self::resync_schedule();
+	}
 
-		self::notice( 'success', __( 'Settings saved.', 'wp-mobile-de-sync' ) );
+	private static function save_schedule() {
+		// phpcs:disable WordPress.Security.NonceVerification -- verified in handle() before this runs.
+		WMDS_Settings::update(
+			array(
+				'language' => sanitize_key( wp_unslash( $_POST['wmds_language'] ?? '' ) ),
+				'interval' => sanitize_key( wp_unslash( $_POST['wmds_interval'] ?? 'wmds_15min' ) ),
+			)
+		);
+		// phpcs:enable WordPress.Security.NonceVerification
+
+		self::resync_schedule();
+	}
+
+	private static function save_enquiries() {
+		// phpcs:disable WordPress.Security.NonceVerification -- verified in handle() before this runs.
+		WMDS_Settings::update(
+			array(
+				'enquiry_enabled'     => isset( $_POST['wmds_enquiry_enabled'] ) ? 'yes' : 'no',
+				'enquiry_copy_seller' => isset( $_POST['wmds_enquiry_copy_seller'] ) ? 'yes' : 'no',
+				'enquiry_autoreply'   => isset( $_POST['wmds_enquiry_autoreply'] ) ? 'yes' : 'no',
+				'enquiry_store'       => isset( $_POST['wmds_enquiry_store'] ) ? 'yes' : 'no',
+				'enquiry_recipient'   => sanitize_text_field( wp_unslash( $_POST['wmds_enquiry_recipient'] ?? '' ) ),
+				'enquiry_consent'     => wp_kses_post( wp_unslash( $_POST['wmds_enquiry_consent'] ?? '' ) ), // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- wp_kses_post is the sanitiser; a link is allowed here on purpose.
+			)
+		);
+		// phpcs:enable WordPress.Security.NonceVerification
 	}
 
 	private static function do_forget() {
@@ -513,6 +556,7 @@ class WMDS_Admin {
 		return array(
 			'connection' => __( 'Connection', 'wp-mobile-de-sync' ),
 			'schedule'   => __( 'Schedule', 'wp-mobile-de-sync' ),
+			'enquiries'  => __( 'Enquiries', 'wp-mobile-de-sync' ),
 			'status'     => __( 'Status & log', 'wp-mobile-de-sync' ),
 			'tools'      => __( 'Tools', 'wp-mobile-de-sync' ),
 			'system'     => __( 'System', 'wp-mobile-de-sync' ),
@@ -551,6 +595,8 @@ class WMDS_Admin {
 				<?php
 				if ( 'schedule' === $tab ) {
 					self::tab_schedule( $status );
+				} elseif ( 'enquiries' === $tab ) {
+					self::tab_enquiries();
 				} elseif ( 'status' === $tab ) {
 					self::tab_status( $status );
 				} elseif ( 'tools' === $tab ) {
@@ -819,6 +865,109 @@ class WMDS_Admin {
 				?>
 			</div>
 		<?php endif; ?>
+		<?php
+	}
+
+	private static function tab_enquiries() {
+		self::form_open( 'enquiries' );
+		?>
+		<div class="wmds-card">
+			<h2><?php esc_html_e( 'The form on a vehicle page', 'wp-mobile-de-sync' ); ?></h2>
+			<p class="description">
+				<?php esc_html_e( 'A visitor can send an enquiry straight from the detail page. It reaches you by e-mail with the vehicle it is about, and is filed under Vehicles → Enquiries so nothing is lost when the mail is not delivered.', 'wp-mobile-de-sync' ); ?>
+			</p>
+
+			<table class="form-table" role="presentation">
+				<tr>
+					<th scope="row"><?php esc_html_e( 'Enquiry form', 'wp-mobile-de-sync' ); ?></th>
+					<td>
+						<label>
+							<input type="checkbox" name="wmds_enquiry_enabled" value="yes"
+								<?php checked( 'no' !== WMDS_Settings::get( 'enquiry_enabled', 'yes' ) ); ?>>
+							<?php esc_html_e( 'Show it on every vehicle page', 'wp-mobile-de-sync' ); ?>
+						</label>
+						<p class="description">
+							<?php
+							printf(
+								/* translators: %s: the shortcode, already marked up. */
+								esc_html__( 'Switched off, the form appears only where %s is placed.', 'wp-mobile-de-sync' ),
+								'<code>[vehicle-enquiry]</code>'
+							);
+							?>
+						</p>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row">
+						<label for="wmds_enquiry_recipient"><?php esc_html_e( 'Send to', 'wp-mobile-de-sync' ); ?></label>
+					</th>
+					<td>
+						<input name="wmds_enquiry_recipient" id="wmds_enquiry_recipient" type="text" class="regular-text"
+							placeholder="<?php echo esc_attr( (string) get_option( 'admin_email' ) ); ?>"
+							value="<?php echo esc_attr( (string) WMDS_Settings::get( 'enquiry_recipient', '' ) ); ?>">
+						<p class="description">
+							<?php esc_html_e( 'Several addresses separated by commas. Empty means the site administrator.', 'wp-mobile-de-sync' ); ?>
+						</p>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><?php esc_html_e( 'Also to the seller', 'wp-mobile-de-sync' ); ?></th>
+					<td>
+						<label>
+							<input type="checkbox" name="wmds_enquiry_copy_seller" value="yes"
+								<?php checked( 'yes' === WMDS_Settings::get( 'enquiry_copy_seller', 'no' ) ); ?>>
+							<?php esc_html_e( 'Copy the address the feed carries for that vehicle', 'wp-mobile-de-sync' ); ?>
+						</label>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><?php esc_html_e( 'Confirmation', 'wp-mobile-de-sync' ); ?></th>
+					<td>
+						<label>
+							<input type="checkbox" name="wmds_enquiry_autoreply" value="yes"
+								<?php checked( 'yes' === WMDS_Settings::get( 'enquiry_autoreply', 'no' ) ); ?>>
+							<?php esc_html_e( 'Send the enquirer a copy of what they wrote', 'wp-mobile-de-sync' ); ?>
+						</label>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><?php esc_html_e( 'Keep a record', 'wp-mobile-de-sync' ); ?></th>
+					<td>
+						<label>
+							<input type="checkbox" name="wmds_enquiry_store" value="yes"
+								<?php checked( 'no' !== WMDS_Settings::get( 'enquiry_store', 'yes' ) ); ?>>
+							<?php esc_html_e( 'File every enquiry in the database', 'wp-mobile-de-sync' ); ?>
+						</label>
+						<p class="description">
+							<?php esc_html_e( 'Without this an enquiry exists only as the e-mail it was sent as. If that e-mail fails, it is gone.', 'wp-mobile-de-sync' ); ?>
+						</p>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row">
+						<label for="wmds_enquiry_consent"><?php esc_html_e( 'Privacy notice', 'wp-mobile-de-sync' ); ?></label>
+					</th>
+					<td>
+						<textarea name="wmds_enquiry_consent" id="wmds_enquiry_consent" rows="3" class="large-text"><?php echo esc_textarea( (string) WMDS_Settings::get( 'enquiry_consent', '' ) ); ?></textarea>
+						<p class="description">
+							<?php esc_html_e( 'Shown next to a checkbox the visitor has to tick. Leave empty to ask for no consent. A link is allowed.', 'wp-mobile-de-sync' ); ?>
+						</p>
+					</td>
+				</tr>
+			</table>
+		</div>
+
+		<?php submit_button( __( 'Save', 'wp-mobile-de-sync' ) ); ?>
+		</form>
+
+		<div class="wmds-card">
+			<h2><?php esc_html_e( 'What has come in', 'wp-mobile-de-sync' ); ?></h2>
+			<p>
+				<a class="button" href="<?php echo esc_url( admin_url( 'edit.php?post_type=' . WMDS_Leads::CPT ) ); ?>">
+					<?php esc_html_e( 'Open the enquiries', 'wp-mobile-de-sync' ); ?>
+				</a>
+			</p>
+		</div>
 		<?php
 	}
 

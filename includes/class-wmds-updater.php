@@ -161,7 +161,7 @@ class WMDS_Updater {
 			'download_link' => $release['package'],
 			'icons'         => self::icons(),
 			'sections'      => array(
-				'description' => wpautop( esc_html__( 'Synchronises a dealer\'s vehicle inventory from the mobile.de Search API into a "fahrzeuge" custom post type. Works with FacetWP and with existing theme templates.', 'wp-mobile-de-sync' ) ),
+				'description' => wpautop( esc_html__( 'Synchronises a dealer\'s vehicle inventory from the mobile.de Search API into a "fahrzeuge" custom post type. Brings its own filters, templates and shortcodes, and works with existing theme templates.', 'wp-mobile-de-sync' ) ),
 				'changelog'   => $release['changelog'],
 			),
 		);

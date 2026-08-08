@@ -108,6 +108,12 @@ while ( have_posts() ) :
 		</aside>
 	</div>
 
+	<?php
+	if ( WMDS_Leads::enabled() ) {
+		WMDS_Templates::render( 'parts/enquiry-form.php', array( 'vehicle_id' => get_the_ID() ) );
+	}
+	?>
+
 	<?php if ( $vehicle->get( 'enriched_description' ) ) : ?>
 		<section class="wmds-description" itemprop="description">
 			<h2><?php esc_html_e( 'Description', 'wp-mobile-de-sync' ); ?></h2>

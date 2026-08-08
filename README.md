@@ -108,13 +108,43 @@ The **edit form** says outright that the importer owns the record, and a meta
 box shows the ad ID, the modification date, the number of imported photos and a
 button that re-reads this one vehicle.
 
-The **settings screen** is split into Connection, Schedule, Status & log and
-Tools, with the status card above the tabs. Every action goes through
+The **settings screen** is split into Connection, Schedule, Enquiries,
+Status & log, Tools, System and About, with the status card above the tabs.
+Each tab is a form of its own and saves only what it owns. Every action goes through
 `admin-post.php` and leaves through a redirect, so a reload never repeats it.
 “Test connection” and “Sync now” run over AJAX; the sync drives one batch per
 request and shows real progress instead of a spinner over a request that may
 time out. The log can be filtered down to problems, downloaded and cleared, and
 a full sync can be forced without waiting for the daily reconciliation.
+
+## Enquiries
+
+Every vehicle page carries a form. A submitted enquiry goes out as e-mail with
+the vehicle it is about — title, listing number, price and a link back — and
+its `Reply-To` is the enquirer, so hitting reply answers the person rather
+than the website.
+
+It is **also filed** under **Vehicles → Enquiries**. Mail is the part of this
+that fails: a wrong SMTP setting, a full mailbox, a spam filter. An enquiry
+that only ever existed as an e-mail is gone when that e-mail is. One that was
+written down is not.
+
+**Vehicles → Sync Settings → Enquiries** sets who receives them (several
+addresses allowed), whether the address the feed carries for that vehicle gets
+a copy, whether the enquirer gets a confirmation of what they wrote, whether a
+record is kept at all, and the privacy notice the visitor has to agree to —
+the checkbox appears only when that notice is filled in.
+
+Three guards keep the robots out, none of which a person notices: a honeypot
+field, a form submitted faster than anyone could type it, and a limit of five
+enquiries per visitor per hour. A submission that fails validation comes back
+with what was typed still in the fields and the error next to the one that is
+wrong.
+
+    [vehicle-enquiry]
+    [vehicle-enquiry vehicle="123" heading="Ask us about this car"]
+
+`wmds_enquiry_recipients` has the last word on where an enquiry goes.
 
 ## Scheduling
 
@@ -284,6 +314,7 @@ Every template is resolved through the same hierarchy, first match wins:
 | `parts/vehicle-card.php` | one card, used by the last two |
 | `parts/vehicle-gallery.php` | the photos on the detail page |
 | `parts/filter-bar.php` | the filter components |
+| `parts/enquiry-form.php` | the enquiry form |
 
 The card is a part of its own, so a theme can restyle the grid item without
 copying the loop around it. It reads `$args['heading']` (`h2` to `h4`) and
@@ -301,6 +332,7 @@ well when it runs, which covers widgets and page builders.
 | `wmds_template` | point a template at a different file |
 | `wmds_facets` | add, remove or reorder the filter components |
 | `wmds_facet_sorts` | change the sort orders on offer |
+| `wmds_enquiry_recipients` | decide where an enquiry is sent |
 
 Colour, spacing and radii are custom properties on `.wmds-scope`, so a theme
 can restyle the whole thing in one rule rather than selector by selector:
