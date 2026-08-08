@@ -32,53 +32,23 @@ if ( ! defined( 'WMDS_ICONS' ) ) {
 	define( 'WMDS_ICONS', content_url( '/icons/' ) );
 }
 
-// Support classes first: everything below is allowed to use them.
-require_once WMDS_DIR . 'includes/class-wmds-str.php';
-require_once WMDS_DIR . 'includes/class-wmds-num.php';
-require_once WMDS_DIR . 'includes/class-wmds-date.php';
-require_once WMDS_DIR . 'includes/class-wmds-mail.php';
+require_once WMDS_DIR . 'includes/class-wmds-autoloader.php';
+WMDS_Autoloader::register();
 
-require_once WMDS_DIR . 'includes/class-wmds-settings.php';
+// Not autoloadable: functions rather than a class, and two files that
+// register a shortcode when they load. See the autoloader for why.
 require_once WMDS_DIR . 'includes/class-wmds-compat.php';
-require_once WMDS_DIR . 'includes/class-wmds-creole.php';
-require_once WMDS_DIR . 'includes/class-wmds-refdata.php';
-require_once WMDS_DIR . 'includes/class-wmds-client.php';
-require_once WMDS_DIR . 'includes/class-wmds-json-mapper.php';
-require_once WMDS_DIR . 'includes/class-wmds-sync-plan.php';
-require_once WMDS_DIR . 'includes/class-wmds-importer.php';
 require_once WMDS_DIR . 'includes/class-wmds-logos.php';
 require_once WMDS_DIR . 'includes/class-wmds-stickers.php';
-require_once WMDS_DIR . 'includes/class-wmds-vehicle.php';
-require_once WMDS_DIR . 'includes/class-wmds-templates.php';
-require_once WMDS_DIR . 'includes/class-wmds-facets.php';
-require_once WMDS_DIR . 'includes/class-wmds-leads.php';
-require_once WMDS_DIR . 'includes/class-wmds-seo.php';
 
-require_once WMDS_DIR . 'includes/class-wmds-updater.php';
 WMDS_Updater::init();
 
-// The status and the admin bar are needed on the front end too, where the
-// admin screens are not loaded.
-require_once WMDS_DIR . 'includes/class-wmds-requirements.php';
-require_once WMDS_DIR . 'includes/class-wmds-status.php';
-require_once WMDS_DIR . 'includes/class-wmds-adminbar.php';
-require_once WMDS_DIR . 'includes/class-wmds-alerts.php';
+// The admin bar reads the status on the front end too, where the admin
+// screens are never loaded.
 add_action( 'init', array( 'WMDS_Adminbar', 'init' ) );
 WMDS_Alerts::init();
 
 if ( is_admin() ) {
-	require_once WMDS_DIR . 'includes/class-wmds-admin-notices.php';
-	require_once WMDS_DIR . 'includes/class-wmds-admin-ui.php';
-	require_once WMDS_DIR . 'includes/class-wmds-admin-actions.php';
-	require_once WMDS_DIR . 'includes/class-wmds-admin-ajax.php';
-	require_once WMDS_DIR . 'includes/class-wmds-admin.php';
-	require_once WMDS_DIR . 'includes/class-wmds-dashboard.php';
-	require_once WMDS_DIR . 'includes/class-wmds-posts.php';
-
-	foreach ( array( 'connection', 'schedule', 'enquiries', 'status', 'tools', 'system', 'about' ) as $wmds_tab ) {
-		require_once WMDS_DIR . 'includes/tabs/class-wmds-tab-' . $wmds_tab . '.php';
-	}
-
 	add_action( 'plugins_loaded', array( 'WMDS_Admin', 'init' ) );
 	add_action( 'plugins_loaded', array( 'WMDS_Dashboard', 'init' ) );
 	add_action( 'plugins_loaded', array( 'WMDS_Posts', 'init' ) );

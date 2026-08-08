@@ -14,7 +14,6 @@ function add_shortcode_stub() {
 require_once __DIR__ . '/../includes/class-wmds-str.php';
 require_once __DIR__ . '/../includes/class-wmds-num.php';
 require_once __DIR__ . '/../includes/class-wmds-date.php';
-require_once __DIR__ . '/../includes/class-wmds-str.php';
 require_once __DIR__ . '/../includes/class-wmds-mail.php';
 require_once __DIR__ . '/../includes/class-wmds-leads.php';
 

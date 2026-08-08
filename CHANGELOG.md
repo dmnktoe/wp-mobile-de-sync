@@ -91,6 +91,21 @@ versioning follows [Semantic Versioning](https://semver.org/).
   it without copying the detail page around it.
 
 ### Changed
+- Classes load themselves. `WMDS_Autoloader` finds a class in the file named
+  after it, so the plugin header no longer carries a list of twenty-five
+  `require_once` lines to keep in step, and adding a class means adding a
+  file. Four files stay required outright because they *do* something when
+  they load — `class-wmds-compat.php` holds functions, and the logo, sticker
+  and WP-CLI files each register something at file level. A file with a
+  side effect cannot be loaded lazily: nothing would mention `WMDS_Logos` on
+  a page that only writes `[vehicle-logo]`, so the shortcode would never
+  exist. Two tests hold that line.
+- The facet engine was one class of 935 lines doing four jobs. It is four
+  now: `WMDS_Facet_Request` reads a request and writes it back out as a URL,
+  `WMDS_Facet_Query` turns a selection into `WP_Query` arguments,
+  `WMDS_Facet_Store` owns the database and the cache, and `WMDS_Facets`
+  stays the one class templates and themes address. Every existing call site
+  and both filters are untouched.
 - The settings screen was one class of 1686 lines holding the menu, the
   request handler, three AJAX endpoints, the notice store, the shared markup
   helpers and seven tab renderers. It is twelve classes now, the largest 393
