@@ -12,7 +12,7 @@ while ( have_posts() ) :
 	$images  = $vehicle->images();
 	?>
 
-<article id="fahrzeug-<?php the_ID(); ?>" class="wmds-scope wmds-single" itemscope itemtype="https://schema.org/Car">
+<article id="fahrzeug-<?php the_ID(); ?>" class="wmds-scope wmds-single">
 
 	<header class="wmds-single__header">
 		<?php $logo = $vehicle->logo_url(); ?>
@@ -21,7 +21,7 @@ while ( have_posts() ) :
 				alt="<?php echo esc_attr( $vehicle->get( 'make' ) ); ?>" loading="lazy">
 		<?php endif; ?>
 		<div>
-			<h1 class="wmds-single__title" itemprop="name"><?php the_title(); ?></h1>
+			<h1 class="wmds-single__title"><?php the_title(); ?></h1>
 			<?php if ( $vehicle->has( 'category' ) || $vehicle->has( 'condition' ) ) : ?>
 				<p class="wmds-single__subtitle">
 					<?php echo esc_html( trim( $vehicle->get( 'category' ) . ' · ' . $vehicle->get( 'condition' ), ' ·' ) ); ?>
@@ -38,13 +38,10 @@ while ( have_posts() ) :
 
 		<?php WMDS_Templates::render( 'parts/vehicle-gallery.php', array( 'images' => $images ) ); ?>
 
-		<aside class="wmds-summary" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
+		<aside class="wmds-summary">
 			<?php if ( $vehicle->price() ) : ?>
 				<p class="wmds-price">
-					<span itemprop="price" content="<?php echo esc_attr( $vehicle->get( 'price_raw' ) ); ?>">
-						<?php echo esc_html( $vehicle->price() ); ?>
-					</span>
-					<meta itemprop="priceCurrency" content="<?php echo esc_attr( $vehicle->get( 'currency', 'EUR' ) ); ?>">
+					<span><?php echo esc_html( $vehicle->price() ); ?></span>
 					<small><?php echo esc_html( $vehicle->vat_note() ); ?></small>
 				</p>
 			<?php endif; ?>
@@ -115,7 +112,7 @@ while ( have_posts() ) :
 	?>
 
 	<?php if ( $vehicle->get( 'enriched_description' ) ) : ?>
-		<section class="wmds-description" itemprop="description">
+		<section class="wmds-description">
 			<h2><?php esc_html_e( 'Description', 'wp-mobile-de-sync' ); ?></h2>
 			<?php echo wp_kses_post( $vehicle->get( 'enriched_description' ) ); ?>
 		</section>

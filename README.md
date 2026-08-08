@@ -146,6 +146,37 @@ wrong.
 
 `wmds_enquiry_recipients` has the last word on where an enquiry goes.
 
+## Structured data and social previews
+
+A vehicle page carries a complete `Car` node in JSON-LD: make as a `Brand`,
+model, body type, colour, fuel, transmission, doors, seats, previous owners,
+first registration as a date, CO₂, and engine power and displacement as
+quantities with their UN/CEFACT unit codes — `KWT`, `CMQ`, `KMT` — so a number
+is read as a number rather than as text. The price, the currency, the
+availability and the dealer sit in an `Offer`.
+
+The archive carries an `ItemList` of the vehicles on the page.
+
+**What the feed does not state is left out.** No brand is invented for a
+vehicle without a make, no offer is claimed for a vehicle without a price, and
+an engine power of zero is not an engine specification.
+
+New against used is decided from `condition_key`, not from the localised
+label — a vehicle imported before that key existed falls back to its mileage.
+
+Open Graph and Twitter cards go out alongside, so a link shared anywhere shows
+the photo, the title and the price. They are **suppressed automatically** when
+Yoast, Rank Math, SEOPress, AIOSEO or The SEO Framework is active: two sets of
+`og:` tags on one page are worse than none, because which one a scraper reads
+is undefined and the answer differs per scraper. The JSON-LD stays either way,
+since those plugins do not describe a vehicle.
+
+| Filter | Purpose |
+|---|---|
+| `wmds_jsonld` | change the schema before it is printed |
+| `wmds_social_meta` | change the `og:` and `twitter:` tags |
+| `wmds_seo_output` | switch either off, per page |
+
 ## Scheduling
 
 WP-Cron is the interface here, not the timer: it is triggered by page views.

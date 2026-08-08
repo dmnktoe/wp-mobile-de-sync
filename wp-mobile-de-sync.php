@@ -46,6 +46,7 @@ require_once WMDS_DIR . 'includes/class-wmds-vehicle.php';
 require_once WMDS_DIR . 'includes/class-wmds-templates.php';
 require_once WMDS_DIR . 'includes/class-wmds-facets.php';
 require_once WMDS_DIR . 'includes/class-wmds-leads.php';
+require_once WMDS_DIR . 'includes/class-wmds-seo.php';
 
 require_once WMDS_DIR . 'includes/class-wmds-updater.php';
 WMDS_Updater::init();
@@ -118,6 +119,7 @@ add_action( 'before_delete_post', array( 'WMDS_Importer', 'delete_attachments' )
 WMDS_Templates::init();
 WMDS_Facets::init();
 WMDS_Leads::init();
+WMDS_Seo::init();
 
 add_filter( 'cron_schedules', 'wmds_cron_schedules' );
 /**

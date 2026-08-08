@@ -135,6 +135,13 @@ than a translation of the English source.
 * New: an "Enquiries" settings tab — recipients, copy to the seller,
   confirmation to the enquirer, and the privacy notice to agree to.
 * New: `[vehicle-enquiry]` puts the form anywhere else.
+* New: structured data. A vehicle page carries a complete `Car` node with an
+  `Offer` in JSON-LD, the archive an `ItemList` — so Google can show price,
+  mileage and first registration in the result.
+* New: Open Graph and Twitter cards, so a shared link shows the photo, the
+  title and the price. Suppressed when an SEO plugin already emits them.
+* Changed: the detail page no longer carries microdata; the JSON-LD replaces
+  it and says more.
 * Changed: the bundled templates were reworked — themeable custom properties,
   a dark variant, badges on the cards, a sticky summary and a gallery that
   swaps the main image in place.

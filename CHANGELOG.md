@@ -47,7 +47,27 @@ versioning follows [Semantic Versioning](https://semver.org/).
 - `[vehicle-enquiry]` puts the form anywhere else; a filter
   `wmds_enquiry_recipients` has the last word on where an enquiry goes.
 
+- Structured data. A vehicle page carries a complete `Car` node in JSON-LD —
+  make as a brand, model, body type, colour, fuel, transmission, doors, seats,
+  previous owners, first registration as a date, CO₂, engine power and
+  displacement as quantities with their unit codes, and an `Offer` with the
+  price, the currency, the availability and the dealer. The archive carries an
+  `ItemList` of what is on the page. What the feed does not state is left out
+  rather than guessed.
+- Open Graph and Twitter cards, so a link to a vehicle shared anywhere shows
+  its photo, its title and its price instead of the site's name. They are
+  suppressed when Yoast, Rank Math, SEOPress, AIOSEO or The SEO Framework is
+  active, because two sets of `og:` tags on one page are worse than none.
+- `condition_key` is stored alongside the localised condition label, so "new"
+  and "used" can be told apart without reading a translated string. A vehicle
+  imported before this falls back to its mileage.
+- Three filters: `wmds_jsonld`, `wmds_social_meta` and `wmds_seo_output`.
+
 ### Changed
+- The detail page no longer carries microdata. It described the same vehicle
+  a second time and less completely than the JSON-LD now does, and a price
+  marked up as `itemprop` on formatted text is a worse answer than the number
+  in the `Offer`.
 - The bundled templates were reworked. Colour, spacing and radii come from
   custom properties on `.wmds-scope`, which a theme can override in one place
   instead of selector by selector; the dark variant follows
