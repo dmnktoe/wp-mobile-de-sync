@@ -1551,3 +1551,107 @@ msgstr "Dokumentation der mobile.de Search-API"
 #: includes/class-wmds-admin.php
 msgid "Not affiliated with mobile.de. Access to the Search API is arranged with mobile.de directly."
 msgstr "Kein offizielles Angebot von mobile.de. Der Zugang zur Search-API wird direkt mit mobile.de vereinbart."
+
+#: includes/class-wmds-facets.php:39
+msgid "Search"
+msgstr "Suche"
+
+#: includes/class-wmds-facets.php:43
+msgid "Make"
+msgstr "Marke"
+
+#: includes/class-wmds-facets.php:48
+msgid "Model"
+msgstr "Modell"
+
+#: includes/class-wmds-facets.php:87
+msgid "km"
+msgstr "km"
+
+#: includes/class-wmds-facets.php:94
+msgid "kW"
+msgstr "kW"
+
+#: includes/class-wmds-facets.php:120
+msgid "Newest first"
+msgstr "Neueste zuerst"
+
+#: includes/class-wmds-facets.php:126
+msgid "Price, lowest first"
+msgstr "Preis, aufsteigend"
+
+#: includes/class-wmds-facets.php:132
+msgid "Price, highest first"
+msgstr "Preis, absteigend"
+
+#: includes/class-wmds-facets.php:138
+msgid "Mileage, lowest first"
+msgstr "Kilometerstand, aufsteigend"
+
+#: includes/class-wmds-facets.php:144
+msgid "Mileage, highest first"
+msgstr "Kilometerstand, absteigend"
+
+#: includes/class-wmds-facets.php:150
+msgid "First registration, newest first"
+msgstr "Erstzulassung, neueste zuerst"
+
+#: includes/class-wmds-facets.php:156
+msgid "First registration, oldest first"
+msgstr "Erstzulassung, älteste zuerst"
+
+#: includes/class-wmds-facets.php:162
+msgid "Power, highest first"
+msgstr "Leistung, absteigend"
+
+#: includes/class-wmds-facets.php:736
+msgid "%1$s to %2$s"
+msgstr "%1$s bis %2$s"
+
+#: includes/class-wmds-facets.php:740
+msgid "from %s"
+msgstr "ab %s"
+
+#: includes/class-wmds-facets.php:744
+msgid "up to %s"
+msgstr "bis %s"
+
+#: templates/parts/filter-bar.php:44
+msgid "Make, model, keyword"
+msgstr "Marke, Modell, Stichwort"
+
+#: templates/parts/filter-bar.php:98
+msgid "from"
+msgstr "von"
+
+#: templates/parts/filter-bar.php:109
+msgid "up to"
+msgstr "bis"
+
+#: templates/parts/filter-bar.php:137 templates/parts/filter-bar.php:165
+msgid "Any"
+msgstr "Alle"
+
+#: templates/parts/filter-bar.php:205
+msgid "Show vehicles"
+msgstr "Fahrzeuge anzeigen"
+
+#: templates/parts/filter-bar.php:210
+msgid "Reset"
+msgstr "Zurücksetzen"
+
+#: templates/parts/filter-bar.php:223
+msgid "Remove this filter"
+msgstr "Diesen Filter entfernen"
+
+#: templates/archive-fahrzeuge.php:78 templates/mob_vehicle-list.php:157
+msgid "No vehicle matches these filters."
+msgstr "Kein Fahrzeug passt zu diesen Filtern."
+
+#: templates/archive-fahrzeuge.php:79 templates/mob_vehicle-list.php:158
+msgid "Reset the filters"
+msgstr "Filter zurücksetzen"
+
+#: templates/parts/vehicle-card.php:27
+msgid "Available now"
+msgstr "Sofort verfügbar"

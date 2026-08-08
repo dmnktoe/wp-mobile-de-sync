@@ -14,6 +14,30 @@ if ( ! in_array( $wmds_heading, array( 'h2', 'h3', 'h4' ), true ) ) {
 $wmds_show_warnings = ! empty( $wmds_args['warnings'] );
 
 $vehicle = new WMDS_Vehicle();
+
+$wmds_badges = array();
+if ( $vehicle->has( 'condition' ) ) {
+	$wmds_badges[] = array(
+		'label' => $vehicle->get( 'condition' ),
+		'type'  => 'neutral',
+	);
+}
+if ( 'true' === $vehicle->get( 'available_now' ) ) {
+	$wmds_badges[] = array(
+		'label' => __( 'Available now', 'wp-mobile-de-sync' ),
+		'type'  => 'neutral',
+	);
+}
+if ( $wmds_show_warnings ) {
+	foreach ( $vehicle->warnings() as $wmds_warning ) {
+		$wmds_badges[] = array(
+			'label' => $wmds_warning,
+			'type'  => 'warning',
+		);
+	}
+}
+
+$wmds_logo = $vehicle->logo_url();
 ?>
 <li class="wmds-card">
 	<a class="wmds-card__link" href="<?php the_permalink(); ?>">
@@ -23,14 +47,29 @@ $vehicle = new WMDS_Vehicle();
 			<?php else : ?>
 				<span class="wmds-card__placeholder" aria-hidden="true"></span>
 			<?php endif; ?>
+
+			<?php if ( $wmds_badges ) : ?>
+				<ul class="wmds-card__badges">
+					<?php foreach ( $wmds_badges as $wmds_badge ) : ?>
+						<li class="wmds-badge wmds-badge--<?php echo esc_attr( $wmds_badge['type'] ); ?>">
+							<?php echo esc_html( $wmds_badge['label'] ); ?>
+						</li>
+					<?php endforeach; ?>
+				</ul>
+			<?php endif; ?>
+
+			<?php if ( $wmds_logo ) : ?>
+				<img class="wmds-card__logo" src="<?php echo esc_url( $wmds_logo ); ?>"
+					alt="<?php echo esc_attr( $vehicle->get( 'make' ) ); ?>" loading="lazy" width="32" height="32">
+			<?php endif; ?>
 		</div>
 
 		<div class="wmds-card__body">
 			<<?php echo esc_html( $wmds_heading ); ?> class="wmds-card__title"><?php the_title(); ?></<?php echo esc_html( $wmds_heading ); ?>>
 
-			<?php if ( $vehicle->has( 'category' ) || $vehicle->has( 'condition' ) ) : ?>
+			<?php if ( $vehicle->has( 'category' ) || $vehicle->has( 'firstRegistration' ) ) : ?>
 				<p class="wmds-card__meta">
-					<?php echo esc_html( trim( $vehicle->get( 'category' ) . ' · ' . $vehicle->get( 'condition' ), ' ·' ) ); ?>
+					<?php echo esc_html( trim( $vehicle->get( 'category' ) . ' · ' . $vehicle->first_registration(), ' ·' ) ); ?>
 				</p>
 			<?php endif; ?>
 
@@ -43,10 +82,6 @@ $vehicle = new WMDS_Vehicle();
 						</li>
 					<?php endforeach; ?>
 				</ul>
-			<?php endif; ?>
-
-			<?php if ( $wmds_show_warnings && $vehicle->warnings() ) : ?>
-				<p class="wmds-warning"><?php echo esc_html( implode( ' · ', $vehicle->warnings() ) ); ?></p>
 			<?php endif; ?>
 
 			<?php if ( $vehicle->price() ) : ?>

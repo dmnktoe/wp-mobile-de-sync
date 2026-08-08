@@ -12,7 +12,7 @@ while ( have_posts() ) :
 	$images  = $vehicle->images();
 	?>
 
-<article id="fahrzeug-<?php the_ID(); ?>" class="wmds-single" itemscope itemtype="https://schema.org/Car">
+<article id="fahrzeug-<?php the_ID(); ?>" class="wmds-scope wmds-single" itemscope itemtype="https://schema.org/Car">
 
 	<header class="wmds-single__header">
 		<?php $logo = $vehicle->logo_url(); ?>
@@ -36,28 +36,7 @@ while ( have_posts() ) :
 
 	<div class="wmds-single__main">
 
-		<div class="wmds-gallery">
-			<?php if ( $images ) : ?>
-				<a class="wmds-gallery__main" href="<?php echo esc_url( $images[0]['url'] ); ?>">
-					<img src="<?php echo esc_url( $images[0]['url'] ); ?>"
-						alt="<?php echo esc_attr( $images[0]['alt'] ); ?>" itemprop="image">
-				</a>
-				<?php if ( count( $images ) > 1 ) : ?>
-					<ul class="wmds-gallery__thumbs">
-						<?php foreach ( array_slice( $images, 1 ) as $image ) : ?>
-							<li>
-								<a href="<?php echo esc_url( $image['url'] ); ?>">
-									<img src="<?php echo esc_url( $image['thumb'] ); ?>"
-										alt="<?php echo esc_attr( $image['alt'] ); ?>" loading="lazy">
-								</a>
-							</li>
-						<?php endforeach; ?>
-					</ul>
-				<?php endif; ?>
-			<?php elseif ( has_post_thumbnail() ) : ?>
-				<?php the_post_thumbnail( 'large', array( 'itemprop' => 'image' ) ); ?>
-			<?php endif; ?>
-		</div>
+		<?php WMDS_Templates::render( 'parts/vehicle-gallery.php', array( 'images' => $images ) ); ?>
 
 		<aside class="wmds-summary" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
 			<?php if ( $vehicle->price() ) : ?>

@@ -3,6 +3,44 @@
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
+## [2.2.0] – 2026-08-08
+
+### Added
+- Filtering of its own, so an inventory can be searched without a second
+  plugin. `[vehicle-filter]` renders a bar of components over the fields the
+  feed already fills: dropdowns for make, model and body type, radio buttons
+  for the condition, checkboxes for fuel, transmission and colour, and
+  two-handle sliders for price, mileage, power and first registration. A
+  search box and eight sort orders sit alongside them, and every active filter
+  becomes a chip that removes itself when clicked.
+- The vehicle archive reads those filters directly, so the bundled archive
+  template needs no shortcode, and `[vehicles]` accepts `filters="yes"` to
+  carry them anywhere else.
+- Every option states how many vehicles are behind it, counted against the
+  rest of the selection rather than against the whole inventory — so an option
+  that would leave nothing says so instead of promising a result it cannot
+  keep. The counts and the slider bounds are cached and dropped whenever a
+  vehicle changes.
+- The whole thing works without JavaScript: the bar is a GET form, the sliders
+  fall back to the number fields they mirror, and the filters live in the URL,
+  so a filtered list can be linked, bookmarked and paginated.
+- `[vehicle-count]` prints how many vehicles the current filters leave.
+- `[vehicles]` learned `columns`, `layout="list"`, `pagination` and `heading`.
+- Two filters for themes: `wmds_facets` to add, remove or reorder the
+  components, `wmds_facet_sorts` for the sort orders.
+
+### Changed
+- The bundled templates were reworked. Colour, spacing and radii come from
+  custom properties on `.wmds-scope`, which a theme can override in one place
+  instead of selector by selector; the dark variant follows
+  `prefers-color-scheme`. Cards carry badges for condition, availability and
+  warnings along with the manufacturer logo, the summary on the detail page
+  stays in view while the specifications scroll past, and the gallery swaps
+  the main image in place rather than leaving the page — with every thumbnail
+  still a plain link to the full image when JavaScript is off.
+- The gallery moved into `parts/vehicle-gallery.php`, so a theme can restyle
+  it without copying the detail page around it.
+
 ## [2.1.1] – 2026-07-31
 
 ### Fixed
