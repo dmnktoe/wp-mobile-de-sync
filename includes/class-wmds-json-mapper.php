@@ -171,13 +171,14 @@ class WMDS_Json_Mapper {
 		$make_key = isset( $ad['make'] ) ? (string) $ad['make'] : '';
 		$make     = $this->label( 'make', $make_key, $class );
 
-		$meta['make']      = $make;
-		$meta['make_key']  = $make_key;
-		$meta['model']     = isset( $ad['model'] ) ? (string) $ad['model'] : '';
-		$meta['class']     = self::vehicle_class_label( $class );
-		$meta['class_key'] = $class;
-		$meta['category']  = $this->label( 'category', $this->str( $ad, 'category' ), $class );
-		$meta['condition'] = $this->label( 'condition', $this->str( $ad, 'condition' ), $class );
+		$meta['make']          = $make;
+		$meta['make_key']      = $make_key;
+		$meta['model']         = isset( $ad['model'] ) ? (string) $ad['model'] : '';
+		$meta['class']         = self::vehicle_class_label( $class );
+		$meta['class_key']     = $class;
+		$meta['category']      = $this->label( 'category', $this->str( $ad, 'category' ), $class );
+		$meta['condition']     = $this->label( 'condition', $this->str( $ad, 'condition' ), $class );
+		$meta['condition_key'] = $this->str( $ad, 'condition' );
 
 		$model_desc = WMDS_Creole::decode_field( $this->str( $ad, 'modelDescription' ) );
 		$title      = trim( $make . ' ' . ( '' !== $model_desc ? $model_desc : $meta['model'] ) );

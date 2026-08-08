@@ -13,7 +13,7 @@ if ( ! $wmds_images ) :
 		?>
 		<div class="wmds-gallery">
 			<div class="wmds-gallery__main">
-				<?php the_post_thumbnail( 'large', array( 'itemprop' => 'image' ) ); ?>
+				<?php the_post_thumbnail( 'large' ); ?>
 			</div>
 		</div>
 		<?php
@@ -25,8 +25,7 @@ endif;
 <div class="wmds-gallery" data-wmds-gallery>
 	<a class="wmds-gallery__main" href="<?php echo esc_url( $wmds_images[0]['url'] ); ?>" data-wmds-gallery-link>
 		<img src="<?php echo esc_url( $wmds_images[0]['url'] ); ?>"
-			alt="<?php echo esc_attr( $wmds_images[0]['alt'] ); ?>"
-			itemprop="image" data-wmds-gallery-main>
+			alt="<?php echo esc_attr( $wmds_images[0]['alt'] ); ?>" data-wmds-gallery-main>
 	</a>
 
 	<?php if ( count( $wmds_images ) > 1 ) : ?>
