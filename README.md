@@ -290,6 +290,34 @@ composer lint            phpcs (WordPress standards + PHP compatibility)
 php bin/po2mo.php ...    rebuild a translation catalogue after editing a .po
 ```
 
+### How a class gets loaded
+
+`WMDS_Autoloader` resolves `WMDS_Facet_Store` to
+`includes/class-wmds-facet-store.php` and `WMDS_Tab_Tools` to
+`includes/tabs/class-wmds-tab-tools.php`. Adding a class means adding a file;
+there is no map and no list in the plugin header.
+
+Four files are required outright anyway, and the reason is worth knowing
+before you tidy them away: **a file that does something when it loads cannot
+be loaded lazily.** `class-wmds-compat.php` holds functions rather than a
+class, and the logo, sticker and WP-CLI files each register something at file
+level. Nothing on a page that only writes `[vehicle-logo]` would ever mention
+`WMDS_Logos`, so an autoloaded file would never run and the shortcode would
+simply not exist. `tests/test-boot.php` and `tests/test-autoloader.php` both
+fail if that require disappears.
+
+### How the facets are put together
+
+| Class | Does |
+|---|---|
+| `WMDS_Facets` | the definitions, the two filters, the shortcodes — the one class a template addresses |
+| `WMDS_Facet_Request` | what a request means, and writing a selection back out as a URL |
+| `WMDS_Facet_Query` | a selection, as `WP_Query` arguments |
+| `WMDS_Facet_Store` | the counts, the range bounds, and the cache under both |
+
+Only the first is public in the sense that matters: a theme overriding
+`parts/filter-bar.php` talks to `WMDS_Facets` and nothing else.
+
 ### How the admin screen is put together
 
 | Class | Does |

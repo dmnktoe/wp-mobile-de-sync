@@ -3,6 +3,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * The facets, as everything else addresses them.
+ *
+ * The definitions and the two filters live here; the work is done by
+ * WMDS_Facet_Request, WMDS_Facet_Query and WMDS_Facet_Store. Templates and
+ * themes only ever need this class.
+ */
 class WMDS_Facets {
 	const PREFIX = 'wmds_';
 
@@ -14,9 +21,6 @@ class WMDS_Facets {
 	const MAX_CONSTRAINT = 5000;
 
 	const MAX_LENGTH = 100;
-
-	/** @var bool */
-	private static $flushed = false;
 
 	public static function init() {
 		add_shortcode( 'vehicle-filter', array( __CLASS__, 'shortcode' ) );
@@ -178,679 +182,6 @@ class WMDS_Facets {
 	}
 
 	/**
-	 * Reads a request into the normalised selection every other method takes.
-	 *
-	 * Pure: it touches no superglobal and no WordPress function, so the
-	 * decisions it makes are testable on their own.
-	 *
-	 * @param array $request Raw request values, already unslashed.
-	 * @return array<string, mixed>
-	 */
-	public static function parse( array $request ) {
-		$selection = array();
-
-		foreach ( self::definitions() as $key => $facet ) {
-			$type = isset( $facet['type'] ) ? $facet['type'] : 'select';
-
-			if ( 'range' === $type ) {
-				$range = self::parse_range( $request, $key );
-				if ( $range ) {
-					$selection[ $key ] = $range;
-				}
-				continue;
-			}
-
-			if ( 'search' === $type ) {
-				$term = self::clean( isset( $request[ self::PREFIX . $key ] ) ? $request[ self::PREFIX . $key ] : '' );
-				if ( '' !== $term ) {
-					$selection[ $key ] = $term;
-				}
-				continue;
-			}
-
-			$values = self::parse_values( isset( $request[ self::PREFIX . $key ] ) ? $request[ self::PREFIX . $key ] : null );
-			if ( ! $values ) {
-				continue;
-			}
-
-			$selection[ $key ] = ( 'checkbox' === $type ) ? $values : array( $values[0] );
-		}
-
-		$sort = self::clean( isset( $request[ self::PREFIX . 'sort' ] ) ? $request[ self::PREFIX . 'sort' ] : '' );
-		if ( '' !== $sort && array_key_exists( $sort, self::sorts() ) ) {
-			$selection['sort'] = $sort;
-		}
-
-		return $selection;
-	}
-
-	/** @return array<string, mixed> The selection the current request describes. */
-	public static function selection() {
-		$request = isset( $_GET ) ? wp_unslash( $_GET ) : array(); // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- a read-only list filter, and parse() normalises every value it keeps.
-
-		return self::parse( is_array( $request ) ? $request : array() );
-	}
-
-	/**
-	 * @param array  $request
-	 * @param string $key
-	 * @return array{min?:float,max?:float}
-	 */
-	private static function parse_range( array $request, $key ) {
-		$out = array();
-
-		foreach ( array( 'min', 'max' ) as $bound ) {
-			$field = self::PREFIX . $key . '_' . $bound;
-			if ( ! isset( $request[ $field ] ) ) {
-				continue;
-			}
-
-			$number = WMDS_Num::from_input( self::clean( $request[ $field ] ) );
-			if ( null === $number ) {
-				continue;
-			}
-
-			$out[ $bound ] = $number;
-		}
-
-		if ( isset( $out['min'], $out['max'] ) && $out['min'] > $out['max'] ) {
-			$swap       = $out['min'];
-			$out['min'] = $out['max'];
-			$out['max'] = $swap;
-		}
-
-		return $out;
-	}
-
-	/**
-	 * @param mixed $raw
-	 * @return string[]
-	 */
-	private static function parse_values( $raw ) {
-		if ( null === $raw ) {
-			return array();
-		}
-
-		$values = is_array( $raw ) ? $raw : array( $raw );
-		$out    = array();
-
-		foreach ( $values as $value ) {
-			if ( is_array( $value ) ) {
-				continue;
-			}
-			$value = self::clean( $value );
-			if ( '' !== $value && ! in_array( $value, $out, true ) ) {
-				$out[] = $value;
-			}
-		}
-
-		return $out;
-	}
-
-	/**
-	 * @param mixed $value
-	 * @return string
-	 */
-	private static function clean( $value ) {
-		return WMDS_Str::scrub( $value, self::MAX_LENGTH );
-	}
-
-	/**
-	 * @param array $selection
-	 * @return bool Whether anything narrows the inventory.
-	 */
-	public static function is_filtered( array $selection ) {
-		foreach ( $selection as $key => $value ) {
-			if ( 'sort' !== $key ) {
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	/**
-	 * @param array $selection
-	 * @param array $exclude   Facet keys to leave out.
-	 * @return array The meta_query the selection amounts to.
-	 */
-	public static function meta_query( array $selection, array $exclude = array() ) {
-		$clauses = array();
-
-		foreach ( self::definitions() as $key => $facet ) {
-			if ( in_array( $key, $exclude, true ) || ! isset( $selection[ $key ] ) ) {
-				continue;
-			}
-
-			$type = isset( $facet['type'] ) ? $facet['type'] : 'select';
-			$meta = isset( $facet['meta'] ) ? $facet['meta'] : '';
-
-			if ( 'search' === $type || '' === $meta ) {
-				continue;
-			}
-
-			if ( 'range' === $type ) {
-				$range = $selection[ $key ];
-				if ( isset( $range['min'] ) ) {
-					$clauses[] = array(
-						'key'     => $meta,
-						'value'   => $range['min'],
-						'compare' => '>=',
-						'type'    => 'DECIMAL(20,4)',
-					);
-				}
-				if ( isset( $range['max'] ) ) {
-					$clauses[] = array(
-						'key'     => $meta,
-						'value'   => $range['max'],
-						'compare' => '<=',
-						'type'    => 'DECIMAL(20,4)',
-					);
-				}
-				continue;
-			}
-
-			$values = (array) $selection[ $key ];
-			if ( ! $values ) {
-				continue;
-			}
-
-			$clauses[] = array(
-				'key'     => $meta,
-				'value'   => ( count( $values ) > 1 ) ? $values : $values[0],
-				'compare' => ( count( $values ) > 1 ) ? 'IN' : '=',
-			);
-		}
-
-		if ( ! $clauses ) {
-			return array();
-		}
-
-		$clauses['relation'] = 'AND';
-
-		return $clauses;
-	}
-
-	/**
-	 * @param string $sort
-	 * @return array Query arguments that order the result.
-	 */
-	public static function order_args( $sort ) {
-		$sorts = self::sorts();
-		$sort  = (string) $sort;
-
-		if ( '' === $sort || ! isset( $sorts[ $sort ] ) || '' === $sorts[ $sort ]['meta'] ) {
-			return array(
-				'orderby' => 'date',
-				'order'   => 'DESC',
-			);
-		}
-
-		$definition = $sorts[ $sort ];
-
-		return array(
-			'orderby'    => array( 'wmds_sorted' => $definition['order'] ),
-			'meta_query' => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- sorting on a meta field is what the control is for.
-				array(
-					'relation'    => 'OR',
-					'wmds_sorted' => array(
-						'key'     => $definition['meta'],
-						'compare' => 'EXISTS',
-						'type'    => $definition['type'],
-					),
-					'wmds_absent' => array(
-						'key'     => $definition['meta'],
-						'compare' => 'NOT EXISTS',
-					),
-				),
-			),
-		);
-	}
-
-	/**
-	 * @param array $selection
-	 * @param array $base      Arguments the caller has already decided on.
-	 * @return array WP_Query arguments.
-	 */
-	public static function query_args( array $selection, array $base = array() ) {
-		$args = array_merge(
-			array(
-				'post_type'   => WMDS_CPT,
-				'post_status' => 'publish',
-			),
-			$base
-		);
-
-		$meta = self::meta_query( $selection );
-
-		$order = self::order_args( isset( $selection['sort'] ) ? $selection['sort'] : '' );
-		if ( isset( $order['meta_query'] ) ) {
-			$meta = self::combine( $meta, $order['meta_query'][0] );
-			unset( $order['meta_query'] );
-		}
-
-		if ( $meta ) {
-			$existing = isset( $args['meta_query'] ) ? (array) $args['meta_query'] : array();
-			$combined = self::combine( $existing, $meta );
-
-			$args['meta_query'] = $combined; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- filtering by meta is what the facets are for.
-		}
-
-		if ( isset( $selection['q'] ) && '' !== $selection['q'] ) {
-			$args['s'] = $selection['q'];
-		}
-
-		return array_merge( $args, $order );
-	}
-
-	/**
-	 * @param array $first
-	 * @param array $second
-	 * @return array The two clause sets, ANDed, without nesting an empty one.
-	 */
-	private static function combine( array $first, array $second ) {
-		if ( ! $first ) {
-			return $second;
-		}
-		if ( ! $second ) {
-			return $first;
-		}
-
-		return array(
-			'relation' => 'AND',
-			$first,
-			$second,
-		);
-	}
-
-	/**
-	 * @param WP_Query $query
-	 */
-	public static function apply_to_archive( $query ) {
-		if ( is_admin() || ! $query instanceof WP_Query || ! $query->is_main_query() ) {
-			return;
-		}
-		if ( ! $query->is_post_type_archive( WMDS_CPT ) ) {
-			return;
-		}
-
-		$selection = self::selection();
-		if ( ! $selection ) {
-			return;
-		}
-
-		$meta = self::meta_query( $selection );
-		if ( $meta ) {
-			$combined = self::combine( (array) $query->get( 'meta_query' ), $meta );
-			$query->set( 'meta_query', $combined ); // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- filtering by meta is what the facets are for.
-		}
-
-		if ( isset( $selection['q'] ) && '' !== $selection['q'] ) {
-			$query->set( 's', $selection['q'] );
-		}
-
-		if ( ! isset( $selection['sort'] ) ) {
-			return;
-		}
-
-		$order = self::order_args( $selection['sort'] );
-		if ( isset( $order['meta_query'] ) ) {
-			$combined = self::combine( (array) $query->get( 'meta_query' ), $order['meta_query'][0] );
-			$query->set( 'meta_query', $combined ); // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- see above.
-		}
-
-		$query->set( 'orderby', $order['orderby'] );
-		if ( isset( $order['order'] ) ) {
-			$query->set( 'order', $order['order'] );
-		}
-	}
-
-	/**
-	 * Distinct values of a facet with the number of vehicles behind each.
-	 *
-	 * Counted against the rest of the selection, so an option that would
-	 * leave nothing says so rather than promising a result it cannot keep.
-	 *
-	 * @param string $key
-	 * @param array  $selection
-	 * @return array<string, int> Value => count, ordered by value.
-	 */
-	public static function choices( $key, array $selection = array() ) {
-		$facets = self::definitions();
-		if ( ! isset( $facets[ $key ]['meta'] ) || '' === $facets[ $key ]['meta'] ) {
-			return array();
-		}
-
-		$meta_key = $facets[ $key ]['meta'];
-		$ids      = self::constraint( $selection, $key );
-
-		if ( is_array( $ids ) && ! $ids ) {
-			return array();
-		}
-
-		$cache  = self::CACHE . 'choices_' . md5( $meta_key . '|' . wp_json_encode( $ids ) );
-		$cached = get_transient( $cache );
-		if ( is_array( $cached ) ) {
-			return $cached;
-		}
-
-		global $wpdb;
-
-		$sql = "SELECT m.meta_value AS value, COUNT(*) AS total
-			FROM {$wpdb->postmeta} m
-			INNER JOIN {$wpdb->posts} p ON p.ID = m.post_id
-			WHERE m.meta_key = %s AND m.meta_value != ''
-			  AND p.post_type = %s AND p.post_status = 'publish'";
-
-		$params = array( $meta_key, WMDS_CPT );
-
-		if ( is_array( $ids ) ) {
-			$sql   .= ' AND p.ID IN (' . implode( ',', array_fill( 0, count( $ids ), '%d' ) ) . ')';
-			$params = array_merge( $params, $ids );
-		}
-
-		$sql .= ' GROUP BY m.meta_value ORDER BY m.meta_value ASC';
-
-		$rows = $wpdb->get_results( $wpdb->prepare( $sql, $params ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- the placeholders are built above and every value goes through prepare(); cached in the transient below.
-
-		$out = array();
-		foreach ( (array) $rows as $row ) {
-			$out[ (string) $row->value ] = (int) $row->total;
-		}
-
-		set_transient( $cache, $out, self::CACHE_TTL );
-
-		return $out;
-	}
-
-	/**
-	 * @param string $key
-	 * @param array  $selection
-	 * @return array{min:float,max:float}|array Empty when the facet holds no numbers.
-	 */
-	public static function bounds( $key, array $selection = array() ) {
-		$facets = self::definitions();
-		if ( ! isset( $facets[ $key ]['meta'] ) || '' === $facets[ $key ]['meta'] ) {
-			return array();
-		}
-
-		$meta_key = $facets[ $key ]['meta'];
-		$ids      = self::constraint( $selection, $key );
-
-		if ( is_array( $ids ) && ! $ids ) {
-			return array();
-		}
-
-		$cache  = self::CACHE . 'bounds_' . md5( $meta_key . '|' . wp_json_encode( $ids ) );
-		$cached = get_transient( $cache );
-		if ( is_array( $cached ) ) {
-			return $cached;
-		}
-
-		global $wpdb;
-
-		$sql = "SELECT MIN(m.meta_value + 0) AS low, MAX(m.meta_value + 0) AS high
-			FROM {$wpdb->postmeta} m
-			INNER JOIN {$wpdb->posts} p ON p.ID = m.post_id
-			WHERE m.meta_key = %s AND m.meta_value != ''
-			  AND p.post_type = %s AND p.post_status = 'publish'";
-
-		$params = array( $meta_key, WMDS_CPT );
-
-		if ( is_array( $ids ) ) {
-			$sql   .= ' AND p.ID IN (' . implode( ',', array_fill( 0, count( $ids ), '%d' ) ) . ')';
-			$params = array_merge( $params, $ids );
-		}
-
-		$row = $wpdb->get_row( $wpdb->prepare( $sql, $params ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- see choices().
-
-		$out = array();
-		if ( $row && null !== $row->low && null !== $row->high && (float) $row->high > 0 ) {
-			$out = array(
-				'min' => (float) $row->low,
-				'max' => (float) $row->high,
-			);
-		}
-
-		set_transient( $cache, $out, self::CACHE_TTL );
-
-		return $out;
-	}
-
-	/**
-	 * @param array  $selection
-	 * @param string $except Facet to leave out, so its own choice does not hide the others.
-	 * @return int[]|null Post IDs the rest of the selection allows, null when it allows everything.
-	 */
-	private static function constraint( array $selection, $except ) {
-		$meta = self::meta_query( $selection, array( $except ) );
-		$term = ( 'q' === $except || ! isset( $selection['q'] ) ) ? '' : $selection['q'];
-
-		if ( ! $meta && '' === $term ) {
-			return null;
-		}
-
-		$args = array(
-			'post_type'              => WMDS_CPT,
-			'post_status'            => 'publish',
-			'posts_per_page'         => self::MAX_CONSTRAINT,
-			'fields'                 => 'ids',
-			'no_found_rows'          => true,
-			'ignore_sticky_posts'    => true,
-			'update_post_meta_cache' => false,
-			'update_post_term_cache' => false,
-		);
-
-		if ( $meta ) {
-			$args['meta_query'] = $meta; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- filtering by meta is what the facets are for.
-		}
-		if ( '' !== $term ) {
-			$args['s'] = $term;
-		}
-
-		$query = new WP_Query( $args );
-		$ids   = array_map( 'intval', (array) $query->posts );
-
-		return ( count( $ids ) >= self::MAX_CONSTRAINT ) ? null : $ids;
-	}
-
-	/**
-	 * Drops the cached counts and bounds.
-	 *
-	 * A full sync saves two thousand vehicles in one request; the cache is
-	 * stale after the first of them, so the run flushes once and not once
-	 * per vehicle.
-	 *
-	 * @param int $post_id
-	 */
-	public static function flush( $post_id = 0 ) {
-		if ( self::$flushed ) {
-			return;
-		}
-
-		if ( $post_id && WMDS_CPT !== get_post_type( $post_id ) ) {
-			return;
-		}
-
-		self::$flushed = true;
-
-		global $wpdb;
-
-		$wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- deleting the cache is the point.
-			$wpdb->prepare(
-				"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
-				$wpdb->esc_like( '_transient_' . self::CACHE ) . '%',
-				$wpdb->esc_like( '_transient_timeout_' . self::CACHE ) . '%'
-			)
-		);
-	}
-
-	/**
-	 * @param array $selection
-	 * @return array<int, array{key:string,label:string,value:string,url:string}>
-	 */
-	public static function chips( array $selection ) {
-		$facets = self::definitions();
-		$out    = array();
-
-		foreach ( $selection as $key => $value ) {
-			if ( 'sort' === $key || ! isset( $facets[ $key ] ) ) {
-				continue;
-			}
-
-			$label = isset( $facets[ $key ]['label'] ) ? $facets[ $key ]['label'] : $key;
-			$type  = isset( $facets[ $key ]['type'] ) ? $facets[ $key ]['type'] : 'select';
-
-			if ( 'range' === $type ) {
-				$out[] = array(
-					'key'   => $key,
-					'label' => $label,
-					'value' => self::range_label( $value, isset( $facets[ $key ]['unit'] ) ? $facets[ $key ]['unit'] : '' ),
-					'url'   => self::url_without( $selection, $key ),
-				);
-				continue;
-			}
-
-			if ( 'search' === $type ) {
-				$out[] = array(
-					'key'   => $key,
-					'label' => $label,
-					'value' => (string) $value,
-					'url'   => self::url_without( $selection, $key ),
-				);
-				continue;
-			}
-
-			foreach ( (array) $value as $single ) {
-				$out[] = array(
-					'key'   => $key,
-					'label' => $label,
-					'value' => (string) $single,
-					'url'   => self::url_without( $selection, $key, (string) $single ),
-				);
-			}
-		}
-
-		return $out;
-	}
-
-	/**
-	 * @param array  $range
-	 * @param string $unit
-	 * @return string
-	 */
-	public static function range_label( array $range, $unit = '' ) {
-		$unit = ( '' === $unit ) ? '' : ' ' . $unit;
-
-		if ( isset( $range['min'], $range['max'] ) ) {
-			/* translators: 1: lower bound, 2: upper bound including the unit. */
-			return sprintf( __( '%1$s to %2$s', 'wp-mobile-de-sync' ), self::number( $range['min'] ), self::number( $range['max'] ) . $unit );
-		}
-		if ( isset( $range['min'] ) ) {
-			/* translators: %s: lower bound including the unit. */
-			return sprintf( __( 'from %s', 'wp-mobile-de-sync' ), self::number( $range['min'] ) . $unit );
-		}
-		if ( isset( $range['max'] ) ) {
-			/* translators: %s: upper bound including the unit. */
-			return sprintf( __( 'up to %s', 'wp-mobile-de-sync' ), self::number( $range['max'] ) . $unit );
-		}
-
-		return '';
-	}
-
-	/**
-	 * @param float $value
-	 * @return string
-	 */
-	public static function number( $value ) {
-		return number_format_i18n( (float) $value );
-	}
-
-	/**
-	 * Turns a selection back into query arguments.
-	 *
-	 * @param array $selection
-	 * @return array<string, mixed>
-	 */
-	public static function to_query( array $selection ) {
-		$facets = self::definitions();
-		$out    = array();
-
-		foreach ( $selection as $key => $value ) {
-			if ( 'sort' === $key ) {
-				$out[ self::PREFIX . 'sort' ] = $value;
-				continue;
-			}
-			if ( ! isset( $facets[ $key ] ) ) {
-				continue;
-			}
-
-			$type = isset( $facets[ $key ]['type'] ) ? $facets[ $key ]['type'] : 'select';
-
-			if ( 'range' === $type ) {
-				foreach ( array( 'min', 'max' ) as $bound ) {
-					if ( isset( $value[ $bound ] ) ) {
-						$out[ self::PREFIX . $key . '_' . $bound ] = $value[ $bound ];
-					}
-				}
-				continue;
-			}
-
-			$out[ self::PREFIX . $key ] = ( 'search' === $type ) ? $value : array_values( (array) $value );
-		}
-
-		return $out;
-	}
-
-	/**
-	 * @param array  $selection
-	 * @param string $key
-	 * @param string $value Only that value, for a facet that holds several.
-	 * @return string
-	 */
-	public static function url_without( array $selection, $key, $value = '' ) {
-		if ( '' !== $value && isset( $selection[ $key ] ) && is_array( $selection[ $key ] ) ) {
-			$selection[ $key ] = array_values( array_diff( (array) $selection[ $key ], array( $value ) ) );
-			if ( ! $selection[ $key ] ) {
-				unset( $selection[ $key ] );
-			}
-		} else {
-			unset( $selection[ $key ] );
-		}
-
-		return self::url( $selection );
-	}
-
-	/**
-	 * @param array $selection
-	 * @return string
-	 */
-	public static function url( array $selection ) {
-		$base = self::base_url();
-		$args = self::to_query( $selection );
-
-		if ( ! $args ) {
-			return $base;
-		}
-
-		return $base . ( ( false === strpos( $base, '?' ) ) ? '?' : '&' ) . http_build_query( $args );
-	}
-
-	/** @return string Where the filter form submits to. */
-	public static function base_url() {
-		if ( is_singular() ) {
-			$link = get_permalink();
-			if ( $link ) {
-				return $link;
-			}
-		}
-
-		$archive = get_post_type_archive_link( WMDS_CPT );
-
-		return $archive ? $archive : home_url( '/' );
-	}
-
-	/**
 	 * @param array $atts
 	 * @return string
 	 */
@@ -900,7 +231,7 @@ class WMDS_Facets {
 		}
 
 		$query = new WP_Query(
-			self::query_args(
+			WMDS_Facet_Query::query_args(
 				self::selection(),
 				array(
 					'posts_per_page'         => 1,
@@ -920,5 +251,146 @@ class WMDS_Facets {
 		}
 
 		wp_enqueue_script( self::HANDLE );
+	}
+
+	// The rest of the class is where it was; the work moved, the names did not.
+
+	/**
+	 * @param array $request Raw request values, already unslashed.
+	 * @return array<string, mixed>
+	 */
+	public static function parse( array $request ) {
+		return WMDS_Facet_Request::parse( $request );
+	}
+
+	/**
+	 * @return array<string, mixed>
+	 */
+	public static function selection() {
+		return WMDS_Facet_Request::selection();
+	}
+
+	/**
+	 * @param array $selection
+	 * @return bool
+	 */
+	public static function is_filtered( array $selection ) {
+		return WMDS_Facet_Request::is_filtered( $selection );
+	}
+
+	/**
+	 * @param array $selection
+	 * @return array<int, array{key:string,label:string,value:string,url:string}>
+	 */
+	public static function chips( array $selection ) {
+		return WMDS_Facet_Request::chips( $selection );
+	}
+
+	/**
+	 * @param array  $range
+	 * @param string $unit
+	 * @return string
+	 */
+	public static function range_label( array $range, $unit = '' ) {
+		return WMDS_Facet_Request::range_label( $range, $unit );
+	}
+
+	/**
+	 * @param float $value
+	 * @return string
+	 */
+	public static function number( $value ) {
+		return WMDS_Facet_Request::number( $value );
+	}
+
+	/**
+	 * @param array $selection
+	 * @return array<string, mixed>
+	 */
+	public static function to_query( array $selection ) {
+		return WMDS_Facet_Request::to_query( $selection );
+	}
+
+	/**
+	 * @param array $selection
+	 * @return string
+	 */
+	public static function url( array $selection ) {
+		return WMDS_Facet_Request::url( $selection );
+	}
+
+	/**
+	 * @param array  $selection
+	 * @param string $key
+	 * @param string $value Only that value, for a facet that holds several.
+	 * @return string
+	 */
+	public static function url_without( array $selection, $key, $value = '' ) {
+		return WMDS_Facet_Request::url_without( $selection, $key, $value );
+	}
+
+	/**
+	 * @return string
+	 */
+	public static function base_url() {
+		return WMDS_Facet_Request::base_url();
+	}
+
+	/**
+	 * @param array $selection
+	 * @param array $exclude Facet keys to leave out.
+	 * @return array
+	 */
+	public static function meta_query( array $selection, array $exclude = array() ) {
+		return WMDS_Facet_Query::meta_query( $selection, $exclude );
+	}
+
+	/**
+	 * @param string $sort
+	 * @return array
+	 */
+	public static function order_args( $sort ) {
+		return WMDS_Facet_Query::order_args( $sort );
+	}
+
+	/**
+	 * @param array $selection
+	 * @param array $base Arguments the caller has already decided on.
+	 * @return array
+	 */
+	public static function query_args( array $selection, array $base = array() ) {
+		return WMDS_Facet_Query::query_args( $selection, $base );
+	}
+
+	/**
+	 * @param WP_Query $query
+	 */
+	public static function apply_to_archive( $query ) {
+		WMDS_Facet_Query::apply_to_archive( $query );
+	}
+
+	/**
+	 * @param string $key
+	 * @param array  $selection
+	 * @return array<string, int>
+	 */
+	public static function choices( $key, array $selection = array() ) {
+		return WMDS_Facet_Store::choices( $key, $selection );
+	}
+
+	/**
+	 * @param string $key
+	 * @param array  $selection
+	 * @return array
+	 */
+	public static function bounds( $key, array $selection = array() ) {
+		return WMDS_Facet_Store::bounds( $key, $selection );
+	}
+
+	/**
+	 * @param int $post_id
+	 */
+	public static function flush( $post_id = 0 ) {
+		WMDS_Facet_Store::flush( $post_id );
 	}
 }
