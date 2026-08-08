@@ -20,6 +20,11 @@ function home_url( $path = '/' ) {
 	return 'https://example.invalid' . $path;
 }
 
+require_once __DIR__ . '/../includes/class-wmds-str.php';
+require_once __DIR__ . '/../includes/class-wmds-num.php';
+require_once __DIR__ . '/../includes/class-wmds-date.php';
+require_once __DIR__ . '/../includes/class-wmds-str.php';
+require_once __DIR__ . '/../includes/class-wmds-num.php';
 require_once __DIR__ . '/../includes/class-wmds-facets.php';
 
 wmds_section( 'Reading a request' );

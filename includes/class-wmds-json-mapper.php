@@ -607,14 +607,9 @@ class WMDS_Json_Mapper {
 	 * @return string
 	 */
 	public static function format_month( $value ) {
-		$value = trim( (string) $value );
-		if ( '' === $value ) {
-			return '';
-		}
-		if ( preg_match( '/^(\d{4})-?(\d{2})/', $value, $m ) ) {
-			return $m[1] . '-' . $m[2] . '-01';
-		}
-		return $value;
+		$iso = WMDS_Date::iso_month( $value );
+
+		return ( '' !== $iso ) ? $iso : trim( (string) $value );
 	}
 
 	/**
@@ -622,11 +617,7 @@ class WMDS_Json_Mapper {
 	 * @return string
 	 */
 	public static function format_day( $value ) {
-		$value = trim( (string) $value );
-		if ( preg_match( '/^(\d{4})-(\d{2})-(\d{2})/', $value, $m ) ) {
-			return $m[3] . '.' . $m[2] . '.' . $m[1];
-		}
-		return $value;
+		return WMDS_Date::day( $value );
 	}
 
 	/**
@@ -634,10 +625,7 @@ class WMDS_Json_Mapper {
 	 * @return int|string
 	 */
 	public static function year( $value ) {
-		if ( preg_match( '/^(\d{4})/', trim( (string) $value ), $m ) ) {
-			return (int) $m[1];
-		}
-		return '';
+		return WMDS_Date::year( $value );
 	}
 
 	/**

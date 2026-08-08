@@ -90,6 +90,23 @@ versioning follows [Semantic Versioning](https://semver.org/).
 - The gallery moved into `parts/vehicle-gallery.php`, so a theme can restyle
   it without copying the detail page around it.
 
+### Changed
+- Four support classes now hold what six others had each grown their own
+  copy of. `WMDS_Str` measures, cuts and scrubs multibyte-safely, `WMDS_Date`
+  reads the shapes a date arrives in, `WMDS_Mail` turns a settings field into
+  a recipient list and sends plain text, and `WMDS_Num` reads a number. The
+  callers lost 146 lines and gained 34.
+- `WMDS_Num` keeps **two** readings of a number apart, because they were
+  never the same one. A person typing `12.500` into a price filter means
+  twelve and a half thousand; the API sending `12.500` means twelve and a
+  half. The two rules lived in two classes that looked interchangeable and
+  were not, so they are now named for what they read:
+  `from_input()` and `from_feed()`.
+- A name typed into the enquiry form can no longer put a second header into
+  the mail it produces. The escaping existed before; it is now the only way
+  a `Reply-To` gets built, so the next mail this plugin sends cannot forget
+  it.
+
 ### Fixed
 - Saving one settings tab emptied the settings the other tabs own. Each tab is
   a form of its own and posts only its own fields, but the handler read every

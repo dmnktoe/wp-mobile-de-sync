@@ -46,18 +46,7 @@ class WMDS_Alerts {
 
 	/** @return string[] */
 	public static function recipients() {
-		$to = array();
-
-		foreach ( explode( ',', (string) WMDS_Settings::get( 'alerts_recipient', '' ) ) as $address ) {
-			$address = trim( $address );
-			if ( '' !== $address && is_email( $address ) ) {
-				$to[] = $address;
-			}
-		}
-
-		if ( ! $to ) {
-			$to[] = (string) get_option( 'admin_email' );
-		}
+		$to = WMDS_Mail::addresses( WMDS_Settings::get( 'alerts_recipient', '' ) );
 
 		/**
 		 * @param string[] $to
@@ -252,12 +241,7 @@ class WMDS_Alerts {
 			return false;
 		}
 
-		return (bool) wp_mail(
-			self::recipients(),
-			$mail['subject'],
-			$mail['body'],
-			array( 'Content-Type: text/plain; charset=UTF-8' )
-		);
+		return WMDS_Mail::send( self::recipients(), $mail['subject'], $mail['body'] );
 	}
 
 	/** @return bool Whether a test alert went out. */

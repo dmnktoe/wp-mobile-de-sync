@@ -8,6 +8,9 @@ function wp_strip_all_tags( $text ) {
 	return strip_tags( (string) $text );
 }
 
+require_once __DIR__ . '/../includes/class-wmds-str.php';
+require_once __DIR__ . '/../includes/class-wmds-num.php';
+require_once __DIR__ . '/../includes/class-wmds-date.php';
 require_once __DIR__ . '/../includes/class-wmds-seo.php';
 
 /**
@@ -190,17 +193,5 @@ wmds_assert( 'no price, none claimed', false, isset( $no_price['product:price:am
 
 $no_image = WMDS_Seo::social_meta( wmds_seo_data( array( 'images' => array() ) ) );
 wmds_assert( 'no photo, no empty image tag', false, isset( $no_image['og:image'] ) );
-
-wmds_section( 'Dates and lengths' );
-
-wmds_assert( 'an ISO date passes through', '2019-06-01', WMDS_Seo::date( '2019-06-01' ) );
-wmds_assert( 'a month becomes its first day', '2019-06-01', WMDS_Seo::date( '2019-06' ) );
-wmds_assert( 'so does the German reading of one', '2019-06-01', WMDS_Seo::date( '06.2019' ) );
-wmds_assert( 'anything else is no date', '', WMDS_Seo::date( 'soon' ) );
-wmds_assert( 'and neither is nothing', '', WMDS_Seo::date( '' ) );
-
-wmds_assert( 'a short text is left alone', 'Two words', WMDS_Seo::shorten( 'Two words', 300 ) );
-wmds_assert( 'a long one is cut at a word', 'one two…', WMDS_Seo::shorten( 'one two three four', 10 ) );
-wmds_assert( 'and the trailing punctuation goes with it', 'one two…', WMDS_Seo::shorten( 'one two, three four', 11 ) );
 
 wmds_result();

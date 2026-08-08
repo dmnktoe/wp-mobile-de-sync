@@ -245,12 +245,12 @@ class WMDS_Facets {
 				continue;
 			}
 
-			$raw = self::clean( $request[ $field ] );
-			if ( '' === $raw || ! is_numeric( str_replace( array( ' ', '.', ',' ), array( '', '', '.' ), $raw ) ) ) {
+			$number = WMDS_Num::from_input( self::clean( $request[ $field ] ) );
+			if ( null === $number ) {
 				continue;
 			}
 
-			$out[ $bound ] = (float) str_replace( array( ' ', '.', ',' ), array( '', '', '.' ), $raw );
+			$out[ $bound ] = $number;
 		}
 
 		if ( isset( $out['min'], $out['max'] ) && $out['min'] > $out['max'] ) {
@@ -292,18 +292,7 @@ class WMDS_Facets {
 	 * @return string
 	 */
 	private static function clean( $value ) {
-		if ( is_array( $value ) || is_object( $value ) || null === $value ) {
-			return '';
-		}
-
-		$value = preg_replace( '/[\x00-\x1F\x7F<>]/u', '', (string) $value );
-		$value = trim( preg_replace( '/\s+/u', ' ', (string) $value ) );
-
-		if ( function_exists( 'mb_substr' ) ) {
-			return mb_substr( $value, 0, self::MAX_LENGTH );
-		}
-
-		return substr( $value, 0, self::MAX_LENGTH );
+		return WMDS_Str::scrub( $value, self::MAX_LENGTH );
 	}
 
 	/**

@@ -172,26 +172,13 @@ class WMDS_Leads {
 	 * @return string[] Where a new enquiry is sent.
 	 */
 	public static function recipients( WMDS_Vehicle $vehicle = null ) {
-		$to = array();
-
-		$configured = (string) WMDS_Settings::get( 'enquiry_recipient', '' );
-		foreach ( explode( ',', $configured ) as $address ) {
-			$address = trim( $address );
-			if ( '' !== $address && is_email( $address ) ) {
-				$to[] = $address;
-			}
-		}
-
-		if ( ! $to ) {
-			$to[] = (string) get_option( 'admin_email' );
-		}
+		$extra = array();
 
 		if ( $vehicle && 'yes' === WMDS_Settings::get( 'enquiry_copy_seller', 'no' ) ) {
-			$seller = $vehicle->seller_email();
-			if ( '' !== $seller && is_email( $seller ) && ! in_array( $seller, $to, true ) ) {
-				$to[] = $seller;
-			}
+			$extra[] = $vehicle->seller_email();
 		}
+
+		$to = WMDS_Mail::addresses( WMDS_Settings::get( 'enquiry_recipient', '' ), $extra );
 
 		/**
 		 * @param string[] $to
@@ -500,19 +487,19 @@ class WMDS_Leads {
 	private static function send( array $data, array $context, $site, $vehicle ) {
 		$mail = self::compose( $data, $context, $site );
 
-		$headers = array(
-			'Content-Type: text/plain; charset=UTF-8',
-			sprintf( 'Reply-To: %s <%s>', self::header_safe( $data['name'] ), $data['email'] ),
+		$sent = WMDS_Mail::send(
+			self::recipients( $vehicle ),
+			$mail['subject'],
+			$mail['body'],
+			array( WMDS_Mail::reply_to( $data['name'], $data['email'] ) )
 		);
-
-		$sent = wp_mail( self::recipients( $vehicle ), $mail['subject'], $mail['body'], $headers );
 
 		if ( $sent && 'yes' === WMDS_Settings::get( 'enquiry_autoreply', 'no' ) ) {
 			$reply = self::compose_confirmation( $data, $context, $site );
-			wp_mail( $data['email'], $reply['subject'], $reply['body'], array( 'Content-Type: text/plain; charset=UTF-8' ) );
+			WMDS_Mail::send( $data['email'], $reply['subject'], $reply['body'] );
 		}
 
-		return (bool) $sent;
+		return $sent;
 	}
 
 	/** @return array<string, string> */
@@ -628,17 +615,9 @@ class WMDS_Leads {
 
 	/**
 	 * @param string $value
-	 * @return string A header cannot carry a line break, whatever was typed.
-	 */
-	private static function header_safe( $value ) {
-		return trim( preg_replace( '/[\r\n<>]+/', ' ', (string) $value ) );
-	}
-
-	/**
-	 * @param string $value
 	 * @return int
 	 */
 	private static function length( $value ) {
-		return function_exists( 'mb_strlen' ) ? mb_strlen( $value ) : strlen( $value );
+		return WMDS_Str::length( $value );
 	}
 }
