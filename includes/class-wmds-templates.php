@@ -146,6 +146,14 @@ class WMDS_Templates {
 			}
 		}
 
+		if ( function_exists( 'has_block' ) ) {
+			foreach ( WMDS_Blocks::styled_names() as $block ) {
+				if ( has_block( $block, $post ) ) {
+					return true;
+				}
+			}
+		}
+
 		return false;
 	}
 

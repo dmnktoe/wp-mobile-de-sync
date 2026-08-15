@@ -47,7 +47,11 @@ class WMDS_Tab_About {
 					</tr>
 					<tr>
 						<td><?php esc_html_e( 'Shortcodes', 'wp-mobile-de-sync' ); ?></td>
-						<td><code>[vehicles]</code> <code>[vehicle-logo]</code></td>
+						<td><code>[vehicles]</code> <code>[vehicle-filter]</code> <code>[vehicle-count]</code> <code>[vehicle-enquiry]</code> <code>[vehicle-logo]</code></td>
+					</tr>
+					<tr>
+						<td><?php esc_html_e( 'Blocks', 'wp-mobile-de-sync' ); ?></td>
+						<td><?php esc_html_e( 'Vehicles, Vehicle filter, Vehicle count, Vehicle enquiry', 'wp-mobile-de-sync' ); ?></td>
 					</tr>
 					<tr>
 						<td><?php esc_html_e( 'Author', 'wp-mobile-de-sync' ); ?></td>

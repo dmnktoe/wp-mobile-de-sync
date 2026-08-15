@@ -65,6 +65,19 @@ function has_shortcode( $content, $tag ) {
 	return false !== strpos( (string) $content, '[' . $tag );
 }
 
+function has_block( $block_name, $post = null ) {
+	$content = '';
+	if ( $post instanceof WP_Post ) {
+		$content = $post->post_content;
+	} elseif ( is_string( $post ) ) {
+		$content = $post;
+	} elseif ( isset( $GLOBALS['wmds_test_query']['post'] ) && $GLOBALS['wmds_test_query']['post'] instanceof WP_Post ) {
+		$content = $GLOBALS['wmds_test_query']['post']->post_content;
+	}
+
+	return false !== strpos( (string) $content, '<!-- wp:' . $block_name );
+}
+
 function wp_style_is( $handle, $state = 'enqueued' ) {
 	if ( 'registered' === $state ) {
 		return isset( $GLOBALS['wmds_test_styles'][ $handle ] );
@@ -134,6 +147,7 @@ define( 'WMDS_VERSION', '0.0.0-test' );
 define( 'WMDS_CPT', 'fahrzeuge' );
 
 require_once __DIR__ . '/../includes/class-wmds-templates.php';
+require_once __DIR__ . '/../includes/class-wmds-blocks.php';
 
 function wmds_test_reset() {
 	$GLOBALS['wmds_test_styles']      = array();
@@ -200,6 +214,9 @@ wmds_assert( 'a page with the shortcode needs it', true, WMDS_Templates::styles_
 
 $GLOBALS['wmds_test_query']['post'] = new WP_Post( 'A page about opening hours.' );
 wmds_assert( 'a page without it does not', false, WMDS_Templates::styles_needed() );
+
+$GLOBALS['wmds_test_query']['post'] = new WP_Post( '<!-- wp:wmds/vehicles {"postsPerPage":6} /-->' );
+wmds_assert( 'a page with the vehicles block needs it', true, WMDS_Templates::styles_needed() );
 
 wmds_test_reset();
 wmds_assert( 'the front page does not', false, WMDS_Templates::styles_needed() );

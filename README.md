@@ -22,6 +22,8 @@ within a major version:
 
 - CPT `fahrzeuge`, shortcodes `[vehicles]`, `[vehicle-filter]`,
   `[vehicle-count]` and `[vehicle-logo]`
+- Blocks under **mobile.de Sync**: Vehicles, Vehicle filter, Vehicle count
+  and Vehicle enquiry (each renders through the shortcode it stands for)
 - one meta key per vehicle property, plus every equipment feature the feed sets
 - the same keys are FacetWP sources (`cf/make`, `cf/price_raw`, …) for a site
   that already uses it
@@ -536,6 +538,20 @@ to be whitelisted first:
 `marke`, `modell`, `zustand`, `kraftstoffart`, `getriebe` and `anzahl` map onto
 their English counterparts, and `[fahrzeuge-anzeigen]` and `[fahrzeug-logo]`
 stay registered, so pages written against the old names keep working.
+
+## The blocks
+
+The same pieces sit under **mobile.de Sync** in the block inserter:
+
+| Block | Shortcode it renders |
+|---|---|
+| Vehicles | `[vehicles]` |
+| Vehicle filter | `[vehicle-filter]` |
+| Vehicle count | `[vehicle-count]` |
+| Vehicle enquiry | `[vehicle-enquiry]` |
+
+A page that already uses the shortcode and one that drops the block keep the
+same markup. The sidebar controls map onto the shortcode attributes.
 
 If a site brings its own templates that call helper functions from an earlier
 solution, `includes/class-wmds-compat.php` provides equivalents — but only

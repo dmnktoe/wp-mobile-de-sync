@@ -4,7 +4,7 @@ Tags: mobile.de, vehicles, dealership, import, facetwp
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 2.2.0
+Stable tag: 2.2.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -17,6 +17,7 @@ stores it as WordPress posts. The vehicle data lives in post meta under stable
 field names — ready to use for your own templates, queries and filters.
 
 * CPT `fahrzeuge`, shortcodes `[vehicles]`, `[vehicle-filter]`, `[vehicle-count]`
+* Blocks for the same: Vehicles, Vehicle filter, Vehicle count, Vehicle enquiry
 * Filtering of its own: dropdowns, checkboxes, radio buttons, range sliders,
   search and sorting — no second plugin needed
 * One meta key per property, also usable as FacetWP facet sources
@@ -115,6 +116,14 @@ Pkw-EnVKV, so the bundled German catalogue carries the statutory wording rather
 than a translation of the English source.
 
 == Changelog ==
+
+= 2.2.1 =
+* Fixed: the vehicle archive died with "Call to undefined method
+  WMDS_Facet_Query::selection()" whenever `/fahrzeuge/` was opened. The method
+  left behind by the 2.2.0 facet split is back.
+* New: four blocks in the editor under mobile.de Sync — Vehicles, Vehicle
+  filter, Vehicle count and Vehicle enquiry — each rendering through the
+  shortcode it stands for.
 
 = 2.2.0 =
 * New: filtering of its own. `[vehicle-filter]` renders dropdowns, radio

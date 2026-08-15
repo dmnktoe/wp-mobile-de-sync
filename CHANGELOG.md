@@ -3,6 +3,23 @@
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
+## [2.2.1] – 2026-08-15
+
+### Fixed
+- The vehicle archive died with `Call to undefined method
+  WMDS_Facet_Query::selection()` the moment `/fahrzeuge/` was opened.
+  Splitting the facet engine in 2.2.0 left `selection()` on neither half;
+  it is back on `WMDS_Facet_Request`, and the archive calls it there. The
+  structure test now checks methods and constants as well as properties, so
+  a member left behind fails before WordPress does.
+
+### Added
+- Four blocks in the editor under **mobile.de Sync**: Vehicles, Vehicle
+  filter, Vehicle count and Vehicle enquiry. Each one renders through the
+  shortcode it stands for, so a page that already uses `[vehicles]` and one
+  that drops the block keep the same markup. The stylesheet follows a page
+  that carries a block the same way it follows a shortcode.
+
 ## [2.2.0] – 2026-08-08
 
 ### Added
