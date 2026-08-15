@@ -69,7 +69,7 @@ function wp_unslash( $value ) {
 	return $value;
 }
 
-class wpdb_stub {
+class WMDS_Test_Wpdb {
 	public $posts = 'wp_posts';
 
 	public function update( $table, $data, $where, $format = null, $where_format = null ) {
@@ -83,7 +83,7 @@ class wpdb_stub {
 	}
 }
 
-$wpdb = new wpdb_stub(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- the migrate class reads $wpdb.
+$wpdb = new WMDS_Test_Wpdb(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- the migrate class reads $wpdb.
 
 require_once __DIR__ . '/bootstrap.php';
 

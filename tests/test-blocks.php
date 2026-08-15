@@ -2,8 +2,8 @@
 
 require_once __DIR__ . '/bootstrap.php';
 
-$GLOBALS['wmds_boot_blocks']   = array();
-$GLOBALS['wmds_boot_scripts']  = array();
+$GLOBALS['wmds_boot_blocks']     = array();
+$GLOBALS['wmds_boot_scripts']    = array();
 $GLOBALS['wmds_boot_categories'] = array(
 	array(
 		'slug'  => 'text',
@@ -162,7 +162,18 @@ wmds_assert(
 	WMDS_Templates::$last_atts
 );
 
-wmds_assert( 'filter', 'filter', WMDS_Blocks::render_filter( array( 'facets' => 'make,price', 'layout' => 'sidebar', 'counts' => false, 'heading' => 'Find' ) ) );
+wmds_assert(
+	'filter',
+	'filter',
+	WMDS_Blocks::render_filter(
+		array(
+			'facets'  => 'make,price',
+			'layout'  => 'sidebar',
+			'counts'  => false,
+			'heading' => 'Find',
+		)
+	)
+);
 wmds_assert(
 	'and turns booleans into yes/no',
 	array(
@@ -177,7 +188,16 @@ wmds_assert(
 wmds_assert( 'count', '3', WMDS_Blocks::render_count( array( 'filtered' => false ) ) );
 wmds_assert( 'unfiltered when asked', array( 'filtered' => 'no' ), WMDS_Facets::$last_count );
 
-wmds_assert( 'enquiry', 'enquiry', WMDS_Blocks::render_enquiry( array( 'vehicle' => 42, 'heading' => 'Ask' ) ) );
+wmds_assert(
+	'enquiry',
+	'enquiry',
+	WMDS_Blocks::render_enquiry(
+		array(
+			'vehicle' => 42,
+			'heading' => 'Ask',
+		)
+	)
+);
 wmds_assert(
 	'with the vehicle id',
 	array(
