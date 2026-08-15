@@ -144,7 +144,7 @@ require_once __DIR__ . '/bootstrap.php';
 define( 'WMDS_DIR', dirname( __DIR__ ) . '/' );
 define( 'WMDS_URL', 'https://example.invalid/wp-content/plugins/wp-mobile-de-sync/' );
 define( 'WMDS_VERSION', '0.0.0-test' );
-define( 'WMDS_CPT', 'fahrzeuge' );
+define( 'WMDS_CPT', 'vehicles' );
 
 require_once __DIR__ . '/../includes/class-wmds-templates.php';
 require_once __DIR__ . '/../includes/class-wmds-blocks.php';
@@ -209,7 +209,7 @@ wmds_assert( 'the vehicle archive needs it', true, WMDS_Templates::styles_needed
 
 wmds_test_reset();
 $GLOBALS['wmds_test_query']['singular'] = 'page';
-$GLOBALS['wmds_test_query']['post']     = new WP_Post( 'Our offers: [fahrzeuge-anzeigen posts_per_page="6"]' );
+$GLOBALS['wmds_test_query']['post']     = new WP_Post( 'Our offers: [vehicles posts_per_page="6"]' );
 wmds_assert( 'a page with the shortcode needs it', true, WMDS_Templates::styles_needed() );
 
 $GLOBALS['wmds_test_query']['post'] = new WP_Post( 'A page about opening hours.' );

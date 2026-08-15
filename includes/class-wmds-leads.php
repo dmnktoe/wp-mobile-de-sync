@@ -27,7 +27,6 @@ class WMDS_Leads {
 		add_action( 'init', array( __CLASS__, 'register_cpt' ) );
 
 		add_shortcode( 'vehicle-enquiry', array( __CLASS__, 'shortcode' ) );
-		add_shortcode( 'fahrzeug-anfrage', array( __CLASS__, 'shortcode' ) );
 
 		add_action( 'admin_post_' . self::ACTION, array( __CLASS__, 'handle' ) );
 		add_action( 'admin_post_nopriv_' . self::ACTION, array( __CLASS__, 'handle' ) );

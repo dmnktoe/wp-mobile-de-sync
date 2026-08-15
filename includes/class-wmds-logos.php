@@ -205,4 +205,3 @@ function wmds_shortcode_logo( $atts, $content = null, $tag = 'vehicle-logo' ) { 
 	);
 }
 add_shortcode( 'vehicle-logo', 'wmds_shortcode_logo' );
-add_shortcode( 'fahrzeug-logo', 'wmds_shortcode_logo' );

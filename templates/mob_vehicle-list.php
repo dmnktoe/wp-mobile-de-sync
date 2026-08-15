@@ -18,22 +18,10 @@ $wmds_controls = array(
 	'heading'        => 'h3',
 );
 
-$wmds_legacy = array(
-	'marke'         => 'make',
-	'modell'        => 'model',
-	'zustand'       => 'condition',
-	'kraftstoffart' => 'fuel',
-	'getriebe'      => 'gearbox',
-	'anzahl'        => 'posts_per_page',
-	'spalten'       => 'columns',
-);
-
 $wmds_settings = $wmds_controls;
 $wmds_filters  = array();
 
 foreach ( $wmds_atts as $wmds_key => $wmds_value ) {
-	$wmds_key = isset( $wmds_legacy[ $wmds_key ] ) ? $wmds_legacy[ $wmds_key ] : $wmds_key;
-
 	if ( array_key_exists( $wmds_key, $wmds_controls ) ) {
 		$wmds_settings[ $wmds_key ] = $wmds_value;
 		continue;

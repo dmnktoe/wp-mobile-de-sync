@@ -90,6 +90,32 @@ class WMDS_Dashboard {
 				<?php endforeach; ?>
 			</select>
 		</p>
+		<div class="wmds-widget-guide">
+			<p><strong><?php esc_html_e( 'Also available on the site', 'wp-mobile-de-sync' ); ?></strong></p>
+			<ul>
+				<li>
+					<?php esc_html_e( 'Blocks', 'wp-mobile-de-sync' ); ?>:
+					<code>Vehicles</code>, <code>Vehicle filter</code>, <code>Vehicle count</code>, <code>Vehicle enquiry</code>
+					<span class="wmds-muted"><?php esc_html_e( '(inserter → mobile.de Sync)', 'wp-mobile-de-sync' ); ?></span>
+				</li>
+				<li>
+					<?php esc_html_e( 'Shortcodes', 'wp-mobile-de-sync' ); ?>:
+					<code>[vehicles]</code>
+					<code>[vehicle-filter]</code>
+					<code>[vehicle-count]</code>
+					<code>[vehicle-enquiry]</code>
+					<code>[vehicle-logo]</code>
+					<code>[emission-sticker]</code>
+				</li>
+			</ul>
+			<?php if ( current_user_can( 'manage_options' ) ) : ?>
+				<p>
+					<a href="<?php echo esc_url( WMDS_Status::settings_url( 'usage' ) ); ?>">
+						<?php esc_html_e( 'Full usage guide in Sync Settings', 'wp-mobile-de-sync' ); ?>
+					</a>
+				</p>
+			<?php endif; ?>
+		</div>
 		<?php
 	}
 
@@ -230,6 +256,11 @@ class WMDS_Dashboard {
 				' <span class="wmds-muted">|</span> <a href="%s">%s</a>',
 				esc_url( WMDS_Status::settings_url() ),
 				esc_html__( 'Sync settings', 'wp-mobile-de-sync' )
+			);
+			printf(
+				' <span class="wmds-muted">|</span> <a href="%s">%s</a>',
+				esc_url( WMDS_Status::settings_url( 'usage' ) ),
+				esc_html__( 'Blocks & shortcodes', 'wp-mobile-de-sync' )
 			);
 		}
 

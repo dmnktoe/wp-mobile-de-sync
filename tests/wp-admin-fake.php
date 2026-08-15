@@ -420,7 +420,7 @@ if ( ! function_exists( 'get_the_title' ) ) {
 
 if ( ! function_exists( 'get_permalink' ) ) {
 	function get_permalink( $post = 0 ) {
-		return 'https://example.invalid/fahrzeuge/one/';
+		return 'https://example.invalid/vehicles/one/';
 	}
 }
 
@@ -480,7 +480,7 @@ if ( ! function_exists( 'get_post_type_object' ) ) {
 
 if ( ! function_exists( 'get_post_type_archive_link' ) ) {
 	function get_post_type_archive_link( $type ) {
-		return 'https://example.invalid/fahrzeuge/';
+		return 'https://example.invalid/vehicles/';
 	}
 }
 

@@ -19,7 +19,7 @@ define( 'WMDS_DIR', dirname( __DIR__ ) . '/' );
 define( 'WMDS_URL', 'https://example.invalid/wp-content/plugins/wp-mobile-de-sync/' );
 define( 'WMDS_VERSION', '0.0.0-test' );
 define( 'WMDS_FILE', dirname( __DIR__ ) . '/wp-mobile-de-sync.php' );
-define( 'WMDS_CPT', 'fahrzeuge' );
+define( 'WMDS_CPT', 'vehicles' );
 define( 'WMDS_CRON_HOOK', 'wmds_import_event' );
 define( 'WMDS_CRON_FULL_HOOK', 'wmds_full_sync_event' );
 define( 'WMDS_ICONS', 'https://example.invalid/icons/' );
@@ -52,11 +52,14 @@ foreach ( array(
 	'admin-actions',
 	'admin-ajax',
 	'admin',
+	'blocks',
+	'catalog',
+	'dashboard',
 ) as $wmds_class ) {
 	require_once dirname( __DIR__ ) . '/includes/class-wmds-' . $wmds_class . '.php';
 }
 
-foreach ( array( 'connection', 'schedule', 'enquiries', 'status', 'tools', 'system', 'about' ) as $wmds_tab ) {
+foreach ( array( 'connection', 'schedule', 'enquiries', 'usage', 'status', 'tools', 'system', 'about' ) as $wmds_tab ) {
 	require_once dirname( __DIR__ ) . '/includes/tabs/class-wmds-tab-' . $wmds_tab . '.php';
 }
 
@@ -103,7 +106,7 @@ wmds_section( 'Every tab is still there, in the order somebody learned' );
 
 wmds_admin_fake_reset();
 
-$tabs = array( 'connection', 'schedule', 'enquiries', 'status', 'tools', 'system', 'about' );
+$tabs = array( 'connection', 'schedule', 'enquiries', 'usage', 'status', 'tools', 'system', 'about' );
 
 foreach ( $tabs as $tab ) {
 	$markup = wmds_render_tab( $tab );
@@ -123,6 +126,9 @@ wmds_assert_contains( 'schedule: the interval', 'name="wmds_interval"', wmds_ren
 wmds_assert_contains( 'schedule: the label language', 'name="wmds_language"', wmds_render_tab( 'schedule' ) );
 wmds_assert_contains( 'enquiries: the recipient', 'name="wmds_enquiry_recipient"', wmds_render_tab( 'enquiries' ) );
 wmds_assert_contains( 'enquiries: the privacy notice', 'name="wmds_enquiry_consent"', wmds_render_tab( 'enquiries' ) );
+wmds_assert_contains( 'usage: the blocks heading', 'Blocks', wmds_render_tab( 'usage' ) );
+wmds_assert_contains( 'usage: a shortcode example', '[vehicles', wmds_render_tab( 'usage' ) );
+wmds_assert_contains( 'usage: the dashboard widget', 'newest vehicles', wmds_render_tab( 'usage' ) );
 wmds_assert_contains( 'status: the alert switch', 'name="wmds_alerts_enabled"', wmds_render_tab( 'status' ) );
 wmds_assert_contains( 'status: the cooldown', 'name="wmds_alerts_cooldown"', wmds_render_tab( 'status' ) );
 

@@ -1,7 +1,7 @@
 <?php
 
 define( 'ABSPATH', __DIR__ . '/wp-stubs/' );
-define( 'WMDS_CPT', 'fahrzeuge' );
+define( 'WMDS_CPT', 'vehicles' );
 define( 'WMDS_CRON_HOOK', 'wmds_import_event' );
 
 require_once __DIR__ . '/bootstrap.php';

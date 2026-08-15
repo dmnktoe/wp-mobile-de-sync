@@ -3,11 +3,21 @@
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
-## [2.2.1] – 2026-08-15
+## [2.3.0] – 2026-08-15
+
+### Changed
+- The custom post type, rewrite slug and templates are English throughout:
+  `vehicles`, `/vehicles/`, `single-vehicles.php` and `archive-vehicles.php`.
+  Existing posts are renamed from `fahrzeuge` on upgrade, and `/fahrzeuge/…`
+  permanently redirects to `/vehicles/…`. Theme copies of the old template
+  names still resolve for one release.
+- German shortcode aliases (`[fahrzeuge-anzeigen]`, `[fahrzeug-filter]`,
+  `[fahrzeug-anfrage]`, `[fahrzeug-logo]`) and German shortcode attributes
+  (`marke`, `modell`, …) are removed. Use the English names only.
 
 ### Fixed
 - The vehicle archive died with `Call to undefined method
-  WMDS_Facet_Query::selection()` the moment `/fahrzeuge/` was opened.
+  WMDS_Facet_Query::selection()` the moment the archive was opened.
   Splitting the facet engine in 2.2.0 left `selection()` on neither half;
   it is back on `WMDS_Facet_Request`, and the archive calls it there. The
   structure test now checks methods and constants as well as properties, so
@@ -19,6 +29,9 @@ versioning follows [Semantic Versioning](https://semver.org/).
   shortcode it stands for, so a page that already uses `[vehicles]` and one
   that drops the block keep the same markup. The stylesheet follows a page
   that carries a block the same way it follows a shortcode.
+- A **Usage** settings tab that documents every block, shortcode and the
+  dashboard widget in one place. The dashboard widget's Configure panel and
+  footer link to the same guide.
 
 ## [2.2.0] – 2026-08-08
 

@@ -110,7 +110,7 @@ class WMDS_Blocks {
 				'title'       => __( 'Vehicles', 'wp-mobile-de-sync' ),
 				'description' => __( 'A list of vehicles from the synced inventory.', 'wp-mobile-de-sync' ),
 				'icon'        => 'car',
-				'keywords'    => array( 'vehicle', 'fahrzeuge', 'inventory', 'mobile.de' ),
+				'keywords'    => array( 'vehicle', 'inventory', 'mobile.de', 'cars' ),
 				'attributes'  => array(
 					'postsPerPage' => array(
 						'type'    => 'number',

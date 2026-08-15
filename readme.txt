@@ -4,11 +4,11 @@ Tags: mobile.de, vehicles, dealership, import, facetwp
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 2.2.1
+Stable tag: 2.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Synchronises a dealer's vehicle inventory from mobile.de into the "fahrzeuge" custom post type.
+Synchronises a dealer's vehicle inventory from mobile.de into the "vehicles" custom post type.
 
 == Description ==
 
@@ -16,8 +16,9 @@ Fetches a dealer's vehicle inventory through the mobile.de Search API and
 stores it as WordPress posts. The vehicle data lives in post meta under stable
 field names — ready to use for your own templates, queries and filters.
 
-* CPT `fahrzeuge`, shortcodes `[vehicles]`, `[vehicle-filter]`, `[vehicle-count]`
+* CPT `vehicles`, shortcodes `[vehicles]`, `[vehicle-filter]`, `[vehicle-count]`
 * Blocks for the same: Vehicles, Vehicle filter, Vehicle count, Vehicle enquiry
+* Usage tab in Sync Settings: blocks, shortcodes and the dashboard widget
 * Filtering of its own: dropdowns, checkboxes, radio buttons, range sliders,
   search and sorting — no second plugin needed
 * One meta key per property, also usable as FacetWP facet sources
@@ -117,13 +118,18 @@ than a translation of the English source.
 
 == Changelog ==
 
-= 2.2.1 =
+= 2.3.0 =
+* Changed: the post type, rewrite slug and templates are English — `vehicles`,
+  `/vehicles/`, `single-vehicles.php`. Existing `fahrzeuge` posts are renamed
+  on upgrade; old URLs permanently redirect.
+* Changed: German shortcode aliases and German shortcode attributes are
+  removed. Use `[vehicles]`, `[vehicle-filter]`, `[vehicle-enquiry]`,
+  `[vehicle-logo]` and English attribute names only.
 * Fixed: the vehicle archive died with "Call to undefined method
-  WMDS_Facet_Query::selection()" whenever `/fahrzeuge/` was opened. The method
-  left behind by the 2.2.0 facet split is back.
-* New: four blocks in the editor under mobile.de Sync — Vehicles, Vehicle
-  filter, Vehicle count and Vehicle enquiry — each rendering through the
-  shortcode it stands for.
+  WMDS_Facet_Query::selection()" whenever the archive was opened.
+* New: four blocks under mobile.de Sync, and a Usage settings tab (plus the
+  dashboard widget Configure panel) that documents every block, shortcode and
+  widget.
 
 = 2.2.0 =
 * New: filtering of its own. `[vehicle-filter]` renders dropdowns, radio

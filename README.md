@@ -10,7 +10,7 @@
 **[Project page and download](https://dmnktoe.github.io/wp-mobile-de-sync/)**
 
 Synchronises a dealer's vehicle inventory from the mobile.de **Search API**
-into the `fahrzeuge` custom post type — with bundled templates that any theme
+into the `vehicles` custom post type — with bundled templates that any theme
 can override and filtering of its own, so an inventory can be searched without
 a second plugin.
 
@@ -20,7 +20,7 @@ Vehicle data lands in post meta under stable field names. That is the
 interface for templates, facets and custom queries, and it does not change
 within a major version:
 
-- CPT `fahrzeuge`, shortcodes `[vehicles]`, `[vehicle-filter]`,
+- CPT `vehicles`, shortcodes `[vehicles]`, `[vehicle-filter]`,
   `[vehicle-count]` and `[vehicle-logo]`
 - Blocks under **mobile.de Sync**: Vehicles, Vehicle filter, Vehicle count
   and Vehicle enquiry (each renders through the shortcode it stands for)
@@ -446,9 +446,9 @@ Every template is resolved through the same hierarchy, first match wins:
 
 | File | Rendered for |
 |---|---|
-| `single-fahrzeuge.php` | the detail page |
-| `archive-fahrzeuge.php` | the vehicle archive |
-| `mob_vehicle-list.php` | `[vehicles]`, and its alias `[fahrzeuge-anzeigen]` |
+| `single-vehicles.php` | the detail page |
+| `archive-vehicles.php` | the vehicle archive |
+| `mob_vehicle-list.php` | `[vehicles]` |
 | `parts/vehicle-card.php` | one card, used by the last two |
 | `parts/vehicle-gallery.php` | the photos on the detail page |
 | `parts/filter-bar.php` | the filter components |
@@ -505,7 +505,7 @@ field the feed fills:
     [vehicle-filter layout="sidebar" facets="make,price,fuel"]
     [vehicles filters="yes" pagination="yes" posts_per_page="12"]
 
-The bundled archive template already carries the bar, so `/fahrzeuge/` filters
+The bundled archive template already carries the bar, so `/vehicles/` filters
 without a shortcode anywhere.
 
 Every option states how many vehicles are behind it. That number is counted
@@ -535,9 +535,8 @@ to be whitelisted first:
 
     [vehicles make="Audi" fuel="Diesel" interior_type="Teilleder"]
 
-`marke`, `modell`, `zustand`, `kraftstoffart`, `getriebe` and `anzahl` map onto
-their English counterparts, and `[fahrzeuge-anzeigen]` and `[fahrzeug-logo]`
-stay registered, so pages written against the old names keep working.
+`make`, `model`, `condition`, `fuel`, `gearbox` and `posts_per_page` (and any
+other vehicle meta key) filter the list when passed as shortcode attributes.
 
 ## The blocks
 
