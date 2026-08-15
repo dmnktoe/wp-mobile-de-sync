@@ -24,14 +24,10 @@ versioning follows [Semantic Versioning](https://semver.org/).
   a member left behind fails before WordPress does.
 
 ### Added
-- Four blocks in the editor under **mobile.de Sync**: Vehicles, Vehicle
-  filter, Vehicle count and Vehicle enquiry. Each one renders through the
-  shortcode it stands for, so a page that already uses `[vehicles]` and one
-  that drops the block keep the same markup. The stylesheet follows a page
-  that carries a block the same way it follows a shortcode.
-- A **Usage** settings tab that documents every block, shortcode and the
-  dashboard widget in one place. The dashboard widget's Configure panel and
-  footer link to the same guide.
+- Four blocks under **mobile.de Sync**: Vehicles, Vehicle filter, Vehicle
+  count and Vehicle enquiry. Each renders the matching shortcode.
+- A **Usage** settings tab for blocks, shortcodes and the dashboard widget.
+  The widget Configure panel links to it.
 
 ## [2.2.0] – 2026-08-08
 

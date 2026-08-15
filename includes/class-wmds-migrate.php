@@ -4,11 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Moves the inventory onto the English post type and keeps old URLs working.
- *
- * Until 2.3.0 the post type and its rewrite slug were both "fahrzeuge". Sites
- * that already have posts under that name need them rewritten once; visitors
- * who bookmarked /fahrzeuge/ need a permanent redirect to /vehicles/.
+ * Renames fahrzeuge posts to vehicles and redirects the old URLs.
  */
 class WMDS_Migrate {
 	const OPTION = 'wmds_schema';
@@ -32,10 +28,6 @@ class WMDS_Migrate {
 		update_option( self::OPTION, self::SCHEMA, true );
 	}
 
-	/**
-	 * Runs from the activation hook as well, so a fresh install never leaves
-	 * rewrite rules pointing at the old slug.
-	 */
 	public static function activate() {
 		self::rename_post_type();
 		flush_rewrite_rules();
@@ -45,11 +37,7 @@ class WMDS_Migrate {
 	private static function rename_post_type() {
 		global $wpdb;
 
-		if ( ! isset( $wpdb ) || ! is_object( $wpdb ) ) {
-			return;
-		}
-
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- a one-shot schema migration on upgrade.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- one-shot on upgrade.
 		$wpdb->update(
 			$wpdb->posts,
 			array( 'post_type' => WMDS_CPT ),
@@ -59,9 +47,6 @@ class WMDS_Migrate {
 		);
 	}
 
-	/**
-	 * /fahrzeuge/ and /fahrzeuge/slug/ permanently redirect to /vehicles/.
-	 */
 	public static function redirect_legacy() {
 		if ( is_admin() || wp_doing_ajax() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
 			return;
@@ -96,12 +81,7 @@ class WMDS_Migrate {
 		wp_safe_redirect( $target, 301 );
 
 		/**
-		 * Whether to end the request after a legacy redirect.
-		 *
-		 * The suite turns this off so a redirect can be asserted without
-		 * killing the process.
-		 *
-		 * @param bool $exit
+		 * @param bool $exit Whether to end the request after redirecting.
 		 */
 		if ( apply_filters( 'wmds_migrate_exit', true ) ) {
 			exit;

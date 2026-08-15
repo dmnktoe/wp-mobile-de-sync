@@ -6,10 +6,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * The shortcodes, as blocks the editor can place.
  *
- * Each block renders through the shortcode it stands for, so a page that
- * already uses `[vehicles]` and one that drops the Vehicles block keep the
- * same markup. The editor script only draws the sidebar controls; the
- * preview comes from the server.
+ * Each block renders through the shortcode it stands for. The editor script
+ * draws the sidebar; the preview comes from the server.
  */
 class WMDS_Blocks {
 	const HANDLE = 'wmds-blocks';
@@ -17,8 +15,6 @@ class WMDS_Blocks {
 	const CATEGORY = 'wmds';
 
 	/**
-	 * Block names the stylesheet has to follow the way shortcodes do.
-	 *
 	 * @var string[]
 	 */
 	private static $styled = array(
@@ -90,9 +86,7 @@ class WMDS_Blocks {
 					'keywords'        => $definition['keywords'],
 					'attributes'      => $definition['attributes'],
 					'supports'        => array(
-						'html'     => false,
-						'align'    => false,
-						'multiple' => true,
+						'html' => false,
 					),
 					'editor_script'   => self::HANDLE,
 					'render_callback' => $definition['render'],

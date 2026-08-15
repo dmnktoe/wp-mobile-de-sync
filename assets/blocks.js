@@ -100,7 +100,6 @@
 						el( TextControl, {
 							label: __( 'Order by', 'wp-mobile-de-sync' ),
 							value: attributes.orderby,
-							help: __( 'WordPress orderby value, e.g. date or meta_value_num.', 'wp-mobile-de-sync' ),
 							onChange: function ( value ) {
 								setAttributes( { orderby: value } );
 							},
@@ -154,7 +153,7 @@
 						el( TextControl, {
 							label: __( 'Facets', 'wp-mobile-de-sync' ),
 							value: attributes.facets,
-							help: __( 'Comma-separated keys, e.g. make,price,fuel. Leave empty for all.', 'wp-mobile-de-sync' ),
+							help: __( 'Comma-separated, e.g. make,price,fuel. Empty = all.', 'wp-mobile-de-sync' ),
 							onChange: function ( value ) {
 								setAttributes( { facets: value } );
 							},
@@ -232,7 +231,7 @@
 							label: __( 'Vehicle ID', 'wp-mobile-de-sync' ),
 							type: 'number',
 							value: attributes.vehicle || '',
-							help: __( 'Leave empty to use the current vehicle.', 'wp-mobile-de-sync' ),
+							help: __( 'Empty = current vehicle.', 'wp-mobile-de-sync' ),
 							onChange: function ( value ) {
 								setAttributes( { vehicle: parseInt( value, 10 ) || 0 } );
 							},

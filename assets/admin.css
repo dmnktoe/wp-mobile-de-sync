@@ -578,15 +578,6 @@
 	border-top: 1px solid #dcdcde;
 }
 
-.wmds-widget-guide ul {
-	margin: 6px 0 8px 1.2em;
-	list-style: disc;
-}
-
-.wmds-widget-guide li {
-	margin: 0 0 6px;
-}
-
 .wmds-usage-table td,
 .wmds-usage-table th {
 	vertical-align: top;

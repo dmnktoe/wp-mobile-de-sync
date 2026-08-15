@@ -540,7 +540,7 @@ other vehicle meta key) filter the list when passed as shortcode attributes.
 
 ## The blocks
 
-The same pieces sit under **mobile.de Sync** in the block inserter:
+Under **mobile.de Sync** in the block inserter:
 
 | Block | Shortcode it renders |
 |---|---|
@@ -549,8 +549,7 @@ The same pieces sit under **mobile.de Sync** in the block inserter:
 | Vehicle count | `[vehicle-count]` |
 | Vehicle enquiry | `[vehicle-enquiry]` |
 
-A page that already uses the shortcode and one that drops the block keep the
-same markup. The sidebar controls map onto the shortcode attributes.
+Sidebar controls map onto the shortcode attributes.
 
 If a site brings its own templates that call helper functions from an earlier
 solution, `includes/class-wmds-compat.php` provides equivalents — but only

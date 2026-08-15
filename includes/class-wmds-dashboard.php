@@ -91,27 +91,13 @@ class WMDS_Dashboard {
 			</select>
 		</p>
 		<div class="wmds-widget-guide">
-			<p><strong><?php esc_html_e( 'Also available on the site', 'wp-mobile-de-sync' ); ?></strong></p>
-			<ul>
-				<li>
-					<?php esc_html_e( 'Blocks', 'wp-mobile-de-sync' ); ?>:
-					<code>Vehicles</code>, <code>Vehicle filter</code>, <code>Vehicle count</code>, <code>Vehicle enquiry</code>
-					<span class="wmds-muted"><?php esc_html_e( '(inserter → mobile.de Sync)', 'wp-mobile-de-sync' ); ?></span>
-				</li>
-				<li>
-					<?php esc_html_e( 'Shortcodes', 'wp-mobile-de-sync' ); ?>:
-					<code>[vehicles]</code>
-					<code>[vehicle-filter]</code>
-					<code>[vehicle-count]</code>
-					<code>[vehicle-enquiry]</code>
-					<code>[vehicle-logo]</code>
-					<code>[emission-sticker]</code>
-				</li>
-			</ul>
+			<p class="description">
+				<?php esc_html_e( 'On the site: blocks under mobile.de Sync, or shortcodes such as [vehicles] and [vehicle-filter].', 'wp-mobile-de-sync' ); ?>
+			</p>
 			<?php if ( current_user_can( 'manage_options' ) ) : ?>
 				<p>
 					<a href="<?php echo esc_url( WMDS_Status::settings_url( 'usage' ) ); ?>">
-						<?php esc_html_e( 'Full usage guide in Sync Settings', 'wp-mobile-de-sync' ); ?>
+						<?php esc_html_e( 'Usage guide', 'wp-mobile-de-sync' ); ?>
 					</a>
 				</p>
 			<?php endif; ?>

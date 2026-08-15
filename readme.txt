@@ -127,9 +127,8 @@ than a translation of the English source.
   `[vehicle-logo]` and English attribute names only.
 * Fixed: the vehicle archive died with "Call to undefined method
   WMDS_Facet_Query::selection()" whenever the archive was opened.
-* New: four blocks under mobile.de Sync, and a Usage settings tab (plus the
-  dashboard widget Configure panel) that documents every block, shortcode and
-  widget.
+* New: four blocks under mobile.de Sync, and a Usage settings tab that lists
+  blocks, shortcodes and the dashboard widget.
 
 = 2.2.0 =
 * New: filtering of its own. `[vehicle-filter]` renders dropdowns, radio
