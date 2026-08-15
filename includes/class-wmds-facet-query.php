@@ -172,7 +172,7 @@ class WMDS_Facet_Query {
 			return;
 		}
 
-		$selection = self::selection();
+		$selection = WMDS_Facet_Request::selection();
 		if ( ! $selection ) {
 			return;
 		}
