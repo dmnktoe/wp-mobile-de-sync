@@ -34,7 +34,7 @@ while ( have_posts() ) :
 		<p class="wmds-warning"><?php echo esc_html( implode( ' · ', $vehicle->warnings() ) ); ?></p>
 	<?php endif; ?>
 
-	<div class="wmds-single__main">
+	<div class="wmds-single__main<?php echo ( $images || has_post_thumbnail() ) ? '' : ' wmds-single__main--no-gallery'; ?>">
 
 		<?php WMDS_Templates::render( 'parts/vehicle-gallery.php', array( 'images' => $images ) ); ?>
 

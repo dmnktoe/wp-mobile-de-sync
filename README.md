@@ -570,8 +570,10 @@ can restyle the whole thing in one rule rather than selector by selector:
 }
 ```
 
-The dark variant follows `prefers-color-scheme`. A theme that knows its own
-answer overrides the properties and ours never applies.
+A dark set of values ships with it and is opt-in: put the class `wmds-dark` on
+`<body>` or on any wrapper. It deliberately does not follow
+`prefers-color-scheme` — that describes the visitor's system, not the theme, and
+a light theme seen from a dark system lost every border.
 
 ## Filtering
 

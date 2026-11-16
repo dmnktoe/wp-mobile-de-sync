@@ -122,13 +122,7 @@ class WMDS_Adminbar {
 			array(
 				'parent' => self::ID,
 				'id'     => self::ID . '-next',
-				'title'  => $status['next']
-					? sprintf(
-						/* translators: %s: a human-readable duration, e.g. "12 mins". */
-						esc_html__( 'Next run in %s', 'wp-mobile-de-sync' ),
-						esc_html( human_time_diff( time(), $status['next'] ) )
-					)
-					: esc_html__( 'No run scheduled', 'wp-mobile-de-sync' ),
+				'title'  => self::next_run( (int) $status['next'], time() ),
 				'href'   => WMDS_Status::settings_url( 'schedule' ),
 			)
 		);
@@ -226,5 +220,33 @@ class WMDS_Adminbar {
 				)
 			);
 		}
+	}
+
+	/**
+	 * @param int $next Unix time of the next scheduled run, 0 when none.
+	 * @param int $now  Unix time.
+	 * @return string Escaped.
+	 */
+	public static function next_run( $next, $now ) {
+		if ( ! $next ) {
+			return esc_html__( 'No run scheduled', 'wp-mobile-de-sync' );
+		}
+
+		// human_time_diff() has no sign. A run that should have started three
+		// hours ago read as "Next run in 3 hours" — on exactly the sites
+		// whose cron had stopped.
+		if ( $next < $now - MINUTE_IN_SECONDS ) {
+			return sprintf(
+				/* translators: %s: a human-readable duration, e.g. "3 hours". */
+				esc_html__( 'Run overdue by %s', 'wp-mobile-de-sync' ),
+				esc_html( human_time_diff( $next, $now ) )
+			);
+		}
+
+		return sprintf(
+			/* translators: %s: a human-readable duration, e.g. "12 mins". */
+			esc_html__( 'Next run in %s', 'wp-mobile-de-sync' ),
+			esc_html( human_time_diff( $now, $next ) )
+		);
 	}
 }

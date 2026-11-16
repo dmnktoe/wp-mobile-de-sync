@@ -95,7 +95,11 @@ wmds_assert( 'the inserter has a mobile.de Sync category', true, in_array( 'wmds
 wmds_section( 'Attributes reach the shortcodes as they expect them' );
 
 class WMDS_Templates {
+	const HANDLE = 'wmds';
+
 	public static $last_atts;
+
+	public static function register() {}
 
 	public static function shortcode( $atts ) {
 		self::$last_atts = $atts;

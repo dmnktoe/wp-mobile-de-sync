@@ -59,8 +59,22 @@ class WMDS_Admin_Notices {
 			return;
 		}
 
+		// "Reload from mobile.de" comes back to the vehicle list or the edit
+		// screen. Its answer belongs there, not on the settings page whenever
+		// that happens to be opened next.
+		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+		if ( $screen && WMDS_CPT === $screen->post_type ) {
+			self::render_notices();
+		}
+
 		$status = WMDS_Status::get();
 		if ( ! WMDS_Status::is_actionable( $status['level'] ) ) {
+			// Dismissing a problem holds until it is over. Kept beyond that,
+			// the same problem months later would never be shown again.
+			if ( '' !== (string) get_user_meta( get_current_user_id(), self::DISMISSED, true ) && WMDS_Status::RUNNING !== $status['level'] ) {
+				delete_user_meta( get_current_user_id(), self::DISMISSED );
+			}
+
 			return;
 		}
 

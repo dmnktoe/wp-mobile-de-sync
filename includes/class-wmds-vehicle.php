@@ -269,7 +269,7 @@ class WMDS_Vehicle {
 	public function warnings() {
 		$out = array();
 
-		if ( 'true' === $this->get( 'damageRepaired' ) ) {
+		if ( 'true' === $this->get( 'damageUnrepaired' ) ) {
 			$out[] = __( 'Damaged, unrepaired', 'wp-mobile-de-sync' );
 		}
 		if ( 'false' === $this->get( 'roadWorthy' ) ) {

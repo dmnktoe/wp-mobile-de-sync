@@ -94,6 +94,8 @@ function wmds_run_action( $action, array $post = array() ) {
 	$_POST                = $_REQUEST; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- this is the test setting a request up, not reading one.
 	$_REQUEST['_wpnonce'] = 'test';
 
+	$_SERVER['REQUEST_METHOD'] = 'POST';
+
 	try {
 		WMDS_Admin_Actions::handle();
 	} catch ( WMDS_Test_Redirect $redirect ) {
@@ -104,6 +106,33 @@ function wmds_run_action( $action, array $post = array() ) {
 
 	return 'no redirect';
 }
+
+wmds_section( 'A link cannot do what only a form may' );
+
+wmds_admin_fake_reset();
+WMDS_Settings::update( array( 'username' => 'dealer' ) );
+
+$_REQUEST                  = array(
+	'wmds_action' => 'save',
+	'_wpnonce'    => 'test',
+);
+$_POST                     = array();
+$_SERVER['REQUEST_METHOD'] = 'GET';
+
+try {
+	WMDS_Admin_Actions::handle();
+	$wmds_outcome = 'handled';
+} catch ( WMDS_Test_Redirect $redirect ) {
+	$wmds_outcome = 'redirected';
+} catch ( WMDS_Test_Died $died ) {
+	$wmds_outcome = 'died';
+}
+
+wmds_assert( 'a save by GET is refused', 'died', $wmds_outcome );
+wmds_assert( 'and the username is still there', 'dealer', WMDS_Settings::get( 'username' ) );
+
+wmds_run_action( 'save', array() );
+wmds_assert( 'a form without a tab saves nothing', 'dealer', WMDS_Settings::get( 'username' ) );
 
 wmds_section( 'Every tab is still there, in the order somebody learned' );
 

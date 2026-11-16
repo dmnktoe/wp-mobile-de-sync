@@ -11,7 +11,7 @@ class WMDS_Requirements {
 	const MIN_PHP = '7.0';
 	const MIN_WP  = '5.8';
 
-	const SUPPORTED_PHP    = '8.1';
+	const SUPPORTED_PHP    = '8.2';
 	const WANTED_EXECUTION = 120;
 	const WANTED_MEMORY    = 134217728;
 
@@ -26,24 +26,6 @@ class WMDS_Requirements {
 			self::wordpress(),
 			WMDS_Smtp::checks()
 		);
-	}
-
-	/**
-	 * @return string The worst status across all checks.
-	 */
-	public static function worst() {
-		$worst = self::OK;
-
-		foreach ( self::all() as $check ) {
-			if ( self::FAIL === $check['status'] ) {
-				return self::FAIL;
-			}
-			if ( self::WARN === $check['status'] ) {
-				$worst = self::WARN;
-			}
-		}
-
-		return $worst;
 	}
 
 	/**

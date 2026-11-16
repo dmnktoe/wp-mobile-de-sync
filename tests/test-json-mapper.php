@@ -213,7 +213,7 @@ wmds_assert( 'damage is not equipment', false, isset( $damaged['meta']['DAMAGE_U
 wmds_section( 'The fields the earlier templates read' );
 
 wmds_assert( 'cubicCapacity beside cubic_capacity', $merged['meta']['cubic_capacity'], $merged['meta']['cubicCapacity'] );
-wmds_assert( 'roadworthy beside roadWorthy', $merged['meta']['roadWorthy'], $merged['meta']['roadworthy'] );
+wmds_assert( 'an ad that does not mention roadworthiness is not marked unfit', '', ( new WMDS_Json_Mapper( $refdata ) )->map( array( 'mobileAdId' => '1' ) )['meta']['roadWorthy'] );
 wmds_assert( 'seller_company_name beside seller', $merged['meta']['seller'], $merged['meta']['seller_company_name'] );
 wmds_assert( 'the vehicle class is readable', 'Car', $merged['meta']['class'] );
 wmds_assert( 'the class key survives too', 'Car', $merged['meta']['class_key'] );

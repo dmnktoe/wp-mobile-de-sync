@@ -515,12 +515,16 @@ class WMDS_Leads {
 			? sprintf( __( '%1$s about %2$s', 'wp-mobile-de-sync' ), $name, $context['title'] )
 			: $name;
 
+		// Slashed: WordPress unslashes what it is handed, and a message that
+		// mentions C:\\ or a name with a backslash would lose it.
 		$lead = wp_insert_post(
-			array(
-				'post_type'    => self::CPT,
-				'post_status'  => 'publish',
-				'post_title'   => $title,
-				'post_content' => isset( $data['message'] ) ? $data['message'] : '',
+			wp_slash(
+				array(
+					'post_type'    => self::CPT,
+					'post_status'  => 'publish',
+					'post_title'   => $title,
+					'post_content' => isset( $data['message'] ) ? $data['message'] : '',
+				)
 			),
 			true
 		);
@@ -545,7 +549,7 @@ class WMDS_Leads {
 		);
 
 		foreach ( $meta as $key => $value ) {
-			update_post_meta( $lead, $key, $value );
+			update_post_meta( $lead, $key, wp_slash( $value ) );
 		}
 
 		return (int) $lead;

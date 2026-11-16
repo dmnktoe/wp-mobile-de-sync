@@ -92,9 +92,51 @@
 		}
 
 		var sort = form.querySelector( 'select[name$="_sort"]' );
+
+		// Only what was chosen goes into the address. A form sends every
+		// field it has, so each search read ?wmds_q=&wmds_model=&… and the
+		// same result had as many addresses as there are empty fields.
+		function prune() {
+			var fields = form.querySelectorAll( 'input[name], select[name]' );
+			var field;
+			var index;
+
+			for ( index = 0; index < fields.length; index++ ) {
+				field = fields[ index ];
+
+				if ( 'hidden' === field.type || 'checkbox' === field.type || 'radio' === field.type ) {
+					if ( ( 'checkbox' === field.type || 'radio' === field.type ) && field.checked && '' === field.value ) {
+						field.disabled = true;
+					}
+					continue;
+				}
+
+				if ( '' === field.value || ( field === sort && 0 === field.selectedIndex ) ) {
+					field.disabled = true;
+				}
+			}
+
+			// Back from the result with the browser's button, the form is
+			// restored as it was left: switched off.
+			window.setTimeout( function () {
+				for ( index = 0; index < fields.length; index++ ) {
+					fields[ index ].disabled = false;
+				}
+			}, 0 );
+		}
+
+		form.addEventListener( 'submit', prune );
+
 		if ( sort ) {
 			sort.addEventListener( 'change', function () {
-				form.submit();
+				// requestSubmit() runs validation and the handler above;
+				// submit() does neither.
+				if ( form.requestSubmit ) {
+					form.requestSubmit();
+				} else {
+					prune();
+					form.submit();
+				}
 			} );
 		}
 

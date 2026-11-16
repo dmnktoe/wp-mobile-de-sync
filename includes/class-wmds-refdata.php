@@ -67,7 +67,7 @@ class WMDS_Refdata {
 	/**
 	 * What to show for a key the reference data has no label for.
 	 *
-	 * mobile.de adds values before it documents them, and the reference
+	 * The API gains values before they are documented, and the reference
 	 * endpoint has bad days. MERCEDES-BENZ and AUTOMATIC_GEAR on a public
 	 * page look like a broken site; Mercedes-Benz and Automatic Gear do not.
 	 *
@@ -86,7 +86,7 @@ class WMDS_Refdata {
 			return $key;
 		}
 
-		return ucwords( strtolower( str_replace( '_', ' ', $key ) ), " -" );
+		return ucwords( strtolower( str_replace( '_', ' ', $key ) ), ' -' );
 	}
 
 	/**

@@ -8,9 +8,8 @@
  *
  * Everything that does need a colour of its own reads a custom property
  * off .wmds-scope, so a theme can restyle the whole thing by setting a
- * handful of values instead of fighting selector by selector. The dark
- * variant follows prefers-color-scheme, and a theme that already knows
- * its own answer can override the properties and ignore ours.
+ * handful of values instead of fighting selector by selector. A dark
+ * set of values comes with it and is switched on with the class wmds-dark.
  */
 
 .wmds-scope {
@@ -39,16 +38,35 @@
 	box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: dark) {
-	.wmds-scope {
-		--wmds-line: rgba(255, 255, 255, .16);
-		--wmds-line-strong: rgba(255, 255, 255, .34);
-		--wmds-surface: rgba(255, 255, 255, .04);
-		--wmds-surface-sunken: rgba(255, 255, 255, .07);
-		--wmds-shadow: none;
-		--wmds-shadow-hover: 0 6px 20px rgba(0, 0, 0, .5);
-		--wmds-danger: #ff8a87;
-	}
+/*
+ * The dark values are opt-in: class wmds-dark on any ancestor, or on the
+ * scope itself. They used to follow prefers-color-scheme, which describes
+ * the visitor's system and not the theme — on a light theme viewed from a
+ * dark system every border turned white on white.
+ */
+.wmds-dark .wmds-scope,
+.wmds-scope.wmds-dark {
+	--wmds-line: rgba(255, 255, 255, .16);
+	--wmds-line-strong: rgba(255, 255, 255, .34);
+	--wmds-surface: rgba(255, 255, 255, .04);
+	--wmds-surface-sunken: rgba(255, 255, 255, .07);
+	--wmds-shadow: none;
+	--wmds-shadow-hover: 0 6px 20px rgba(0, 0, 0, .5);
+	--wmds-danger: #ff8a87;
+}
+
+/* Used for the "from" and "up to" of a range; not every theme ships it. */
+.wmds-scope .screen-reader-text {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	clip-path: inset(50%);
+	border: 0;
+	white-space: nowrap;
 }
 
 .wmds-scope :focus-visible {
@@ -533,6 +551,11 @@
 	.wmds-single__main {
 		grid-template-columns: 1fr;
 	}
+}
+
+/* No picture: the summary takes the row instead of two thirds of it. */
+.wmds-single__main--no-gallery {
+	grid-template-columns: 1fr;
 }
 
 .wmds-gallery__main {

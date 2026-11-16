@@ -314,7 +314,7 @@ wmds_assert( 'the watermark stays, so the next run lists it again', '', (string)
 wmds_assert_contains( 'failure logged', 'Detail call failed', get_option( WMDS_Importer::OPT_LOG )[1]['message'] );
 
 wmds_fake_reset();
-$post_id                   = wmds_fake_seed_vehicle( '111', '2026-07-01T00:00:00+02:00' );
+$post_id = wmds_fake_seed_vehicle( '111', '2026-07-01T00:00:00+02:00' );
 update_post_meta( $post_id, 'power', '108 kW' );
 list( $importer, $client ) = wmds_setup( array( wmds_ad( '111' ) ) );
 $client->details           = array();

@@ -95,6 +95,18 @@ function wmds_register_cpt() {
 }
 add_action( 'init', 'wmds_register_cpt' );
 
+// A vehicle is written by the importer, not by hand. The classic screen shows
+// its fields and the warning that says so; the block editor hides both.
+add_filter( 'use_block_editor_for_post_type', 'wmds_classic_editor', 10, 2 );
+/**
+ * @param bool   $use
+ * @param string $post_type
+ * @return bool
+ */
+function wmds_classic_editor( $use, $post_type ) {
+	return WMDS_CPT === $post_type ? false : $use;
+}
+
 add_action( 'before_delete_post', array( 'WMDS_Importer', 'delete_attachments' ) );
 
 WMDS_Templates::init();

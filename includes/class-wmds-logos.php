@@ -135,7 +135,7 @@ class WMDS_Logos {
 				if ( ! preg_match( '/\.(png|svg|jpe?g|webp)$/i', (string) $file ) ) {
 					continue;
 				}
-				$key  = self::normalize( pathinfo( $file, PATHINFO_FILENAME ) );
+				$key = self::normalize( pathinfo( $file, PATHINFO_FILENAME ) );
 				if ( '' === $key ) {
 					continue;
 				}

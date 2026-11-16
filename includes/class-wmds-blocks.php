@@ -55,6 +55,8 @@ class WMDS_Blocks {
 			return;
 		}
 
+		WMDS_Templates::register();
+
 		wp_register_script(
 			self::HANDLE,
 			WMDS_URL . 'assets/blocks.js',
@@ -89,6 +91,10 @@ class WMDS_Blocks {
 						'html' => false,
 					),
 					'editor_script'   => self::HANDLE,
+					// The preview is the front-end markup and needs the
+					// front-end stylesheet; on the site itself the template
+					// loader enqueues it.
+					'editor_style'    => WMDS_Templates::HANDLE,
 					'render_callback' => $definition['render'],
 				)
 			);

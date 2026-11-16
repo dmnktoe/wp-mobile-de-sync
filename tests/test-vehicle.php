@@ -227,7 +227,7 @@ wmds_assert( 'an emptied index is an answer, not a gap', array(), $emptied->feat
 
 wmds_section( 'Warnings' );
 
-$v = wmds_vehicle_with( array( 'damageRepaired' => 'true' ) );
+$v = wmds_vehicle_with( array( 'damageUnrepaired' => 'true' ) );
 wmds_assert( 'unrepaired damage', array( 'Damaged, unrepaired' ), $v->warnings() );
 
 $v = wmds_vehicle_with( array( 'roadWorthy' => 'false' ) );
@@ -235,8 +235,8 @@ wmds_assert( 'not roadworthy', array( 'Not roadworthy' ), $v->warnings() );
 
 $v = wmds_vehicle_with(
 	array(
-		'damageRepaired' => 'false',
-		'roadWorthy'     => 'true',
+		'damageUnrepaired' => 'false',
+		'roadWorthy'       => 'true',
 	)
 );
 wmds_assert( 'unremarkable vehicle', array(), $v->warnings() );

@@ -172,16 +172,20 @@ class WMDS_Templates {
 	 * @return string The rendered part, empty when the theme has none.
 	 */
 	private static function template_part( $slug ) {
-		if ( ! function_exists( 'get_block_template' ) ) {
-			return '';
-		}
-
 		$part = get_block_template( get_stylesheet() . '//' . $slug, 'wp_template_part' );
 		if ( ! $part || empty( $part->content ) ) {
 			return '';
 		}
 
-		return do_blocks( sprintf( '<!-- wp:template-part {"slug":"%1$s","area":"%1$s","tagName":"%1$s"} /-->', $slug ) );
+		// With the theme named: older WordPress versions render a template
+		// part only when it is.
+		return do_blocks(
+			sprintf(
+				'<!-- wp:template-part {"slug":"%1$s","theme":"%2$s","area":"%1$s","tagName":"%1$s"} /-->',
+				$slug,
+				esc_attr( get_stylesheet() )
+			)
+		);
 	}
 
 	/** @return string Classes for the outermost element of a vehicle template. */
@@ -261,7 +265,8 @@ class WMDS_Templates {
 		wp_enqueue_script( self::HANDLE );
 	}
 
-	private static function register() {
+	/** Registers the stylesheet and script without enqueueing either. */
+	public static function register() {
 		if ( ! wp_script_is( self::HANDLE, 'registered' ) ) {
 			wp_register_script( self::HANDLE, WMDS_URL . 'assets/wmds.js', array(), WMDS_VERSION, true );
 		}

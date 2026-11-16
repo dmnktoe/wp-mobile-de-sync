@@ -8,8 +8,8 @@ class WMDS_Status {
 	const FAILED  = 'failed';
 	const ABORTED = 'aborted';
 	const STALE   = 'stale';
-	const OK     = 'ok';
-	const NEVER  = 'never';
+	const OK      = 'ok';
+	const NEVER   = 'never';
 
 	/**
 	 * @param array $stats
