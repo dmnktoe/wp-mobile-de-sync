@@ -104,7 +104,7 @@ wmds_section( 'The plugin header no longer keeps a list to forget' );
 
 wmds_assert(
 	'only the files that cannot be autoloaded are required',
-	5,
+	4,
 	preg_match_all( "/require_once WMDS_DIR \. 'includes\//", $header )
 );
 

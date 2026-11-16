@@ -531,3 +531,13 @@ if ( ! function_exists( 'set_site_transient' ) ) {
 		return true;
 	}
 }
+
+if ( ! function_exists( 'wp_get_schedules' ) ) {
+	function wp_get_schedules() {
+		return array(
+			'hourly'     => array( 'interval' => 3600 ),
+			'daily'      => array( 'interval' => 86400 ),
+			'wmds_15min' => array( 'interval' => 900 ),
+		);
+	}
+}

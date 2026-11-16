@@ -300,17 +300,28 @@ wmds_assert( 'inventory untouched', 2, count( wmds_fake( 'posts' ) ) );
 wmds_assert_contains( 'reason in the log', 'Service Unavailable', get_option( WMDS_Importer::OPT_LOG )[0]['message'] );
 wmds_assert( 'lock released regardless', false, get_transient( WMDS_Importer::LOCK ) );
 
-wmds_section( 'The detail call fails, the search result stands' );
+wmds_section( 'The detail call fails, the vehicle is left alone' );
 
 wmds_fake_reset();
 list( $importer, $client ) = wmds_setup( array( wmds_ad( '111' ) ) );
 $client->details           = array();
 $stats                     = $importer->run();
 
-wmds_assert( 'vehicle created regardless', 1, $stats['created'] );
-wmds_assert( 'fields from the search result present', '78,000', get_post_meta( wmds_post_for( '111' ), 'mileage', true ) );
-wmds_assert( 'without a description', '', wmds_fake( 'posts' )[ wmds_post_for( '111' ) ]['post_content'] );
+wmds_assert( 'nothing is created from a listing alone', 0, $stats['created'] );
+wmds_assert( 'it counts as failed', 1, $stats['failed'] );
+wmds_assert( 'no post written', 0, count( wmds_fake( 'posts' ) ) );
+wmds_assert( 'the watermark stays, so the next run lists it again', '', (string) get_option( WMDS_Importer::OPT_WATERMARK, '' ) );
 wmds_assert_contains( 'failure logged', 'Detail call failed', get_option( WMDS_Importer::OPT_LOG )[1]['message'] );
+
+wmds_fake_reset();
+$post_id                   = wmds_fake_seed_vehicle( '111', '2026-07-01T00:00:00+02:00' );
+update_post_meta( $post_id, 'power', '108 kW' );
+list( $importer, $client ) = wmds_setup( array( wmds_ad( '111' ) ) );
+$client->details           = array();
+$stats                     = $importer->run();
+
+wmds_assert( 'an existing vehicle keeps what only the detail call knows', '108 kW', get_post_meta( $post_id, 'power', true ) );
+wmds_assert( 'and is not marked as current', '2026-07-01T00:00:00+02:00', get_post_meta( $post_id, WMDS_Importer::META_MODIFIED, true ) );
 
 wmds_section( 'One image cannot be downloaded' );
 
@@ -517,7 +528,8 @@ list( $importer, $client ) = wmds_setup(
 );
 $stats                     = $importer->run( array( 'force' => true ) );
 
-wmds_assert( 'all three now', 3, $stats['images'] );
+wmds_assert( 'only the missing one is fetched', 1, $stats['images'] );
+wmds_assert( 'all three attached, in order', array( 'a', 'b', 'c' ), get_post_meta( wmds_post_for( '111' ), WMDS_Importer::META_IMAGES, true ) );
 wmds_assert( 'complete set on file', array( 'a', 'b', 'c' ), get_post_meta( $post_id, WMDS_Importer::META_IMAGES, true ) );
 
 wmds_section( 'A complete set is not fetched again' );

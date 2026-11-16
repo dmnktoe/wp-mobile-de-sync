@@ -49,7 +49,9 @@ class WMDS_CLI {
 			}
 
 			++$runs;
-			$options['full'] = false;
+			// Both are stored by the first pass; repeating them would start over.
+			$options['full']  = false;
+			$options['force'] = false;
 		} while ( isset( $assoc['all'] ) && $stats['pending'] > 0 && $runs < 200 );
 
 		WP_CLI::success( sprintf( 'Done after %d pass(es).', $runs ) );

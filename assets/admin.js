@@ -5,6 +5,7 @@
 	var text = config.i18n || {};
 
 	var MAX_STEPS = 200;
+	var MAX_WAITS = 24;
 
 	function format( template, values ) {
 		return String( template || '' ).replace( /%(\d+)\$d/g, function ( match, index ) {
@@ -29,9 +30,26 @@
 			credentials: 'same-origin',
 			body: body
 		} ).then( function ( response ) {
-			return response.json();
-		} ).then( function ( payload ) {
-			done( !! payload.success, payload.data || {} );
+			return response.text().then( function ( raw ) {
+				var payload = null;
+
+				try {
+					payload = JSON.parse( raw );
+				} catch ( error ) {
+					payload = null;
+				}
+
+				// WordPress was reached and answered with something that is
+				// not ours: an expired session, a fatal error, a gateway
+				// timeout. Saying "could not reach WordPress" would send
+				// people looking in the wrong place.
+				if ( ! payload || typeof payload !== 'object' ) {
+					done( false, { message: format( text.unexpected, [ response.status ] ) } );
+					return;
+				}
+
+				done( !! payload.success, payload.data || {} );
+			} );
 		} ).catch( function () {
 			done( false, { message: text.failed } );
 		} );
@@ -157,8 +175,15 @@
 			}
 		}
 
-		function step( index, total ) {
+		function step( index, total, waited ) {
 			post( 'wmds_sync', { step: index }, function ( ok, payload ) {
+				if ( ! ok && payload.busy && ( waited || 0 ) < MAX_WAITS ) {
+					window.setTimeout( function () {
+						step( index, total, ( waited || 0 ) + 1 );
+					}, 5000 );
+					return;
+				}
+
 				if ( ! ok ) {
 					button.disabled = false;
 					result( 'wmds-sync-result', payload.message || text.failed, 'error' );
@@ -171,9 +196,15 @@
 
 				paint( Math.max( 0, total - payload.pending ), total );
 
-				if ( payload.done || index >= MAX_STEPS ) {
+				if ( payload.done ) {
 					button.disabled = false;
-					result( 'wmds-sync-result', text.done + ' ' + payload.summary, 'ok' );
+					result( 'wmds-sync-result', text.done + ' ' + payload.summary, payload.failed ? 'error' : 'ok' );
+					return;
+				}
+
+				if ( index >= MAX_STEPS ) {
+					button.disabled = false;
+					result( 'wmds-sync-result', format( text.unfinished, [ payload.pending ] ), 'error' );
 					return;
 				}
 

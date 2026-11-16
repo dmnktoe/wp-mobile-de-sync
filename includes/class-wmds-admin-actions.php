@@ -293,14 +293,21 @@ class WMDS_Admin_Actions {
 	}
 
 	/**
-	 * @param bool $full
+	 * @param bool $full       Start over with the whole inventory.
+	 * @param bool $reschedule False when the caller asks for the next pass
+	 *                         itself, as the progress bar does.
 	 * @return array|WP_Error
 	 */
-	public static function run_pass( $full ) {
+	public static function run_pass( $full, $reschedule = true ) {
 		@set_time_limit( 0 ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- disabled on many hosts, the failure is harmless.
 
 		$importer = new WMDS_Importer();
-		$stats    = $importer->run( array( 'full' => (bool) $full ) );
+		$stats    = $importer->run(
+			array(
+				'full'       => (bool) $full,
+				'reschedule' => (bool) $reschedule,
+			)
+		);
 
 		WMDS_Posts::flush_makes();
 

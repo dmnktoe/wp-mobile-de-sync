@@ -5,8 +5,9 @@ require_once __DIR__ . '/bootstrap.php';
 define( 'WMDS_CPT', 'vehicles' );
 
 class WMDS_Status {
-	const FAILED = 'failed';
-	const STALE  = 'stale';
+	const FAILED  = 'failed';
+	const ABORTED = 'aborted';
+	const STALE   = 'stale';
 	const OK     = 'ok';
 	const NEVER  = 'never';
 
