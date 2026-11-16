@@ -90,7 +90,6 @@ foreach ( array(
 	'WMDS_Facet_Store',
 	'WMDS_Blocks',
 	'WMDS_Catalog',
-	'WMDS_Migrate',
 	'WMDS_Leads',
 	'WMDS_Seo',
 	'WMDS_Alerts',
@@ -123,12 +122,6 @@ foreach ( array( 'vehicle-logo', 'emission-sticker' ) as $wmds_tag ) {
 		in_array( $wmds_tag, $GLOBALS['wmds_boot_shortcodes'], true )
 	);
 }
-
-wmds_assert(
-	'the German logo alias is gone',
-	false,
-	in_array( 'fahrzeug-logo', $GLOBALS['wmds_boot_shortcodes'], true )
-);
 
 wmds_section( 'And the ones an init() method registers' );
 

@@ -356,15 +356,6 @@ Inside the loop the shortcode reads `emissionSticker_key` from the vehicle; pass
 `$vehicle->emission_sticker_url()` return the file for a template, and
 `wmds_emission_sticker_url` filters the result.
 
-## List-view icons
-
-`mileage.svg`, `fuel.svg`, `gearbox.svg` and `emission.svg` are expected under
-`wp-content/icons/`. For a different path:
-
-```php
-define( 'WMDS_ICONS', 'https://example.com/path/to/icons/' );
-```
-
 ## Development
 
 ```
@@ -394,9 +385,8 @@ a tree it no longer describes.
 
 Four files are required outright anyway, and the reason is worth knowing
 before you tidy them away: **a file that does something when it loads cannot
-be loaded lazily.** `class-wmds-compat.php` holds functions rather than a
-class, and the logo, sticker and WP-CLI files each register something at file
-level. Nothing on a page that only writes `[vehicle-logo]` would ever mention
+be loaded lazily.** The logo, sticker and WP-CLI files each register something
+at file level. Nothing on a page that only writes `[vehicle-logo]` would ever mention
 `WMDS_Logos`, so an autoloaded file would never run and the shortcode would
 simply not exist. `tests/test-boot.php` and `tests/test-autoloader.php` both
 fail if that require disappears.
@@ -648,10 +638,6 @@ Under **mobile.de Sync** in the block inserter:
 | Vehicle enquiry | `[vehicle-enquiry]` |
 
 Sidebar controls map onto the shortcode attributes.
-
-If a site brings its own templates that call helper functions from an earlier
-solution, `includes/class-wmds-compat.php` provides equivalents — but only
-when they are not already defined.
 
 ## Known limits
 

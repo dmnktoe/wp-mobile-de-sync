@@ -22,7 +22,6 @@ define( 'WMDS_FILE', dirname( __DIR__ ) . '/wp-mobile-de-sync.php' );
 define( 'WMDS_CPT', 'vehicles' );
 define( 'WMDS_CRON_HOOK', 'wmds_import_event' );
 define( 'WMDS_CRON_FULL_HOOK', 'wmds_full_sync_event' );
-define( 'WMDS_ICONS', 'https://example.invalid/icons/' );
 
 require_once __DIR__ . '/wp-admin-fake.php';
 

@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-get_header();
+WMDS_Templates::header();
 
 while ( have_posts() ) :
 	the_post();
@@ -12,7 +12,7 @@ while ( have_posts() ) :
 	$images  = $vehicle->images();
 	?>
 
-<article id="vehicle-<?php the_ID(); ?>" class="wmds-scope wmds-single">
+<article id="vehicle-<?php the_ID(); ?>" class="wmds-scope wmds-single<?php echo esc_attr( WMDS_Templates::wrapper_class() ); ?>">
 
 	<header class="wmds-single__header">
 		<?php $logo = $vehicle->logo_url(); ?>
@@ -169,4 +169,4 @@ while ( have_posts() ) :
 	<?php
 endwhile;
 
-get_footer();
+WMDS_Templates::footer();

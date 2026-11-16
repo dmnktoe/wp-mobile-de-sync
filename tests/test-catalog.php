@@ -83,7 +83,7 @@ class WMDS_Test_Wpdb {
 	}
 }
 
-$wpdb = new WMDS_Test_Wpdb(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- the migrate class reads $wpdb.
+$wpdb = new WMDS_Test_Wpdb(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- a stand-in for the tests.
 
 require_once __DIR__ . '/bootstrap.php';
 
@@ -100,7 +100,6 @@ if ( ! defined( 'WMDS_DIR' ) ) {
 	define( 'WMDS_DIR', dirname( __DIR__ ) . '/' );
 }
 
-require_once dirname( __DIR__ ) . '/includes/class-wmds-migrate.php';
 require_once dirname( __DIR__ ) . '/includes/class-wmds-dashboard.php';
 require_once dirname( __DIR__ ) . '/includes/class-wmds-blocks.php';
 require_once dirname( __DIR__ ) . '/includes/class-wmds-catalog.php';
@@ -130,48 +129,5 @@ wmds_assert(
 $widgets = WMDS_Catalog::widgets();
 wmds_assert( 'the dashboard widget is documented', 1, count( $widgets ) );
 wmds_assert( 'under its real id', WMDS_Dashboard::WIDGET, $widgets[0]['id'] );
-
-wmds_section( 'Migrating the post type off fahrzeuge' );
-
-$GLOBALS['wmds_test_options'] = array();
-$GLOBALS['wmds_test_updates'] = array();
-
-WMDS_Migrate::activate();
-
-wmds_assert( 'rewrites are flushed on activate', true, ! empty( $GLOBALS['wmds_test_options']['flushed'] ) );
-wmds_assert( 'the schema version is stored', WMDS_Migrate::SCHEMA, $GLOBALS['wmds_test_options'][ WMDS_Migrate::OPTION ] );
-wmds_assert( 'posts of the old type are rewritten', 1, count( $GLOBALS['wmds_test_updates'] ) );
-wmds_assert(
-	'from fahrzeuge to vehicles',
-	array(
-		'table' => 'wp_posts',
-		'data'  => array( 'post_type' => 'vehicles' ),
-		'where' => array( 'post_type' => 'fahrzeuge' ),
-	),
-	$GLOBALS['wmds_test_updates'][0]
-);
-
-$GLOBALS['wmds_test_updates'] = array();
-WMDS_Migrate::maybe_run();
-wmds_assert( 'a second run does nothing', 0, count( $GLOBALS['wmds_test_updates'] ) );
-
-wmds_section( 'Legacy /fahrzeuge/ URLs redirect once' );
-
-$GLOBALS['wmds_test_redirects'] = array();
-$_SERVER['REQUEST_URI']         = '/fahrzeuge/audi-a4/';
-WMDS_Migrate::redirect_legacy();
-wmds_assert( 'a vehicle URL redirects', 1, count( $GLOBALS['wmds_test_redirects'] ) );
-wmds_assert( 'to the English slug', 'https://example.invalid/vehicles/audi-a4/', $GLOBALS['wmds_test_redirects'][0]['url'] );
-wmds_assert( 'permanently', 301, $GLOBALS['wmds_test_redirects'][0]['status'] );
-
-$GLOBALS['wmds_test_redirects'] = array();
-$_SERVER['REQUEST_URI']         = '/fahrzeuge/';
-WMDS_Migrate::redirect_legacy();
-wmds_assert( 'the archive redirects', 'https://example.invalid/vehicles/', $GLOBALS['wmds_test_redirects'][0]['url'] );
-
-$GLOBALS['wmds_test_redirects'] = array();
-$_SERVER['REQUEST_URI']         = '/vehicles/audi-a4/';
-WMDS_Migrate::redirect_legacy();
-wmds_assert( 'the new slug is left alone', 0, count( $GLOBALS['wmds_test_redirects'] ) );
 
 wmds_result();

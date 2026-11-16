@@ -28,16 +28,11 @@ define( 'WMDS_CPT', 'vehicles' );
 define( 'WMDS_CRON_HOOK', 'wmds_import_event' );
 define( 'WMDS_CRON_FULL_HOOK', 'wmds_full_sync_event' );
 
-if ( ! defined( 'WMDS_ICONS' ) ) {
-	define( 'WMDS_ICONS', content_url( '/icons/' ) );
-}
-
 require_once WMDS_DIR . 'includes/class-wmds-autoloader.php';
 WMDS_Autoloader::register();
 
-// Not autoloadable: functions rather than a class, and two files that
-// register a shortcode when they load. See the autoloader for why.
-require_once WMDS_DIR . 'includes/class-wmds-compat.php';
+// Not autoloadable: both register a shortcode when they load. See the
+// autoloader for why.
 require_once WMDS_DIR . 'includes/class-wmds-logos.php';
 require_once WMDS_DIR . 'includes/class-wmds-stickers.php';
 
@@ -108,7 +103,6 @@ WMDS_Blocks::init();
 WMDS_Leads::init();
 WMDS_Seo::init();
 WMDS_Smtp::init();
-WMDS_Migrate::init();
 
 // The two that read another plugin have to wait until it has loaded.
 add_action( 'plugins_loaded', array( 'WMDS_Cf7', 'init' ) );
@@ -150,7 +144,7 @@ function wmds_force_full_sync() {
 register_activation_hook( __FILE__, 'wmds_activate' );
 function wmds_activate() {
 	wmds_register_cpt();
-	WMDS_Migrate::activate();
+	flush_rewrite_rules();
 
 	if ( ! wp_next_scheduled( WMDS_CRON_HOOK ) ) {
 		wp_schedule_event( time() + 60, WMDS_Settings::interval(), WMDS_CRON_HOOK );

@@ -89,21 +89,104 @@ class WMDS_Templates {
 	 */
 	public static function template_include( $template ) {
 		if ( is_singular( WMDS_CPT ) ) {
-			$candidates = array( 'single-vehicles.php', 'single-fahrzeuge.php' );
+			$file = 'single-vehicles.php';
 		} elseif ( is_post_type_archive( WMDS_CPT ) ) {
-			$candidates = array( 'archive-vehicles.php', 'archive-fahrzeuge.php' );
+			$file = 'archive-vehicles.php';
 		} else {
 			return $template;
 		}
 
-		foreach ( $candidates as $file ) {
-			$found = self::locate( $file );
-			if ( '' !== $found ) {
-				return $found;
-			}
+		$found = self::locate( $file );
+
+		return '' !== $found ? $found : $template;
+	}
+
+	/** @return bool Whether the active theme is built from blocks and has no header.php. */
+	public static function is_block_theme() {
+		return function_exists( 'wp_is_block_theme' ) && wp_is_block_theme();
+	}
+
+	/**
+	 * Opens the page around a vehicle template.
+	 *
+	 * A classic theme has a header.php and get_header() prints it. A block
+	 * theme has none: get_header() falls back to a bare document from
+	 * theme-compat, raises a deprecation and drops the theme's own header,
+	 * its styles and its content width. For those the page is collected
+	 * instead and footer() wraps it the way the theme's own templates are
+	 * wrapped.
+	 */
+	public static function header() {
+		if ( self::is_block_theme() ) {
+			ob_start();
+
+			return;
 		}
 
-		return $template;
+		get_header();
+	}
+
+	/** Closes what header() opened. */
+	public static function footer() {
+		if ( ! self::is_block_theme() ) {
+			get_footer();
+
+			return;
+		}
+
+		$content = (string) ob_get_clean();
+
+		// Rendered before wp_head() runs, as the block template canvas does:
+		// the styles of every block in a template part are only known once
+		// the part has been rendered.
+		$header = self::template_part( 'header' );
+		$footer = self::template_part( 'footer' );
+		$main   = do_blocks( '<!-- wp:group {"tagName":"main","layout":{"type":"constrained"}} --><main class="wp-block-group">wmds-content-goes-here</main><!-- /wp:group -->' );
+		$main   = str_replace( 'wmds-content-goes-here', $content, $main );
+		?>
+<!DOCTYPE html>
+<html <?php language_attributes(); ?>>
+<head>
+	<meta charset="<?php bloginfo( 'charset' ); ?>">
+		<?php wp_head(); ?>
+</head>
+<body <?php body_class(); ?>>
+		<?php wp_body_open(); ?>
+<div class="wp-site-blocks">
+		<?php
+		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- rendered blocks and the template's own, already escaped output.
+		echo $header;
+		echo $main;
+		echo $footer;
+		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
+		?>
+</div>
+		<?php wp_footer(); ?>
+</body>
+</html>
+		<?php
+	}
+
+	/**
+	 * @param string $slug header or footer.
+	 * @return string The rendered part, empty when the theme has none.
+	 */
+	private static function template_part( $slug ) {
+		if ( ! function_exists( 'get_block_template' ) ) {
+			return '';
+		}
+
+		$part = get_block_template( get_stylesheet() . '//' . $slug, 'wp_template_part' );
+		if ( ! $part || empty( $part->content ) ) {
+			return '';
+		}
+
+		return do_blocks( sprintf( '<!-- wp:template-part {"slug":"%1$s","area":"%1$s","tagName":"%1$s"} /-->', $slug ) );
+	}
+
+	/** @return string Classes for the outermost element of a vehicle template. */
+	public static function wrapper_class() {
+		return self::is_block_theme() ? ' alignwide' : '';
 	}
 
 	/**

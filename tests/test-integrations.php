@@ -11,7 +11,7 @@
 
 require_once __DIR__ . '/bootstrap.php';
 
-define( 'WMDS_CPT', 'fahrzeuge' );
+define( 'WMDS_CPT', 'vehicles' );
 
 $GLOBALS['wmds_test_options'] = array();
 $GLOBALS['wmds_test_meta']    = array();
@@ -45,7 +45,7 @@ function get_the_title( $post_id = 0 ) {
 }
 
 function get_permalink( $post_id = 0 ) {
-	return 'https://example.invalid/fahrzeuge/defender/';
+	return 'https://example.invalid/vehicles/defender/';
 }
 
 function get_post_meta( $post_id, $key = '', $single = false ) {
@@ -97,7 +97,7 @@ $GLOBALS['wmds_test_meta'] = array(
 $context = WMDS_Cf7::context( 42 );
 
 wmds_assert( 'the title', 'Land Rover Defender 110', WMDS_Cf7::value( 'title', $context ) );
-wmds_assert( 'the address', 'https://example.invalid/fahrzeuge/defender/', WMDS_Cf7::value( 'url', $context ) );
+wmds_assert( 'the address', 'https://example.invalid/vehicles/defender/', WMDS_Cf7::value( 'url', $context ) );
 wmds_assert( 'the post ID', '42', WMDS_Cf7::value( 'id', $context ) );
 wmds_assert( 'the listing number', '427312402', WMDS_Cf7::value( 'listing', $context ) );
 wmds_assert( 'the price, as it is printed', '42.999 €', WMDS_Cf7::value( 'price', $context ) );

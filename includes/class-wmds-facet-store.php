@@ -116,9 +116,16 @@ class WMDS_Facet_Store {
 
 		$out = array();
 		if ( $row && null !== $row->low && null !== $row->high && (float) $row->high > 0 ) {
+			// Snapped outwards to the step. A slider and a number field only
+			// accept min + n * step: with the bounds as stored, the top of the
+			// slider stops short of the dearest vehicle and a typed round
+			// figure is refused as invalid.
+			$step = isset( $facets[ $key ]['step'] ) ? (float) $facets[ $key ]['step'] : 1;
+			$step = $step > 0 ? $step : 1;
+
 			$out = array(
-				'min' => (float) $row->low,
-				'max' => (float) $row->high,
+				'min' => floor( (float) $row->low / $step ) * $step,
+				'max' => ceil( (float) $row->high / $step ) * $step,
 			);
 		}
 

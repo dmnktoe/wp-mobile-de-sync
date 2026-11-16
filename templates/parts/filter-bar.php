@@ -19,7 +19,7 @@ if ( $wmds_only ) {
 
 $wmds_chips = WMDS_Facets::chips( $wmds_selection );
 ?>
-<form class="wmds-facets wmds-facets--<?php echo esc_attr( $wmds_layout ); ?>" method="get"
+<form class="wmds-scope wmds-facets wmds-facets--<?php echo esc_attr( $wmds_layout ); ?>" method="get"
 	action="<?php echo esc_url( WMDS_Facets::base_url() ); ?>" data-wmds-facets>
 
 	<?php if ( '' !== $wmds_heading ) : ?>

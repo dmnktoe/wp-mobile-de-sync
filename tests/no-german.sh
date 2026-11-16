@@ -12,8 +12,7 @@
 cd "$(dirname "$0")/.."
 
 # Function words only, matched at word boundaries. Deliberately left out:
-# nouns (legacy "fahrzeuge" may appear in migration/compat code by design)
-# and "die", which is a German article, an English verb and a PHP keyword all
+# nouns, and "die", which is a German article, an English verb and a PHP keyword all
 # at once - it produced false positives on ordinary English comments.
 muster='\b(der|das|dem|den|des|und|oder|nicht|wird|werden|wurde|ist|sind|war|kein|keine|keinen|eine|einen|einem|einer|auch|noch|schon|beim|vom|zum|zur|durch|ueber|über|fuer|für|muss|kann|soll|sollte|damit|weil|wenn|dann|nur|sich|dass|aber|hier|dort|jede|jeder|jedes|ohne|gegen|zwischen|statt|bereits|deshalb|dadurch|sowie|etwa)\b'
 

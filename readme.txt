@@ -79,13 +79,6 @@ are delayed considerably as a result. Recommended:
 plus a cron job at your host calling `wp cron event run --due-now` or
 `wp-cron.php` every 15 minutes.
 
-= Icons =
-
-The list view expects `mileage.svg`, `fuel.svg`, `gearbox.svg` and
-`emission.svg` under `wp-content/icons/`. For a different path:
-
-    define( 'WMDS_ICONS', 'https://example.com/path/to/icons/' );
-
 == Frequently Asked Questions ==
 
 = Why are no vehicles being imported? =

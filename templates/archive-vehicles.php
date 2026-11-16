@@ -4,13 +4,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-get_header();
+WMDS_Templates::header();
 
 $wmds_selection = WMDS_Facets::selection();
 $wmds_found     = (int) $GLOBALS['wp_query']->found_posts;
 ?>
 
-<div class="wmds-scope wmds-archive">
+<div class="wmds-scope wmds-archive<?php echo esc_attr( WMDS_Templates::wrapper_class() ); ?>">
 
 	<header class="wmds-archive__header">
 		<h1><?php post_type_archive_title(); ?></h1>
@@ -85,4 +85,4 @@ $wmds_found     = (int) $GLOBALS['wp_query']->found_posts;
 </div>
 
 <?php
-get_footer();
+WMDS_Templates::footer();

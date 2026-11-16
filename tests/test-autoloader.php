@@ -76,8 +76,7 @@ wmds_assert(
 wmds_section( 'A file that acts when it loads is loaded on purpose' );
 
 /*
- * class-wmds-compat.php holds functions rather than a class, and the logo and
- * sticker files register a shortcode at file level. Nothing would mention
+ * The logo and sticker files register a shortcode at file level. Nothing would mention
  * those classes on a page that only uses the shortcode, so leaving them to
  * the autoloader would mean the shortcode is never registered. The plugin
  * header requires them outright, and this is what says so if somebody tidies
@@ -85,7 +84,7 @@ wmds_section( 'A file that acts when it loads is loaded on purpose' );
  */
 $header = (string) file_get_contents( WMDS_DIR . 'wp-mobile-de-sync.php' );
 
-foreach ( array( 'compat', 'logos', 'stickers', 'cli' ) as $eager ) {
+foreach ( array( 'logos', 'stickers', 'cli' ) as $eager ) {
 	wmds_assert_contains(
 		sprintf( 'class-wmds-%s.php is required outright', $eager ),
 		'includes/class-wmds-' . $eager . ".php'",

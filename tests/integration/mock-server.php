@@ -79,7 +79,102 @@ function wmds_mock_catalog( array $state ) {
 		);
 	}
 
+	$generate = (int) wmds_mock_setting( $state, 'generate', 0 );
+	if ( $generate > 0 && $catalog ) {
+		$catalog += wmds_mock_generate( reset( $catalog ), $generate );
+	}
+
 	return $catalog;
+}
+
+/**
+ * A larger inventory, derived from one real ad.
+ *
+ * Two fixtures are enough to prove the mapper; they are not enough to see
+ * pagination, facet counts or a price slider do anything. `"generate": 40` in
+ * the state file adds forty vehicles that differ in everything a visitor can
+ * filter on. The values are a function of the index, so two runs see the same
+ * inventory.
+ *
+ * @param array $template One catalogue entry, search and detail.
+ * @param int   $count
+ * @return array
+ */
+function wmds_mock_generate( array $template, $count ) {
+	$models = array(
+		array( 'VOLKSWAGEN', 'Golf', 'Limousine', 'PETROL', 'MANUAL_GEAR' ),
+		array( 'VOLKSWAGEN', 'Passat', 'EstateCar', 'DIESEL', 'AUTOMATIC_GEAR' ),
+		array( 'BMW', '320', 'Limousine', 'DIESEL', 'AUTOMATIC_GEAR' ),
+		array( 'BMW', 'X3', 'OffRoad', 'HYBRID', 'AUTOMATIC_GEAR' ),
+		array( 'AUDI', 'A4', 'EstateCar', 'PETROL', 'MANUAL_GEAR' ),
+		array( 'MERCEDES-BENZ', 'C 200', 'Limousine', 'PETROL', 'AUTOMATIC_GEAR' ),
+		array( 'TESLA', 'Model 3', 'Limousine', 'ELECTRICITY', 'AUTOMATIC_GEAR' ),
+		array( 'VOLVO', 'XC60', 'OffRoad', 'DIESEL', 'AUTOMATIC_GEAR' ),
+	);
+	$colors = array( 'BLACK', 'WHITE', 'GREY', 'BLUE', 'RED' );
+
+	$out = array();
+	for ( $i = 0; $i < $count; $i++ ) {
+		$id    = (string) ( 500000000 + $i );
+		$model = $models[ $i % count( $models ) ];
+		$year  = 2012 + ( $i * 3 ) % 14;
+		$month = 1 + ( $i * 5 ) % 12;
+		$new   = ( 0 === $i % 9 );
+
+		$values = array(
+			'mobileAdId'        => $id,
+			'make'              => $model[0],
+			'model'             => $model[1],
+			'modelDescription'  => $model[1] . ' Edition ' . ( $i + 1 ),
+			'category'          => $model[2],
+			'fuel'              => $model[3],
+			'gearbox'           => $model[4],
+			'condition'         => $new ? 'NEW' : 'USED',
+			'firstRegistration' => $new ? null : sprintf( '%04d%02d', $year, $month ),
+			'mileage'           => $new ? 0 : 8000 + ( $i * 7919 ) % 190000,
+			'power'             => 66 + ( $i * 17 ) % 240,
+			'exteriorColor'     => $colors[ $i % count( $colors ) ],
+			'modificationDate'  => sprintf( '2026-07-%02dT10:00:00+02:00', 1 + $i % 27 ),
+			'creationDate'      => sprintf( '2026-06-%02dT10:00:00+02:00', 1 + $i % 27 ),
+			'detailPageUrl'     => 'https://suchen.mobile.de/auto-inserat/platzhalter/' . $id . '.html',
+			'price'             => array(
+				'consumerPriceGross' => sprintf( '%d.00', 6990 + ( $i * 3571 ) % 78000 ),
+				'type'               => 'FIXED',
+				'currency'           => 'EUR',
+			),
+		);
+
+		// Every third vehicle has no pictures at all, every fifth just one:
+		// the two cases a gallery is most likely to have forgotten.
+		$images = isset( $template['detail']['images'] ) ? (array) $template['detail']['images'] : array();
+		if ( 0 === $i % 3 ) {
+			$images = array();
+		} elseif ( 0 === $i % 5 ) {
+			$images = array_slice( $images, 0, 1 );
+		}
+		$values['images'] = $images;
+
+		$entry = array();
+		foreach ( array( 'search', 'detail' ) as $part ) {
+			$entry[ $part ] = array_merge( $template[ $part ], $values );
+			unset( $entry[ $part ]['vin'], $entry[ $part ]['kba'] );
+			if ( null === $entry[ $part ]['firstRegistration'] ) {
+				unset( $entry[ $part ]['firstRegistration'] );
+			}
+		}
+
+		// The sparse ad: what the API sends when a dealer filled in the
+		// minimum. Optional fields are absent, not empty.
+		if ( 0 === $i % 7 ) {
+			foreach ( array( 'emissions', 'consumptions', 'emissionSticker', 'emissionClass', 'interiorColor', 'interiorType', 'description', 'plainTextDescription', 'power', 'cubicCapacity', 'seats', 'doors', 'priceRating', 'climatisation' ) as $optional ) {
+				unset( $entry['search'][ $optional ], $entry['detail'][ $optional ] );
+			}
+		}
+
+		$out[ $id ] = $entry;
+	}
+
+	return $out;
 }
 
 /**
