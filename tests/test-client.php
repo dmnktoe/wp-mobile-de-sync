@@ -113,8 +113,11 @@ class WMDS_Refdata_Stub extends WMDS_Refdata {
 
 $rd = new WMDS_Refdata_Stub( 'de' );
 wmds_assert( 'known key is translated', 'Schaltgetriebe', $rd->label( 'gearbox', 'MANUAL_GEAR' ) );
-wmds_assert( 'unknown key survives unchanged', 'DUAL_CLUTCH', $rd->label( 'gearbox', 'DUAL_CLUTCH' ) );
-wmds_assert( 'table unreachable -> key', 'DIESEL', $rd->label( 'fuel', 'DIESEL' ) );
+wmds_assert( 'an unknown key is shown in readable form', 'Dual Clutch', $rd->label( 'gearbox', 'DUAL_CLUTCH' ) );
+wmds_assert( 'a hyphenated make keeps its hyphen', 'Mercedes-Benz', WMDS_Refdata::readable( 'MERCEDES-BENZ' ) );
+wmds_assert( 'a short name stays as it is', 'BMW', WMDS_Refdata::readable( 'BMW' ) );
+wmds_assert( 'a label is not touched', 'Part leather', WMDS_Refdata::readable( 'Part leather' ) );
+wmds_assert( 'table unreachable -> readable key', 'Diesel', $rd->label( 'fuel', 'DIESEL' ) );
 wmds_assert( 'unknown field -> unchanged', 'ANYTHING', $rd->label( 'gibtsnicht', 'ANYTHING' ) );
 wmds_assert( 'empty value stays empty', '', $rd->label( 'gearbox', '' ) );
 

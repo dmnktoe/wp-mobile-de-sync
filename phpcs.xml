@@ -105,15 +105,6 @@
 	</rule>
 
 	<!--
-		The shortcode template must keep this exact file name: a theme
-		overrides it by placing a file of the same name in its stylesheet
-		directory. Renaming it would silently break every site that does.
-	-->
-	<rule ref="WordPress.Files.FileName.NotHyphenatedLowercase">
-		<exclude-pattern>templates/mob_vehicle-list.php</exclude-pattern>
-	</rule>
-
-	<!--
 		class-wmds-logos.php and class-wmds-stickers.php each hold a lookup and
 		the one shortcode that renders it. Splitting a five-line shortcode into
 		its own file to satisfy the sniff would scatter the feature, not

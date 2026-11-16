@@ -198,7 +198,7 @@ class WMDS_Templates {
 		self::maybe_enqueue( true );
 
 		ob_start();
-		self::render( 'mob_vehicle-list.php', array( 'atts' => $atts ) );
+		self::render( 'vehicle-list.php', array( 'atts' => $atts ) );
 		$output = ob_get_clean();
 
 		wp_reset_postdata();

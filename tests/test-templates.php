@@ -162,22 +162,22 @@ wmds_section( 'Template resolution: the theme wins, the plugin fills in' );
 wmds_test_reset();
 wmds_assert(
 	'no override: the bundled template',
-	WMDS_DIR . 'templates/mob_vehicle-list.php',
-	WMDS_Templates::locate( 'mob_vehicle-list.php' )
+	WMDS_DIR . 'templates/vehicle-list.php',
+	WMDS_Templates::locate( 'vehicle-list.php' )
 );
 
-$GLOBALS['wmds_test_theme_files']['mob_vehicle-list.php'] = '/theme/mob_vehicle-list.php';
+$GLOBALS['wmds_test_theme_files']['vehicle-list.php'] = '/theme/vehicle-list.php';
 wmds_assert(
 	'theme root beats the plugin',
-	'/theme/mob_vehicle-list.php',
-	WMDS_Templates::locate( 'mob_vehicle-list.php' )
+	'/theme/vehicle-list.php',
+	WMDS_Templates::locate( 'vehicle-list.php' )
 );
 
-$GLOBALS['wmds_test_theme_files']['wp-mobile-de-sync/mob_vehicle-list.php'] = '/theme/wp-mobile-de-sync/mob_vehicle-list.php';
+$GLOBALS['wmds_test_theme_files']['wp-mobile-de-sync/vehicle-list.php'] = '/theme/wp-mobile-de-sync/vehicle-list.php';
 wmds_assert(
 	'the subdirectory beats the theme root',
-	'/theme/wp-mobile-de-sync/mob_vehicle-list.php',
-	WMDS_Templates::locate( 'mob_vehicle-list.php' )
+	'/theme/wp-mobile-de-sync/vehicle-list.php',
+	WMDS_Templates::locate( 'vehicle-list.php' )
 );
 
 wmds_test_reset();

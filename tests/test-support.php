@@ -173,7 +173,7 @@ wmds_assert( 'and neither reached wp_mail', 2, count( $GLOBALS['wmds_test_mail']
 
 wmds_assert(
 	'a reply-to carries the name',
-	'Reply-To: Alex <alex@example.invalid>',
+	'Reply-To: "Alex" <alex@example.invalid>',
 	WMDS_Mail::reply_to( 'Alex', 'alex@example.invalid' )
 );
 wmds_assert(
@@ -183,8 +183,10 @@ wmds_assert(
 );
 wmds_assert(
 	'a name cannot inject a header',
-	'Reply-To: Alex Bcc: victim@example.invalid <alex@example.invalid>',
+	'Reply-To: "Alex Bcc: victim@example.invalid" <alex@example.invalid>',
 	WMDS_Mail::reply_to( "Alex\nBcc: victim@example.invalid", 'alex@example.invalid' )
 );
+
+wmds_assert( 'a comma in the name does not make two addresses', 'Reply-To: "Doe, John" <john@example.invalid>', WMDS_Mail::reply_to( 'Doe, John', 'john@example.invalid' ) );
 
 wmds_result();

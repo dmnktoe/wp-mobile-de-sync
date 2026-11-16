@@ -222,7 +222,7 @@ wmds_assert( 'postcode', '12345', $merged['meta']['seller_zipcode'] );
 wmds_assert( 'city', 'Musterstadt', $merged['meta']['seller_city'] );
 wmds_assert( 'the seller ID', '99999999', $merged['meta']['seller_id'] );
 wmds_assert( 'selling since', '06.04.2016', $merged['meta']['seller_since'] );
-wmds_assert( 'climatisation', 'MANUAL_CLIMATISATION', $merged['meta']['climatisation'] );
+wmds_assert( 'climatisation', 'Manual Climatisation', $merged['meta']['climatisation'] );
 wmds_assert( 'parking assistants read as prose', 'Rear view cam', $merged['meta']['parking-assistants'] );
 wmds_assert( 'a field the feed omits stays empty', '', $merged['meta']['axles'] );
 

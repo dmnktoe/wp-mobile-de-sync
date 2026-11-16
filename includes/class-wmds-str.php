@@ -35,7 +35,16 @@ class WMDS_Str {
 	 * @return string One line, single spaces, no leading or trailing space.
 	 */
 	public static function collapse( $value ) {
-		return trim( preg_replace( '/\s+/u', ' ', self::text( $value ) ) );
+		$text = self::text( $value );
+
+		// With /u, preg_replace() answers invalid UTF-8 with null. Bytes are
+		// better than nothing, and better than a deprecation from trim().
+		$one = preg_replace( '/\s+/u', ' ', $text );
+		if ( null === $one ) {
+			$one = (string) preg_replace( '/\s+/', ' ', $text );
+		}
+
+		return trim( $one );
 	}
 
 	/**
@@ -55,7 +64,7 @@ class WMDS_Str {
 			return '';
 		}
 
-		$value = preg_replace( '/[\x00-\x1F\x7F<>]/u', '', (string) $value );
+		$value = preg_replace( '/[\x00-\x1F\x7F<>]/', '', (string) $value );
 
 		return self::cut( self::collapse( $value ), $limit );
 	}

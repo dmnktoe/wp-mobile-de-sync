@@ -303,8 +303,13 @@ class WMDS_Facet_Request {
 
 	/** @return string Where the filter form submits to. */
 	public static function base_url() {
-		if ( is_singular() ) {
-			$link = get_permalink();
+		// The page the list is on, when there is one. A filter in a sidebar
+		// or on a vehicle page sends people to the archive instead: its own
+		// page has nothing to filter.
+		$post = is_singular() ? get_post() : null;
+
+		if ( $post instanceof WP_Post && ( has_shortcode( $post->post_content, 'vehicles' ) || has_block( 'wmds/vehicles', $post ) ) ) {
+			$link = get_permalink( $post );
 			if ( $link ) {
 				return $link;
 			}

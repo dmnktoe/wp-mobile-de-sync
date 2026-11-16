@@ -369,6 +369,20 @@
 	gap: 0;
 }
 
+@media (min-width: 34.01rem) {
+	/* The row is as tall as its text; the picture fills it rather than
+	   leaving a white strip underneath. */
+	.wmds-grid--list .wmds-card__image {
+		aspect-ratio: auto;
+		min-height: 11.25rem;
+	}
+
+	.wmds-grid--list .wmds-card__image img:not(.wmds-card__logo) {
+		position: absolute;
+		inset: 0;
+	}
+}
+
 @media (max-width: 34rem) {
 	.wmds-grid--list .wmds-card__link {
 		grid-template-columns: 1fr;

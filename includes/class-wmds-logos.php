@@ -129,8 +129,12 @@ class WMDS_Logos {
 			if ( ! is_dir( $dir ) ) {
 				continue;
 			}
-			foreach ( (array) glob( $dir . '*.{png,svg,jpg,jpeg,webp}', GLOB_BRACE ) as $path ) {
-				$file = basename( $path );
+			// No GLOB_BRACE: the constant does not exist on musl, which is
+			// every Alpine container, and PHP 8 makes that a fatal error.
+			foreach ( (array) scandir( $dir ) as $file ) {
+				if ( ! preg_match( '/\.(png|svg|jpe?g|webp)$/i', (string) $file ) ) {
+					continue;
+				}
 				$key  = self::normalize( pathinfo( $file, PATHINFO_FILENAME ) );
 				if ( '' === $key ) {
 					continue;

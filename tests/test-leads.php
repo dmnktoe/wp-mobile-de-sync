@@ -201,6 +201,6 @@ $reply = WMDS_Leads::compose_confirmation( wmds_lead_data(), $vehicle, 'Autohaus
 wmds_assert( 'it says who it is from', '[Autohaus Example] We have your enquiry', $reply['subject'] );
 wmds_assert_contains( 'it greets them by name', 'Alex Beispiel', $reply['body'] );
 wmds_assert_contains( 'it names the vehicle', 'Audi A4 Avant', $reply['body'] );
-wmds_assert_contains( 'and repeats what they sent', 'When could I come and see the car?', $reply['body'] );
+wmds_assert( 'and does not mail their text to an address nobody verified', false, strpos( $reply['body'], 'When could I come and see the car?' ) );
 
 wmds_result();

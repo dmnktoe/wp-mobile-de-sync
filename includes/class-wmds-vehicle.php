@@ -70,7 +70,21 @@ class WMDS_Vehicle {
 		}
 
 		/* translators: %s: VAT rate as a number, e.g. 19. */
-		return sprintf( __( 'incl. %s%% VAT', 'wp-mobile-de-sync' ), rtrim( rtrim( $rate, '0' ), '.,' ) );
+		return sprintf( __( 'incl. %s%% VAT', 'wp-mobile-de-sync' ), self::plain_rate( $rate ) );
+	}
+
+	/**
+	 * @param string $rate As the feed sends it: 19, 19.00 or 19,00.
+	 * @return string Without trailing decimal zeros — and with the zero of 20.
+	 */
+	private static function plain_rate( $rate ) {
+		$rate = (string) $rate;
+
+		if ( false === strpbrk( $rate, '.,' ) ) {
+			return $rate;
+		}
+
+		return rtrim( rtrim( $rate, '0' ), '.,' );
 	}
 
 	/** @return string e.g. "129,000 km" */

@@ -521,15 +521,14 @@ plugin's own options, transients, user meta and cron events are gone.
 Every template is resolved through the same hierarchy, first match wins:
 
 1. `wp-mobile-de-sync/<file>` in the child theme, then in the parent theme
-2. `<file>` in the child theme, then in the parent theme — where an earlier
-   solution expected `mob_vehicle-list.php`
+2. `<file>` in the child theme, then in the parent theme
 3. the bundled file under `templates/`
 
 | File | Rendered for |
 |---|---|
 | `single-vehicles.php` | the detail page |
 | `archive-vehicles.php` | the vehicle archive |
-| `mob_vehicle-list.php` | `[vehicles]` |
+| `vehicle-list.php` | `[vehicles]` |
 | `parts/vehicle-card.php` | one card, used by the last two |
 | `parts/vehicle-gallery.php` | the photos on the detail page |
 | `parts/filter-bar.php` | the filter components |
