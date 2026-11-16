@@ -24,7 +24,6 @@ class WMDS_Facets {
 
 	public static function init() {
 		add_shortcode( 'vehicle-filter', array( __CLASS__, 'shortcode' ) );
-		add_shortcode( 'fahrzeug-filter', array( __CLASS__, 'shortcode' ) );
 		add_shortcode( 'vehicle-count', array( __CLASS__, 'shortcode_count' ) );
 
 		add_action( 'pre_get_posts', array( __CLASS__, 'apply_to_archive' ) );

@@ -11,14 +11,14 @@ class WMDS_Templates {
 	/**
 	 * @var string[]
 	 */
-	private static $tags = array( 'vehicles', 'fahrzeuge-anzeigen' );
+	private static $tags = array( 'vehicles' );
 
 	/**
 	 * Shortcodes that other classes register but that still need the stylesheet.
 	 *
 	 * @var string[]
 	 */
-	private static $styled_tags = array( 'vehicle-filter', 'fahrzeug-filter', 'vehicle-count', 'vehicle-enquiry', 'fahrzeug-anfrage' );
+	private static $styled_tags = array( 'vehicle-filter', 'vehicle-count', 'vehicle-enquiry' );
 
 	public static function init() {
 		add_filter( 'template_include', array( __CLASS__, 'template_include' ) );
@@ -89,16 +89,21 @@ class WMDS_Templates {
 	 */
 	public static function template_include( $template ) {
 		if ( is_singular( WMDS_CPT ) ) {
-			$file = 'single-fahrzeuge.php';
+			$candidates = array( 'single-vehicles.php', 'single-fahrzeuge.php' );
 		} elseif ( is_post_type_archive( WMDS_CPT ) ) {
-			$file = 'archive-fahrzeuge.php';
+			$candidates = array( 'archive-vehicles.php', 'archive-fahrzeuge.php' );
 		} else {
 			return $template;
 		}
 
-		$found = self::locate( $file );
+		foreach ( $candidates as $file ) {
+			$found = self::locate( $file );
+			if ( '' !== $found ) {
+				return $found;
+			}
+		}
 
-		return '' !== $found ? $found : $template;
+		return $template;
 	}
 
 	/**
@@ -143,6 +148,14 @@ class WMDS_Templates {
 		foreach ( array_merge( self::$tags, self::$styled_tags ) as $tag ) {
 			if ( has_shortcode( $post->post_content, $tag ) ) {
 				return true;
+			}
+		}
+
+		if ( function_exists( 'has_block' ) ) {
+			foreach ( WMDS_Blocks::styled_names() as $block ) {
+				if ( has_block( $block, $post ) ) {
+					return true;
+				}
 			}
 		}
 

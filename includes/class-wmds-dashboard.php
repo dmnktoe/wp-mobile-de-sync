@@ -90,6 +90,18 @@ class WMDS_Dashboard {
 				<?php endforeach; ?>
 			</select>
 		</p>
+		<div class="wmds-widget-guide">
+			<p class="description">
+				<?php esc_html_e( 'On the site: blocks under mobile.de Sync, or shortcodes such as [vehicles] and [vehicle-filter].', 'wp-mobile-de-sync' ); ?>
+			</p>
+			<?php if ( current_user_can( 'manage_options' ) ) : ?>
+				<p>
+					<a href="<?php echo esc_url( WMDS_Status::settings_url( 'usage' ) ); ?>">
+						<?php esc_html_e( 'Usage guide', 'wp-mobile-de-sync' ); ?>
+					</a>
+				</p>
+			<?php endif; ?>
+		</div>
 		<?php
 	}
 
@@ -230,6 +242,11 @@ class WMDS_Dashboard {
 				' <span class="wmds-muted">|</span> <a href="%s">%s</a>',
 				esc_url( WMDS_Status::settings_url() ),
 				esc_html__( 'Sync settings', 'wp-mobile-de-sync' )
+			);
+			printf(
+				' <span class="wmds-muted">|</span> <a href="%s">%s</a>',
+				esc_url( WMDS_Status::settings_url( 'usage' ) ),
+				esc_html__( 'Blocks & shortcodes', 'wp-mobile-de-sync' )
 			);
 		}
 

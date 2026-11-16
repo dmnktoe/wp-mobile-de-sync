@@ -11,6 +11,7 @@ delete_option( 'wmds_watermark' );
 delete_option( 'wmds_log' );
 delete_option( 'wmds_dashboard' );
 delete_option( 'wmds_last_alert' );
+delete_option( 'wmds_schema' );
 
 wp_clear_scheduled_hook( 'wmds_import_event' );
 wp_clear_scheduled_hook( 'wmds_full_sync_event' );

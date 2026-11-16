@@ -3,7 +3,17 @@
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [2.3.0] – 2026-08-15
+
+### Changed
+- The custom post type, rewrite slug and templates are English throughout:
+  `vehicles`, `/vehicles/`, `single-vehicles.php` and `archive-vehicles.php`.
+  Existing posts are renamed from `fahrzeuge` on upgrade, and `/fahrzeuge/…`
+  permanently redirects to `/vehicles/…`. Theme copies of the old template
+  names still resolve for one release.
+- German shortcode aliases (`[fahrzeuge-anzeigen]`, `[fahrzeug-filter]`,
+  `[fahrzeug-anfrage]`, `[fahrzeug-logo]`) and German shortcode attributes
+  (`marke`, `modell`, …) are removed. Use the English names only.
 
 ### Fixed
 - The filter bar, the vehicle list and the vehicle archive died with "call to
@@ -45,6 +55,10 @@ versioning follows [Semantic Versioning](https://semver.org/).
   update — the stale counts nobody could explain.
 - An **Integrations** tab for the three of them, and `wmds_vehicle_stored`
   and `wmds_mail_sent` for anything else that needs the same two moments.
+- Four blocks under **mobile.de Sync**: Vehicles, Vehicle filter, Vehicle
+  count and Vehicle enquiry. Each renders the matching shortcode.
+- A **Usage** settings tab for blocks, shortcodes and the dashboard widget.
+  The widget Configure panel links to it.
 
 ## [2.2.0] – 2026-08-08
 

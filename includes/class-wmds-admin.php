@@ -87,6 +87,7 @@ class WMDS_Admin {
 			'schedule'     => __( 'Schedule', 'wp-mobile-de-sync' ),
 			'enquiries'    => __( 'Enquiries', 'wp-mobile-de-sync' ),
 			'integrations' => __( 'Integrations', 'wp-mobile-de-sync' ),
+			'usage'        => __( 'Usage', 'wp-mobile-de-sync' ),
 			'status'       => __( 'Status & log', 'wp-mobile-de-sync' ),
 			'tools'        => __( 'Tools', 'wp-mobile-de-sync' ),
 			'system'       => __( 'System', 'wp-mobile-de-sync' ),
@@ -129,6 +130,8 @@ class WMDS_Admin {
 					WMDS_Tab_Enquiries::render();
 				} elseif ( 'integrations' === $tab ) {
 					WMDS_Tab_Integrations::render();
+				} elseif ( 'usage' === $tab ) {
+					WMDS_Tab_Usage::render();
 				} elseif ( 'status' === $tab ) {
 					WMDS_Tab_Status::render( $status );
 				} elseif ( 'tools' === $tab ) {

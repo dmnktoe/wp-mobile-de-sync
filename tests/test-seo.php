@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/bootstrap.php';
 
-define( 'WMDS_CPT', 'fahrzeuge' );
+define( 'WMDS_CPT', 'vehicles' );
 
 function wp_strip_all_tags( $text ) {
 	return strip_tags( (string) $text );
@@ -21,7 +21,7 @@ function wmds_seo_data( array $overrides = array() ) {
 	return array_merge(
 		array(
 			'title'         => 'Audi A4 Avant 2.0 TDI',
-			'url'           => 'https://example.invalid/fahrzeuge/audi-a4/',
+			'url'           => 'https://example.invalid/vehicles/audi-a4/',
 			'description'   => 'One owner, full service history.',
 			'images'        => array(
 				'https://example.invalid/one.jpg',
@@ -137,7 +137,7 @@ wmds_section( 'What is missing is left out, not guessed' );
 $sparse = WMDS_Seo::vehicle_schema(
 	array(
 		'title' => 'Vehicle 12345',
-		'url'   => 'https://example.invalid/fahrzeuge/12345/',
+		'url'   => 'https://example.invalid/vehicles/12345/',
 	)
 );
 
@@ -166,7 +166,7 @@ wmds_section( 'The archive, as a list' );
 
 $list = WMDS_Seo::item_list(
 	array( wmds_seo_data(), wmds_seo_data( array( 'title' => 'BMW 320d' ) ) ),
-	'https://example.invalid/fahrzeuge/'
+	'https://example.invalid/vehicles/'
 );
 
 wmds_assert( 'it is an ItemList', 'ItemList', $list['@type'] );
@@ -174,7 +174,7 @@ wmds_assert( 'it says how many', 2, $list['numberOfItems'] );
 wmds_assert( 'positions start at one', 1, $list['itemListElement'][0]['position'] );
 wmds_assert( 'and count up', 2, $list['itemListElement'][1]['position'] );
 wmds_assert( 'each entry is the vehicle itself', 'BMW 320d', $list['itemListElement'][1]['item']['name'] );
-wmds_assert( 'the list knows its own URL', 'https://example.invalid/fahrzeuge/', $list['url'] );
+wmds_assert( 'the list knows its own URL', 'https://example.invalid/vehicles/', $list['url'] );
 
 wmds_section( 'What a scraper gets' );
 
@@ -182,7 +182,7 @@ $meta = WMDS_Seo::social_meta( wmds_seo_data() );
 
 wmds_assert( 'a product, not an article', 'product', $meta['og:type'] );
 wmds_assert( 'titled after the vehicle', 'Audi A4 Avant 2.0 TDI', $meta['og:title'] );
-wmds_assert( 'pointing at the vehicle', 'https://example.invalid/fahrzeuge/audi-a4/', $meta['og:url'] );
+wmds_assert( 'pointing at the vehicle', 'https://example.invalid/vehicles/audi-a4/', $meta['og:url'] );
 wmds_assert( 'with the first photo', 'https://example.invalid/one.jpg', $meta['og:image'] );
 wmds_assert( 'a large card on Twitter', 'summary_large_image', $meta['twitter:card'] );
 wmds_assert( 'the price is stated', '24900', $meta['product:price:amount'] );

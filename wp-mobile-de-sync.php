@@ -2,8 +2,8 @@
 /**
  * Plugin Name: mobile.de Sync
  * Plugin URI:  https://github.com/dmnktoe/wp-mobile-de-sync
- * Description: Synchronises a dealer's vehicle inventory from the mobile.de Search API into a "fahrzeuge" custom post type. Brings its own filters, templates and shortcodes, and works with existing theme templates.
- * Version:     2.2.0
+ * Description: Synchronises a dealer's vehicle inventory from the mobile.de Search API into a "vehicles" custom post type. Brings its own filters, templates, blocks and shortcodes, and works with existing theme templates.
+ * Version:     2.3.0
  * Author:      Domenik Töfflinger
  * Author URI:  https://github.com/dmnktoe
  * License:     GPL-2.0-or-later
@@ -18,12 +18,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'WMDS_VERSION', '2.2.0' );
+define( 'WMDS_VERSION', '2.3.0' );
 define( 'WMDS_FILE', __FILE__ );
 define( 'WMDS_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WMDS_URL', plugin_dir_url( __FILE__ ) );
 
-define( 'WMDS_CPT', 'fahrzeuge' );
+define( 'WMDS_CPT', 'vehicles' );
 
 define( 'WMDS_CRON_HOOK', 'wmds_import_event' );
 define( 'WMDS_CRON_FULL_HOOK', 'wmds_full_sync_event' );
@@ -85,7 +85,7 @@ function wmds_register_cpt() {
 			'show_in_menu'       => true,
 			'query_var'          => true,
 			'rewrite'            => array(
-				'slug'       => 'fahrzeuge',
+				'slug'       => 'vehicles',
 				'with_front' => false,
 			),
 			'capability_type'    => 'post',
@@ -104,9 +104,11 @@ add_action( 'before_delete_post', array( 'WMDS_Importer', 'delete_attachments' )
 
 WMDS_Templates::init();
 WMDS_Facets::init();
+WMDS_Blocks::init();
 WMDS_Leads::init();
 WMDS_Seo::init();
 WMDS_Smtp::init();
+WMDS_Migrate::init();
 
 // The two that read another plugin have to wait until it has loaded.
 add_action( 'plugins_loaded', array( 'WMDS_Cf7', 'init' ) );
@@ -148,7 +150,7 @@ function wmds_force_full_sync() {
 register_activation_hook( __FILE__, 'wmds_activate' );
 function wmds_activate() {
 	wmds_register_cpt();
-	flush_rewrite_rules();
+	WMDS_Migrate::activate();
 
 	if ( ! wp_next_scheduled( WMDS_CRON_HOOK ) ) {
 		wp_schedule_event( time() + 60, WMDS_Settings::interval(), WMDS_CRON_HOOK );

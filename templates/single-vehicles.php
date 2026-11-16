@@ -12,7 +12,7 @@ while ( have_posts() ) :
 	$images  = $vehicle->images();
 	?>
 
-<article id="fahrzeug-<?php the_ID(); ?>" class="wmds-scope wmds-single">
+<article id="vehicle-<?php the_ID(); ?>" class="wmds-scope wmds-single">
 
 	<header class="wmds-single__header">
 		<?php $logo = $vehicle->logo_url(); ?>

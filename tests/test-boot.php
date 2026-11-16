@@ -25,6 +25,12 @@ function add_action( $hook, $callback = null, $priority = 10, $args = 1 ) {
 	return true;
 }
 
+function add_filter( $hook, $callback = null, $priority = 10, $args = 1 ) {
+	$GLOBALS['wmds_boot_actions'][] = $hook;
+
+	return true;
+}
+
 require_once __DIR__ . '/bootstrap.php';
 require_once __DIR__ . '/wp-admin-fake.php';
 
@@ -82,6 +88,9 @@ foreach ( array(
 	'WMDS_Facet_Request',
 	'WMDS_Facet_Query',
 	'WMDS_Facet_Store',
+	'WMDS_Blocks',
+	'WMDS_Catalog',
+	'WMDS_Migrate',
 	'WMDS_Leads',
 	'WMDS_Seo',
 	'WMDS_Alerts',
@@ -107,13 +116,19 @@ wmds_section( 'The shortcodes a lazy load would have swallowed' );
  * simply not exist. That is why the plugin file requires them outright, and
  * this is what notices if it stops.
  */
-foreach ( array( 'vehicle-logo', 'fahrzeug-logo', 'emission-sticker' ) as $wmds_tag ) {
+foreach ( array( 'vehicle-logo', 'emission-sticker' ) as $wmds_tag ) {
 	wmds_assert(
 		sprintf( '[%s] is registered', $wmds_tag ),
 		true,
 		in_array( $wmds_tag, $GLOBALS['wmds_boot_shortcodes'], true )
 	);
 }
+
+wmds_assert(
+	'the German logo alias is gone',
+	false,
+	in_array( 'fahrzeug-logo', $GLOBALS['wmds_boot_shortcodes'], true )
+);
 
 wmds_section( 'And the ones an init() method registers' );
 
