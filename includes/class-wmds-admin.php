@@ -83,13 +83,14 @@ class WMDS_Admin {
 	/** @return array<string,string> */
 	public static function tabs() {
 		return array(
-			'connection' => __( 'Connection', 'wp-mobile-de-sync' ),
-			'schedule'   => __( 'Schedule', 'wp-mobile-de-sync' ),
-			'enquiries'  => __( 'Enquiries', 'wp-mobile-de-sync' ),
-			'status'     => __( 'Status & log', 'wp-mobile-de-sync' ),
-			'tools'      => __( 'Tools', 'wp-mobile-de-sync' ),
-			'system'     => __( 'System', 'wp-mobile-de-sync' ),
-			'about'      => __( 'About', 'wp-mobile-de-sync' ),
+			'connection'   => __( 'Connection', 'wp-mobile-de-sync' ),
+			'schedule'     => __( 'Schedule', 'wp-mobile-de-sync' ),
+			'enquiries'    => __( 'Enquiries', 'wp-mobile-de-sync' ),
+			'integrations' => __( 'Integrations', 'wp-mobile-de-sync' ),
+			'status'       => __( 'Status & log', 'wp-mobile-de-sync' ),
+			'tools'        => __( 'Tools', 'wp-mobile-de-sync' ),
+			'system'       => __( 'System', 'wp-mobile-de-sync' ),
+			'about'        => __( 'About', 'wp-mobile-de-sync' ),
 		);
 	}
 
@@ -126,6 +127,8 @@ class WMDS_Admin {
 					WMDS_Tab_Schedule::render( $status );
 				} elseif ( 'enquiries' === $tab ) {
 					WMDS_Tab_Enquiries::render();
+				} elseif ( 'integrations' === $tab ) {
+					WMDS_Tab_Integrations::render();
 				} elseif ( 'status' === $tab ) {
 					WMDS_Tab_Status::render( $status );
 				} elseif ( 'tools' === $tab ) {

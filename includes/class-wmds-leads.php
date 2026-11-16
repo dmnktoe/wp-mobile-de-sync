@@ -23,6 +23,8 @@ class WMDS_Leads {
 	const MAX_FIELD   = 100;
 	const MAX_PHONE   = 40;
 
+	const SOURCE = 'enquiry-form';
+
 	public static function init() {
 		add_action( 'init', array( __CLASS__, 'register_cpt' ) );
 
@@ -104,17 +106,52 @@ class WMDS_Leads {
 	}
 
 	/**
+	 * Where an enquiry came in through, for the record.
+	 *
+	 * @return array<string, string>
+	 */
+	public static function sources() {
+		return array(
+			self::SOURCE     => __( 'Enquiry form', 'wp-mobile-de-sync' ),
+			WMDS_Cf7::SOURCE => 'Contact Form 7',
+		);
+	}
+
+	/**
+	 * @param string $key
+	 * @param string $form Name of the form, where one is on file.
+	 * @return string
+	 */
+	public static function source_label( $key, $form = '' ) {
+		$sources = self::sources();
+		$key     = (string) $key;
+
+		if ( '' === $key ) {
+			return '';
+		}
+
+		$label = isset( $sources[ $key ] ) ? $sources[ $key ] : $key;
+		$form  = trim( (string) $form );
+
+		return ( '' === $form ) ? $label : $label . ' – ' . $form;
+	}
+
+	/**
 	 * @param WP_Post $post
 	 */
 	public static function render_meta_box( $post ) {
 		$rows = array(
-			__( 'Name', 'wp-mobile-de-sync' )           => (string) get_post_meta( $post->ID, '_wmds_name', true ),
-			__( 'E-mail', 'wp-mobile-de-sync' )         => (string) get_post_meta( $post->ID, '_wmds_email', true ),
-			__( 'Phone', 'wp-mobile-de-sync' )          => (string) get_post_meta( $post->ID, '_wmds_phone', true ),
-			__( 'Listing number', 'wp-mobile-de-sync' ) => (string) get_post_meta( $post->ID, '_wmds_ad_id', true ),
-			__( 'Vehicle', 'wp-mobile-de-sync' )        => (string) get_post_meta( $post->ID, '_wmds_url', true ),
-			__( 'Consent', 'wp-mobile-de-sync' )        => (string) get_post_meta( $post->ID, '_wmds_consent', true ),
-			__( 'From', 'wp-mobile-de-sync' )           => (string) get_post_meta( $post->ID, '_wmds_ip', true ),
+			__( 'Name', 'wp-mobile-de-sync' )             => (string) get_post_meta( $post->ID, '_wmds_name', true ),
+			__( 'E-mail', 'wp-mobile-de-sync' )           => (string) get_post_meta( $post->ID, '_wmds_email', true ),
+			__( 'Phone', 'wp-mobile-de-sync' )            => (string) get_post_meta( $post->ID, '_wmds_phone', true ),
+			__( 'Listing number', 'wp-mobile-de-sync' )   => (string) get_post_meta( $post->ID, '_wmds_ad_id', true ),
+			__( 'Vehicle', 'wp-mobile-de-sync' )          => (string) get_post_meta( $post->ID, '_wmds_url', true ),
+			__( 'Consent', 'wp-mobile-de-sync' )          => (string) get_post_meta( $post->ID, '_wmds_consent', true ),
+			__( 'Received through', 'wp-mobile-de-sync' ) => self::source_label(
+				(string) get_post_meta( $post->ID, '_wmds_source', true ),
+				(string) get_post_meta( $post->ID, '_wmds_form', true )
+			),
+			__( 'From', 'wp-mobile-de-sync' )             => (string) get_post_meta( $post->ID, '_wmds_ip', true ),
 		);
 
 		echo '<table class="form-table" role="presentation">';
@@ -411,7 +448,7 @@ class WMDS_Leads {
 	 * @param WMDS_Vehicle|null $vehicle
 	 * @return array{title:string,url:string,ad_id:string,price:string}
 	 */
-	private static function context( $post_id, $vehicle ) {
+	public static function context( $post_id, $vehicle ) {
 		if ( ! $post_id || ! $vehicle ) {
 			return array(
 				'title' => '',
@@ -440,17 +477,40 @@ class WMDS_Leads {
 			return 0;
 		}
 
+		return self::file( $data, $post_id, $context );
+	}
+
+	/**
+	 * Files an enquiry, whichever form it came in through.
+	 *
+	 * The gate is the caller's: the bundled form asks the Enquiries tab,
+	 * Contact Form 7 asks the Integrations tab. What lands in the database is
+	 * the same record either way, so one screen shows both.
+	 *
+	 * @param array $data    name, email, phone, message, consent.
+	 * @param int   $post_id The vehicle, 0 when the enquiry is about none.
+	 * @param array $context As context() returns it.
+	 * @param array $extra   Further meta, e.g. where the enquiry came from.
+	 * @return int The stored post ID, 0 when it could not be written.
+	 */
+	public static function file( array $data, $post_id, array $context, array $extra = array() ) {
+		$name = isset( $data['name'] ) ? (string) $data['name'] : '';
+
+		if ( '' === $name ) {
+			$name = isset( $data['email'] ) ? (string) $data['email'] : __( 'Enquiry', 'wp-mobile-de-sync' );
+		}
+
 		$title = '' !== $context['title']
 			/* translators: 1: the name the enquirer gave, 2: vehicle title. */
-			? sprintf( __( '%1$s about %2$s', 'wp-mobile-de-sync' ), $data['name'], $context['title'] )
-			: $data['name'];
+			? sprintf( __( '%1$s about %2$s', 'wp-mobile-de-sync' ), $name, $context['title'] )
+			: $name;
 
 		$lead = wp_insert_post(
 			array(
 				'post_type'    => self::CPT,
 				'post_status'  => 'publish',
 				'post_title'   => $title,
-				'post_content' => $data['message'],
+				'post_content' => isset( $data['message'] ) ? $data['message'] : '',
 			),
 			true
 		);
@@ -459,15 +519,19 @@ class WMDS_Leads {
 			return 0;
 		}
 
-		$meta = array(
-			'_wmds_name'    => $data['name'],
-			'_wmds_email'   => $data['email'],
-			'_wmds_phone'   => isset( $data['phone'] ) ? $data['phone'] : '',
-			'_wmds_vehicle' => $post_id,
-			'_wmds_ad_id'   => $context['ad_id'],
-			'_wmds_url'     => $context['url'],
-			'_wmds_consent' => empty( $data['consent'] ) ? '' : self::consent_text(),
-			'_wmds_ip'      => self::client_ip(),
+		$meta = array_merge(
+			array(
+				'_wmds_name'    => $name,
+				'_wmds_email'   => isset( $data['email'] ) ? $data['email'] : '',
+				'_wmds_phone'   => isset( $data['phone'] ) ? $data['phone'] : '',
+				'_wmds_vehicle' => $post_id,
+				'_wmds_ad_id'   => $context['ad_id'],
+				'_wmds_url'     => $context['url'],
+				'_wmds_consent' => empty( $data['consent'] ) ? '' : self::consent_text(),
+				'_wmds_ip'      => self::client_ip(),
+				'_wmds_source'  => self::SOURCE,
+			),
+			$extra
 		);
 
 		foreach ( $meta as $key => $value ) {

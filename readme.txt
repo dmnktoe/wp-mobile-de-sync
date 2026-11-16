@@ -1,6 +1,6 @@
 === mobile.de Sync ===
 Contributors: dmnktoe
-Tags: mobile.de, vehicles, dealership, import, facetwp
+Tags: mobile.de, vehicles, dealership, facetwp, contact form 7
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.0
@@ -19,7 +19,10 @@ field names — ready to use for your own templates, queries and filters.
 * CPT `fahrzeuge`, shortcodes `[vehicles]`, `[vehicle-filter]`, `[vehicle-count]`
 * Filtering of its own: dropdowns, checkboxes, radio buttons, range sliders,
   search and sorting — no second plugin needed
-* One meta key per property, also usable as FacetWP facet sources
+* One meta key per property, listed as FacetWP facet sources under "mobile.de"
+* Contact Form 7: mail tags for the vehicle a visitor is looking at, and the
+  submission filed under Enquiries
+* Names the mailer plugin that sends the mail, and keeps the last failure
 * Manufacturer logos via `[vehicle-logo]`, extendable without a plugin update
 * German emission stickers via `[emission-sticker]`
 * Incremental sync: each run fetches only what changed
@@ -36,8 +39,8 @@ The vehicle list shows photo, make and model, price, mileage, first
 registration and the ad ID, sorts by price, mileage and first registration, and
 filters by make. Each row can be reloaded from mobile.de or opened there.
 
-The settings screen is split into Connection, Schedule, Enquiries, Status & log
-and Tools.
+The settings screen is split into Connection, Schedule, Enquiries,
+Integrations, Status & log and Tools.
 "Test connection" and "Sync now" run without a page reload, the sync showing
 real progress as it works through the inventory in batches.
 
@@ -61,7 +64,8 @@ reason instead.
 4. **Test connection.**
 5. Start the first full import from the command line:
    `wp wmds sync --full --all`
-6. Re-index FacetWP.
+6. On a site that runs FacetWP, index it once. From then on each vehicle is
+   re-indexed as the sync writes it.
 
 = Scheduling =
 

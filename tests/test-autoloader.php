@@ -7,13 +7,19 @@ define( 'WMDS_DIR', dirname( __DIR__ ) . '/' );
 require_once __DIR__ . '/../includes/class-wmds-autoloader.php';
 
 /**
+ * The search itself, over the directories the loader really has.
+ *
+ * Reading the list rather than repeating it is the point: a directory added
+ * to the loader and forgotten here would leave this test passing on a tree it
+ * no longer describes.
+ *
  * @param string $class
  * @return string The file the autoloader would load, '' when it loads none.
  */
 function wmds_autoload_target( $class ) {
 	$file = 'class-' . str_replace( '_', '-', strtolower( $class ) ) . '.php';
 
-	foreach ( array( '', 'tabs/' ) as $dir ) {
+	foreach ( WMDS_Autoloader::dirs() as $dir ) {
 		$path = WMDS_DIR . 'includes/' . $dir . $file;
 		if ( is_readable( $path ) ) {
 			return $path;
@@ -25,10 +31,13 @@ function wmds_autoload_target( $class ) {
 
 wmds_section( 'Every class file in the tree is reachable by its name' );
 
-$files = array_merge(
-	glob( WMDS_DIR . 'includes/class-wmds-*.php' ),
-	glob( WMDS_DIR . 'includes/tabs/class-wmds-*.php' )
-);
+$files = array();
+
+foreach ( WMDS_Autoloader::dirs() as $wmds_dir ) {
+	$files = array_merge( $files, glob( WMDS_DIR . 'includes/' . $wmds_dir . 'class-wmds-*.php' ) );
+}
+
+wmds_assert( 'the loader looks in every directory that holds classes', 3, count( WMDS_Autoloader::dirs() ) );
 
 wmds_assert( 'there are class files to check', true, count( $files ) > 20 );
 

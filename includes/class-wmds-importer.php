@@ -397,6 +397,19 @@ class WMDS_Importer {
 			update_post_meta( $post_id, self::META_IMAGES, $imported );
 		}
 
+		/**
+		 * Fires once a vehicle is completely written — post, meta and images.
+		 *
+		 * Not the same moment as save_post: the post is saved first and the
+		 * meta follows, so anything that reads the meta has to wait for this
+		 * rather than for WordPress.
+		 *
+		 * @param int    $post_id
+		 * @param string $ad_id
+		 * @param string $mode   created or updated.
+		 */
+		do_action( 'wmds_vehicle_stored', $post_id, $ad_id, $mode );
+
 		return $mode;
 	}
 

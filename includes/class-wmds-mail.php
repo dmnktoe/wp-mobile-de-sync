@@ -53,12 +53,26 @@ class WMDS_Mail {
 			return false;
 		}
 
-		return (bool) wp_mail(
+		$sent = (bool) wp_mail(
 			$to,
 			$subject,
 			$body,
 			array_merge( array( self::PLAIN ), $headers )
 		);
+
+		if ( $sent ) {
+			/**
+			 * Fires after the plugin has handed a message to wp_mail() and it
+			 * was accepted. Proof that this site can send at all, which is
+			 * what clears a recorded delivery failure.
+			 *
+			 * @param string|string[] $to
+			 * @param string          $subject
+			 */
+			do_action( 'wmds_mail_sent', $to, $subject );
+		}
+
+		return $sent;
 	}
 
 	/**

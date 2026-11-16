@@ -71,11 +71,10 @@ class WMDS_Admin_Actions {
 
 		$tab = isset( $tabs[ $action ] ) ? $tabs[ $action ] : '';
 
-		if ( 'save' === $action ) {
-			$submitted = isset( $_REQUEST['wmds_tab'] ) ? sanitize_key( wp_unslash( $_REQUEST['wmds_tab'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- verified in handle() before this runs.
-			if ( array_key_exists( $submitted, WMDS_Admin::tabs() ) ) {
-				$tab = $submitted;
-			}
+		// A form that names the tab it was submitted from is answered there.
+		$submitted = isset( $_REQUEST['wmds_tab'] ) ? sanitize_key( wp_unslash( $_REQUEST['wmds_tab'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- verified in handle() before this runs.
+		if ( array_key_exists( $submitted, WMDS_Admin::tabs() ) ) {
+			$tab = $submitted;
 		}
 
 		return WMDS_Status::settings_url( $tab );
@@ -94,6 +93,8 @@ class WMDS_Admin_Actions {
 			self::save_schedule();
 		} elseif ( 'enquiries' === $tab ) {
 			self::save_enquiries();
+		} elseif ( 'integrations' === $tab ) {
+			self::save_integrations();
 		} elseif ( 'status' === $tab ) {
 			self::save_alerts();
 		} else {
@@ -172,6 +173,18 @@ class WMDS_Admin_Actions {
 				'enquiry_store'       => isset( $_POST['wmds_enquiry_store'] ) ? 'yes' : 'no',
 				'enquiry_recipient'   => sanitize_text_field( wp_unslash( $_POST['wmds_enquiry_recipient'] ?? '' ) ),
 				'enquiry_consent'     => wp_kses_post( wp_unslash( $_POST['wmds_enquiry_consent'] ?? '' ) ), // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- wp_kses_post is the sanitiser; a link is allowed here on purpose.
+			)
+		);
+		// phpcs:enable WordPress.Security.NonceVerification
+	}
+
+	private static function save_integrations() {
+		// phpcs:disable WordPress.Security.NonceVerification -- verified in handle() before this runs.
+		WMDS_Settings::update(
+			array(
+				'cf7_store'       => isset( $_POST['wmds_cf7_store'] ) ? 'yes' : 'no',
+				'cf7_copy_seller' => isset( $_POST['wmds_cf7_copy_seller'] ) ? 'yes' : 'no',
+				'facetwp_reindex' => isset( $_POST['wmds_facetwp_reindex'] ) ? 'yes' : 'no',
 			)
 		);
 		// phpcs:enable WordPress.Security.NonceVerification
