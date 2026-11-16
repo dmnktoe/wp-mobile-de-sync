@@ -69,6 +69,14 @@
 	white-space: nowrap;
 }
 
+.wmds-page {
+	/* The archive and the detail page in a classic theme, which gives a
+	   template the full width of the window and expects it to cope. */
+	max-width: var(--wmds-page-width, 82rem);
+	margin-inline: auto;
+	padding: var(--wmds-page-gutter, 1.25rem);
+}
+
 .wmds-scope :focus-visible {
 	outline: var(--wmds-focus);
 	outline-offset: 2px;
@@ -215,7 +223,11 @@
 	border-radius: .25rem;
 }
 
-.wmds-range__slider {
+.wmds-scope input[type="range"].wmds-range__slider {
+	/* Spelled out this far because themes style input[type=range] and its
+	   thumb, and a class alone loses to that. */
+	border: 0;
+	box-shadow: none;
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -229,7 +241,21 @@
 	-webkit-appearance: none;
 }
 
-.wmds-range__slider::-webkit-slider-thumb {
+.wmds-scope input[type="range"].wmds-range__slider::-webkit-slider-runnable-track {
+	height: 1.5rem;
+	border: 0;
+	background: none;
+	box-shadow: none;
+}
+
+.wmds-scope input[type="range"].wmds-range__slider::-moz-range-track {
+	height: 1.5rem;
+	border: 0;
+	background: none;
+}
+
+.wmds-scope input[type="range"].wmds-range__slider::-webkit-slider-thumb {
+	margin-top: .25rem;
 	pointer-events: auto;
 	appearance: none;
 	-webkit-appearance: none;
@@ -242,7 +268,7 @@
 	cursor: pointer;
 }
 
-.wmds-range__slider::-moz-range-thumb {
+.wmds-scope input[type="range"].wmds-range__slider::-moz-range-thumb {
 	pointer-events: auto;
 	width: 1rem;
 	height: 1rem;
@@ -414,8 +440,11 @@
 }
 
 .wmds-card__image img:not(.wmds-card__logo) {
-	width: 100%;
-	height: 100%;
+	/* !important, for once: some themes size post thumbnails with an inline
+	   style, and nothing short of this gets past one. */
+	width: 100% !important;
+	height: 100% !important;
+	max-width: none !important;
 	object-fit: cover;
 	display: block;
 }

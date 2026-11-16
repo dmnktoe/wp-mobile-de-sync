@@ -190,7 +190,9 @@ class WMDS_Templates {
 
 	/** @return string Classes for the outermost element of a vehicle template. */
 	public static function wrapper_class() {
-		return self::is_block_theme() ? ' alignwide' : '';
+		// A block theme sizes the page itself; a classic one hands the
+		// template the whole viewport, so the page brings its own width.
+		return self::is_block_theme() ? ' alignwide' : ' wmds-page';
 	}
 
 	/**

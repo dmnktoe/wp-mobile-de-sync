@@ -145,10 +145,10 @@ if ( 'list' === $wmds_layout ) {
 		</ul>
 
 		<?php if ( $wmds_paginated && $wmds_vehicles->max_num_pages > 1 ) : ?>
-			<nav class="wmds-pagination">
+			<nav class="wmds-pagination" aria-label="<?php esc_attr_e( 'Vehicle pages', 'wp-mobile-de-sync' ); ?>">
 				<?php
 				echo wp_kses_post(
-					paginate_links(
+					(string) paginate_links(
 						array(
 							'total'     => (int) $wmds_vehicles->max_num_pages,
 							'current'   => $wmds_paged,

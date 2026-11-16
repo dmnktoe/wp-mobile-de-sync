@@ -783,4 +783,105 @@ $GLOBALS['wp_fake']['attachments'][ $other ] = array( 901, 902 );
 WMDS_Importer::delete_attachments( $other );
 wmds_assert( 'untouched', 2, count( wmds_fake( 'attachments' )[ $other ] ) );
 
+wmds_section( 'A full sync stays full across its passes' );
+
+wmds_fake_reset();
+update_option( WMDS_Importer::OPT_WATERMARK, '2026-07-28T16:28:13+00:00' );
+
+$five = array();
+foreach ( array( '1', '2', '3', '4', '5' ) as $id ) {
+	$five[] = wmds_ad( $id );
+}
+
+list( $importer, $client ) = wmds_setup( $five );
+$stats                     = $importer->run(
+	array(
+		'full'  => true,
+		'batch' => 2,
+	)
+);
+
+wmds_assert( 'the first pass does its batch', 2, $stats['created'] );
+wmds_assert( 'and says what is left', 3, $stats['pending'] );
+wmds_assert( 'the watermark is gone, not merely ignored', '', (string) get_option( WMDS_Importer::OPT_WATERMARK, '' ) );
+
+// The follow-up arrives without any argument, as cron starts it.
+list( $importer, $client ) = wmds_setup( $five );
+$stats                     = $importer->run( array( 'batch' => 2 ) );
+
+wmds_assert( 'the second pass is still a full one', true, $stats['full'] );
+wmds_assert( 'and carries on where the first stopped', 2, $stats['created'] );
+
+list( $importer, $client ) = wmds_setup( $five );
+$stats                     = $importer->run( array( 'batch' => 2 ) );
+
+wmds_assert( 'the third finishes', 0, $stats['pending'] );
+wmds_assert( 'all five are there', 5, count( wmds_fake( 'posts' ) ) );
+wmds_assert( 'and only now is there a watermark again', true, '' !== (string) get_option( WMDS_Importer::OPT_WATERMARK, '' ) );
+
+wmds_section( 'A forced sync makes progress instead of repeating its first batch' );
+
+list( $importer, $client ) = wmds_setup( $five );
+$first                     = $importer->run(
+	array(
+		'force' => true,
+		'batch' => 2,
+	)
+);
+list( $importer, $client ) = wmds_setup( $five );
+$second                    = $importer->run( array( 'batch' => 2 ) );
+list( $importer, $client ) = wmds_setup( $five );
+$third                     = $importer->run( array( 'batch' => 2 ) );
+
+wmds_assert( 'every vehicle is read again exactly once', 5, $first['updated'] + $second['updated'] + $third['updated'] );
+wmds_assert( 'and the last pass leaves nothing', 0, $third['pending'] );
+
+wmds_section( 'Vehicles in the bin are not inventory' );
+
+wmds_fake_reset();
+foreach ( array( '1', '2', '3', '4', '5', '6', '7', '8' ) as $id ) {
+	$post_id = wmds_fake_seed_vehicle( $id );
+	if ( (int) $id > 4 ) {
+		wp_trash_post( $post_id );
+	}
+}
+$GLOBALS['wp_fake']['trashed'] = array();
+
+list( $importer, $client ) = wmds_setup( array( wmds_ad( '1' ), wmds_ad( '2' ), wmds_ad( '3' ) ) );
+$stats                     = $importer->run( array( 'full' => true ) );
+
+wmds_assert( 'four sold earlier do not trip the guard for the fifth', 1, $stats['removed'] );
+wmds_assert( 'and are not binned a second time', 1, count( wmds_fake( 'trashed' ) ) );
+
+wmds_section( 'A field the ad lost is deleted' );
+
+wmds_fake_reset();
+list( $importer, $client )                  = wmds_setup( array( wmds_ad( '111' ) ) );
+$client->details['111']['navigationSystem'] = true;
+$importer->run();
+$post_id = wmds_post_for( '111' );
+
+wmds_assert( 'the feature is stored', true, '' !== (string) get_post_meta( $post_id, 'NAVIGATION_SYSTEM', true ) );
+
+list( $importer, $client ) = wmds_setup( array( wmds_ad( '111', '2026-07-29T09:00:00+02:00' ) ) );
+unset( $client->details['111']['navigationSystem'] );
+$importer->run( array( 'full' => true ) );
+
+wmds_assert( 'and gone once the dealer removed it', '', (string) get_post_meta( $post_id, 'NAVIGATION_SYSTEM', true ) );
+
+wmds_section( 'An aborted run is on record' );
+
+wmds_fake_reset();
+wmds_fake_seed_vehicle( '111' );
+list( $importer, $client ) = wmds_setup(
+	array( wmds_ad( '111' ) ),
+	array( 'search_error' => new WP_Error( 'wmds_http', 'mobile.de responded with HTTP 401.' ) )
+);
+$result                    = $importer->run();
+$last                      = get_option( WMDS_Importer::OPT_LAST_RUN );
+
+wmds_assert( 'the run ends with the error', true, is_wp_error( $result ) );
+wmds_assert( 'the record names it', 'mobile.de responded with HTTP 401.', isset( $last['error'] ) ? $last['error'] : '' );
+wmds_assert( 'and the lock is released', false, get_transient( WMDS_Importer::LOCK ) );
+
 wmds_result();

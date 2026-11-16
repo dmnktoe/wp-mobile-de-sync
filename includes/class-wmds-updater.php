@@ -190,6 +190,8 @@ class WMDS_Updater {
 
 	public static function flush() {
 		delete_transient( self::CACHE );
+
+		self::$asked = false;
 	}
 
 	/**
@@ -246,15 +248,23 @@ class WMDS_Updater {
 		return ! self::forced();
 	}
 
+	/** @var bool Whether this request has already asked GitHub. */
+	private static $asked = false;
+
 	/**
 	 * @return array|false
 	 */
 	private static function release() {
 		$cached = get_transient( self::CACHE );
 
-		if ( self::usable( $cached ) ) {
+		// Forced means "ask again", not "ask every time". WordPress reads the
+		// update transient once per plugin row, and under WP-CLI every read
+		// is forced: one `wp plugin list` was dozens of calls to GitHub.
+		if ( self::usable( $cached ) || ( self::$asked && is_array( $cached ) && array_key_exists( 'release', $cached ) && isset( $cached['installed'] ) && WMDS_VERSION === $cached['installed'] ) ) {
 			return is_array( $cached['release'] ) ? $cached['release'] : false;
 		}
+
+		self::$asked = true;
 
 		$response = wp_remote_get(
 			self::API . self::REPO . '/releases/latest',
