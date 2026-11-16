@@ -235,7 +235,7 @@ class WMDS_Adminbar {
 		// human_time_diff() has no sign. A run that should have started three
 		// hours ago read as "Next run in 3 hours" — on exactly the sites
 		// whose cron had stopped.
-		if ( $next < $now - MINUTE_IN_SECONDS ) {
+		if ( $next < $now - 60 ) {
 			return sprintf(
 				/* translators: %s: a human-readable duration, e.g. "3 hours". */
 				esc_html__( 'Run overdue by %s', 'wp-mobile-de-sync' ),

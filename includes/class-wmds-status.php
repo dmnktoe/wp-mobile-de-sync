@@ -158,6 +158,25 @@ class WMDS_Status {
 	}
 
 	/**
+	 * @param int $next Unix time of the next scheduled run, 0 when none.
+	 * @param int $now  Unix time.
+	 * @return string When the next run is due, in words.
+	 */
+	public static function next_run_label( $next, $now ) {
+		if ( ! $next ) {
+			return __( 'not scheduled', 'wp-mobile-de-sync' );
+		}
+
+		// A next run that lies in the past is not "27 minutes ago". It is
+		// late, and on a site whose cron has stopped that is the finding.
+		if ( $next < $now - 60 ) {
+			return __( 'overdue', 'wp-mobile-de-sync' );
+		}
+
+		return self::relative_time( $next );
+	}
+
+	/**
 	 * @param bool $ok
 	 */
 	public static function record_test( $ok ) {

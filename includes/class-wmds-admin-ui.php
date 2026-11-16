@@ -114,9 +114,7 @@ class WMDS_Admin_Ui {
 					<span class="wmds-metric-value">
 						<?php
 						echo esc_html(
-							$status['next']
-								? WMDS_Status::relative_time( $status['next'] )
-								: __( 'not scheduled', 'wp-mobile-de-sync' )
+							WMDS_Status::next_run_label( (int) $status['next'], time() )
 						);
 						?>
 					</span>

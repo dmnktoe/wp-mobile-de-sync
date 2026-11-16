@@ -277,7 +277,8 @@ define( 'DISABLE_WP_CRON', true );
 */15 * * * * cd /path/to/site && wp cron event run --due-now
 ```
 
-The settings screen warns when the last run is more than six hours old.
+The settings screen warns when the last run is overdue: older than two
+intervals, and never less than six hours.
 
 ## When it stops
 
@@ -484,7 +485,14 @@ checks that on every push.
 Stubs prove the logic, not that the plugin works inside WordPress.
 `tests/integration/run.sh` closes that gap: it installs a real WordPress on a
 real database, activates the plugin and drives the sync through WP-CLI, while
-a local mock server answers as mobile.de from the same fixtures.
+a local mock server answers as mobile.de from the same fixtures. It then serves
+the site and fetches the archive, a filtered archive, a vehicle and a page of
+shortcodes and blocks — under the default block theme and under a classic one —
+and fails on any PHP notice in the log. WP-CLI never renders a page; a template
+that calls a method that does not exist passes everything else.
+
+`"generate": 40` in the mock's state file adds forty vehicles derived from the
+fixture, enough to see pagination, facet counts and sliders do something.
 
 ```
 sh tests/integration/run.sh
@@ -536,8 +544,11 @@ Every template is resolved through the same hierarchy, first match wins:
 
 The card is a part of its own, so a theme can restyle the grid item without
 copying the loop around it. It reads `$args['heading']` (`h2` to `h4`) and
-`$args['warnings']`. The bundled templates require no CSS framework and work
-with the active theme's `get_header()` / `get_footer()`.
+`$args['warnings']`. The bundled templates require no CSS framework. A page
+template opens with `WMDS_Templates::header()` and closes with
+`WMDS_Templates::footer()` rather than `get_header()` / `get_footer()`: in a
+classic theme they are the same thing, in a block theme — which has no
+`header.php` — they wrap the page in the theme's header and footer parts.
 
 The bundled stylesheet loads on the vehicle archive, on a detail page and on
 any post whose content renders the shortcode; the shortcode enqueues it as

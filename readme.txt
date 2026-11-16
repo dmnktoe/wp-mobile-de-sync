@@ -117,15 +117,23 @@ than a translation of the English source.
 
 = 2.3.0 =
 * Changed: the post type, rewrite slug and templates are English — `vehicles`,
-  `/vehicles/`, `single-vehicles.php`. Existing `fahrzeuge` posts are renamed
-  on upgrade; old URLs permanently redirect.
-* Changed: German shortcode aliases and German shortcode attributes are
-  removed. Use `[vehicles]`, `[vehicle-filter]`, `[vehicle-enquiry]`,
-  `[vehicle-logo]` and English attribute names only.
-* Fixed: the vehicle archive died with "Call to undefined method
-  WMDS_Facet_Query::selection()" whenever the archive was opened.
-* New: four blocks under mobile.de Sync, and a Usage settings tab that lists
-  blocks, shortcodes and the dashboard widget.
+  `/vehicles/`, `single-vehicles.php`, `vehicle-list.php`. German shortcode
+  aliases and attributes are removed.
+* Fixed: the bundled pages render inside block themes. They called
+  `get_header()`, which a block theme answers with a deprecation and a page
+  without the theme's header, styles or width.
+* Fixed: on a card the manufacturer logo covered the vehicle photo.
+* Fixed: the archive, the list and the filter bar died with "Call to undefined
+  method".
+* Fixed: a full sync ended after its first batch and never removed anything;
+  a failed detail call emptied the vehicle; an aborted run showed as "Up to
+  date"; vehicles in the bin tripped the removal guard.
+* Fixed: range filters refused ordinary figures, a shortcode's fixed filter was
+  unknown to the filter bar, and facet counts went stale after every sync.
+* Fixed: the enquiry form bounced the first submission from a cached page.
+* New: Contact Form 7, mail delivery and FacetWP integrations, four blocks, a
+  Usage tab, and enquiries in WordPress's personal data export and erasure.
+* The full list is in CHANGELOG.md.
 
 = 2.2.0 =
 * New: filtering of its own. `[vehicle-filter]` renders dropdowns, radio
