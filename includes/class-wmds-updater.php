@@ -310,7 +310,7 @@ class WMDS_Updater {
 		}
 
 		if ( 403 === (int) $code || 429 === (int) $code ) {
-			return __( 'GitHub turned the request down. The API rate limit for this server is most likely used up; it resets within the hour.', 'wp-mobile-de-sync' );
+			return __( 'GitHub rejected the request. The API rate limit for this server has probably been reached; it resets within an hour.', 'wp-mobile-de-sync' );
 		}
 
 		if ( 200 !== (int) $code ) {
@@ -321,14 +321,14 @@ class WMDS_Updater {
 		$data = json_decode( (string) $body, true );
 
 		if ( ! is_array( $data ) || empty( $data['tag_name'] ) ) {
-			return __( 'GitHub did not answer with a release.', 'wp-mobile-de-sync' );
+			return __( 'GitHub did not return a release.', 'wp-mobile-de-sync' );
 		}
 
 		if ( ! empty( $data['draft'] ) || ! empty( $data['prerelease'] ) ) {
-			return __( 'The newest release on GitHub is a draft or a pre-release, and those are skipped.', 'wp-mobile-de-sync' );
+			return __( 'The latest release on GitHub is a draft or pre-release and is skipped.', 'wp-mobile-de-sync' );
 		}
 
-		return __( 'The newest release on GitHub carries no installable ZIP.', 'wp-mobile-de-sync' );
+		return __( 'The latest release on GitHub does not contain an installable ZIP file.', 'wp-mobile-de-sync' );
 	}
 
 	/**

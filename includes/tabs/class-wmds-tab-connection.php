@@ -48,7 +48,7 @@ class WMDS_Tab_Connection {
 		<div class="wmds-card">
 			<h2><?php esc_html_e( 'Which inventory', 'wp-mobile-de-sync' ); ?></h2>
 			<p class="description">
-				<?php esc_html_e( 'Pick one route. Saving clears the other one, so what this form shows is what the plugin actually sends.', 'wp-mobile-de-sync' ); ?>
+				<?php esc_html_e( 'Use only one of the two options. Saving clears the other.', 'wp-mobile-de-sync' ); ?>
 			</p>
 
 			<fieldset class="wmds-seller-modes">
@@ -62,7 +62,7 @@ class WMDS_Tab_Connection {
 						inputmode="numeric" placeholder="<?php esc_attr_e( 'e.g. 12345678', 'wp-mobile-de-sync' ); ?>"
 						value="<?php echo esc_attr( WMDS_Settings::seller_id() ); ?>">
 					<p class="description">
-						<?php esc_html_e( 'The dealer\'s numeric identifier and the only route mobile.de documents for addressing an inventory.', 'wp-mobile-de-sync' ); ?>
+						<?php esc_html_e( 'The dealer\'s numeric identifier. This is the method mobile.de documents for querying an inventory.', 'wp-mobile-de-sync' ); ?>
 					</p>
 				</div>
 
@@ -79,7 +79,7 @@ class WMDS_Tab_Connection {
 						<?php
 						printf(
 							/* translators: %s: the URL pattern home.mobile.de/NAME, already marked up. */
-							esc_html__( 'The name from %s. This parameter is undocumented and may disappear at any time.', 'wp-mobile-de-sync' ),
+							esc_html__( 'The name from %s. This parameter is undocumented and may not be supported by mobile.de in the long term.', 'wp-mobile-de-sync' ),
 							'<code>home.mobile.de/<strong>NAME</strong></code>'
 						);
 						?>
@@ -95,7 +95,7 @@ class WMDS_Tab_Connection {
 			<div class="wmds-card wmds-danger-card">
 				<h2><?php esc_html_e( 'Delete credentials', 'wp-mobile-de-sync' ); ?></h2>
 				<p class="description">
-					<?php esc_html_e( 'Removes username, password and the addressing from the database. Already imported vehicles stay untouched.', 'wp-mobile-de-sync' ); ?>
+					<?php esc_html_e( 'Removes the username, password and seller ID or dealer name from the database. Vehicles already imported are kept.', 'wp-mobile-de-sync' ); ?>
 				</p>
 				<?php
 				WMDS_Admin_Ui::action_button(

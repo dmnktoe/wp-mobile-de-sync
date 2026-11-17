@@ -23,8 +23,8 @@ class WMDS_Tab_System {
 						sprintf(
 							/* translators: %d: number of failed requirement checks. */
 							_n(
-								'%d requirement is not met. The sync cannot work reliably until it is.',
-								'%d requirements are not met. The sync cannot work reliably until they are.',
+								'%d requirement is not met. Reliable synchronisation is not possible until it is resolved.',
+								'%d requirements are not met. Reliable synchronisation is not possible until they are resolved.',
 								$tally['fail'],
 								'wp-mobile-de-sync'
 							),
@@ -40,8 +40,8 @@ class WMDS_Tab_System {
 						sprintf(
 							/* translators: %d: number of requirement checks worth a look. */
 							_n(
-								'Everything needed is in place. %d point is worth a look.',
-								'Everything needed is in place. %d points are worth a look.',
+								'All requirements are met. %d item should be reviewed.',
+								'All requirements are met. %d items should be reviewed.',
 								$tally['warn'],
 								'wp-mobile-de-sync'
 							),
@@ -82,7 +82,7 @@ class WMDS_Tab_System {
 				<?php
 				printf(
 					/* translators: %s: link to the WordPress site health screen, already marked up. */
-					esc_html__( 'WordPress collects more about this server under %s.', 'wp-mobile-de-sync' ),
+					esc_html__( 'WordPress provides further server information under %s.', 'wp-mobile-de-sync' ),
 					sprintf(
 						'<a href="%s">%s</a>',
 						esc_url( admin_url( 'site-health.php?tab=debug' ) ),

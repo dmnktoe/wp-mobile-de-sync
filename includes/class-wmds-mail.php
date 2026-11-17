@@ -42,6 +42,21 @@ class WMDS_Mail {
 	}
 
 	/**
+	 * Every address the plugin sends to, for the test mail.
+	 *
+	 * @return string[]
+	 */
+	public static function test_recipients() {
+		$to = WMDS_Leads::recipients();
+
+		if ( WMDS_Alerts::enabled() ) {
+			$to = array_merge( $to, WMDS_Alerts::recipients() );
+		}
+
+		return array_values( array_unique( $to ) );
+	}
+
+	/**
 	 * @param string|string[] $to
 	 * @param string          $subject
 	 * @param string          $body

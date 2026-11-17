@@ -3,6 +3,27 @@
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
+## [2.4.5] – 2026-11-17
+
+### Added
+- **Each enquiry records what became of its mail**: handed over to the mailer
+  and for which addresses, or not sent and why. An enquiry on the screen but
+  not in the inbox now says whether it was sent at all.
+
+### Changed
+- **One test mail instead of two.** The test button on the Integrations tab
+  sends a single mail to every address the plugin writes to - the enquiry
+  address and, when alerts are on, the alert address - and lists both. The
+  separate test alert on the Status tab is gone. Enquiries and alerts keep
+  their own addresses.
+- **Texts revised in English and German** for a neutral, professional tone
+  throughout the admin screens, the enquiry form and the mails.
+
+### Fixed
+- The consent notice on a stored enquiry showed its link as raw markup; it is
+  shown as text now. The enquiry text is labelled as the message the visitor
+  wrote rather than with the word the sync log uses.
+
 ## [2.4.4] – 2026-11-17
 
 ### Fixed

@@ -138,9 +138,9 @@ class WMDS_Tab_Status {
 		WMDS_Admin_Ui::form_open( 'status' );
 		?>
 		<div class="wmds-card">
-			<h2><?php esc_html_e( 'Tell me when something is wrong', 'wp-mobile-de-sync' ); ?></h2>
+			<h2><?php esc_html_e( 'Notifications about problems', 'wp-mobile-de-sync' ); ?></h2>
 			<p class="description">
-				<?php esc_html_e( 'A sync that stops is invisible until somebody looks at this screen. Switched on, a failed or overdue run is sent by e-mail — once, not once per run — and so is the moment it works again.', 'wp-mobile-de-sync' ); ?>
+				<?php esc_html_e( 'When enabled, an e-mail is sent if a run fails or is overdue — once per problem, not for every run. An e-mail is also sent once the sync is working again.', 'wp-mobile-de-sync' ); ?>
 			</p>
 
 			<table class="form-table" role="presentation">
@@ -150,7 +150,7 @@ class WMDS_Tab_Status {
 						<label>
 							<input type="checkbox" name="wmds_alerts_enabled" value="yes"
 								<?php checked( WMDS_Alerts::enabled() ); ?>>
-							<?php esc_html_e( 'Send an e-mail when the sync needs attention', 'wp-mobile-de-sync' ); ?>
+							<?php esc_html_e( 'Send an e-mail notification when the sync encounters a problem', 'wp-mobile-de-sync' ); ?>
 						</label>
 					</td>
 				</tr>
@@ -163,7 +163,7 @@ class WMDS_Tab_Status {
 							placeholder="<?php echo esc_attr( (string) get_option( 'admin_email' ) ); ?>"
 							value="<?php echo esc_attr( (string) WMDS_Settings::get( 'alerts_recipient', '' ) ); ?>">
 						<p class="description">
-							<?php esc_html_e( 'Several addresses separated by commas. Empty means the site administrator.', 'wp-mobile-de-sync' ); ?>
+							<?php esc_html_e( 'Separate multiple addresses with commas. If empty, the site administrator\'s e-mail address is used.', 'wp-mobile-de-sync' ); ?>
 						</p>
 					</td>
 				</tr>
@@ -181,7 +181,7 @@ class WMDS_Tab_Status {
 							<?php endforeach; ?>
 						</select>
 						<p class="description">
-							<?php esc_html_e( 'Applies to the same problem reported again. A different problem, and the recovery, are sent straight away.', 'wp-mobile-de-sync' ); ?>
+							<?php esc_html_e( 'Applies when the same problem recurs. New problems and the recovery notice are sent immediately.', 'wp-mobile-de-sync' ); ?>
 						</p>
 					</td>
 				</tr>
@@ -191,7 +191,7 @@ class WMDS_Tab_Status {
 						<label>
 							<input type="checkbox" name="wmds_alerts_weekly" value="yes"
 								<?php checked( 'yes' === WMDS_Settings::get( 'alerts_weekly', 'no' ) ); ?>>
-							<?php esc_html_e( 'Once a week, send the state of the inventory even when nothing is wrong', 'wp-mobile-de-sync' ); ?>
+							<?php esc_html_e( 'Send a weekly summary, even if there are no problems', 'wp-mobile-de-sync' ); ?>
 						</label>
 					</td>
 				</tr>
@@ -201,15 +201,6 @@ class WMDS_Tab_Status {
 		</div>
 		</form>
 
-		<?php if ( WMDS_Alerts::enabled() ) : ?>
-			<div class="wmds-card">
-				<h2><?php esc_html_e( 'Does it arrive', 'wp-mobile-de-sync' ); ?></h2>
-				<p class="description">
-					<?php esc_html_e( 'Sends the mail an alert would send right now, marked as a test. A WordPress installation that cannot send mail at all fails here rather than on the day it matters.', 'wp-mobile-de-sync' ); ?>
-				</p>
-				<?php WMDS_Admin_Ui::action_button( 'test-alert', __( 'Send a test alert', 'wp-mobile-de-sync' ), 'secondary' ); ?>
-			</div>
-		<?php endif; ?>
 		<?php
 	}
 

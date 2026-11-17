@@ -82,15 +82,15 @@ msgid "The request failed. The browser could not reach WordPress."
 msgstr "Die Anfrage ist fehlgeschlagen. Der Browser konnte WordPress nicht erreichen."
 
 #: includes/class-wmds-admin.php:101 includes/class-wmds-admin.php:408
-msgid "You are not allowed to do this."
-msgstr "Dafür fehlt die Berechtigung."
+msgid "You do not have permission to do this."
+msgstr "Dafür fehlen die erforderlichen Berechtigungen."
 
 #: includes/class-wmds-admin.php:196
 msgid "Settings saved."
 msgstr "Einstellungen gespeichert."
 
 #: includes/class-wmds-admin.php:209
-msgid "Credentials deleted. Nothing is imported until new ones are stored."
+msgid "Credentials deleted. No vehicles will be imported until new credentials are saved."
 msgstr "Zugangsdaten gelöscht. Bis neue hinterlegt sind, wird nichts importiert."
 
 #. translators: %s: error message returned by the API.
@@ -105,8 +105,8 @@ msgstr "Verbindung in Ordnung – %d Fahrzeuge im Bestand."
 
 #. translators: %d: maximum number of ads reachable through pagination.
 #: includes/class-wmds-admin.php:256
-msgid "Warning: across paginated pages the API hands out at most %d vehicles, so a reconciliation would be incomplete."
-msgstr "Achtung: Über paginierte Seiten gibt die API höchstens %d Fahrzeuge heraus, ein Abgleich wäre also unvollständig."
+msgid "Note: the API returns at most %d vehicles across paginated requests, so a reconciliation would be incomplete."
+msgstr "Hinweis: Die API liefert über paginierte Abfragen höchstens %d Fahrzeuge; ein Abgleich wäre daher unvollständig."
 
 #. translators: %s: error message from the import run.
 #: includes/class-wmds-admin.php:275
@@ -115,28 +115,28 @@ msgstr "Lauf fehlgeschlagen: %s"
 
 #. translators: %d: number of vehicles still pending.
 #: includes/class-wmds-admin.php:287
-msgid "%d vehicles still pending – the rest continues automatically."
-msgstr "Noch %d Fahrzeuge offen – der Rest läuft automatisch weiter."
+msgid "%d vehicles pending. Processing will continue automatically."
+msgstr "Noch %d Fahrzeuge ausstehend. Die Verarbeitung wird automatisch fortgesetzt."
 
 #: includes/class-wmds-admin.php:315
-msgid "Watermark discarded. The next run reads the whole inventory again and is the first one allowed to remove sold vehicles."
-msgstr "Änderungsstand verworfen. Der nächste Lauf liest den gesamten Bestand neu ein und darf als Erster verkaufte Fahrzeuge entfernen."
+msgid "Change marker reset. The next run reads the entire inventory and removes sold vehicles."
+msgstr "Änderungsstand zurückgesetzt. Der nächste Lauf liest den gesamten Bestand neu ein und entfernt dabei verkaufte Fahrzeuge."
 
 #: includes/class-wmds-admin.php:324
-msgid "Reference data discarded. It will be fetched again on the next run."
-msgstr "Referenzdaten verworfen. Sie werden beim nächsten Lauf neu geholt."
+msgid "Reference data reset. It will be retrieved again on the next run."
+msgstr "Referenzdaten zurückgesetzt. Sie werden beim nächsten Lauf neu abgerufen."
 
 #: includes/class-wmds-admin.php:330
 msgid "Log cleared."
 msgstr "Protokoll geleert."
 
 #: includes/class-wmds-admin.php:342
-msgid "That is not a vehicle."
-msgstr "Das ist kein Fahrzeug."
+msgid "This entry is not a vehicle."
+msgstr "Dieser Eintrag ist kein Fahrzeug."
 
 #: includes/class-wmds-admin.php:348
 msgid "This vehicle has no mobile.de ad ID and cannot be reloaded."
-msgstr "Zu diesem Fahrzeug gibt es keine mobile.de-Anzeigen-ID, es lässt sich nicht neu einlesen."
+msgstr "Für dieses Fahrzeug ist keine mobile.de-Anzeigen-ID hinterlegt; es kann nicht neu eingelesen werden."
 
 #. translators: %s: error message from the API.
 #: includes/class-wmds-admin.php:363
@@ -277,8 +277,8 @@ msgid "Which inventory"
 msgstr "Welcher Bestand"
 
 #: includes/class-wmds-admin.php:753
-msgid "Pick one route. Saving clears the other one, so what this form shows is what the plugin actually sends."
-msgstr "Einen der beiden Wege wählen. Beim Speichern wird der andere geleert, damit hier steht, was das Plugin tatsächlich sendet."
+msgid "Use only one of the two options. Saving clears the other."
+msgstr "Bitte nur eine der beiden Angaben verwenden. Beim Speichern wird die jeweils andere geleert."
 
 #: includes/class-wmds-admin.php:759
 msgid "Seller ID"
@@ -293,8 +293,8 @@ msgid "e.g. 12345678"
 msgstr "z. B. 12345678"
 
 #: includes/class-wmds-admin.php:767
-msgid "The dealer's numeric identifier and the only route mobile.de documents for addressing an inventory."
-msgstr "Die numerische Kennung des Händlers und der einzige Weg, den mobile.de für die Adressierung eines Bestands dokumentiert."
+msgid "The dealer's numeric identifier. This is the method mobile.de documents for querying an inventory."
+msgstr "Die numerische Kennung des Händlers. Dies ist die von mobile.de dokumentierte Methode, einen Bestand abzufragen."
 
 #: includes/class-wmds-admin.php:773
 msgid "Dealer name (vanity)"
@@ -310,8 +310,8 @@ msgstr "z. B. BEISPIELHAENDLER"
 
 #. translators: %s: the URL pattern home.mobile.de/NAME, already marked up.
 #: includes/class-wmds-admin.php:784
-msgid "The name from %s. This parameter is undocumented and may disappear at any time."
-msgstr "Der Name aus %s. Dieser Parameter ist undokumentiert und kann jederzeit verschwinden."
+msgid "The name from %s. This parameter is undocumented and may not be supported by mobile.de in the long term."
+msgstr "Der Name aus %s. Dieser Parameter ist nicht dokumentiert und wird von mobile.de möglicherweise nicht dauerhaft unterstützt."
 
 #: includes/class-wmds-admin.php:793 includes/class-wmds-admin.php:869
 msgid "Save"
@@ -322,8 +322,8 @@ msgid "Delete credentials"
 msgstr "Zugangsdaten löschen"
 
 #: includes/class-wmds-admin.php:800
-msgid "Removes username, password and the addressing from the database. Already imported vehicles stay untouched."
-msgstr "Entfernt Benutzername, Passwort und die Adressierung aus der Datenbank. Bereits importierte Fahrzeuge bleiben unangetastet."
+msgid "Removes the username, password and seller ID or dealer name from the database. Vehicles already imported are kept."
+msgstr "Entfernt Benutzername, Passwort sowie Verkäufer-ID bzw. Händlername aus der Datenbank. Bereits importierte Fahrzeuge bleiben erhalten."
 
 #: includes/class-wmds-admin.php:807
 msgid "Delete the stored credentials?"
@@ -358,8 +358,8 @@ msgid "Once a day"
 msgstr "Einmal täglich"
 
 #: includes/class-wmds-admin.php:846
-msgid "A run fetches only what changed and is therefore cheap. Once a day a full reconciliation runs in addition – only after one of those are sold vehicles moved to the trash."
-msgstr "Ein Lauf holt nur, was sich geändert hat, und ist deshalb günstig. Einmal täglich läuft zusätzlich ein vollständiger Abgleich – erst danach wandern verkaufte Fahrzeuge in den Papierkorb."
+msgid "Each run retrieves only changed listings. In addition, a full reconciliation runs once a day and moves sold vehicles to the trash."
+msgstr "Jeder Lauf ruft nur geänderte Anzeigen ab. Zusätzlich findet einmal täglich ein vollständiger Abgleich statt, bei dem verkaufte Fahrzeuge in den Papierkorb verschoben werden."
 
 #: includes/class-wmds-admin.php:851
 msgid "Label language"
@@ -370,12 +370,12 @@ msgid "Site language"
 msgstr "Sprache der Website"
 
 #: includes/class-wmds-admin.php:864
-msgid "Language of the reference-data labels (transmission, fuel, colours …). These are resolved at import time, so a change takes effect after the next full sync."
-msgstr "Sprache der Bezeichnungen aus den Referenzdaten (Getriebe, Kraftstoff, Farben …). Sie werden beim Import aufgelöst, eine Änderung greift deshalb erst nach dem nächsten vollständigen Sync."
+msgid "Language of the reference data labels (transmission, fuel, colours …). Labels are applied during import, so a change takes effect after the next full sync."
+msgstr "Sprache der Bezeichnungen aus den Referenzdaten (Getriebe, Kraftstoff, Farben …). Sie werden beim Import übernommen; eine Änderung wirkt sich daher erst nach dem nächsten vollständigen Sync aus."
 
 #: includes/class-wmds-admin.php:874
-msgid "How WordPress triggers this"
-msgstr "Wie WordPress das auslöst"
+msgid "How runs are triggered"
+msgstr "Auslösung der Läufe"
 
 #: includes/class-wmds-admin.php:885
 msgid "German"
@@ -407,13 +407,13 @@ msgstr "Polnisch"
 
 #. translators: 1: DISABLE_WP_CRON, 2: wp cron event run --due-now, 3: wp-cron.php - all marked up as code.
 #: includes/class-wmds-admin.php:906
-msgid "<strong>WP-Cron is disabled</strong> (%1$s). That is the recommended setting – provided a system cron calls %2$s or %3$s regularly. Without that, no sync happens at all."
-msgstr "<strong>WP-Cron ist deaktiviert</strong> (%1$s). Das ist die empfohlene Einstellung – vorausgesetzt, ein System-Cron ruft regelmäßig %2$s oder %3$s auf. Ohne das findet überhaupt kein Sync statt."
+msgid "<strong>WP-Cron is disabled</strong> (%1$s). This is the recommended setting, provided a system cron calls %2$s or %3$s regularly. Otherwise, no synchronisation takes place."
+msgstr "<strong>WP-Cron ist deaktiviert</strong> (%1$s). Das ist die empfohlene Einstellung – vorausgesetzt, ein System-Cron ruft regelmäßig %2$s oder %3$s auf. Andernfalls findet keine Synchronisation statt."
 
 #. translators: %s: the DISABLE_WP_CRON define, already marked up as code.
 #: includes/class-wmds-admin.php:916
-msgid "<strong>WP-Cron is triggered by page views, not by a clock.</strong> With little traffic on the site, runs are delayed accordingly. More reliable is %s plus a cron job at your host."
-msgstr "<strong>WP-Cron wird von Seitenaufrufen ausgelöst, nicht von einer Uhr.</strong> Bei wenig Verkehr auf der Website verzögern sich die Läufe entsprechend. Zuverlässiger ist %s zusammen mit einem Cronjob beim Hoster."
+msgid "<strong>WP-Cron is triggered by page views, not by a timer.</strong> On sites with little traffic, runs are delayed accordingly. A more reliable option is %s together with a cron job at your host."
+msgstr "<strong>WP-Cron wird durch Seitenaufrufe ausgelöst, nicht zeitgesteuert.</strong> Bei geringem Besucheraufkommen verzögern sich die Läufe entsprechend. Zuverlässiger ist %s in Verbindung mit einem Cronjob beim Hoster."
 
 #: includes/class-wmds-admin.php:925
 msgid "Next scheduled run:"
@@ -421,7 +421,7 @@ msgstr "Nächster geplanter Lauf:"
 
 #: includes/class-wmds-admin.php:942
 msgid "No run has completed yet."
-msgstr "Bisher ist kein Lauf durchgelaufen."
+msgstr "Bisher wurde kein Lauf ausgeführt."
 
 #: includes/class-wmds-admin.php:947 includes/class-wmds-admin.php:1033
 msgid "Time"
@@ -506,8 +506,8 @@ msgid "Import"
 msgstr "Import"
 
 #: includes/class-wmds-admin.php:1099
-msgid "Runs the sync in batches of 20 vehicles and keeps going until nothing is left. Leaving this page stops it — the schedule picks the rest up on its own."
-msgstr "Führt den Sync in Paketen von 20 Fahrzeugen aus, bis nichts mehr offen ist. Wer diese Seite verlässt, bricht ihn ab – den Rest holt der Zeitplan von selbst nach."
+msgid "Runs the sync in batches of 20 vehicles until all are processed. Leaving this page interrupts the process; the schedule processes the remaining vehicles automatically."
+msgstr "Führt den Sync in Paketen von 20 Fahrzeugen aus, bis alle verarbeitet sind. Beim Verlassen dieser Seite wird der Vorgang unterbrochen; die verbleibenden Fahrzeuge verarbeitet der Zeitplan automatisch."
 
 #: includes/class-wmds-admin.php:1103 includes/class-wmds-admin.php:1112 includes/class-wmds-adminbar.php:178
 msgid "Sync now"
@@ -515,8 +515,8 @@ msgstr "Jetzt synchronisieren"
 
 #. translators: %s: the WP-CLI command, already marked up.
 #: includes/class-wmds-admin.php:1118
-msgid "For the very first import of a large inventory the command line has no time limit and is the better route: %s"
-msgstr "Für den allerersten Import eines großen Bestands kennt die Kommandozeile kein Zeitlimit und ist der bessere Weg: %s"
+msgid "For the initial import of a large inventory, the command line is recommended because it has no time limit: %s"
+msgstr "Für den ersten Import eines großen Bestands empfiehlt sich die Kommandozeile, da dort kein Zeitlimit gilt: %s"
 
 #: includes/class-wmds-admin.php:1126
 msgid "Maintenance"
@@ -527,24 +527,24 @@ msgid "Force a full sync"
 msgstr "Vollständigen Sync erzwingen"
 
 #: includes/class-wmds-admin.php:1133
-msgid "Discards the change marker. The next run reads every ad again instead of only the changed ones, and it is the first one allowed to remove sold vehicles."
-msgstr "Verwirft den Änderungsstand. Der nächste Lauf liest wieder jede Anzeige statt nur der geänderten und darf als Erster verkaufte Fahrzeuge entfernen."
+msgid "Resets the change marker. The next run reads all listings instead of only changed ones and removes sold vehicles."
+msgstr "Setzt den Änderungsstand zurück. Der nächste Lauf liest alle Anzeigen statt nur der geänderten und entfernt dabei verkaufte Fahrzeuge."
 
 #: includes/class-wmds-admin.php:1140
 msgid "Force"
 msgstr "Erzwingen"
 
 #: includes/class-wmds-admin.php:1142
-msgid "This discards the change marker, so the next run re-reads the whole inventory. Continue?"
-msgstr "Damit wird der Änderungsstand verworfen, der nächste Lauf liest den gesamten Bestand neu ein. Fortfahren?"
+msgid "The change marker will be reset and the next run will read the entire inventory. Continue?"
+msgstr "Der Änderungsstand wird zurückgesetzt; der nächste Lauf liest den gesamten Bestand neu ein. Fortfahren?"
 
 #: includes/class-wmds-admin.php:1149
 msgid "Re-fetch reference data"
 msgstr "Referenzdaten neu holen"
 
 #: includes/class-wmds-admin.php:1151
-msgid "Throws away the cached labels for transmission, fuel and colours, plus the logo index."
-msgstr "Wirft die zwischengespeicherten Bezeichnungen für Getriebe, Kraftstoff und Farben weg, dazu den Logo-Index."
+msgid "Deletes the cached labels for transmission, fuel and colours, as well as the logo index."
+msgstr "Löscht die zwischengespeicherten Bezeichnungen für Getriebe, Kraftstoff und Farben sowie den Logo-Index."
 
 #: includes/class-wmds-admin.php:1155
 msgid "Discard"
@@ -793,8 +793,8 @@ msgid "No photo imported"
 msgstr "Kein Foto importiert"
 
 #: includes/class-wmds-posts.php:166
-msgid "Created by hand, not by the importer. A sync leaves it alone."
-msgstr "Von Hand angelegt, nicht vom Importer. Ein Sync lässt es unangetastet."
+msgid "Created manually, not imported. The sync does not modify this entry."
+msgstr "Manuell angelegt, nicht importiert. Der Sync verändert diesen Eintrag nicht."
 
 #: includes/class-wmds-posts.php:167
 msgid "not synced"
@@ -821,8 +821,8 @@ msgid "mobile.de source"
 msgstr "Quelle bei mobile.de"
 
 #: includes/class-wmds-posts.php:392
-msgid "This vehicle was not created by the importer. A sync leaves it alone."
-msgstr "Dieses Fahrzeug stammt nicht vom Importer. Ein Sync lässt es unangetastet."
+msgid "This vehicle was not imported. The sync does not modify it."
+msgstr "Dieses Fahrzeug wurde nicht importiert. Der Sync verändert es nicht."
 
 #: includes/class-wmds-posts.php:398
 msgid "Ad ID"
@@ -837,12 +837,12 @@ msgid "Photos imported"
 msgstr "Importierte Fotos"
 
 #: includes/class-wmds-posts.php:452
-msgid "Managed by the importer."
-msgstr "Wird vom Importer verwaltet."
+msgid "Managed by the import."
+msgstr "Wird durch den Import verwaltet."
 
 #: includes/class-wmds-posts.php:453
-msgid "Title, description, fields and photos are overwritten as soon as the ad changes on mobile.de. Edit the ad there, not here."
-msgstr "Titel, Beschreibung, Felder und Fotos werden überschrieben, sobald sich die Anzeige auf mobile.de ändert. Die Anzeige dort bearbeiten, nicht hier."
+msgid "Title, description, fields and photos are overwritten as soon as the listing changes on mobile.de. Please make changes in the listing on mobile.de."
+msgstr "Titel, Beschreibung, Felder und Fotos werden überschrieben, sobald sich die Anzeige auf mobile.de ändert. Änderungen bitte direkt in der Anzeige auf mobile.de vornehmen."
 
 #: includes/class-wmds-status.php:80
 msgid "Not configured"
@@ -869,7 +869,7 @@ msgid "Up to date"
 msgstr "Aktuell"
 
 #: includes/class-wmds-status.php:99
-msgid "Username, password and the seller ID (or a dealer name instead) are missing. Nothing is imported until they are stored."
+msgid "Username, password and seller ID (or dealer name) are missing. No vehicles will be imported until they are saved."
 msgstr "Benutzername, Passwort und die Verkäufer-ID (oder ersatzweise ein Händlername) fehlen. Bis sie hinterlegt sind, wird nichts importiert."
 
 #: includes/class-wmds-status.php:100
@@ -877,16 +877,16 @@ msgid "An import is in progress. Large inventories are processed in batches acro
 msgstr "Ein Import läuft gerade. Große Bestände werden in Paketen über mehrere Läufe verarbeitet."
 
 #: includes/class-wmds-status.php:101
-msgid "The credentials are stored, but no run has completed yet. Start the first import from the tools below."
-msgstr "Die Zugangsdaten sind hinterlegt, aber es ist noch kein Lauf durchgelaufen. Den ersten Import unten unter „Werkzeuge“ starten."
+msgid "The credentials are saved, but no run has been completed yet. Please start the first import using the tools below."
+msgstr "Die Zugangsdaten sind hinterlegt, es wurde jedoch noch kein Lauf ausgeführt. Bitte den ersten Import unten unter „Werkzeuge“ starten."
 
 #: includes/class-wmds-status.php:102
-msgid "The last run is more than six hours old. The schedule is most likely not being triggered — check the cron setup."
-msgstr "Der letzte Lauf ist mehr als sechs Stunden her. Höchstwahrscheinlich wird der Zeitplan nicht ausgelöst – die Cron-Einrichtung prüfen."
+msgid "The last run was more than six hours ago. The schedule is probably not being triggered; please check the cron setup."
+msgstr "Der letzte Lauf liegt mehr als sechs Stunden zurück. Vermutlich wird der Zeitplan nicht ausgelöst; bitte die Cron-Einrichtung prüfen."
 
 #: includes/class-wmds-status.php:103
-msgid "Some vehicles could not be processed in the last run. The log below names them."
-msgstr "Im letzten Lauf ließen sich einige Fahrzeuge nicht verarbeiten. Das Protokoll unten benennt sie."
+msgid "Some vehicles could not be processed in the last run. See the log below for details."
+msgstr "Im letzten Lauf konnten einige Fahrzeuge nicht verarbeitet werden. Details enthält das Protokoll unten."
 
 #: includes/class-wmds-status.php:104
 msgid "The inventory is in sync."
@@ -1237,8 +1237,8 @@ msgstr "Die Import-Sperre wurde aufgehoben. Ein neuer Lauf kann starten."
 msgid "Release the lock"
 msgstr "Sperre aufheben"
 
-msgid "An import has held the lock since %s. A run that was cut short by a PHP time limit leaves it behind; releasing it lets the next run start."
-msgstr "Seit %s hält ein Import die Sperre. Ein Lauf, den ein PHP-Zeitlimit abgeschnitten hat, lässt sie zurück; wird sie aufgehoben, kann der nächste Lauf starten."
+msgid "The import lock has been set since %s. It remains in place if a run was interrupted by a PHP time limit. Once it is released, the next run can start."
+msgstr "Die Import-Sperre ist seit %s gesetzt. Sie bleibt bestehen, wenn ein Lauf durch ein PHP-Zeitlimit abgebrochen wurde. Nach dem Aufheben kann der nächste Lauf starten."
 
 msgid "Emission sticker red"
 msgstr "Feinstaubplakette rot"
@@ -1262,8 +1262,8 @@ msgid "The plugin needs at least PHP %s."
 msgstr "Das Plugin benötigt mindestens PHP %s."
 
 #: includes/class-wmds-requirements.php
-msgid "This release no longer gets security fixes. PHP %s or newer is worth asking your host for."
-msgstr "Für diese Version gibt es keine Sicherheitsupdates mehr. Frage deinen Hoster nach PHP %s oder neuer."
+msgid "This PHP version no longer receives security updates. Please ask your host for PHP %s or later."
+msgstr "Für diese PHP-Version gibt es keine Sicherheitsupdates mehr. Bitte beim Hoster PHP %s oder neuer anfordern."
 
 #: includes/class-wmds-requirements.php
 msgid "WordPress version"
@@ -1274,20 +1274,20 @@ msgid "The plugin needs at least WordPress %s."
 msgstr "Das Plugin benötigt mindestens WordPress %s."
 
 #: includes/class-wmds-requirements.php
-msgid "Reads the API responses."
-msgstr "Liest die Antworten der API."
+msgid "Required to process the API responses."
+msgstr "Wird zum Verarbeiten der API-Antworten benötigt."
 
 #: includes/class-wmds-requirements.php
 msgid "Needed for the HTTPS calls to mobile.de."
 msgstr "Wird für die HTTPS-Aufrufe zu mobile.de benötigt."
 
 #: includes/class-wmds-requirements.php
-msgid "WordPress falls back to PHP streams without it, which is slower."
-msgstr "Ohne die Erweiterung nutzt WordPress PHP-Streams, das ist langsamer."
+msgid "Without this extension, WordPress uses PHP streams, which is slower."
+msgstr "Ohne diese Erweiterung verwendet WordPress PHP-Streams; das ist langsamer."
 
 #: includes/class-wmds-requirements.php
-msgid "Without it, umlauts in descriptions can be cut off mid-character."
-msgstr "Ohne die Erweiterung können Umlaute in Beschreibungen mitten im Zeichen abgeschnitten werden."
+msgid "Without this extension, umlauts in descriptions may be corrupted when text is shortened."
+msgstr "Ohne diese Erweiterung können Umlaute in Beschreibungen beim Kürzen beschädigt werden."
 
 #: includes/class-wmds-requirements.php
 msgid "PHP extensions"
@@ -1314,12 +1314,12 @@ msgid "no limit"
 msgstr "kein Limit"
 
 #: includes/class-wmds-requirements.php
-msgid "Low, but the plugin is allowed to raise it for the duration of a run."
-msgstr "Niedrig, das Plugin darf den Wert für die Dauer eines Laufs aber anheben."
+msgid "Low, but the plugin can increase it for the duration of a run."
+msgstr "Niedrig; das Plugin kann den Wert jedoch für die Dauer eines Laufs erhöhen."
 
 #: includes/class-wmds-requirements.php
-msgid "set_time_limit() is disabled here, so a run has to stop after a few vehicles and continue on the next one. %d seconds would let it work through a whole batch."
-msgstr "set_time_limit() ist hier deaktiviert, deshalb muss ein Lauf nach einigen Fahrzeugen aufhören und beim nächsten weitermachen. Mit %d Sekunden käme er durch einen ganzen Stapel."
+msgid "set_time_limit() is disabled on this server. A run is therefore interrupted after a few vehicles and continued in the next one. With %d seconds, a complete batch can be processed in one run."
+msgstr "set_time_limit() ist auf diesem Server deaktiviert. Ein Lauf wird daher nach wenigen Fahrzeugen unterbrochen und beim nächsten fortgesetzt. Ab %d Sekunden lässt sich ein vollständiges Paket in einem Durchgang verarbeiten."
 
 #: includes/class-wmds-requirements.php
 msgid "Limits"
@@ -1334,8 +1334,8 @@ msgid "Memory limit"
 msgstr "Speicherlimit"
 
 #: includes/class-wmds-requirements.php
-msgid "Resizing large vehicle photos can run out of memory below %s."
-msgstr "Unter %s kann beim Verkleinern großer Fahrzeugfotos der Speicher ausgehen."
+msgid "Below %s, there may not be enough memory to resize large vehicle photos."
+msgstr "Unter %s reicht der Arbeitsspeicher beim Verkleinern großer Fahrzeugfotos möglicherweise nicht aus."
 
 #: includes/class-wmds-requirements.php
 msgid "WordPress"
@@ -1354,8 +1354,8 @@ msgid "not writable"
 msgstr "nicht beschreibbar"
 
 #: includes/class-wmds-requirements.php
-msgid "Vehicle images are stored in the media library and cannot be written without it."
-msgstr "Fahrzeugbilder liegen in der Mediathek und lassen sich ohne Schreibrecht nicht ablegen."
+msgid "Vehicle images are stored in the media library, which requires write access."
+msgstr "Fahrzeugbilder werden in der Mediathek gespeichert; dafür sind Schreibrechte erforderlich."
 
 #: includes/class-wmds-requirements.php
 msgid "Permalinks"
@@ -1370,8 +1370,8 @@ msgid "plain"
 msgstr "einfach"
 
 #: includes/class-wmds-requirements.php
-msgid "Vehicle pages work either way, but their addresses stay numeric."
-msgstr "Fahrzeugseiten funktionieren so oder so, ihre Adressen bleiben aber numerisch."
+msgid "Vehicle pages work without it, but their addresses remain numeric."
+msgstr "Fahrzeugseiten funktionieren auch ohne, ihre Adressen bleiben dann jedoch numerisch."
 
 #: includes/class-wmds-requirements.php
 msgid "URL rewriting"
@@ -1394,20 +1394,20 @@ msgid "The recommended setting, as long as a system cron calls wp-cron.php regul
 msgstr "Die empfohlene Einstellung – vorausgesetzt, ein System-Cron ruft wp-cron.php regelmäßig auf."
 
 #: includes/class-wmds-requirements.php
-msgid "Runs are triggered by page views. On a quiet site they are delayed accordingly."
-msgstr "Läufe werden durch Seitenaufrufe ausgelöst. Bei wenig Verkehr verzögern sie sich entsprechend."
+msgid "Runs are triggered by page views and are delayed on sites with little traffic."
+msgstr "Läufe werden durch Seitenaufrufe ausgelöst und verzögern sich bei geringem Besucheraufkommen."
 
 #: includes/class-wmds-requirements.php
-msgid "Rewriting is handled by the server configuration."
-msgstr "Die Umschreibung erledigt die Serverkonfiguration."
+msgid "URL rewriting is handled by the server configuration."
+msgstr "Die URL-Umschreibung übernimmt die Serverkonfiguration."
 
 #: includes/class-wmds-requirements.php
 msgid "not detectable"
 msgstr "nicht ermittelbar"
 
 #: includes/class-wmds-requirements.php
-msgid "The server does not report its modules. If vehicle pages open, rewriting works."
-msgstr "Der Server meldet seine Module nicht. Wenn Fahrzeugseiten sich öffnen, funktioniert die Umschreibung."
+msgid "The server does not report its modules. If vehicle pages open, URL rewriting works."
+msgstr "Der Server meldet keine Module. Lassen sich Fahrzeugseiten öffnen, funktioniert die URL-Umschreibung."
 
 #: includes/class-wmds-requirements.php
 msgid "mod_rewrite active"
@@ -1418,8 +1418,8 @@ msgid "mod_rewrite missing"
 msgstr "mod_rewrite fehlt"
 
 #: includes/class-wmds-requirements.php
-msgid "Without it, pretty permalinks for vehicle pages cannot work."
-msgstr "Ohne das Modul können sprechende Permalinks für Fahrzeugseiten nicht funktionieren."
+msgid "Without this module, pretty permalinks for vehicle pages do not work."
+msgstr "Ohne dieses Modul funktionieren sprechende Permalinks für Fahrzeugseiten nicht."
 
 #: includes/class-wmds-requirements.php
 msgid "Outbound requests"
@@ -1454,24 +1454,24 @@ msgid "Requirements"
 msgstr "Systemvoraussetzungen"
 
 #: includes/class-wmds-admin.php
-msgid "%d requirement is not met. The sync cannot work reliably until it is."
-msgid_plural "%d requirements are not met. The sync cannot work reliably until they are."
-msgstr[0] "%d Voraussetzung ist nicht erfüllt. Bis dahin kann die Synchronisation nicht zuverlässig arbeiten."
-msgstr[1] "%d Voraussetzungen sind nicht erfüllt. Bis dahin kann die Synchronisation nicht zuverlässig arbeiten."
+msgid "%d requirement is not met. Reliable synchronisation is not possible until it is resolved."
+msgid_plural "%d requirements are not met. Reliable synchronisation is not possible until they are resolved."
+msgstr[0] "%d Voraussetzung ist nicht erfüllt. Bis dahin ist keine zuverlässige Synchronisation möglich."
+msgstr[1] "%d Voraussetzungen sind nicht erfüllt. Bis dahin ist keine zuverlässige Synchronisation möglich."
 
 #: includes/class-wmds-admin.php
-msgid "Everything needed is in place. %d point is worth a look."
-msgid_plural "Everything needed is in place. %d points are worth a look."
-msgstr[0] "Alles Nötige ist vorhanden. %d Punkt lohnt einen Blick."
-msgstr[1] "Alles Nötige ist vorhanden. %d Punkte lohnen einen Blick."
+msgid "All requirements are met. %d item should be reviewed."
+msgid_plural "All requirements are met. %d items should be reviewed."
+msgstr[0] "Alle erforderlichen Voraussetzungen sind erfüllt. %d Hinweis sollte geprüft werden."
+msgstr[1] "Alle erforderlichen Voraussetzungen sind erfüllt. %d Hinweise sollten geprüft werden."
 
 #: includes/class-wmds-admin.php
 msgid "Every check passed."
 msgstr "Alle Prüfungen bestanden."
 
 #: includes/class-wmds-admin.php
-msgid "WordPress collects more about this server under %s."
-msgstr "Mehr über diesen Server sammelt WordPress unter %s."
+msgid "WordPress provides further server information under %s."
+msgstr "Weitere Serverinformationen stellt WordPress unter %s bereit."
 
 #: includes/class-wmds-admin.php
 msgid "Tools → Site Health → Info"
@@ -1493,8 +1493,8 @@ msgid "OK"
 msgstr "OK"
 
 #: includes/class-wmds-admin.php
-msgid "Keeps a dealer's inventory on mobile.de and the vehicles on this site in step. The mobile.de Search API is read on a schedule and every ad becomes a regular WordPress post that themes, FacetWP and the block editor can work with like any other."
-msgstr "Hält den Bestand eines Händlers auf mobile.de und die Fahrzeuge auf dieser Seite synchron. Die mobile.de Search-API wird nach Zeitplan gelesen, und jedes Inserat wird ein ganz normaler WordPress-Beitrag, mit dem Themes, FacetWP und der Block-Editor umgehen können wie mit jedem anderen."
+msgid "Synchronises a dealer's inventory on mobile.de with this site. The mobile.de Search API is queried on a schedule, and each listing is created as a regular WordPress post, compatible with themes, FacetWP and the block editor."
+msgstr "Synchronisiert den Fahrzeugbestand eines Händlers auf mobile.de mit dieser Website. Die mobile.de Search-API wird nach Zeitplan abgefragt; jedes Inserat wird als regulärer WordPress-Beitrag angelegt und ist damit mit Themes, FacetWP und dem Block-Editor kompatibel."
 
 #: includes/class-wmds-admin.php
 msgid "Installed version"
@@ -1657,8 +1657,8 @@ msgid "The form on a vehicle page"
 msgstr "Das Formular auf der Fahrzeugseite"
 
 #: includes/class-wmds-admin.php:877
-msgid "A visitor can send an enquiry straight from the detail page. It reaches you by e-mail with the vehicle it is about, and is filed under Vehicles → Enquiries so nothing is lost when the mail is not delivered."
-msgstr "Besucher können direkt von der Detailseite aus anfragen. Die Anfrage kommt per E-Mail bei Ihnen an, samt Fahrzeug, um das es geht, und wird zusätzlich unter Fahrzeuge → Anfragen abgelegt – so geht nichts verloren, falls die E-Mail nicht ankommt."
+msgid "Visitors can send an enquiry directly from the vehicle page. You receive it by e-mail, including the vehicle concerned; it is also stored under Vehicles → Enquiries so that it is retained if the e-mail is not delivered."
+msgstr "Besucher können direkt von der Fahrzeugseite aus eine Anfrage senden. Sie erhalten die Anfrage per E-Mail mit Angabe des Fahrzeugs; zusätzlich wird sie unter Fahrzeuge → Anfragen gespeichert und bleibt so auch bei einem Zustellproblem erhalten."
 
 #: includes/class-wmds-admin.php:882
 msgid "Enquiry form"
@@ -1669,55 +1669,55 @@ msgid "Show it on every vehicle page"
 msgstr "Auf jeder Fahrzeugseite anzeigen"
 
 #: includes/class-wmds-admin.php:893
-msgid "Switched off, the form appears only where %s is placed."
-msgstr "Ausgeschaltet erscheint das Formular nur dort, wo %s steht."
+msgid "When disabled, the form only appears where %s is inserted."
+msgstr "Ist die Option deaktiviert, erscheint das Formular nur dort, wo %s eingefügt ist."
 
 #: includes/class-wmds-admin.php:902
 msgid "Send to"
 msgstr "Senden an"
 
 #: includes/class-wmds-admin.php:909
-msgid "Several addresses separated by commas. Empty means the site administrator."
-msgstr "Mehrere Adressen durch Komma getrennt. Leer bedeutet: an die Administration der Website."
+msgid "Separate multiple addresses with commas. If empty, the site administrator's e-mail address is used."
+msgstr "Mehrere Adressen durch Kommas trennen. Ohne Angabe wird die Administrator-E-Mail-Adresse der Website verwendet."
 
 #: includes/class-wmds-admin.php:914
 msgid "Also to the seller"
 msgstr "Auch an den Verkäufer"
 
 #: includes/class-wmds-admin.php:919
-msgid "Copy the address the feed carries for that vehicle"
-msgstr "Kopie an die Adresse, die im Feed zu diesem Fahrzeug hinterlegt ist"
+msgid "Send a copy to the address stored in the feed for this vehicle"
+msgstr "Kopie an die im Feed hinterlegte Adresse des Fahrzeugs senden"
 
 #: includes/class-wmds-admin.php:924
 msgid "Confirmation"
 msgstr "Eingangsbestätigung"
 
 #: includes/class-wmds-admin.php:929
-msgid "Send the enquirer a copy of what they wrote"
-msgstr "Anfragenden eine Kopie ihrer Nachricht schicken"
+msgid "Send the enquirer a copy of their message"
+msgstr "Anfragenden eine Kopie ihrer Nachricht senden"
 
 #: includes/class-wmds-admin.php:934
 msgid "Keep a record"
 msgstr "Aufzeichnung"
 
 #: includes/class-wmds-admin.php:939
-msgid "File every enquiry in the database"
+msgid "Store every enquiry in the database"
 msgstr "Jede Anfrage in der Datenbank ablegen"
 
 #: includes/class-wmds-admin.php:942
-msgid "Without this an enquiry exists only as the e-mail it was sent as. If that e-mail fails, it is gone."
-msgstr "Ohne dies existiert eine Anfrage nur als die E-Mail, als die sie verschickt wurde. Scheitert die Zustellung, ist sie verloren."
+msgid "Without this option, an enquiry exists only as an e-mail. If delivery fails, it is no longer available."
+msgstr "Ohne diese Option liegt eine Anfrage nur als E-Mail vor. Schlägt die Zustellung fehl, ist sie nicht mehr verfügbar."
 
 #: includes/class-wmds-admin.php:948
 msgid "Privacy notice"
 msgstr "Datenschutzhinweis"
 
 #: includes/class-wmds-admin.php:953
-msgid "Shown next to a checkbox the visitor has to tick. Leave empty to ask for no consent. A link is allowed."
-msgstr "Erscheint neben einer Checkbox, die angehakt werden muss. Leer lassen, um keine Einwilligung zu verlangen. Ein Link ist erlaubt."
+msgid "Displayed next to a checkbox that must be ticked. Leave empty if no consent is required. Links are allowed."
+msgstr "Wird neben einer Checkbox angezeigt, die angehakt werden muss. Ohne Text wird keine Einwilligung abgefragt. Links sind zulässig."
 
 #: includes/class-wmds-admin.php:964
-msgid "What has come in"
+msgid "Received enquiries"
 msgstr "Was eingegangen ist"
 
 #: includes/class-wmds-admin.php:967
@@ -1773,24 +1773,24 @@ msgid "That name is too long."
 msgstr "Dieser Name ist zu lang."
 
 #: includes/class-wmds-leads.php:226
-msgid "Please give us an e-mail address to answer to."
+msgid "Please enter an e-mail address so that we can reply."
 msgstr "Bitte geben Sie eine E-Mail-Adresse an, an die wir antworten können."
 
 #: includes/class-wmds-leads.php:228
-msgid "That does not look like an e-mail address."
-msgstr "Das sieht nicht nach einer E-Mail-Adresse aus."
+msgid "Please enter a valid e-mail address."
+msgstr "Bitte geben Sie eine gültige E-Mail-Adresse ein."
 
 #: includes/class-wmds-leads.php:233
-msgid "That does not look like a phone number."
-msgstr "Das sieht nicht nach einer Telefonnummer aus."
+msgid "Please enter a valid phone number."
+msgstr "Bitte geben Sie eine gültige Telefonnummer ein."
 
 #: includes/class-wmds-leads.php:238
-msgid "Please tell us what you would like to know."
-msgstr "Bitte schreiben Sie uns, was Sie wissen möchten."
+msgid "Please enter a message."
+msgstr "Bitte geben Sie eine Nachricht ein."
 
 #: includes/class-wmds-leads.php:240
-msgid "A few more words, please."
-msgstr "Ein paar Worte mehr, bitte."
+msgid "Please enter a more detailed message."
+msgstr "Bitte geben Sie eine ausführlichere Nachricht ein."
 
 #: includes/class-wmds-leads.php:242
 msgid "That message is too long."
@@ -1809,8 +1809,8 @@ msgid "[%s] Enquiry"
 msgstr "[%s] Anfrage"
 
 #: includes/class-wmds-leads.php:341
-msgid "[%s] We have your enquiry"
-msgstr "[%s] Ihre Anfrage ist angekommen"
+msgid "[%s] Confirmation of your enquiry"
+msgstr "[%s] Eingangsbestätigung Ihrer Anfrage"
 
 #: includes/class-wmds-leads.php:346
 msgid "Hello %s,"
@@ -1825,8 +1825,8 @@ msgid "thank you for your enquiry. We will get back to you."
 msgstr "vielen Dank für Ihre Anfrage. Wir melden uns bei Ihnen."
 
 #: includes/class-wmds-leads.php:360
-msgid "This is what you sent us:"
-msgstr "Das haben Sie uns geschickt:"
+msgid "Your message:"
+msgstr "Ihre Nachricht:"
 
 #: includes/class-wmds-leads.php:379
 msgid "The form has expired. Please send it again."
@@ -1837,16 +1837,16 @@ msgid "Enquiries are switched off."
 msgstr "Anfragen sind ausgeschaltet."
 
 #: includes/class-wmds-leads.php:387
-msgid "That was too quick to be real. Please try again."
-msgstr "Das ging zu schnell, um echt zu sein. Bitte versuchen Sie es noch einmal."
+msgid "The form was submitted too quickly. Please try again."
+msgstr "Das Formular wurde zu schnell abgeschickt. Bitte versuchen Sie es erneut."
 
 #: includes/class-wmds-leads.php:393
-msgid "Several enquiries have already been sent from here. Please try again later."
-msgstr "Von hier wurden bereits mehrere Anfragen gesendet. Bitte versuchen Sie es später erneut."
+msgid "Several enquiries have already been sent. Please try again later."
+msgstr "Es wurden bereits mehrere Anfragen gesendet. Bitte versuchen Sie es später erneut."
 
 #: includes/class-wmds-leads.php:413
-msgid "The enquiry could not be sent. Please call us instead."
-msgstr "Die Anfrage konnte nicht gesendet werden. Bitte rufen Sie uns stattdessen an."
+msgid "Unfortunately, the enquiry could not be sent. Please contact us by phone."
+msgstr "Die Anfrage konnte leider nicht gesendet werden. Bitte kontaktieren Sie uns telefonisch."
 
 #: includes/class-wmds-leads.php:458
 msgid "%1$s about %2$s"
@@ -1857,8 +1857,8 @@ msgid "Enquire about this vehicle"
 msgstr "Zu diesem Fahrzeug anfragen"
 
 #: templates/parts/enquiry-form.php:28
-msgid "Thank you — your enquiry is on its way. We will get back to you."
-msgstr "Vielen Dank – Ihre Anfrage ist unterwegs. Wir melden uns bei Ihnen."
+msgid "Thank you for your enquiry. We will get back to you shortly."
+msgstr "Vielen Dank für Ihre Anfrage. Wir melden uns in Kürze bei Ihnen."
 
 #: templates/parts/enquiry-form.php:43
 msgid "Leave this field empty"
@@ -1880,14 +1880,6 @@ msgstr "Anfrage senden"
 msgid "Fields marked * are required."
 msgstr "Mit * markierte Felder sind Pflichtfelder."
 
-#: includes/class-wmds-admin.php:395
-msgid "A test alert has been sent. If it does not arrive, the problem is the site's mail, not the sync."
-msgstr "Eine Testbenachrichtigung wurde verschickt. Kommt sie nicht an, liegt es an der E-Mail-Zustellung der Website, nicht am Sync."
-
-#: includes/class-wmds-admin.php:400
-msgid "WordPress could not send the mail. Alerts will not arrive either until that is fixed — an SMTP plugin is the usual answer."
-msgstr "WordPress konnte die E-Mail nicht versenden. Bis das behoben ist, kommen auch keine Benachrichtigungen an – üblicherweise hilft ein SMTP-Plugin."
-
 #: includes/class-wmds-admin.php:857
 msgid "At most once an hour"
 msgstr "Höchstens stündlich"
@@ -1905,48 +1897,36 @@ msgid "At most once a day"
 msgstr "Höchstens einmal täglich"
 
 #: includes/class-wmds-admin.php:866
-msgid "Tell me when something is wrong"
-msgstr "Bescheid geben, wenn etwas nicht stimmt"
+msgid "Notifications about problems"
+msgstr "Benachrichtigungen bei Problemen"
 
 #: includes/class-wmds-admin.php:868
-msgid "A sync that stops is invisible until somebody looks at this screen. Switched on, a failed or overdue run is sent by e-mail — once, not once per run — and so is the moment it works again."
-msgstr "Ein Sync, der stehen bleibt, fällt erst auf, wenn jemand auf diese Seite schaut. Eingeschaltet kommt ein fehlgeschlagener oder überfälliger Lauf per E-Mail – einmal, nicht einmal pro Lauf –, und ebenso der Moment, in dem es wieder läuft."
+msgid "When enabled, an e-mail is sent if a run fails or is overdue — once per problem, not for every run. An e-mail is also sent once the sync is working again."
+msgstr "Bei aktivierter Option wird per E-Mail benachrichtigt, wenn ein Lauf fehlschlägt oder überfällig ist – einmal pro Problem, nicht bei jedem Lauf. Ebenso wird gemeldet, sobald die Synchronisation wieder fehlerfrei läuft."
 
 #: includes/class-wmds-admin.php:873
 msgid "Notifications"
 msgstr "Benachrichtigungen"
 
 #: includes/class-wmds-admin.php:878
-msgid "Send an e-mail when the sync needs attention"
-msgstr "E-Mail senden, wenn der Sync Aufmerksamkeit braucht"
+msgid "Send an e-mail notification when the sync encounters a problem"
+msgstr "Bei Problemen mit der Synchronisation per E-Mail benachrichtigen"
 
 #: includes/class-wmds-admin.php:898
 msgid "How often at most"
 msgstr "Höchstens wie oft"
 
 #: includes/class-wmds-admin.php:911
-msgid "Applies to the same problem reported again. A different problem, and the recovery, are sent straight away."
-msgstr "Gilt für dasselbe Problem, wenn es erneut auftritt. Ein anderes Problem und die Entwarnung gehen sofort raus."
+msgid "Applies when the same problem recurs. New problems and the recovery notice are sent immediately."
+msgstr "Gilt für die Wiederholung desselben Problems. Neue Probleme und die Entwarnung werden sofort gemeldet."
 
 #: includes/class-wmds-admin.php:916
 msgid "Weekly summary"
 msgstr "Wochenübersicht"
 
 #: includes/class-wmds-admin.php:921
-msgid "Once a week, send the state of the inventory even when nothing is wrong"
-msgstr "Einmal pro Woche den Stand des Bestands senden, auch wenn alles in Ordnung ist"
-
-#: includes/class-wmds-admin.php:934
-msgid "Does it arrive"
-msgstr "Kommt sie an"
-
-#: includes/class-wmds-admin.php:936
-msgid "Sends the mail an alert would send right now, marked as a test. A WordPress installation that cannot send mail at all fails here rather than on the day it matters."
-msgstr "Verschickt genau die E-Mail, die eine Benachrichtigung jetzt senden würde, als Test markiert. Eine WordPress-Installation, die gar keine E-Mails versenden kann, scheitert hier statt am entscheidenden Tag."
-
-#: includes/class-wmds-admin.php:938
-msgid "Send a test alert"
-msgstr "Testbenachrichtigung senden"
+msgid "Send a weekly summary, even if there are no problems"
+msgstr "Einmal pro Woche eine Zusammenfassung senden, auch wenn keine Probleme vorliegen"
 
 #: includes/class-wmds-alerts.php:153
 msgid "[%s] The vehicle sync is working again"
@@ -1969,27 +1949,23 @@ msgid "From the log:"
 msgstr "Aus dem Protokoll:"
 
 #: includes/class-wmds-alerts.php:210
-msgid "[%s] Vehicle sync, the week in one mail"
-msgstr "[%s] Fahrzeug-Sync, die Woche in einer E-Mail"
-
-#: includes/class-wmds-alerts.php:265
-msgid "[Test] %s"
-msgstr "[Test] %s"
+msgid "[%s] Vehicle sync: weekly summary"
+msgstr "[%s] Fahrzeug-Sync: Wochenübersicht"
 
 msgid "Synchronises a dealer's vehicle inventory from the mobile.de Search API into a \"fahrzeuge\" custom post type. Brings its own filters, templates, blocks and shortcodes, and works with existing theme templates."
 msgstr "Synchronisiert den Fahrzeugbestand eines Händlers aus der mobile.de Search-API in den Inhaltstyp „fahrzeuge“. Bringt eigene Filter, Templates, Blöcke und Shortcodes mit und arbeitet mit vorhandenen Theme-Templates zusammen."
 
-msgid "This action has to be submitted from its form."
-msgstr "Diese Aktion muss über ihr Formular abgeschickt werden."
+msgid "This action must be submitted from its form."
+msgstr "Diese Aktion muss über das zugehörige Formular ausgelöst werden."
 
-msgid "Nothing was saved: the form did not say which settings it holds."
-msgstr "Nichts gespeichert: Das Formular hat nicht angegeben, welche Einstellungen es enthält."
+msgid "Nothing was saved: the form did not specify which settings it contains."
+msgstr "Nichts gespeichert: Das Formular enthielt keine Angabe zum Einstellungsbereich."
 
-msgid "WordPress answered with something unexpected (HTTP %1$d). The session may have expired — reload the page and try again."
+msgid "WordPress returned an unexpected response (HTTP %1$d). Your session may have expired; please reload the page and try again."
 msgstr "WordPress hat unerwartet geantwortet (HTTP %1$d). Möglicherweise ist die Sitzung abgelaufen – Seite neu laden und erneut versuchen."
 
-msgid "%1$d vehicles are still pending. The scheduled runs carry on from here."
-msgstr "%1$d Fahrzeuge stehen noch aus. Die geplanten Läufe machen von hier aus weiter."
+msgid "%1$d vehicles are still pending. The scheduled runs will continue processing."
+msgstr "%1$d Fahrzeuge stehen noch aus. Die geplanten Läufe setzen die Verarbeitung fort."
 
 msgid "Integrations"
 msgstr "Integrationen"
@@ -2012,13 +1988,13 @@ msgstr "Filter für den Fahrzeugbestand."
 msgid "Vehicle count"
 msgstr "Fahrzeuganzahl"
 
-msgid "How many vehicles the current filters leave."
+msgid "Number of vehicles remaining with the current filters."
 msgstr "Wie viele Fahrzeuge die aktuellen Filter übrig lassen."
 
 msgid "Vehicle enquiry"
 msgstr "Fahrzeuganfrage"
 
-msgid "A form that asks about a vehicle."
+msgid "An enquiry form for a vehicle."
 msgstr "Ein Formular für die Anfrage zu einem Fahrzeug."
 
 msgid "Vehicle list"
@@ -2030,7 +2006,7 @@ msgstr "Eine Liste oder ein Raster aus dem synchronisierten Bestand."
 msgid "Filter controls for the inventory."
 msgstr "Filter für den Bestand."
 
-msgid "How many vehicles match the current filters."
+msgid "Number of vehicles matching the current filters."
 msgstr "Wie viele Fahrzeuge zu den aktuellen Filtern passen."
 
 msgid "Enquiry form for the current vehicle."
@@ -2087,29 +2063,29 @@ msgstr "Fahrzeuganfragen"
 msgid "Last run was aborted"
 msgstr "Letzter Lauf abgebrochen"
 
-msgid "The last run is long overdue. The schedule is most likely not being triggered — check the cron setup."
-msgstr "Der letzte Lauf ist längst überfällig. Höchstwahrscheinlich wird der Zeitplan nicht ausgelöst – die Cron-Einrichtung prüfen."
+msgid "The last run is significantly overdue. The schedule is probably not being triggered; please check the cron setup."
+msgstr "Der letzte Lauf ist deutlich überfällig. Vermutlich wird der Zeitplan nicht ausgelöst; bitte die Cron-Einrichtung prüfen."
 
-msgid "mobile.de could not be reached or refused the request, so nothing was imported. The log below has the reason — wrong credentials are the usual one."
-msgstr "mobile.de war nicht erreichbar oder hat die Anfrage abgelehnt, deshalb wurde nichts importiert. Der Grund steht unten im Protokoll – meist sind es falsche Zugangsdaten."
+msgid "mobile.de could not be reached or rejected the request; nothing was imported. The log below shows the cause — incorrect credentials are the most common one."
+msgstr "mobile.de war nicht erreichbar oder hat die Anfrage abgelehnt; es wurde nichts importiert. Die Ursache steht im Protokoll unten – häufig sind es fehlerhafte Zugangsdaten."
 
 msgid "GitHub could not be reached: %s"
 msgstr "GitHub war nicht erreichbar: %s"
 
-msgid "GitHub turned the request down. The API rate limit for this server is most likely used up; it resets within the hour."
-msgstr "GitHub hat die Anfrage abgelehnt. Höchstwahrscheinlich ist das API-Limit für diesen Server aufgebraucht; es wird innerhalb einer Stunde zurückgesetzt."
+msgid "GitHub rejected the request. The API rate limit for this server has probably been reached; it resets within an hour."
+msgstr "GitHub hat die Anfrage abgelehnt. Vermutlich ist das API-Limit für diesen Server erreicht; es wird innerhalb einer Stunde zurückgesetzt."
 
 msgid "GitHub answered with HTTP %d."
 msgstr "GitHub hat mit HTTP %d geantwortet."
 
-msgid "GitHub did not answer with a release."
-msgstr "GitHub hat keine Veröffentlichung geliefert."
+msgid "GitHub did not return a release."
+msgstr "GitHub hat keine Version geliefert."
 
-msgid "The newest release on GitHub is a draft or a pre-release, and those are skipped."
-msgstr "Die neueste Veröffentlichung auf GitHub ist ein Entwurf oder eine Vorabversion; diese werden übersprungen."
+msgid "The latest release on GitHub is a draft or pre-release and is skipped."
+msgstr "Die neueste Version auf GitHub ist ein Entwurf oder eine Vorabversion und wird übersprungen."
 
-msgid "The newest release on GitHub carries no installable ZIP."
-msgstr "Die neueste Veröffentlichung auf GitHub enthält kein installierbares ZIP."
+msgid "The latest release on GitHub does not contain an installable ZIP file."
+msgstr "Die neueste Version auf GitHub enthält kein installierbares ZIP-Archiv."
 
 msgid "The update check against GitHub failed, so no new version can be offered here: %s"
 msgstr "Die Update-Prüfung bei GitHub ist fehlgeschlagen, deshalb kann hier keine neue Version angeboten werden: %s"
@@ -2147,14 +2123,14 @@ msgstr "%1$s, Versand über %2$s"
 msgid "Mail delivery"
 msgstr "E-Mail-Zustellung"
 
-msgid "PHP mail() is unauthenticated, so enquiries and alerts are treated as spam by many providers or dropped without a bounce. An SMTP plugin sending through the mailbox the site answers from is the usual answer."
-msgstr "PHP mail() ist nicht authentifiziert; Anfragen und Benachrichtigungen werden deshalb von vielen Anbietern als Spam behandelt oder ohne Rückmeldung verworfen. Üblich ist ein SMTP-Plugin, das über das Postfach versendet, von dem die Website antwortet."
+msgid "PHP mail() is unauthenticated, so many e-mail providers classify enquiries and alerts as spam or reject them without notice. An SMTP plugin that sends through the site's mailbox is recommended."
+msgstr "PHP mail() ist nicht authentifiziert. Anfragen und Benachrichtigungen werden daher von vielen E-Mail-Anbietern als Spam eingestuft oder ohne Rückmeldung abgewiesen. Empfohlen wird ein SMTP-Plugin, das über das Postfach der Website versendet."
 
 msgid "Last mail error"
 msgstr "Letzter E-Mail-Fehler"
 
-msgid "Reported by WordPress when a message could not be handed over. It clears itself as soon as the plugin sends one successfully."
-msgstr "Von WordPress gemeldet, wenn eine Nachricht nicht übergeben werden konnte. Verschwindet von selbst, sobald das Plugin wieder eine erfolgreich versendet."
+msgid "Reported by WordPress when an e-mail could not be handed over. The notice is removed automatically once the plugin has sent an e-mail successfully."
+msgstr "Wird von WordPress gemeldet, wenn eine E-Mail nicht übergeben werden konnte. Der Hinweis wird automatisch entfernt, sobald wieder eine E-Mail erfolgreich versendet wurde."
 
 msgid "Placing vehicles"
 msgstr "Fahrzeuge einbinden"
@@ -2165,14 +2141,14 @@ msgstr "Blöcke, Shortcodes und Widgets"
 msgid "Not installed"
 msgstr "Nicht installiert"
 
-msgid "%s is not active on this site. Nothing here does anything until it is."
-msgstr "%s ist auf dieser Website nicht aktiv. Bis dahin bewirkt hier nichts etwas."
+msgid "%s is not active on this site. The following settings therefore have no effect."
+msgstr "%s ist auf dieser Website nicht aktiv. Die folgenden Einstellungen sind daher ohne Wirkung."
 
 msgid "Active"
 msgstr "Aktiv"
 
-msgid "A form of your own can ask about the vehicle the visitor is looking at. Put a mail tag into the mail template of the form and it is filled in when the form is sent from a vehicle page — no field in the form needed."
-msgstr "Ein eigenes Formular kann sich auf das Fahrzeug beziehen, das der Besucher gerade ansieht. Ein Mail-Tag in der E-Mail-Vorlage des Formulars wird ausgefüllt, sobald das Formular von einer Fahrzeugseite abgeschickt wird – ein Feld im Formular ist dafür nicht nötig."
+msgid "A custom form can refer to the vehicle currently being viewed. Mail tags in the form's mail template are filled in automatically when the form is submitted from a vehicle page; no additional form field is required."
+msgstr "Ein eigenes Formular kann sich auf das gerade angezeigte Fahrzeug beziehen. Mail-Tags in der E-Mail-Vorlage des Formulars werden beim Absenden von einer Fahrzeugseite automatisch ausgefüllt; ein zusätzliches Formularfeld ist nicht erforderlich."
 
 msgid "Mail tag"
 msgstr "Mail-Tag"
@@ -2180,47 +2156,47 @@ msgstr "Mail-Tag"
 msgid "Value"
 msgstr "Wert"
 
-msgid "The same values are available as a form tag when one should travel with the submission: %1$s, where %2$s takes any of the names above."
-msgstr "Dieselben Werte gibt es als Formular-Tag, wenn einer mit der Einsendung übertragen werden soll: %1$s, wobei %2$s jeden der obigen Namen annimmt."
+msgid "The same values are available as a form tag if they should be submitted with the form: %1$s, where %2$s accepts any of the names above."
+msgstr "Dieselben Werte stehen auch als Formular-Tag zur Verfügung, wenn sie mit der Einsendung übertragen werden sollen: %1$s; %2$s akzeptiert jeden der oben genannten Namen."
 
-msgid "File a submission sent from a vehicle page under Enquiries"
+msgid "Store submissions from vehicle pages under Enquiries"
 msgstr "Einsendungen von einer Fahrzeugseite unter Anfragen ablegen"
 
-msgid "Name, address, phone number and message are read from the form under the names it uses. Submissions from any other page are left alone."
-msgstr "Name, Adresse, Telefonnummer und Nachricht werden unter den Feldnamen gelesen, die das Formular verwendet. Einsendungen von anderen Seiten bleiben unberührt."
+msgid "Name, e-mail address, phone number and message are taken from the form's field names. Submissions from other pages are not recorded."
+msgstr "Name, E-Mail-Adresse, Telefonnummer und Nachricht werden anhand der Feldnamen des Formulars übernommen. Einsendungen von anderen Seiten werden nicht erfasst."
 
-msgid "Add the address the feed carries for that vehicle as a recipient"
-msgstr "Die Adresse, die der Feed für dieses Fahrzeug liefert, als Empfänger hinzufügen"
+msgid "Add the address stored in the feed for this vehicle as a recipient"
+msgstr "Die im Feed hinterlegte Adresse des Fahrzeugs als Empfänger hinzufügen"
 
-msgid "Only to the mail that goes to you, never to the confirmation the visitor receives."
-msgstr "Nur bei der E-Mail an Sie, nie bei der Bestätigung an den Besucher."
+msgid "Applies only to the e-mail sent to you, not to the confirmation sent to the visitor."
+msgstr "Gilt nur für die E-Mail an Sie, nicht für die Bestätigung an den Besucher."
 
-msgid "The form the plugin brings itself can be switched off under %s, so a vehicle page carries one form rather than two."
-msgstr "Das Formular, das das Plugin selbst mitbringt, lässt sich unter %s abschalten, damit eine Fahrzeugseite ein Formular zeigt und nicht zwei."
+msgid "The plugin's built-in form can be disabled under %s so that only one form appears on a vehicle page."
+msgstr "Das im Plugin enthaltene Formular lässt sich unter %s deaktivieren, damit auf einer Fahrzeugseite nur ein Formular erscheint."
 
-msgid "Enquiries and alerts are sent with wp_mail(). Without an SMTP plugin that means PHP mail(): unauthenticated, sent from whatever address the server decides on, and accepted by the local sendmail whether or not anything is ever delivered. An enquiry that ends up in a spam folder is a lost customer, and nothing on this site would say so."
-msgstr "Anfragen und Benachrichtigungen werden mit wp_mail() versendet. Ohne SMTP-Plugin heißt das PHP mail(): nicht authentifiziert, mit einer Absenderadresse, die der Server bestimmt, und vom lokalen Sendmail angenommen, egal ob je etwas zugestellt wird. Eine Anfrage im Spam-Ordner ist ein verlorener Kunde, und nichts auf dieser Website würde darauf hinweisen."
+msgid "Enquiries and alerts are sent with wp_mail(). Without an SMTP plugin this means PHP mail(): no authentication, a sender address chosen by the server, and no confirmation that a message was delivered. Enquiries may therefore end up in spam folders unnoticed."
+msgstr "Anfragen und Benachrichtigungen werden über wp_mail() versendet. Ohne SMTP-Plugin erfolgt der Versand über PHP mail(): ohne Authentifizierung, mit einer vom Server festgelegten Absenderadresse und ohne Rückmeldung, ob die E-Mail zugestellt wurde. Anfragen können dadurch unbemerkt im Spam-Ordner landen."
 
-msgid "Recorded for every message this site sends, not only ours. It clears itself as soon as one goes out successfully."
-msgstr "Wird für jede Nachricht dieser Website erfasst, nicht nur für unsere. Verschwindet von selbst, sobald eine erfolgreich hinausgeht."
+msgid "Recorded for all e-mails sent by this site, not only those of the plugin. The notice is removed automatically once an e-mail has been sent successfully."
+msgstr "Wird für alle E-Mails dieser Website erfasst, nicht nur für die des Plugins. Der Hinweis wird automatisch entfernt, sobald eine E-Mail erfolgreich versendet wurde."
 
 msgid "Send a test mail"
 msgstr "Test-E-Mail senden"
 
-msgid "The plugin filters on its own and needs FacetWP for nothing. A site that was built on FacetWP keeps working all the same: the meta keys are unchanged, they appear in the facet source list under \"mobile.de\" with readable labels, and the sort orders the filter bar offers are offered to a FacetWP template too."
-msgstr "Das Plugin filtert selbst und braucht FacetWP für nichts. Eine Website, die auf FacetWP aufgebaut wurde, funktioniert trotzdem weiter: Die Meta-Schlüssel sind unverändert, sie erscheinen in der Liste der Facetten-Quellen unter „mobile.de“ mit lesbaren Bezeichnungen, und die Sortierungen der Filterleiste stehen auch einem FacetWP-Template zur Verfügung."
+msgid "The plugin includes its own filters and does not require FacetWP. Existing FacetWP setups continue to work: the meta keys are unchanged, appear in the facet source list under \"mobile.de\" with readable labels, and the filter bar's sort orders are also available to FacetWP templates."
+msgstr "Das Plugin enthält eigene Filter und benötigt FacetWP nicht. Bestehende FacetWP-Einrichtungen funktionieren weiterhin: Die Meta-Schlüssel sind unverändert, erscheinen in der Liste der Facetten-Quellen unter „mobile.de“ mit lesbaren Bezeichnungen, und die Sortierungen der Filterleiste stehen auch FacetWP-Templates zur Verfügung."
 
 msgid "Re-index"
 msgstr "Neu indexieren"
 
-msgid "Re-index a vehicle once the sync has finished writing it"
-msgstr "Ein Fahrzeug neu indexieren, sobald der Sync es fertig geschrieben hat"
+msgid "Re-index a vehicle once the sync has finished saving it"
+msgstr "Fahrzeug neu indexieren, sobald der Sync es vollständig gespeichert hat"
 
-msgid "FacetWP indexes when a post is saved. The import saves the post first and writes the meta afterwards, so what FacetWP indexed on its own is the state before the update — which is where stale counts come from. Leave this on unless the index is maintained elsewhere."
-msgstr "FacetWP indexiert, wenn ein Beitrag gespeichert wird. Der Import speichert zuerst den Beitrag und schreibt die Metadaten danach; was FacetWP von sich aus indexiert, ist also der Stand vor der Aktualisierung – daher kommen veraltete Zähler. Eingeschaltet lassen, außer der Index wird anderweitig gepflegt."
+msgid "FacetWP indexes when a post is saved. The import saves the post first and the meta data afterwards, so FacetWP's automatic index reflects the state before the update, which leads to outdated counts. Keep this enabled unless the index is maintained elsewhere."
+msgstr "FacetWP indexiert beim Speichern eines Beitrags. Der Import speichert zuerst den Beitrag und danach die Metadaten; der automatische FacetWP-Index entspricht daher dem Stand vor der Aktualisierung, was zu veralteten Zählern führt. Diese Option aktiviert lassen, sofern der Index nicht anderweitig gepflegt wird."
 
-msgid "Release the lock only once you are sure no import is still running. Two runs writing the same vehicles at once will conflict. Continue?"
-msgstr "Die Sperre nur aufheben, wenn sicher kein Import mehr läuft. Zwei Läufe, die gleichzeitig dieselben Fahrzeuge schreiben, kommen sich in die Quere. Fortfahren?"
+msgid "Only release the lock if you are certain that no import is running. Two simultaneous runs can interfere with each other. Continue?"
+msgstr "Die Sperre nur aufheben, wenn sicher kein Import mehr läuft. Zwei gleichzeitige Läufe können sich gegenseitig stören. Fortfahren?"
 
 msgid "How to place vehicles on the site"
 msgstr "So kommen Fahrzeuge auf die Website"
@@ -2236,8 +2212,8 @@ msgid "Slug"
 msgstr "Titelform (Slug)"
 
 #. translators: %s: the default slug.
-msgid "The archive and every vehicle are served under this. Empty means %s. Links to the old address stop working when it changes."
-msgstr "Darunter sind das Archiv und jedes Fahrzeug erreichbar. Leer bedeutet %s. Wird sie geändert, funktionieren Links auf die alte Adresse nicht mehr."
+msgid "The archive and all vehicle pages are available under this address. If empty, %s is used. After a change, links to the previous address no longer work."
+msgstr "Unter dieser Adresse sind das Archiv und alle Fahrzeugseiten erreichbar. Ohne Angabe wird %s verwendet. Nach einer Änderung sind Links auf die bisherige Adresse nicht mehr gültig."
 
 msgid "Blocks"
 msgstr "Blöcke"
@@ -2408,7 +2384,49 @@ msgid "Sync in progress"
 msgstr "Abgleich läuft noch"
 
 #. translators: %d: number of vehicles still to be processed.
-msgid "%d vehicle is still to be processed. The next pass starts on its own; vehicles sold in the meantime are removed once the whole inventory has been read."
-msgid_plural "%d vehicles are still to be processed. The next pass starts on its own; vehicles sold in the meantime are removed once the whole inventory has been read."
-msgstr[0] "%d Fahrzeug ist noch abzuarbeiten. Der nächste Durchgang startet von selbst; inzwischen verkaufte Fahrzeuge werden entfernt, sobald der ganze Bestand gelesen ist."
-msgstr[1] "%d Fahrzeuge sind noch abzuarbeiten. Der nächste Durchgang startet von selbst; inzwischen verkaufte Fahrzeuge werden entfernt, sobald der ganze Bestand gelesen ist."
+msgid "%d vehicle is still to be processed. The next pass starts automatically; vehicles sold in the meantime are removed once the entire inventory has been read."
+msgid_plural "%d vehicles are still to be processed. The next pass starts automatically; vehicles sold in the meantime are removed once the entire inventory has been read."
+msgstr[0] "%d Fahrzeug ist noch zu verarbeiten. Der nächste Durchgang startet automatisch; inzwischen verkaufte Fahrzeuge werden entfernt, sobald der gesamte Bestand gelesen wurde."
+msgstr[1] "%d Fahrzeuge sind noch zu verarbeiten. Der nächste Durchgang startet automatisch; inzwischen verkaufte Fahrzeuge werden entfernt, sobald der gesamte Bestand gelesen wurde."
+
+msgctxt "what the enquirer wrote"
+msgid "Message"
+msgstr "Nachricht"
+
+msgid "Delivery"
+msgstr "Zustellung"
+
+#. translators: %s: the addresses the enquiry was sent to.
+msgid "Handed over to the mailer for %s"
+msgstr "An den Mailversand übergeben für %s"
+
+#. translators: %s: the error WordPress reported.
+msgid "Not sent: %s"
+msgstr "Nicht versendet: %s"
+
+msgid "Not sent"
+msgstr "Nicht versendet"
+
+#. translators: %s: site name.
+msgid "[%s] Test mail"
+msgstr "[%s] Test-E-Mail"
+
+#. translators: %s: the addresses the test mail was meant for.
+msgid "WordPress could not send the test mail to %s."
+msgstr "WordPress konnte die Test-E-Mail an %s nicht versenden."
+
+msgid "This is a test mail from the mobile.de Sync plugin. It was sent the same way as enquiries and sync alerts."
+msgstr "Dies ist eine Test-E-Mail des Plugins mobile.de Sync. Sie wurde auf demselben Weg versendet wie Anfragen und Sync-Benachrichtigungen."
+
+#. translators: %s: the addresses the test mail was sent to.
+msgid "The test mail to %s has been handed over for delivery. If it does not arrive within a few minutes, please check the spam folder and the mail settings of the site."
+msgstr "Die Test-E-Mail an %s wurde zum Versand übergeben. Sollte sie nicht innerhalb weniger Minuten eingehen, prüfen Sie bitte den Spam-Ordner und die E-Mail-Einstellungen der Website."
+
+#. translators: %s: the addresses enquiries are sent to.
+msgid "Enquiries: %s"
+msgstr "Anfragen: %s"
+
+#. translators: %s: the addresses sync alerts are sent to.
+msgid "Sync alerts: %s"
+msgstr "Sync-Benachrichtigungen: %s"
+

@@ -83,9 +83,9 @@ class WMDS_Admin {
 					'done'       => __( 'Sync finished.', 'wp-mobile-de-sync' ),
 					'failed'     => __( 'The request failed. The browser could not reach WordPress.', 'wp-mobile-de-sync' ),
 					/* translators: %1$d: HTTP status code. */
-					'unexpected' => __( 'WordPress answered with something unexpected (HTTP %1$d). The session may have expired — reload the page and try again.', 'wp-mobile-de-sync' ),
+					'unexpected' => __( 'WordPress returned an unexpected response (HTTP %1$d). Your session may have expired; please reload the page and try again.', 'wp-mobile-de-sync' ),
 					/* translators: %1$d: number of vehicles still to be imported. */
-					'unfinished' => __( '%1$d vehicles are still pending. The scheduled runs carry on from here.', 'wp-mobile-de-sync' ),
+					'unfinished' => __( '%1$d vehicles are still pending. The scheduled runs will continue processing.', 'wp-mobile-de-sync' ),
 				),
 			)
 		);

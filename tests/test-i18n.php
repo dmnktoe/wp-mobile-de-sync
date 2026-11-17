@@ -213,7 +213,7 @@ wmds_section( 'Both plural forms survive the compilation' );
 
 $plural = '';
 foreach ( $read['entries'] as $id => $translation ) {
-	if ( 0 === strpos( $id, 'Everything needed is in place.' ) ) {
+	if ( 0 === strpos( $id, 'All requirements are met.' ) ) {
 		$plural = $translation;
 	}
 }

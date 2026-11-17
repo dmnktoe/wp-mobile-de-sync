@@ -27,7 +27,7 @@ class WMDS_Catalog {
 			array(
 				'tag'         => 'vehicle-count',
 				'title'       => __( 'Vehicle count', 'wp-mobile-de-sync' ),
-				'description' => __( 'How many vehicles match the current filters.', 'wp-mobile-de-sync' ),
+				'description' => __( 'Number of vehicles matching the current filters.', 'wp-mobile-de-sync' ),
 				'example'     => '[vehicle-count]',
 			),
 			array(

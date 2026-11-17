@@ -148,12 +148,15 @@ class WMDS_Leads {
 			__( 'Phone', 'wp-mobile-de-sync' )            => (string) get_post_meta( $post->ID, '_wmds_phone', true ),
 			__( 'Listing number', 'wp-mobile-de-sync' )   => (string) get_post_meta( $post->ID, '_wmds_ad_id', true ),
 			__( 'Vehicle', 'wp-mobile-de-sync' )          => (string) get_post_meta( $post->ID, '_wmds_url', true ),
-			__( 'Consent', 'wp-mobile-de-sync' )          => (string) get_post_meta( $post->ID, '_wmds_consent', true ),
+			// The notice is stored as it was shown, link and all; here it is
+			// read, not clicked, so the markup would only be in the way.
+			__( 'Consent', 'wp-mobile-de-sync' )          => wp_strip_all_tags( (string) get_post_meta( $post->ID, '_wmds_consent', true ) ),
 			__( 'Received through', 'wp-mobile-de-sync' ) => self::source_label(
 				(string) get_post_meta( $post->ID, '_wmds_source', true ),
 				(string) get_post_meta( $post->ID, '_wmds_form', true )
 			),
 			__( 'From', 'wp-mobile-de-sync' )             => (string) get_post_meta( $post->ID, '_wmds_ip', true ),
+			__( 'Delivery', 'wp-mobile-de-sync' )         => (string) get_post_meta( $post->ID, '_wmds_delivery', true ),
 		);
 
 		echo '<table class="form-table" role="presentation">';
@@ -169,7 +172,7 @@ class WMDS_Leads {
 		}
 		echo '</table>';
 
-		printf( '<p><strong>%s</strong></p>', esc_html__( 'Message', 'wp-mobile-de-sync' ) );
+		printf( '<p><strong>%s</strong></p>', esc_html_x( 'Message', 'what the enquirer wrote', 'wp-mobile-de-sync' ) );
 		printf( '<p style="white-space:pre-wrap">%s</p>', esc_html( $post->post_content ) );
 	}
 
@@ -225,6 +228,34 @@ class WMDS_Leads {
 		return (array) apply_filters( 'wmds_enquiry_recipients', $to );
 	}
 
+	/**
+	 * What became of the mail, for the record of the enquiry.
+	 *
+	 * "Handed over" and no more: wp_mail() knows that the mailer took the
+	 * message, not that it arrived. That is still the first question when an
+	 * enquiry is on the screen but not in the inbox: was it sent at all, and
+	 * to whom.
+	 *
+	 * @param bool     $mailed  What wp_mail() returned.
+	 * @param string[] $to      The recipients it was sent to.
+	 * @param array    $failure As WMDS_Smtp::failure() returns it.
+	 * @param int      $tried   When the attempt started; an older failure is someone else's.
+	 * @return string
+	 */
+	public static function delivery_note( $mailed, array $to, array $failure, $tried ) {
+		if ( $mailed ) {
+			/* translators: %s: the addresses the enquiry was sent to. */
+			return sprintf( __( 'Handed over to the mailer for %s', 'wp-mobile-de-sync' ), implode( ', ', $to ) );
+		}
+
+		if ( ! empty( $failure['message'] ) && isset( $failure['time'] ) && (int) $failure['time'] >= (int) $tried ) {
+			/* translators: %s: the error WordPress reported. */
+			return sprintf( __( 'Not sent: %s', 'wp-mobile-de-sync' ), $failure['message'] );
+		}
+
+		return __( 'Not sent', 'wp-mobile-de-sync' );
+	}
+
 	/** @return string The consent line, empty when none is required. */
 	public static function consent_text() {
 		return trim( (string) WMDS_Settings::get( 'enquiry_consent', '' ) );
@@ -249,21 +280,21 @@ class WMDS_Leads {
 
 		$email = isset( $data['email'] ) ? trim( (string) $data['email'] ) : '';
 		if ( '' === $email ) {
-			$errors['email'] = __( 'Please give us an e-mail address to answer to.', 'wp-mobile-de-sync' );
+			$errors['email'] = __( 'Please enter an e-mail address so that we can reply.', 'wp-mobile-de-sync' );
 		} elseif ( ! is_email( $email ) ) {
-			$errors['email'] = __( 'That does not look like an e-mail address.', 'wp-mobile-de-sync' );
+			$errors['email'] = __( 'Please enter a valid e-mail address.', 'wp-mobile-de-sync' );
 		}
 
 		$phone = isset( $data['phone'] ) ? trim( (string) $data['phone'] ) : '';
 		if ( '' !== $phone && ( self::length( $phone ) > self::MAX_PHONE || ! preg_match( '/^[0-9 +()\/-]+$/', $phone ) ) ) {
-			$errors['phone'] = __( 'That does not look like a phone number.', 'wp-mobile-de-sync' );
+			$errors['phone'] = __( 'Please enter a valid phone number.', 'wp-mobile-de-sync' );
 		}
 
 		$message = isset( $data['message'] ) ? trim( (string) $data['message'] ) : '';
 		if ( '' === $message ) {
-			$errors['message'] = __( 'Please tell us what you would like to know.', 'wp-mobile-de-sync' );
+			$errors['message'] = __( 'Please enter a message.', 'wp-mobile-de-sync' );
 		} elseif ( self::length( $message ) < self::MIN_MESSAGE ) {
-			$errors['message'] = __( 'A few more words, please.', 'wp-mobile-de-sync' );
+			$errors['message'] = __( 'Please enter a more detailed message.', 'wp-mobile-de-sync' );
 		} elseif ( self::length( $message ) > self::MAX_MESSAGE ) {
 			$errors['message'] = __( 'That message is too long.', 'wp-mobile-de-sync' );
 		}
@@ -364,7 +395,7 @@ class WMDS_Leads {
 		$title = isset( $vehicle['title'] ) ? (string) $vehicle['title'] : '';
 
 		/* translators: %s: site name. */
-		$subject = sprintf( __( '[%s] We have your enquiry', 'wp-mobile-de-sync' ), $site );
+		$subject = sprintf( __( '[%s] Confirmation of your enquiry', 'wp-mobile-de-sync' ), $site );
 
 		$lines = array();
 
@@ -444,10 +475,15 @@ class WMDS_Leads {
 		$site    = wp_specialchars_decode( (string) get_option( 'blogname' ), ENT_QUOTES );
 
 		$stored = self::store( $posted, $post_id, $context );
+		$tried  = time();
 		$mailed = self::send( $posted, $context, $site, $vehicle );
 
+		if ( $stored ) {
+			update_post_meta( $stored, '_wmds_delivery', wp_slash( self::delivery_note( $mailed, self::recipients( $vehicle ), WMDS_Smtp::failure(), $tried ) ) );
+		}
+
 		if ( ! $stored && ! $mailed ) {
-			self::bounce( $back, array( 'form' => __( 'The enquiry could not be sent. Please call us instead.', 'wp-mobile-de-sync' ) ), $posted );
+			self::bounce( $back, array( 'form' => __( 'Unfortunately, the enquiry could not be sent. Please contact us by phone.', 'wp-mobile-de-sync' ) ), $posted );
 		}
 
 		set_transient( $key, $sent + 1, self::RATE_TTL );
@@ -648,8 +684,8 @@ class WMDS_Leads {
 		return array(
 			'expired' => __( 'The form has expired. Please send it again.', 'wp-mobile-de-sync' ),
 			'off'     => __( 'Enquiries are switched off.', 'wp-mobile-de-sync' ),
-			'quick'   => __( 'That was too quick to be real. Please try again.', 'wp-mobile-de-sync' ),
-			'limit'   => __( 'Several enquiries have already been sent from here. Please try again later.', 'wp-mobile-de-sync' ),
+			'quick'   => __( 'The form was submitted too quickly. Please try again.', 'wp-mobile-de-sync' ),
+			'limit'   => __( 'Several enquiries have already been sent. Please try again later.', 'wp-mobile-de-sync' ),
 		);
 	}
 

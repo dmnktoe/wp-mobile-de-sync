@@ -6,7 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class WMDS_Admin_Ajax {
 	private static function verify_ajax() {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_send_json_error( array( 'message' => __( 'You are not allowed to do this.', 'wp-mobile-de-sync' ) ), 403 );
+			wp_send_json_error( array( 'message' => __( 'You do not have permission to do this.', 'wp-mobile-de-sync' ) ), 403 );
 		}
 		check_ajax_referer( WMDS_Admin::NONCE, 'nonce' );
 	}

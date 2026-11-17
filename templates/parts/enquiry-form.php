@@ -25,7 +25,7 @@ $wmds_value = function ( $field ) use ( $wmds_values ) {
 
 	<?php if ( $wmds_state['sent'] ) : ?>
 		<p class="wmds-enquiry__sent" role="status">
-			<?php esc_html_e( 'Thank you — your enquiry is on its way. We will get back to you.', 'wp-mobile-de-sync' ); ?>
+			<?php esc_html_e( 'Thank you for your enquiry. We will get back to you shortly.', 'wp-mobile-de-sync' ); ?>
 		</p>
 	<?php else : ?>
 

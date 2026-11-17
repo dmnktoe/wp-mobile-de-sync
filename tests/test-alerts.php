@@ -203,7 +203,7 @@ wmds_section( 'The weekly summary' );
 
 $weekly = WMDS_Alerts::compose_summary( $status, 'Autohaus Example', 'https://example.invalid/wp-admin/' );
 
-wmds_assert( 'it says what it is', '[Autohaus Example] Vehicle sync, the week in one mail', $weekly['subject'] );
+wmds_assert( 'it says what it is', '[Autohaus Example] Vehicle sync: weekly summary', $weekly['subject'] );
 wmds_assert_contains( 'it states the inventory', '42', $weekly['body'] );
 wmds_assert_contains( 'and when the next run is due', 'Next run', $weekly['body'] );
 
