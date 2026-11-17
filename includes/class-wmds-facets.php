@@ -105,11 +105,12 @@ class WMDS_Facets {
 				'step'  => 5,
 			),
 			'year'      => array(
-				'type'  => 'range',
-				'label' => __( 'First registration', 'wp-mobile-de-sync' ),
-				'meta'  => 'firstRegistration_year',
-				'unit'  => '',
-				'step'  => 1,
+				'type'     => 'range',
+				'label'    => __( 'First registration', 'wp-mobile-de-sync' ),
+				'meta'     => 'firstRegistration_year',
+				'unit'     => '',
+				'step'     => 1,
+				'grouping' => false,
 			),
 		);
 
@@ -292,18 +293,20 @@ class WMDS_Facets {
 	/**
 	 * @param array  $range
 	 * @param string $unit
+	 * @param bool   $grouping
 	 * @return string
 	 */
-	public static function range_label( array $range, $unit = '' ) {
-		return WMDS_Facet_Request::range_label( $range, $unit );
+	public static function range_label( array $range, $unit = '', $grouping = true ) {
+		return WMDS_Facet_Request::range_label( $range, $unit, $grouping );
 	}
 
 	/**
 	 * @param float $value
+	 * @param bool  $grouping
 	 * @return string
 	 */
-	public static function number( $value ) {
-		return WMDS_Facet_Request::number( $value );
+	public static function number( $value, $grouping = true ) {
+		return WMDS_Facet_Request::number( $value, $grouping );
 	}
 
 	/**

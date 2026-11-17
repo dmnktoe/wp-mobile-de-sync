@@ -4,7 +4,7 @@ Tags: mobile.de, vehicles, dealership, facetwp, contact form 7
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 2.3.1
+Stable tag: 2.4.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -114,6 +114,17 @@ Pkw-EnVKV, so the bundled German catalogue carries the statutory wording rather
 than a translation of the English source.
 
 == Changelog ==
+
+= 2.4.0 =
+* Changed: the archive and the detail page are redesigned - cards with the
+  key figures as icons, a gallery with arrows and a counter, a price box that
+  stays in view, a filter bar that folds the rarer filters away.
+* Changed: the templates bring their own sizes and controls and look the same
+  in any theme; colours and radii are custom properties on `.wmds-scope`.
+* Fixed: under Salient the revealed footer covered the vehicles, and under
+  Salient 18 the page shrank to the width of its text.
+* Fixed: sorting did not reload the list where selects are replaced by select2.
+* Fixed: the first-registration range was written with a thousands separator.
 
 = 2.3.1 =
 * Changed: the post type is `fahrzeuge` again, and so are `/fahrzeuge/`,

@@ -147,17 +147,17 @@ if ( 'list' === $wmds_layout ) {
 		<?php if ( $wmds_paginated && $wmds_vehicles->max_num_pages > 1 ) : ?>
 			<nav class="wmds-pagination" aria-label="<?php esc_attr_e( 'Vehicle pages', 'wp-mobile-de-sync' ); ?>">
 				<?php
-				echo wp_kses_post(
-					(string) paginate_links(
-						array(
-							'total'     => (int) $wmds_vehicles->max_num_pages,
-							'current'   => $wmds_paged,
-							'prev_text' => __( '&laquo; Previous', 'wp-mobile-de-sync' ),
-							'next_text' => __( 'Next &raquo;', 'wp-mobile-de-sync' ),
-							'add_args'  => WMDS_Facets::to_query( $wmds_selection ),
-						)
+				// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- built by paginate_links() from escaped parts and the fixed icons.
+				echo (string) paginate_links(
+					array(
+						'total'     => (int) $wmds_vehicles->max_num_pages,
+						'current'   => $wmds_paged,
+						'prev_text' => WMDS_Templates::icon( 'chevron-left' ) . '<span class="screen-reader-text">' . esc_html__( 'Previous', 'wp-mobile-de-sync' ) . '</span>',
+						'next_text' => '<span class="screen-reader-text">' . esc_html__( 'Next', 'wp-mobile-de-sync' ) . '</span>' . WMDS_Templates::icon( 'chevron-right' ),
+						'add_args'  => WMDS_Facets::to_query( $wmds_selection ),
 					)
 				);
+				// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 				?>
 			</nav>
 		<?php endif; ?>

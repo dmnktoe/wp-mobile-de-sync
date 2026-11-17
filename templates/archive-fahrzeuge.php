@@ -13,7 +13,18 @@ $wmds_found     = (int) $GLOBALS['wp_query']->found_posts;
 <div class="wmds-scope wmds-archive<?php echo esc_attr( WMDS_Templates::wrapper_class() ); ?>">
 
 	<header class="wmds-archive__header">
-		<h1><?php post_type_archive_title(); ?></h1>
+		<h1 class="wmds-archive__title"><?php post_type_archive_title(); ?></h1>
+		<p class="wmds-archive__lead">
+			<?php
+			echo esc_html(
+				sprintf(
+					/* translators: %d: number of vehicles the current filters leave. */
+					_n( '%d vehicle in stock', '%d vehicles in stock', $wmds_found, 'wp-mobile-de-sync' ),
+					$wmds_found
+				)
+			);
+			?>
+		</p>
 	</header>
 
 	<?php
@@ -24,23 +35,10 @@ $wmds_found     = (int) $GLOBALS['wp_query']->found_posts;
 			'selection' => $wmds_selection,
 			'layout'    => 'bar',
 			'counts'    => true,
+			'heading'   => __( 'Find your vehicle', 'wp-mobile-de-sync' ),
 		)
 	);
 	?>
-
-	<div class="wmds-toolbar">
-		<p class="wmds-toolbar__count">
-			<?php
-			echo esc_html(
-				sprintf(
-					/* translators: %d: number of vehicles the current filters leave. */
-					_n( '%d vehicle', '%d vehicles', $wmds_found, 'wp-mobile-de-sync' ),
-					$wmds_found
-				)
-			);
-			?>
-		</p>
-	</div>
 
 	<?php if ( have_posts() ) : ?>
 
@@ -63,25 +61,27 @@ $wmds_found     = (int) $GLOBALS['wp_query']->found_posts;
 		// Empty when everything fits on one page.
 		$wmds_pages = (string) paginate_links(
 			array(
-				'prev_text' => __( '&laquo; Previous', 'wp-mobile-de-sync' ),
-				'next_text' => __( 'Next &raquo;', 'wp-mobile-de-sync' ),
+				'prev_text' => WMDS_Templates::icon( 'chevron-left' ) . '<span class="screen-reader-text">' . esc_html__( 'Previous', 'wp-mobile-de-sync' ) . '</span>',
+				'next_text' => '<span class="screen-reader-text">' . esc_html__( 'Next', 'wp-mobile-de-sync' ) . '</span>' . WMDS_Templates::icon( 'chevron-right' ),
 				'add_args'  => WMDS_Facets::to_query( $wmds_selection ),
 			)
 		);
 		?>
 		<?php if ( '' !== $wmds_pages ) : ?>
 			<nav class="wmds-pagination" aria-label="<?php esc_attr_e( 'Vehicle pages', 'wp-mobile-de-sync' ); ?>">
-				<?php echo wp_kses_post( $wmds_pages ); ?>
+				<?php echo $wmds_pages; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built by paginate_links() from escaped parts and the fixed icons. ?>
 			</nav>
 		<?php endif; ?>
 
 	<?php elseif ( WMDS_Facets::is_filtered( $wmds_selection ) ) : ?>
-		<p class="wmds-empty">
-			<?php esc_html_e( 'No vehicle matches these filters.', 'wp-mobile-de-sync' ); ?>
-			<a href="<?php echo esc_url( WMDS_Facets::base_url() ); ?>"><?php esc_html_e( 'Reset the filters', 'wp-mobile-de-sync' ); ?></a>
-		</p>
+		<div class="wmds-empty">
+			<p><?php esc_html_e( 'No vehicle matches these filters.', 'wp-mobile-de-sync' ); ?></p>
+			<a class="wmds-button" href="<?php echo esc_url( WMDS_Facets::base_url() ); ?>"><?php esc_html_e( 'Reset the filters', 'wp-mobile-de-sync' ); ?></a>
+		</div>
 	<?php else : ?>
-		<p class="wmds-empty"><?php esc_html_e( 'No vehicles are available at the moment.', 'wp-mobile-de-sync' ); ?></p>
+		<div class="wmds-empty">
+			<p><?php esc_html_e( 'No vehicles are available at the moment.', 'wp-mobile-de-sync' ); ?></p>
+		</div>
 	<?php endif; ?>
 
 </div>

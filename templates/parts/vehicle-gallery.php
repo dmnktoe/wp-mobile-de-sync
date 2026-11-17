@@ -22,7 +22,9 @@ if ( ! $wmds_images ) :
 	return;
 endif;
 ?>
-<div class="wmds-gallery" data-wmds-gallery>
+<div class="wmds-gallery" data-wmds-gallery
+	data-label-prev="<?php esc_attr_e( 'Previous image', 'wp-mobile-de-sync' ); ?>"
+	data-label-next="<?php esc_attr_e( 'Next image', 'wp-mobile-de-sync' ); ?>">
 	<a class="wmds-gallery__main" href="<?php echo esc_url( $wmds_images[0]['url'] ); ?>" data-wmds-gallery-link>
 		<img src="<?php echo esc_url( $wmds_images[0]['url'] ); ?>"
 			alt="<?php echo esc_attr( $wmds_images[0]['alt'] ); ?>" data-wmds-gallery-main>

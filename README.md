@@ -554,10 +554,30 @@ template opens with `WMDS_Templates::header()` and closes with
 `WMDS_Templates::footer()` rather than `get_header()` / `get_footer()`: in a
 classic theme they are the same thing, in a block theme — which has no
 `header.php` — they wrap the page in the theme's header and footer parts.
+Where a classic theme expects its own content container around a page, the
+two open and close it: Salient's is built in, because its revealed footer
+covers anything outside it; any other comes through `wmds_theme_wrapper`.
 
 The bundled stylesheet loads on the vehicle archive, on a detail page and on
 any post whose content renders the shortcode; the shortcode enqueues it as
 well when it runs, which covers widgets and page builders.
+
+The templates take the font and the text colour from the theme and bring
+everything else: sizes, spacing, cards, controls. They undo what themes do to
+content inside them — bullets on lists, 100px headings, restyled selects
+(select2 included) — so they look the same in any theme. Colours and radii are
+custom properties, and a handful of them restyle the lot:
+
+```css
+.wmds-scope {
+	--wmds-accent: #c8102e;     /* buttons, active filters, slider */
+	--wmds-on-accent: #fff;     /* text on the accent */
+	--wmds-radius: 6px;         /* cards; -md and -sm for controls */
+	--wmds-sticky-top: 7rem;    /* where the price box sticks below a fixed header */
+}
+```
+
+The class `wmds-dark` on the scope or any ancestor switches to a dark set.
 
 | Filter | Purpose |
 |---|---|
@@ -565,6 +585,7 @@ well when it runs, which covers widgets and page builders.
 | `wmds_enqueue_styles` | switch off the bundled stylesheet |
 | `wmds_template` | point a template at a different file |
 | `wmds_slug` | change the address of the archive and the vehicles |
+| `wmds_theme_wrapper` | the markup a classic theme wants around a page, as `array( open, close )` |
 | `wmds_facets` | add, remove or reorder the filter components |
 | `wmds_facet_sorts` | change the sort orders on offer |
 | `wmds_enquiry_recipients` | decide where an enquiry is sent |
