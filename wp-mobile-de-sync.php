@@ -3,7 +3,7 @@
  * Plugin Name: mobile.de Sync
  * Plugin URI:  https://github.com/dmnktoe/wp-mobile-de-sync
  * Description: Synchronises a dealer's vehicle inventory from the mobile.de Search API into a "fahrzeuge" custom post type. Brings its own filters, templates, blocks and shortcodes, and works with existing theme templates.
- * Version:     2.4.0
+ * Version:     2.4.1
  * Author:      Domenik Töfflinger
  * Author URI:  https://github.com/dmnktoe
  * License:     GPL-2.0-or-later
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'WMDS_VERSION', '2.4.0' );
+define( 'WMDS_VERSION', '2.4.1' );
 define( 'WMDS_FILE', __FILE__ );
 define( 'WMDS_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WMDS_URL', plugin_dir_url( __FILE__ ) );
@@ -158,6 +158,18 @@ function wmds_activate() {
 	wmds_register_cpt();
 	flush_rewrite_rules();
 
+	wmds_ensure_schedule();
+}
+
+/**
+ * Puts back every event the plugin runs on that is missing.
+ *
+ * WordPress drops a recurring event for good when it comes due in a request
+ * that does not know its interval - one in which the plugin is not loaded,
+ * during an update for instance. Scheduling only on activation left a site
+ * without a sync from then on, until someone saved the schedule by hand.
+ */
+function wmds_ensure_schedule() {
 	if ( ! wp_next_scheduled( WMDS_CRON_HOOK ) ) {
 		wp_schedule_event( time() + 60, WMDS_Settings::interval(), WMDS_CRON_HOOK );
 	}
@@ -166,6 +178,15 @@ function wmds_activate() {
 	}
 
 	WMDS_Alerts::schedule();
+}
+
+// Checked where it costs nobody anything: in wp-admin, and in the cron
+// requests WordPress makes for its own events several times a day.
+add_action( 'init', 'wmds_maybe_ensure_schedule', 20 );
+function wmds_maybe_ensure_schedule() {
+	if ( is_admin() || wp_doing_cron() || ( defined( 'WP_CLI' ) && WP_CLI ) ) {
+		wmds_ensure_schedule();
+	}
 }
 
 register_deactivation_hook( __FILE__, 'wmds_deactivate' );

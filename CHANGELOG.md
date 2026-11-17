@@ -3,6 +3,17 @@
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
+## [2.4.1] – 2026-11-17
+
+### Fixed
+- **A lost sync schedule now comes back by itself.** The sync was only
+  scheduled on activation and when the schedule was saved. WordPress drops a
+  recurring event for good when it comes due in a request that does not know
+  its interval - one in which the plugin is not loaded, during an update for
+  instance - and from then on nothing was imported until someone saved the
+  schedule by hand. The plugin now looks for its events in wp-admin and in
+  WordPress's own cron requests and puts back whichever is missing.
+
 ## [2.4.0] – 2026-11-17
 
 ### Changed

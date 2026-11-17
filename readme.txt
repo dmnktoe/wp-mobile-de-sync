@@ -4,7 +4,7 @@ Tags: mobile.de, vehicles, dealership, facetwp, contact form 7
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 2.4.0
+Stable tag: 2.4.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -114,6 +114,11 @@ Pkw-EnVKV, so the bundled German catalogue carries the statutory wording rather
 than a translation of the English source.
 
 == Changelog ==
+
+= 2.4.1 =
+* Fixed: a sync schedule WordPress had dropped - during an update, for
+  instance - stayed gone until the schedule was saved by hand. The plugin now
+  puts it back by itself.
 
 = 2.4.0 =
 * Changed: the archive and the detail page are redesigned - cards with the
