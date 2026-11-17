@@ -18,22 +18,10 @@ $wmds_controls = array(
 	'heading'        => 'h3',
 );
 
-$wmds_legacy = array(
-	'marke'         => 'make',
-	'modell'        => 'model',
-	'zustand'       => 'condition',
-	'kraftstoffart' => 'fuel',
-	'getriebe'      => 'gearbox',
-	'anzahl'        => 'posts_per_page',
-	'spalten'       => 'columns',
-);
-
 $wmds_settings = $wmds_controls;
 $wmds_filters  = array();
 
 foreach ( $wmds_atts as $wmds_key => $wmds_value ) {
-	$wmds_key = isset( $wmds_legacy[ $wmds_key ] ) ? $wmds_legacy[ $wmds_key ] : $wmds_key;
-
 	if ( array_key_exists( $wmds_key, $wmds_controls ) ) {
 		$wmds_settings[ $wmds_key ] = $wmds_value;
 		continue;
@@ -45,7 +33,29 @@ foreach ( $wmds_atts as $wmds_key => $wmds_value ) {
 	}
 }
 
-$wmds_selection = WMDS_Facets::selection();
+// An attribute that names a facet is a filter the visitor starts with, not
+// one hidden from them. As a bare meta clause the filter bar knew nothing of
+// it: [vehicles make="BMW" filters="yes"] offered every make with the counts
+// of the whole inventory, and choosing any of them found nothing.
+$wmds_pinned = array();
+foreach ( WMDS_Facets::definitions() as $wmds_key => $wmds_facet ) {
+	$wmds_type = isset( $wmds_facet['type'] ) ? $wmds_facet['type'] : 'select';
+	if ( 'range' === $wmds_type || 'search' === $wmds_type ) {
+		continue;
+	}
+
+	foreach ( array_unique( array( $wmds_key, isset( $wmds_facet['meta'] ) ? $wmds_facet['meta'] : $wmds_key ) ) as $wmds_name ) {
+		if ( isset( $wmds_filters[ $wmds_name ] ) ) {
+			$wmds_pinned[ WMDS_Facets::PREFIX . $wmds_key ] = is_array( $wmds_filters[ $wmds_name ] )
+				? $wmds_filters[ $wmds_name ]
+				: array_filter( array_map( 'trim', explode( ',', $wmds_filters[ $wmds_name ] ) ) );
+
+			unset( $wmds_filters[ $wmds_name ] );
+		}
+	}
+}
+
+$wmds_selection = WMDS_Facets::selection() + WMDS_Facets::parse( $wmds_pinned );
 $wmds_paginated = ( 'no' !== $wmds_settings['pagination'] );
 $wmds_layout    = ( 'list' === $wmds_settings['layout'] ) ? 'list' : 'grid';
 $wmds_heading   = in_array( $wmds_settings['heading'], array( 'h2', 'h3', 'h4' ), true ) ? $wmds_settings['heading'] : 'h3';
@@ -135,10 +145,10 @@ if ( 'list' === $wmds_layout ) {
 		</ul>
 
 		<?php if ( $wmds_paginated && $wmds_vehicles->max_num_pages > 1 ) : ?>
-			<nav class="wmds-pagination">
+			<nav class="wmds-pagination" aria-label="<?php esc_attr_e( 'Vehicle pages', 'wp-mobile-de-sync' ); ?>">
 				<?php
 				echo wp_kses_post(
-					paginate_links(
+					(string) paginate_links(
 						array(
 							'total'     => (int) $wmds_vehicles->max_num_pages,
 							'current'   => $wmds_paged,

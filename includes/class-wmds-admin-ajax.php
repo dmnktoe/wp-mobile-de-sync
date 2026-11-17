@@ -23,10 +23,17 @@ class WMDS_Admin_Ajax {
 		self::verify_ajax();
 
 		$step  = isset( $_POST['step'] ) ? max( 1, (int) $_POST['step'] ) : 1; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- verify_ajax() checks the nonce before this runs.
-		$stats = WMDS_Admin_Actions::run_pass( 1 === $step );
+		$stats = WMDS_Admin_Actions::run_pass( 1 === $step, false );
 
 		if ( is_wp_error( $stats ) ) {
-			wp_send_json_error( array( 'message' => $stats->get_error_message() ) );
+			wp_send_json_error(
+				array(
+					'message' => $stats->get_error_message(),
+					// The scheduled run got in between two steps. That is not
+					// a failure; the browser waits and asks again.
+					'busy'    => 'wmds_locked' === $stats->get_error_code() && $step > 1,
+				)
+			);
 		}
 
 		wp_send_json_success(
@@ -35,6 +42,7 @@ class WMDS_Admin_Ajax {
 				'created' => (int) $stats['created'],
 				'updated' => (int) $stats['updated'],
 				'seen'    => (int) $stats['seen'],
+				'failed'  => (int) $stats['failed'],
 				'summary' => WMDS_Status::summarise( $stats ),
 				'done'    => 0 === (int) $stats['pending'],
 			)

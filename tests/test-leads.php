@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/bootstrap.php';
 
-define( 'WMDS_CPT', 'fahrzeuge' );
+define( 'WMDS_CPT', 'vehicles' );
 
 function is_email( $email ) {
 	return (bool) filter_var( (string) $email, FILTER_VALIDATE_EMAIL );
@@ -171,7 +171,7 @@ wmds_section( 'The e-mail that goes out' );
 
 $vehicle = array(
 	'title' => 'Audi A4 Avant',
-	'url'   => 'https://example.invalid/fahrzeuge/audi-a4/',
+	'url'   => 'https://example.invalid/vehicles/audi-a4/',
 	'ad_id' => '427312402',
 	'price' => '24,900 €',
 );
@@ -181,7 +181,7 @@ $mail = WMDS_Leads::compose( wmds_lead_data(), $vehicle, 'Autohaus Example' );
 wmds_assert( 'the subject names site and vehicle', '[Autohaus Example] Enquiry: Audi A4 Avant', $mail['subject'] );
 wmds_assert_contains( 'the body carries the vehicle', 'Audi A4 Avant', $mail['body'] );
 wmds_assert_contains( 'and the listing number', '427312402', $mail['body'] );
-wmds_assert_contains( 'and a link back to it', 'https://example.invalid/fahrzeuge/audi-a4/', $mail['body'] );
+wmds_assert_contains( 'and a link back to it', 'https://example.invalid/vehicles/audi-a4/', $mail['body'] );
 wmds_assert_contains( 'and the price', '24,900 €', $mail['body'] );
 wmds_assert_contains( 'and who is asking', 'alex@example.invalid', $mail['body'] );
 wmds_assert_contains( 'and the phone number that was given', '+49 30 1234567', $mail['body'] );
@@ -201,6 +201,6 @@ $reply = WMDS_Leads::compose_confirmation( wmds_lead_data(), $vehicle, 'Autohaus
 wmds_assert( 'it says who it is from', '[Autohaus Example] We have your enquiry', $reply['subject'] );
 wmds_assert_contains( 'it greets them by name', 'Alex Beispiel', $reply['body'] );
 wmds_assert_contains( 'it names the vehicle', 'Audi A4 Avant', $reply['body'] );
-wmds_assert_contains( 'and repeats what they sent', 'When could I come and see the car?', $reply['body'] );
+wmds_assert( 'and does not mail their text to an address nobody verified', false, strpos( $reply['body'], 'When could I come and see the car?' ) );
 
 wmds_result();

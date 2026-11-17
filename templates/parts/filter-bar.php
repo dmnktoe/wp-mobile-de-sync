@@ -19,8 +19,22 @@ if ( $wmds_only ) {
 
 $wmds_chips = WMDS_Facets::chips( $wmds_selection );
 ?>
-<form class="wmds-facets wmds-facets--<?php echo esc_attr( $wmds_layout ); ?>" method="get"
+<form class="wmds-scope wmds-facets wmds-facets--<?php echo esc_attr( $wmds_layout ); ?>" method="get"
 	action="<?php echo esc_url( WMDS_Facets::base_url() ); ?>" data-wmds-facets>
+
+	<?php
+	// A GET form replaces the query string of its action. With plain
+	// permalinks the list lives at ?post_type=vehicles or ?page_id=5, and
+	// without these the visitor lands on the front page.
+	$wmds_base_args = array();
+	wp_parse_str( (string) wp_parse_url( WMDS_Facets::base_url(), PHP_URL_QUERY ), $wmds_base_args );
+	foreach ( $wmds_base_args as $wmds_arg => $wmds_arg_value ) :
+		if ( ! is_scalar( $wmds_arg_value ) || 0 === strpos( (string) $wmds_arg, WMDS_Facets::PREFIX ) ) {
+			continue;
+		}
+		?>
+		<input type="hidden" name="<?php echo esc_attr( $wmds_arg ); ?>" value="<?php echo esc_attr( $wmds_arg_value ); ?>">
+	<?php endforeach; ?>
 
 	<?php if ( '' !== $wmds_heading ) : ?>
 		<h2 class="wmds-facets__heading"><?php echo esc_html( $wmds_heading ); ?></h2>
@@ -98,9 +112,7 @@ $wmds_chips = WMDS_Facets::chips( $wmds_selection );
 							<span class="screen-reader-text"><?php esc_html_e( 'from', 'wp-mobile-de-sync' ); ?></span>
 							<input type="number" inputmode="numeric" data-wmds-range-input="min"
 								name="<?php echo esc_attr( $wmds_name . '_min' ); ?>"
-								min="<?php echo esc_attr( $wmds_bounds['min'] ); ?>"
-								max="<?php echo esc_attr( $wmds_bounds['max'] ); ?>"
-								step="<?php echo esc_attr( $wmds_step ); ?>"
+								step="any"
 								placeholder="<?php echo esc_attr( $wmds_bounds['min'] ); ?>"
 								value="<?php echo esc_attr( isset( $wmds_value['min'] ) ? $wmds_value['min'] : '' ); ?>">
 						</label>
@@ -109,9 +121,7 @@ $wmds_chips = WMDS_Facets::chips( $wmds_selection );
 							<span class="screen-reader-text"><?php esc_html_e( 'up to', 'wp-mobile-de-sync' ); ?></span>
 							<input type="number" inputmode="numeric" data-wmds-range-input="max"
 								name="<?php echo esc_attr( $wmds_name . '_max' ); ?>"
-								min="<?php echo esc_attr( $wmds_bounds['min'] ); ?>"
-								max="<?php echo esc_attr( $wmds_bounds['max'] ); ?>"
-								step="<?php echo esc_attr( $wmds_step ); ?>"
+								step="any"
 								placeholder="<?php echo esc_attr( $wmds_bounds['max'] ); ?>"
 								value="<?php echo esc_attr( isset( $wmds_value['max'] ) ? $wmds_value['max'] : '' ); ?>">
 						</label>

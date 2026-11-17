@@ -24,14 +24,17 @@ class WMDS_Facets {
 
 	public static function init() {
 		add_shortcode( 'vehicle-filter', array( __CLASS__, 'shortcode' ) );
-		add_shortcode( 'fahrzeug-filter', array( __CLASS__, 'shortcode' ) );
 		add_shortcode( 'vehicle-count', array( __CLASS__, 'shortcode_count' ) );
 
 		add_action( 'pre_get_posts', array( __CLASS__, 'apply_to_archive' ) );
 
 		add_action( 'save_post_' . WMDS_CPT, array( __CLASS__, 'flush' ) );
-		add_action( 'deleted_post', array( __CLASS__, 'flush' ) );
+		// before_delete_post, not deleted_post: afterwards the post is gone
+		// and nothing can tell whether it was a vehicle.
+		add_action( 'before_delete_post', array( __CLASS__, 'flush' ) );
 		add_action( 'trashed_post', array( __CLASS__, 'flush' ) );
+		add_action( 'untrashed_post', array( __CLASS__, 'flush' ) );
+		add_action( 'wmds_run_finished', array( 'WMDS_Facet_Store', 'flush_after_run' ), 10, 0 );
 	}
 
 	/**

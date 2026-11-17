@@ -1983,3 +1983,390 @@ msgstr "[%s] Fahrzeug-Sync, die Woche in einer E-Mail"
 #: includes/class-wmds-alerts.php:265
 msgid "[Test] %s"
 msgstr "[Test] %s"
+
+msgid "Synchronises a dealer's vehicle inventory from the mobile.de Search API into a \"vehicles\" custom post type. Brings its own filters, templates, blocks and shortcodes, and works with existing theme templates."
+msgstr "Synchronisiert den Fahrzeugbestand eines Händlers aus der mobile.de Search-API in den Inhaltstyp „vehicles“. Bringt eigene Filter, Templates, Blöcke und Shortcodes mit und arbeitet mit vorhandenen Theme-Templates zusammen."
+
+msgid "This action has to be submitted from its form."
+msgstr "Diese Aktion muss über ihr Formular abgeschickt werden."
+
+msgid "Nothing was saved: the form did not say which settings it holds."
+msgstr "Nichts gespeichert: Das Formular hat nicht angegeben, welche Einstellungen es enthält."
+
+msgid "WordPress answered with something unexpected (HTTP %1$d). The session may have expired — reload the page and try again."
+msgstr "WordPress hat unerwartet geantwortet (HTTP %1$d). Möglicherweise ist die Sitzung abgelaufen – Seite neu laden und erneut versuchen."
+
+msgid "%1$d vehicles are still pending. The scheduled runs carry on from here."
+msgstr "%1$d Fahrzeuge stehen noch aus. Die geplanten Läufe machen von hier aus weiter."
+
+msgid "Integrations"
+msgstr "Integrationen"
+
+msgid "Usage"
+msgstr "Verwendung"
+
+msgid "Run overdue by %s"
+msgstr "Lauf seit %s überfällig"
+
+msgid "A list of vehicles from the synced inventory."
+msgstr "Eine Liste von Fahrzeugen aus dem synchronisierten Bestand."
+
+msgid "Vehicle filter"
+msgstr "Fahrzeugfilter"
+
+msgid "Filter controls for the vehicle inventory."
+msgstr "Filter für den Fahrzeugbestand."
+
+msgid "Vehicle count"
+msgstr "Fahrzeuganzahl"
+
+msgid "How many vehicles the current filters leave."
+msgstr "Wie viele Fahrzeuge die aktuellen Filter übrig lassen."
+
+msgid "Vehicle enquiry"
+msgstr "Fahrzeuganfrage"
+
+msgid "A form that asks about a vehicle."
+msgstr "Ein Formular für die Anfrage zu einem Fahrzeug."
+
+msgid "Vehicle list"
+msgstr "Fahrzeugliste"
+
+msgid "A list or grid from the synced inventory."
+msgstr "Eine Liste oder ein Raster aus dem synchronisierten Bestand."
+
+msgid "Filter controls for the inventory."
+msgstr "Filter für den Bestand."
+
+msgid "How many vehicles match the current filters."
+msgstr "Wie viele Fahrzeuge zu den aktuellen Filtern passen."
+
+msgid "Enquiry form for the current vehicle."
+msgstr "Anfrageformular für das aktuelle Fahrzeug."
+
+msgid "Manufacturer logo"
+msgstr "Herstellerlogo"
+
+msgid "Logo for a make, or for the vehicle in the loop."
+msgstr "Logo einer Marke oder des Fahrzeugs in der Schleife."
+
+msgid "Emission sticker"
+msgstr "Umweltplakette"
+
+msgid "German emission sticker for the current vehicle."
+msgstr "Deutsche Umweltplakette des aktuellen Fahrzeugs."
+
+msgid "WordPress dashboard"
+msgstr "WordPress-Dashboard"
+
+msgid "Newest synced vehicles and the current sync status."
+msgstr "Die neuesten synchronisierten Fahrzeuge und der aktuelle Sync-Status."
+
+msgid "On the site: blocks under mobile.de Sync, or shortcodes such as [vehicles] and [vehicle-filter]."
+msgstr "Auf der Website: Blöcke unter mobile.de Sync oder Shortcodes wie [vehicles] und [vehicle-filter]."
+
+msgid "Usage guide"
+msgstr "Anleitung zur Verwendung"
+
+msgid "Blocks & shortcodes"
+msgstr "Blöcke & Shortcodes"
+
+msgid "No credentials stored."
+msgstr "Keine Zugangsdaten hinterlegt."
+
+msgid "Neither seller ID nor dealer name stored."
+msgstr "Weder Verkäufer-ID noch Händlername hinterlegt."
+
+msgid "An import is already running."
+msgstr "Es läuft bereits ein Import."
+
+msgid "No ad ID given."
+msgstr "Keine Anzeigennummer angegeben."
+
+msgid "The vehicle could not be saved."
+msgstr "Das Fahrzeug konnte nicht gespeichert werden."
+
+msgid "Received through"
+msgstr "Eingegangen über"
+
+msgid "Vehicle enquiries"
+msgstr "Fahrzeuganfragen"
+
+msgid "Last run was aborted"
+msgstr "Letzter Lauf abgebrochen"
+
+msgid "The last run is long overdue. The schedule is most likely not being triggered — check the cron setup."
+msgstr "Der letzte Lauf ist längst überfällig. Höchstwahrscheinlich wird der Zeitplan nicht ausgelöst – die Cron-Einrichtung prüfen."
+
+msgid "mobile.de could not be reached or refused the request, so nothing was imported. The log below has the reason — wrong credentials are the usual one."
+msgstr "mobile.de war nicht erreichbar oder hat die Anfrage abgelehnt, deshalb wurde nichts importiert. Der Grund steht unten im Protokoll – meist sind es falsche Zugangsdaten."
+
+msgid "GitHub could not be reached: %s"
+msgstr "GitHub war nicht erreichbar: %s"
+
+msgid "GitHub turned the request down. The API rate limit for this server is most likely used up; it resets within the hour."
+msgstr "GitHub hat die Anfrage abgelehnt. Höchstwahrscheinlich ist das API-Limit für diesen Server aufgebraucht; es wird innerhalb einer Stunde zurückgesetzt."
+
+msgid "GitHub answered with HTTP %d."
+msgstr "GitHub hat mit HTTP %d geantwortet."
+
+msgid "GitHub did not answer with a release."
+msgstr "GitHub hat keine Veröffentlichung geliefert."
+
+msgid "The newest release on GitHub is a draft or a pre-release, and those are skipped."
+msgstr "Die neueste Veröffentlichung auf GitHub ist ein Entwurf oder eine Vorabversion; diese werden übersprungen."
+
+msgid "The newest release on GitHub carries no installable ZIP."
+msgstr "Die neueste Veröffentlichung auf GitHub enthält kein installierbares ZIP."
+
+msgid "The update check against GitHub failed, so no new version can be offered here: %s"
+msgstr "Die Update-Prüfung bei GitHub ist fehlgeschlagen, deshalb kann hier keine neue Version angeboten werden: %s"
+
+msgid "Title"
+msgstr "Titel"
+
+msgid "Address of the vehicle page"
+msgstr "Adresse der Fahrzeugseite"
+
+msgid "Post ID"
+msgstr "Beitrags-ID"
+
+msgid "Seller"
+msgstr "Verkäufer"
+
+msgid "Seller e-mail"
+msgstr "E-Mail des Verkäufers"
+
+msgid "Seller phone"
+msgstr "Telefon des Verkäufers"
+
+msgid "Make (key)"
+msgstr "Marke (Schlüssel)"
+
+msgid "PHP mail()"
+msgstr "PHP mail()"
+
+msgid "%s, still set to PHP mail()"
+msgstr "%s, weiterhin auf PHP mail() eingestellt"
+
+msgid "%1$s, sending through %2$s"
+msgstr "%1$s, Versand über %2$s"
+
+msgid "Mail delivery"
+msgstr "E-Mail-Zustellung"
+
+msgid "PHP mail() is unauthenticated, so enquiries and alerts are treated as spam by many providers or dropped without a bounce. An SMTP plugin sending through the mailbox the site answers from is the usual answer."
+msgstr "PHP mail() ist nicht authentifiziert; Anfragen und Benachrichtigungen werden deshalb von vielen Anbietern als Spam behandelt oder ohne Rückmeldung verworfen. Üblich ist ein SMTP-Plugin, das über das Postfach versendet, von dem die Website antwortet."
+
+msgid "Last mail error"
+msgstr "Letzter E-Mail-Fehler"
+
+msgid "Reported by WordPress when a message could not be handed over. It clears itself as soon as the plugin sends one successfully."
+msgstr "Von WordPress gemeldet, wenn eine Nachricht nicht übergeben werden konnte. Verschwindet von selbst, sobald das Plugin wieder eine erfolgreich versendet."
+
+msgid "Placing vehicles"
+msgstr "Fahrzeuge einbinden"
+
+msgid "Blocks, shortcodes and widgets"
+msgstr "Blöcke, Shortcodes und Widgets"
+
+msgid "Not installed"
+msgstr "Nicht installiert"
+
+msgid "%s is not active on this site. Nothing here does anything until it is."
+msgstr "%s ist auf dieser Website nicht aktiv. Bis dahin bewirkt hier nichts etwas."
+
+msgid "Active"
+msgstr "Aktiv"
+
+msgid "A form of your own can ask about the vehicle the visitor is looking at. Put a mail tag into the mail template of the form and it is filled in when the form is sent from a vehicle page — no field in the form needed."
+msgstr "Ein eigenes Formular kann sich auf das Fahrzeug beziehen, das der Besucher gerade ansieht. Ein Mail-Tag in der E-Mail-Vorlage des Formulars wird ausgefüllt, sobald das Formular von einer Fahrzeugseite abgeschickt wird – ein Feld im Formular ist dafür nicht nötig."
+
+msgid "Mail tag"
+msgstr "Mail-Tag"
+
+msgid "Value"
+msgstr "Wert"
+
+msgid "The same values are available as a form tag when one should travel with the submission: %1$s, where %2$s takes any of the names above."
+msgstr "Dieselben Werte gibt es als Formular-Tag, wenn einer mit der Einsendung übertragen werden soll: %1$s, wobei %2$s jeden der obigen Namen annimmt."
+
+msgid "File a submission sent from a vehicle page under Enquiries"
+msgstr "Einsendungen von einer Fahrzeugseite unter Anfragen ablegen"
+
+msgid "Name, address, phone number and message are read from the form under the names it uses. Submissions from any other page are left alone."
+msgstr "Name, Adresse, Telefonnummer und Nachricht werden unter den Feldnamen gelesen, die das Formular verwendet. Einsendungen von anderen Seiten bleiben unberührt."
+
+msgid "Add the address the feed carries for that vehicle as a recipient"
+msgstr "Die Adresse, die der Feed für dieses Fahrzeug liefert, als Empfänger hinzufügen"
+
+msgid "Only to the mail that goes to you, never to the confirmation the visitor receives."
+msgstr "Nur bei der E-Mail an Sie, nie bei der Bestätigung an den Besucher."
+
+msgid "The form the plugin brings itself can be switched off under %s, so a vehicle page carries one form rather than two."
+msgstr "Das Formular, das das Plugin selbst mitbringt, lässt sich unter %s abschalten, damit eine Fahrzeugseite ein Formular zeigt und nicht zwei."
+
+msgid "Enquiries and alerts are sent with wp_mail(). Without an SMTP plugin that means PHP mail(): unauthenticated, sent from whatever address the server decides on, and accepted by the local sendmail whether or not anything is ever delivered. An enquiry that ends up in a spam folder is a lost customer, and nothing on this site would say so."
+msgstr "Anfragen und Benachrichtigungen werden mit wp_mail() versendet. Ohne SMTP-Plugin heißt das PHP mail(): nicht authentifiziert, mit einer Absenderadresse, die der Server bestimmt, und vom lokalen Sendmail angenommen, egal ob je etwas zugestellt wird. Eine Anfrage im Spam-Ordner ist ein verlorener Kunde, und nichts auf dieser Website würde darauf hinweisen."
+
+msgid "Recorded for every message this site sends, not only ours. It clears itself as soon as one goes out successfully."
+msgstr "Wird für jede Nachricht dieser Website erfasst, nicht nur für unsere. Verschwindet von selbst, sobald eine erfolgreich hinausgeht."
+
+msgid "Send a test mail"
+msgstr "Test-E-Mail senden"
+
+msgid "The plugin filters on its own and needs FacetWP for nothing. A site that was built on FacetWP keeps working all the same: the meta keys are unchanged, they appear in the facet source list under \"mobile.de\" with readable labels, and the sort orders the filter bar offers are offered to a FacetWP template too."
+msgstr "Das Plugin filtert selbst und braucht FacetWP für nichts. Eine Website, die auf FacetWP aufgebaut wurde, funktioniert trotzdem weiter: Die Meta-Schlüssel sind unverändert, sie erscheinen in der Liste der Facetten-Quellen unter „mobile.de“ mit lesbaren Bezeichnungen, und die Sortierungen der Filterleiste stehen auch einem FacetWP-Template zur Verfügung."
+
+msgid "Re-index"
+msgstr "Neu indexieren"
+
+msgid "Re-index a vehicle once the sync has finished writing it"
+msgstr "Ein Fahrzeug neu indexieren, sobald der Sync es fertig geschrieben hat"
+
+msgid "FacetWP indexes when a post is saved. The import saves the post first and writes the meta afterwards, so what FacetWP indexed on its own is the state before the update — which is where stale counts come from. Leave this on unless the index is maintained elsewhere."
+msgstr "FacetWP indexiert, wenn ein Beitrag gespeichert wird. Der Import speichert zuerst den Beitrag und schreibt die Metadaten danach; was FacetWP von sich aus indexiert, ist also der Stand vor der Aktualisierung – daher kommen veraltete Zähler. Eingeschaltet lassen, außer der Index wird anderweitig gepflegt."
+
+msgid "Release the lock only once you are sure no import is still running. Two runs writing the same vehicles at once will conflict. Continue?"
+msgstr "Die Sperre nur aufheben, wenn sicher kein Import mehr läuft. Zwei Läufe, die gleichzeitig dieselben Fahrzeuge schreiben, kommen sich in die Quere. Fortfahren?"
+
+msgid "How to place vehicles on the site"
+msgstr "So kommen Fahrzeuge auf die Website"
+
+msgid "Blocks in the editor, shortcodes in content or templates, and a dashboard widget in wp-admin. The post type is vehicles; the archive is /vehicles/."
+msgstr "Blöcke im Editor, Shortcodes in Inhalten oder Templates und ein Dashboard-Widget im Adminbereich. Der Inhaltstyp heißt vehicles; das Archiv liegt unter /vehicles/."
+
+msgid "Blocks"
+msgstr "Blöcke"
+
+msgid "Inserter → mobile.de Sync. Each block renders the matching shortcode."
+msgstr "Block-Inserter → mobile.de Sync. Jeder Block gibt den passenden Shortcode aus."
+
+msgid "Block"
+msgstr "Block"
+
+msgid "What it does"
+msgstr "Was es tut"
+
+msgid "Same attributes as the block sidebar controls."
+msgstr "Dieselben Attribute wie die Einstellungen in der Block-Seitenleiste."
+
+msgid "Shortcode"
+msgstr "Shortcode"
+
+msgid "Example"
+msgstr "Beispiel"
+
+msgid "Vehicle list attributes"
+msgstr "Attribute der Fahrzeugliste"
+
+msgid "Attribute"
+msgstr "Attribut"
+
+msgid "Values"
+msgstr "Werte"
+
+msgid "Default"
+msgstr "Standard"
+
+msgid "Theme default"
+msgstr "Vorgabe des Themes"
+
+msgid "WordPress orderby; ASC or DESC"
+msgstr "WordPress-orderby; ASC oder DESC"
+
+msgid "Any vehicle meta key filters the list"
+msgstr "Jeder Meta-Schlüssel eines Fahrzeugs filtert die Liste"
+
+msgid "Widgets"
+msgstr "Widgets"
+
+msgid "Admin only. For the front end use a block or shortcode."
+msgstr "Nur im Adminbereich. Für die Website einen Block oder Shortcode verwenden."
+
+msgid "Widget"
+msgstr "Widget"
+
+msgid "Where"
+msgstr "Wo"
+
+msgid "Vehicle pages"
+msgstr "Fahrzeugseiten"
+
+msgid "Display"
+msgstr "Darstellung"
+
+msgid "Vehicles per page"
+msgstr "Fahrzeuge pro Seite"
+
+msgid "Layout"
+msgstr "Layout"
+
+msgid "Grid"
+msgstr "Raster"
+
+msgid "List"
+msgstr "Liste"
+
+msgid "Columns"
+msgstr "Spalten"
+
+msgid "Title level"
+msgstr "Überschriftenebene"
+
+msgid "Show filters"
+msgstr "Filter anzeigen"
+
+msgid "Pagination"
+msgstr "Seitennavigation"
+
+msgid "Order"
+msgstr "Reihenfolge"
+
+msgid "Order by"
+msgstr "Sortieren nach"
+
+msgid "Direction"
+msgstr "Richtung"
+
+msgid "Descending"
+msgstr "Absteigend"
+
+msgid "Ascending"
+msgstr "Aufsteigend"
+
+msgid "Filter"
+msgstr "Filter"
+
+msgid "Bar"
+msgstr "Leiste"
+
+msgid "Sidebar"
+msgstr "Seitenleiste"
+
+msgid "Facets"
+msgstr "Facetten"
+
+msgid "Comma-separated, e.g. make,price,fuel. Empty = all."
+msgstr "Kommagetrennt, z. B. make,price,fuel. Leer = alle."
+
+msgid "Heading"
+msgstr "Überschrift"
+
+msgid "Show counts"
+msgstr "Zähler anzeigen"
+
+msgid "Count"
+msgstr "Anzahl"
+
+msgid "Respect current filters"
+msgstr "Aktuelle Filter berücksichtigen"
+
+msgid "Vehicle ID"
+msgstr "Fahrzeug-ID"
+
+msgid "Empty = current vehicle."
+msgstr "Leer = aktuelles Fahrzeug."
+
+msgid "overdue"
+msgstr "überfällig"

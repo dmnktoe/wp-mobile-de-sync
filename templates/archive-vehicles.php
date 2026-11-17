@@ -4,13 +4,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-get_header();
+WMDS_Templates::header();
 
 $wmds_selection = WMDS_Facets::selection();
 $wmds_found     = (int) $GLOBALS['wp_query']->found_posts;
 ?>
 
-<div class="wmds-scope wmds-archive">
+<div class="wmds-scope wmds-archive<?php echo esc_attr( WMDS_Templates::wrapper_class() ); ?>">
 
 	<header class="wmds-archive__header">
 		<h1><?php post_type_archive_title(); ?></h1>
@@ -59,19 +59,21 @@ $wmds_found     = (int) $GLOBALS['wp_query']->found_posts;
 			?>
 		</ul>
 
-		<nav class="wmds-pagination">
-			<?php
-			echo wp_kses_post(
-				paginate_links(
-					array(
-						'prev_text' => __( '&laquo; Previous', 'wp-mobile-de-sync' ),
-						'next_text' => __( 'Next &raquo;', 'wp-mobile-de-sync' ),
-						'add_args'  => WMDS_Facets::to_query( $wmds_selection ),
-					)
-				)
-			);
-			?>
-		</nav>
+		<?php
+		// Empty when everything fits on one page.
+		$wmds_pages = (string) paginate_links(
+			array(
+				'prev_text' => __( '&laquo; Previous', 'wp-mobile-de-sync' ),
+				'next_text' => __( 'Next &raquo;', 'wp-mobile-de-sync' ),
+				'add_args'  => WMDS_Facets::to_query( $wmds_selection ),
+			)
+		);
+		?>
+		<?php if ( '' !== $wmds_pages ) : ?>
+			<nav class="wmds-pagination" aria-label="<?php esc_attr_e( 'Vehicle pages', 'wp-mobile-de-sync' ); ?>">
+				<?php echo wp_kses_post( $wmds_pages ); ?>
+			</nav>
+		<?php endif; ?>
 
 	<?php elseif ( WMDS_Facets::is_filtered( $wmds_selection ) ) : ?>
 		<p class="wmds-empty">
@@ -85,4 +87,4 @@ $wmds_found     = (int) $GLOBALS['wp_query']->found_posts;
 </div>
 
 <?php
-get_footer();
+WMDS_Templates::footer();

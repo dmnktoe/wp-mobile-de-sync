@@ -315,7 +315,11 @@ if ( 'unconfigured' === $wmds_it_phase ) {
 
 	wmds_it_same( 'the surviving vehicle is still published', 1, count( wmds_it_posts() ) );
 	wmds_it_same( 'the trashed one stayed in the trash', 1, count( wmds_it_posts( 'trash' ) ) );
-	wmds_it_same( 'watermark untouched', '2026-07-28T16:28:13+00:00', (string) get_option( WMDS_Importer::OPT_WATERMARK, '' ) );
+	wmds_it_same( 'the watermark stays discarded, so the next run is the full one that was asked for', '', (string) get_option( WMDS_Importer::OPT_WATERMARK, '' ) );
+
+	$last = get_option( WMDS_Importer::OPT_LAST_RUN, array() );
+	wmds_it_same( 'the aborted run is on record', true, is_array( $last ) && ! empty( $last['error'] ) );
+	wmds_it_same( 'and the status says so', WMDS_Status::ABORTED, WMDS_Status::get()['level'] );
 	wmds_it_same( 'lock released after the failure', false, get_transient( WMDS_Importer::LOCK ) );
 
 	$log   = get_option( WMDS_Importer::OPT_LOG, array() );
@@ -372,7 +376,7 @@ if ( 'unconfigured' === $wmds_it_phase ) {
 
 	$vehicles = get_posts(
 		array(
-			'post_type'   => 'fahrzeuge',
+			'post_type'   => 'vehicles',
 			'post_status' => 'publish',
 			'numberposts' => 50,
 		)

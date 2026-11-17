@@ -15,6 +15,7 @@ class WMDS_Status {
 	const RUNNING      = 'running';
 	const NEVER        = 'never';
 	const STALE        = 'stale';
+	const ABORTED      = 'aborted';
 	const FAILED       = 'failed';
 	const OK           = 'ok';
 
@@ -24,9 +25,10 @@ class WMDS_Status {
 	 * @param array $last       Statistics of the last run, empty when none.
 	 * @param int   $last_ts    Unix time of the last run, 0 when none.
 	 * @param int   $now        Unix time.
+	 * @param int   $stale      Seconds after which a run counts as overdue.
 	 * @return string One of the level constants.
 	 */
-	public static function level( $configured, $running, array $last, $last_ts, $now ) {
+	public static function level( $configured, $running, array $last, $last_ts, $now, $stale = self::STALE_AFTER ) {
 		if ( ! $configured ) {
 			return self::UNCONFIGURED;
 		}
@@ -36,8 +38,11 @@ class WMDS_Status {
 		if ( ! $last || $last_ts <= 0 ) {
 			return self::NEVER;
 		}
-		if ( $last_ts < $now - self::STALE_AFTER ) {
+		if ( $last_ts < $now - max( 1, (int) $stale ) ) {
 			return self::STALE;
+		}
+		if ( ! empty( $last['error'] ) ) {
+			return self::ABORTED;
 		}
 		if ( ! empty( $last['failed'] ) ) {
 			return self::FAILED;
@@ -51,7 +56,7 @@ class WMDS_Status {
 	 * @return string ok|info|warning|error
 	 */
 	public static function severity( $level ) {
-		if ( self::UNCONFIGURED === $level ) {
+		if ( self::UNCONFIGURED === $level || self::ABORTED === $level ) {
 			return 'error';
 		}
 		if ( self::RUNNING === $level ) {
@@ -74,6 +79,7 @@ class WMDS_Status {
 			self::RUNNING      => __( 'Sync running', 'wp-mobile-de-sync' ),
 			self::NEVER        => __( 'Waiting for the first run', 'wp-mobile-de-sync' ),
 			self::STALE        => __( 'Sync overdue', 'wp-mobile-de-sync' ),
+			self::ABORTED      => __( 'Last run was aborted', 'wp-mobile-de-sync' ),
 			self::FAILED       => __( 'Last run had failures', 'wp-mobile-de-sync' ),
 			self::OK           => __( 'Up to date', 'wp-mobile-de-sync' ),
 		);
@@ -90,7 +96,8 @@ class WMDS_Status {
 			self::UNCONFIGURED => __( 'Username, password and the seller ID (or a dealer name instead) are missing. Nothing is imported until they are stored.', 'wp-mobile-de-sync' ),
 			self::RUNNING      => __( 'An import is in progress. Large inventories are processed in batches across several runs.', 'wp-mobile-de-sync' ),
 			self::NEVER        => __( 'The credentials are stored, but no run has completed yet. Start the first import from the tools below.', 'wp-mobile-de-sync' ),
-			self::STALE        => __( 'The last run is more than six hours old. The schedule is most likely not being triggered — check the cron setup.', 'wp-mobile-de-sync' ),
+			self::STALE        => __( 'The last run is long overdue. The schedule is most likely not being triggered — check the cron setup.', 'wp-mobile-de-sync' ),
+			self::ABORTED      => __( 'mobile.de could not be reached or refused the request, so nothing was imported. The log below has the reason — wrong credentials are the usual one.', 'wp-mobile-de-sync' ),
 			self::FAILED       => __( 'Some vehicles could not be processed in the last run. The log below names them.', 'wp-mobile-de-sync' ),
 			self::OK           => __( 'The inventory is in sync.', 'wp-mobile-de-sync' ),
 		);
@@ -103,7 +110,7 @@ class WMDS_Status {
 	 * @return bool
 	 */
 	public static function is_actionable( $level ) {
-		return in_array( $level, array( self::UNCONFIGURED, self::STALE, self::FAILED ), true );
+		return in_array( $level, array( self::UNCONFIGURED, self::STALE, self::ABORTED, self::FAILED ), true );
 	}
 
 	/** @return array Everything the UI needs, read once. */
@@ -115,7 +122,7 @@ class WMDS_Status {
 
 		$configured = WMDS_Settings::is_configured();
 		$running    = (bool) get_transient( WMDS_Importer::LOCK );
-		$level      = self::level( $configured, $running, $last, $last_ts, time() );
+		$level      = self::level( $configured, $running, $last, $last_ts, time(), self::stale_after() );
 
 		return array(
 			'level'       => $level,
@@ -132,6 +139,41 @@ class WMDS_Status {
 			'pending'     => isset( $last['pending'] ) ? (int) $last['pending'] : 0,
 			'incremental' => '' !== (string) get_option( WMDS_Importer::OPT_WATERMARK, '' ),
 		);
+	}
+
+	/**
+	 * How old the last run may be before it counts as overdue.
+	 *
+	 * Two intervals, and never less than six hours: a site that syncs once a
+	 * day is not overdue for eighteen hours of every twenty-four.
+	 *
+	 * @return int Seconds.
+	 */
+	public static function stale_after() {
+		$schedules = wp_get_schedules();
+		$interval  = WMDS_Settings::interval();
+		$seconds   = isset( $schedules[ $interval ]['interval'] ) ? (int) $schedules[ $interval ]['interval'] : 0;
+
+		return max( self::STALE_AFTER, 2 * $seconds );
+	}
+
+	/**
+	 * @param int $next Unix time of the next scheduled run, 0 when none.
+	 * @param int $now  Unix time.
+	 * @return string When the next run is due, in words.
+	 */
+	public static function next_run_label( $next, $now ) {
+		if ( ! $next ) {
+			return __( 'not scheduled', 'wp-mobile-de-sync' );
+		}
+
+		// A next run that lies in the past is not "27 minutes ago". It is
+		// late, and on a site whose cron has stopped that is the finding.
+		if ( $next < $now - 60 ) {
+			return __( 'overdue', 'wp-mobile-de-sync' );
+		}
+
+		return self::relative_time( $next );
 	}
 
 	/**
@@ -157,7 +199,7 @@ class WMDS_Status {
 
 		$last = get_option( WMDS_Importer::OPT_LAST_RUN, array() );
 
-		return is_array( $last ) && ! empty( $last );
+		return is_array( $last ) && ! empty( $last ) && empty( $last['error'] );
 	}
 
 	/** @return int Published vehicles. */
@@ -240,6 +282,10 @@ class WMDS_Status {
 	 * @return string e.g. "42 seen · 3 created · 2 updated"
 	 */
 	public static function summarise( array $stats ) {
+		if ( ! empty( $stats['error'] ) ) {
+			return (string) $stats['error'];
+		}
+
 		return sprintf(
 			/* translators: 1: seen, 2: created, 3: updated, 4: skipped, 5: removed, 6: images. */
 			__( '%1$d seen · %2$d created · %3$d updated · %4$d skipped · %5$d removed · %6$d images', 'wp-mobile-de-sync' ),

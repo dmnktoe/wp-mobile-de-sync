@@ -22,7 +22,7 @@ class WMDS_Alerts {
 	 *
 	 * @var string[]
 	 */
-	private static $watched = array( WMDS_Status::FAILED, WMDS_Status::STALE );
+	private static $watched = array( WMDS_Status::FAILED, WMDS_Status::ABORTED, WMDS_Status::STALE );
 
 	public static function init() {
 		add_action( self::CHECK_HOOK, array( __CLASS__, 'check' ) );

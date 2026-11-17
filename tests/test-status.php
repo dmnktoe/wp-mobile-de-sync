@@ -195,4 +195,20 @@ wmds_assert( 'a passing test counts', true, WMDS_Status::tested() );
 $GLOBALS['wmds_test_options'] = array( WMDS_Importer::OPT_LAST_RUN => $ok );
 wmds_assert( 'so does a sync that has run', true, WMDS_Status::tested() );
 
+wmds_section( 'An aborted run and a slow schedule' );
+
+$wmds_now     = 1800000000;
+$wmds_aborted = array(
+	'failed' => 0,
+	'error'  => 'mobile.de responded with HTTP 401.',
+);
+
+wmds_assert( 'an aborted run has a level of its own', WMDS_Status::ABORTED, WMDS_Status::level( true, false, $wmds_aborted, $wmds_now - 60, $wmds_now ) );
+wmds_assert( 'and counts as an error', 'error', WMDS_Status::severity( WMDS_Status::ABORTED ) );
+wmds_assert( 'it is something to act on', true, WMDS_Status::is_actionable( WMDS_Status::ABORTED ) );
+wmds_assert( 'the summary is the reason', 'mobile.de responded with HTTP 401.', WMDS_Status::summarise( $wmds_aborted ) );
+
+wmds_assert( 'twelve hours is overdue on the default threshold', WMDS_Status::STALE, WMDS_Status::level( true, false, array( 'failed' => 0 ), $wmds_now - 43200, $wmds_now ) );
+wmds_assert( 'and not on a site that syncs once a day', WMDS_Status::OK, WMDS_Status::level( true, false, array( 'failed' => 0 ), $wmds_now - 43200, $wmds_now, 172800 ) );
+
 wmds_result();

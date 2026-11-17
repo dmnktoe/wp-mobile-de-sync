@@ -57,7 +57,8 @@ class WMDS_Dashboard {
 	}
 
 	public static function configure() {
-		if ( isset( $_POST[ self::WIDGET ] ) && is_array( $_POST[ self::WIDGET ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- wp_dashboard_setup verifies the dashboard nonce before calling the control callback.
+		// One option for the whole site, so only somebody who manages the site changes it.
+		if ( current_user_can( 'manage_options' ) && isset( $_POST[ self::WIDGET ] ) && is_array( $_POST[ self::WIDGET ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- wp_dashboard_setup verifies the dashboard nonce before calling the control callback.
 			$submitted = wp_unslash( $_POST[ self::WIDGET ] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- both members are sanitised below.
 
 			update_option(
@@ -90,6 +91,18 @@ class WMDS_Dashboard {
 				<?php endforeach; ?>
 			</select>
 		</p>
+		<div class="wmds-widget-guide">
+			<p class="description">
+				<?php esc_html_e( 'On the site: blocks under mobile.de Sync, or shortcodes such as [vehicles] and [vehicle-filter].', 'wp-mobile-de-sync' ); ?>
+			</p>
+			<?php if ( current_user_can( 'manage_options' ) ) : ?>
+				<p>
+					<a href="<?php echo esc_url( WMDS_Status::settings_url( 'usage' ) ); ?>">
+						<?php esc_html_e( 'Usage guide', 'wp-mobile-de-sync' ); ?>
+					</a>
+				</p>
+			<?php endif; ?>
+		</div>
 		<?php
 	}
 
@@ -230,6 +243,11 @@ class WMDS_Dashboard {
 				' <span class="wmds-muted">|</span> <a href="%s">%s</a>',
 				esc_url( WMDS_Status::settings_url() ),
 				esc_html__( 'Sync settings', 'wp-mobile-de-sync' )
+			);
+			printf(
+				' <span class="wmds-muted">|</span> <a href="%s">%s</a>',
+				esc_url( WMDS_Status::settings_url( 'usage' ) ),
+				esc_html__( 'Blocks & shortcodes', 'wp-mobile-de-sync' )
 			);
 		}
 

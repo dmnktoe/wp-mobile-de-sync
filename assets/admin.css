@@ -572,6 +572,24 @@
 	border-top: 1px solid #f0f0f1;
 }
 
+.wmds-widget-guide {
+	margin-top: 12px;
+	padding-top: 12px;
+	border-top: 1px solid #dcdcde;
+}
+
+.wmds-usage-table td,
+.wmds-usage-table th {
+	vertical-align: top;
+}
+
+.wmds-usage-example {
+	display: inline-block;
+	max-width: 28rem;
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
 #dashboard_right_now .wmds-glance:before {
 	content: "\f339";
 }

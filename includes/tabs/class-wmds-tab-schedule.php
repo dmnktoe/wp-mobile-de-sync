@@ -71,7 +71,7 @@ class WMDS_Tab_Schedule {
 	}
 
 	/** @return array<string,string> */
-	private static function languages() {
+	public static function languages() {
 		return array(
 			'de' => __( 'German', 'wp-mobile-de-sync' ),
 			'en' => __( 'English', 'wp-mobile-de-sync' ),

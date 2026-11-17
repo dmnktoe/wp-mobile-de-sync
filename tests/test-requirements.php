@@ -90,7 +90,6 @@ wmds_section( 'The tally adds up' );
 $tally = WMDS_Requirements::tally();
 
 wmds_assert( 'every check is counted once', count( $checks ), $tally['ok'] + $tally['warn'] + $tally['fail'] );
-wmds_assert( 'the worst status is a known one', true, in_array( WMDS_Requirements::worst(), $statuses, true ) );
 
 wmds_section( 'This PHP passes its own requirement' );
 

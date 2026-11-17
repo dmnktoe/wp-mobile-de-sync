@@ -187,6 +187,70 @@ grep -q '/search-api/ad/424776053' "$state/requests.log" \
 	|| fail "The importer never made the single-ad call."
 phase full-sync
 
+say "The pages render, with the default theme and without a single notice"
+# Everything above goes through WP-CLI, which never renders a page. A template
+# that calls a method that does not exist, or a theme function a block theme
+# no longer has, passes all of it and fails for the first visitor.
+web_port=$((port + 1))
+page_id=$(wpcli post create --post_type=page --post_status=publish --post_title="Stock" \
+	--post_content='[vehicle-filter] [vehicles posts_per_page="1" pagination="yes" filters="yes"] <!-- wp:wmds/vehicles {"postsPerPage":2} /--> <!-- wp:wmds/vehicle-count /--> [vehicle-enquiry]' \
+	--porcelain)
+vehicle=$(wpcli post list --post_type=vehicles --posts_per_page=1 --field=post_name)
+
+wpcli server --host=127.0.0.1 --port="$web_port" > "$work/web.log" 2>&1 &
+web_pid=$!
+# shellcheck disable=SC2064
+trap "kill $mock_pid $web_pid 2> /dev/null || true" EXIT HUP INT TERM
+
+attempt=0
+until curl -fsS --noproxy '*' -o /dev/null "http://127.0.0.1:$web_port/wp-login.php" 2> /dev/null; do
+	attempt=$((attempt + 1))
+	[ "$attempt" -lt 30 ] || fail "WordPress did not come up on port $web_port."
+	sleep 1
+done
+
+: > "$wp_path/wp-content/debug.log"
+
+fetch() {
+	# $1 label, $2 path and query, $3 text the page has to contain
+	status=$(curl -sS --noproxy '*' -H 'Host: wmds.test' -o "$work/page.html" -w '%{http_code}' "http://127.0.0.1:$web_port$2")
+	[ "$status" = "200" ] || fail "$1 answered with HTTP $status."
+	grep -q "$3" "$work/page.html" || fail "$1 does not contain '$3'."
+	if grep -qE 'There has been a critical error|<b>(Fatal error|Warning|Notice|Deprecated)</b>' "$work/page.html"; then
+		fail "$1 shows a PHP error."
+	fi
+	echo "   ok    $1"
+}
+
+fetch "the archive" "/?post_type=vehicles" 'class="wmds-card"'
+fetch "the archive carries the theme's own header" "/?post_type=vehicles" 'wp-site-blocks'
+fetch "the archive, filtered" "/?post_type=vehicles&wmds_make=Volvo&wmds_price_max=50000&wmds_sort=price-asc" 'V90'
+fetch "a filter that matches nothing" "/?post_type=vehicles&wmds_q=zzzzzz" 'wmds-empty'
+fetch "the filter form keeps the query string of its action" "/?post_type=vehicles" 'name="post_type" value="vehicles"'
+fetch "a vehicle" "/?vehicles=$vehicle" 'wmds-single'
+fetch "a vehicle carries its enquiry form" "/?vehicles=$vehicle" 'wmds-enquiry__form'
+fetch "the shortcodes and blocks on a page" "/?page_id=$page_id" 'wmds-facets'
+fetch "the list on that page" "/?page_id=$page_id" 'wmds-grid--shortcode'
+fetch "its second page" "/?page_id=$page_id&paged=2" 'class="wmds-card"'
+
+# The classic path: a theme that has a header.php.
+default_theme=$(wpcli theme list --status=active --field=name)
+if wpcli theme install https://downloads.wordpress.org/theme/twentytwentyone.latest-stable.zip --activate > /dev/null 2>&1; then
+	fetch "the archive in a classic theme" "/?post_type=vehicles" 'class="wmds-card"'
+	fetch "a vehicle in a classic theme" "/?vehicles=$vehicle" 'wmds-single'
+	wpcli theme activate "$default_theme" > /dev/null
+else
+	echo "   skip  classic theme could not be installed"
+fi
+
+kill "$web_pid" 2> /dev/null || true
+
+if grep -vE '\[wp-mobile-de-sync\] ' "$wp_path/wp-content/debug.log" | grep -E 'PHP (Fatal|Warning|Notice|Deprecated|Parse)' | grep -v 'wp_update_\|wp_version_check\|WordPress.org' > "$work/php-errors.log"; then
+	cat "$work/php-errors.log"
+	fail "Rendering the pages wrote PHP errors to the log."
+fi
+echo "   ok    nothing in the debug log"
+
 say "Incremental sync without changes"
 : > "$state/requests.log"
 wpcli wmds sync

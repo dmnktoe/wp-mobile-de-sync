@@ -12,6 +12,14 @@ class WMDS_Admin_Actions {
 
 		$action = isset( $_REQUEST['wmds_action'] ) ? sanitize_key( wp_unslash( $_REQUEST['wmds_action'] ) ) : '';
 
+		// A link carries the same nonce as every form. Only what is offered
+		// as a link may arrive as one: a crafted address must not be able to
+		// save an empty form or delete the credentials.
+		$method = isset( $_SERVER['REQUEST_METHOD'] ) ? strtoupper( sanitize_key( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) ) : 'GET';
+		if ( 'POST' !== $method && ! in_array( $action, array( 'sync', 'refresh', 'check-update', 'export-log' ), true ) ) {
+			wp_die( esc_html__( 'This action has to be submitted from its form.', 'wp-mobile-de-sync' ), '', array( 'response' => 405 ) );
+		}
+
 		if ( 'export-log' === $action ) {
 			self::export_log();
 		}
@@ -87,7 +95,16 @@ class WMDS_Admin_Actions {
 	 * setting out of one submission emptied the ones the other tabs own.
 	 */
 	private static function do_save() {
-		$tab = isset( $_REQUEST['wmds_tab'] ) ? sanitize_key( wp_unslash( $_REQUEST['wmds_tab'] ) ) : 'connection'; // phpcs:ignore WordPress.Security.NonceVerification -- verified in handle() before this runs.
+		$tab = isset( $_POST['wmds_tab'] ) ? sanitize_key( wp_unslash( $_POST['wmds_tab'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification -- verified in handle() before this runs.
+
+		// A form that does not say which tab it is saves nothing. Falling
+		// back to the connection tab read its fields out of a submission
+		// that had none and emptied the username.
+		if ( ! in_array( $tab, array( 'connection', 'schedule', 'enquiries', 'integrations', 'status' ), true ) ) {
+			WMDS_Admin_Notices::notice( 'error', __( 'Nothing was saved: the form did not say which settings it holds.', 'wp-mobile-de-sync' ) );
+
+			return;
+		}
 
 		if ( 'schedule' === $tab ) {
 			self::save_schedule();
@@ -127,13 +144,19 @@ class WMDS_Admin_Actions {
 		// phpcs:enable WordPress.Security.NonceVerification
 
 		WMDS_Settings::update( $values );
+
+		// A test passed for the credentials that were there before.
+		delete_option( WMDS_Status::OPT_LAST_TEST );
 	}
 
 	private static function save_schedule() {
 		// phpcs:disable WordPress.Security.NonceVerification -- verified in handle() before this runs.
+		$language = sanitize_key( wp_unslash( $_POST['wmds_language'] ?? '' ) );
+
 		WMDS_Settings::update(
 			array(
-				'language' => sanitize_key( wp_unslash( $_POST['wmds_language'] ?? '' ) ),
+				// Empty is "the site's language"; anything else has to be offered.
+				'language' => array_key_exists( $language, WMDS_Tab_Schedule::languages() ) ? $language : '',
 				'interval' => sanitize_key( wp_unslash( $_POST['wmds_interval'] ?? 'wmds_15min' ) ),
 			)
 		);
@@ -199,6 +222,8 @@ class WMDS_Admin_Actions {
 				'dealer'    => '',
 			)
 		);
+
+		delete_option( WMDS_Status::OPT_LAST_TEST );
 
 		WMDS_Admin_Notices::notice( 'success', __( 'Credentials deleted. Nothing is imported until new ones are stored.', 'wp-mobile-de-sync' ) );
 	}
@@ -293,14 +318,21 @@ class WMDS_Admin_Actions {
 	}
 
 	/**
-	 * @param bool $full
+	 * @param bool $full       Start over with the whole inventory.
+	 * @param bool $reschedule False when the caller asks for the next pass
+	 *                         itself, as the progress bar does.
 	 * @return array|WP_Error
 	 */
-	public static function run_pass( $full ) {
+	public static function run_pass( $full, $reschedule = true ) {
 		@set_time_limit( 0 ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- disabled on many hosts, the failure is harmless.
 
 		$importer = new WMDS_Importer();
-		$stats    = $importer->run( array( 'full' => (bool) $full ) );
+		$stats    = $importer->run(
+			array(
+				'full'       => (bool) $full,
+				'reschedule' => (bool) $reschedule,
+			)
+		);
 
 		WMDS_Posts::flush_makes();
 
@@ -398,7 +430,9 @@ class WMDS_Admin_Actions {
 		header( 'Content-Disposition: attachment; filename="mobile-de-sync-log.txt"' );
 
 		foreach ( $log as $entry ) {
-			echo esc_html( sprintf( "[%s] %s\n", $entry['time'], $entry['message'] ) );
+			// Plain text in a download: escaping it for HTML would put &amp;
+			// and &#039; into the file.
+			printf( "[%s] %s\n", $entry['time'], $entry['message'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- text/plain, sent as an attachment.
 		}
 
 		exit;

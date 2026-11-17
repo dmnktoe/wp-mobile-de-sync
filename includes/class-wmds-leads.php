@@ -29,7 +29,9 @@ class WMDS_Leads {
 		add_action( 'init', array( __CLASS__, 'register_cpt' ) );
 
 		add_shortcode( 'vehicle-enquiry', array( __CLASS__, 'shortcode' ) );
-		add_shortcode( 'fahrzeug-anfrage', array( __CLASS__, 'shortcode' ) );
+
+		add_filter( 'wp_privacy_personal_data_exporters', array( __CLASS__, 'privacy_exporters' ) );
+		add_filter( 'wp_privacy_personal_data_erasers', array( __CLASS__, 'privacy_erasers' ) );
 
 		add_action( 'admin_post_' . self::ACTION, array( __CLASS__, 'handle' ) );
 		add_action( 'admin_post_nopriv_' . self::ACTION, array( __CLASS__, 'handle' ) );
@@ -380,10 +382,9 @@ class WMDS_Leads {
 			$lines[] = $vehicle['url'];
 		}
 
-		$lines[] = '';
-		$lines[] = __( 'This is what you sent us:', 'wp-mobile-de-sync' );
-		$lines[] = '';
-		$lines[] = $data['message'];
+		// The message is not sent back. The address it would go to is
+		// whatever was typed into the form, and a confirmation that quotes
+		// the text is a way to have this site mail anything to anybody.
 		$lines[] = '';
 		$lines[] = $site;
 
@@ -399,22 +400,26 @@ class WMDS_Leads {
 		$referer = wp_get_referer();
 		$back    = $referer ? $referer : home_url( '/' );
 
-		if ( ! wp_verify_nonce( isset( $_POST['_wpnonce'] ) ? sanitize_key( wp_unslash( $_POST['_wpnonce'] ) ) : '', self::NONCE ) ) {
-			self::bounce( $back, array( 'form' => __( 'The form has expired. Please send it again.', 'wp-mobile-de-sync' ) ), $posted );
+		// Only for somebody who is logged in. A nonce for a visitor is the
+		// same for every visitor and protects nothing, and it is printed into
+		// a page that a page cache keeps for longer than the nonce lives:
+		// the first enquiry from a cached vehicle page would always bounce.
+		if ( is_user_logged_in() && ! wp_verify_nonce( isset( $_POST['_wpnonce'] ) ? sanitize_key( wp_unslash( $_POST['_wpnonce'] ) ) : '', self::NONCE ) ) {
+			self::refuse( $back, 'expired' );
 		}
 
 		if ( ! self::enabled() ) {
-			self::bounce( $back, array( 'form' => __( 'Enquiries are switched off.', 'wp-mobile-de-sync' ) ), $posted );
+			self::refuse( $back, 'off' );
 		}
 
 		if ( self::is_spam( $posted, time() ) ) {
-			self::bounce( $back, array( 'form' => __( 'That was too quick to be real. Please try again.', 'wp-mobile-de-sync' ) ), $posted );
+			self::refuse( $back, 'quick' );
 		}
 
 		$key  = self::RATE . md5( self::client_ip() );
 		$sent = (int) get_transient( $key );
 		if ( self::over_limit( $sent ) ) {
-			self::bounce( $back, array( 'form' => __( 'Several enquiries have already been sent from here. Please try again later.', 'wp-mobile-de-sync' ) ), $posted );
+			self::refuse( $back, 'limit' );
 		}
 
 		$consent_required = ( '' !== self::consent_text() );
@@ -425,7 +430,15 @@ class WMDS_Leads {
 		}
 
 		$post_id = isset( $posted['vehicle'] ) ? (int) $posted['vehicle'] : 0;
-		$vehicle = ( $post_id && WMDS_CPT === get_post_type( $post_id ) ) ? new WMDS_Vehicle( $post_id ) : null;
+		$vehicle = null;
+
+		// Published only: the form posts an ID, and the title and address of
+		// a draft are nobody's business.
+		if ( $post_id && WMDS_CPT === get_post_type( $post_id ) && 'publish' === get_post_status( $post_id ) ) {
+			$vehicle = new WMDS_Vehicle( $post_id );
+		} else {
+			$post_id = 0;
+		}
 
 		$context = self::context( $post_id, $vehicle );
 		$site    = wp_specialchars_decode( (string) get_option( 'blogname' ), ENT_QUOTES );
@@ -505,12 +518,16 @@ class WMDS_Leads {
 			? sprintf( __( '%1$s about %2$s', 'wp-mobile-de-sync' ), $name, $context['title'] )
 			: $name;
 
+		// Slashed: WordPress unslashes what it is handed, and a message that
+		// mentions C:\\ or a name with a backslash would lose it.
 		$lead = wp_insert_post(
-			array(
-				'post_type'    => self::CPT,
-				'post_status'  => 'publish',
-				'post_title'   => $title,
-				'post_content' => isset( $data['message'] ) ? $data['message'] : '',
+			wp_slash(
+				array(
+					'post_type'    => self::CPT,
+					'post_status'  => 'publish',
+					'post_title'   => $title,
+					'post_content' => isset( $data['message'] ) ? $data['message'] : '',
+				)
 			),
 			true
 		);
@@ -535,7 +552,7 @@ class WMDS_Leads {
 		);
 
 		foreach ( $meta as $key => $value ) {
-			update_post_meta( $lead, $key, $value );
+			update_post_meta( $lead, $key, wp_slash( $value ) );
 		}
 
 		return (int) $lead;
@@ -569,11 +586,14 @@ class WMDS_Leads {
 	/** @return array<string, string> */
 	private static function read_request() {
 		// phpcs:disable WordPress.Security.NonceVerification.Missing -- the nonce is checked in handle() before anything is done with this.
+		// Cut here, before anything is kept: what comes back to the form after
+		// a validation error is stored for a quarter of an hour, and nobody
+		// is owed room for a megabyte.
 		return array(
-			'name'    => isset( $_POST['wmds_name'] ) ? sanitize_text_field( wp_unslash( $_POST['wmds_name'] ) ) : '',
-			'email'   => isset( $_POST['wmds_email'] ) ? sanitize_email( wp_unslash( $_POST['wmds_email'] ) ) : '',
-			'phone'   => isset( $_POST['wmds_phone'] ) ? sanitize_text_field( wp_unslash( $_POST['wmds_phone'] ) ) : '',
-			'message' => isset( $_POST['wmds_message'] ) ? sanitize_textarea_field( wp_unslash( $_POST['wmds_message'] ) ) : '',
+			'name'    => isset( $_POST['wmds_name'] ) ? WMDS_Str::cut( sanitize_text_field( wp_unslash( $_POST['wmds_name'] ) ), self::MAX_FIELD ) : '',
+			'email'   => isset( $_POST['wmds_email'] ) ? WMDS_Str::cut( sanitize_email( wp_unslash( $_POST['wmds_email'] ) ), self::MAX_FIELD ) : '',
+			'phone'   => isset( $_POST['wmds_phone'] ) ? WMDS_Str::cut( sanitize_text_field( wp_unslash( $_POST['wmds_phone'] ) ), self::MAX_PHONE ) : '',
+			'message' => isset( $_POST['wmds_message'] ) ? WMDS_Str::cut( sanitize_textarea_field( wp_unslash( $_POST['wmds_message'] ) ), self::MAX_MESSAGE + 1 ) : '',
 			'consent' => isset( $_POST['wmds_consent'] ) ? '1' : '',
 			'website' => isset( $_POST['wmds_website'] ) ? sanitize_text_field( wp_unslash( $_POST['wmds_website'] ) ) : '',
 			'opened'  => isset( $_POST['wmds_opened'] ) ? absint( wp_unslash( $_POST['wmds_opened'] ) ) : 0,
@@ -590,7 +610,9 @@ class WMDS_Leads {
 	private static function bounce( $url, array $errors, array $values ) {
 		unset( $values['website'], $values['opened'] );
 
-		$token = wp_generate_password( 12, false );
+		// Lower case: the token comes back through sanitize_key(), and an
+		// object cache, unlike the options table, tells aB from ab.
+		$token = strtolower( wp_generate_password( 16, false ) );
 
 		set_transient(
 			self::STATE . $token,
@@ -603,6 +625,32 @@ class WMDS_Leads {
 
 		wp_safe_redirect( add_query_arg( 'wmds_enquiry', $token, $url ) . '#wmds-enquiry' );
 		exit;
+	}
+
+	/**
+	 * Sends a submission back without keeping anything of it.
+	 *
+	 * For everything that is refused before the fields are even looked at.
+	 * The reason travels as a word in the address; nothing is written, so a
+	 * script that posts rubbish all day costs a redirect each time and not a
+	 * row in the database.
+	 *
+	 * @param string $url
+	 * @param string $reason One of the keys of refusals().
+	 */
+	private static function refuse( $url, $reason ) {
+		wp_safe_redirect( add_query_arg( 'wmds_enquiry', $reason, $url ) . '#wmds-enquiry' );
+		exit;
+	}
+
+	/** @return array<string, string> */
+	private static function refusals() {
+		return array(
+			'expired' => __( 'The form has expired. Please send it again.', 'wp-mobile-de-sync' ),
+			'off'     => __( 'Enquiries are switched off.', 'wp-mobile-de-sync' ),
+			'quick'   => __( 'That was too quick to be real. Please try again.', 'wp-mobile-de-sync' ),
+			'limit'   => __( 'Several enquiries have already been sent from here. Please try again later.', 'wp-mobile-de-sync' ),
+		);
 	}
 
 	/** @return array{errors:array,values:array,sent:bool} What the form should show after a redirect. */
@@ -620,6 +668,13 @@ class WMDS_Leads {
 
 		if ( 'sent' === $token ) {
 			$empty['sent'] = true;
+
+			return $empty;
+		}
+
+		$refusals = self::refusals();
+		if ( isset( $refusals[ $token ] ) ) {
+			$empty['errors'] = array( 'form' => $refusals[ $token ] );
 
 			return $empty;
 		}
@@ -674,6 +729,16 @@ class WMDS_Leads {
 	private static function client_ip() {
 		$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
 
+		/**
+		 * The address a visitor is counted and recorded under. Behind a
+		 * proxy that does not rewrite REMOTE_ADDR every visitor arrives from
+		 * the proxy, and five enquiries an hour is then the limit for the
+		 * whole site — this is where to read the forwarded header instead.
+		 *
+		 * @param string $ip
+		 */
+		$ip = (string) apply_filters( 'wmds_client_ip', $ip );
+
 		return filter_var( $ip, FILTER_VALIDATE_IP ) ? $ip : '0.0.0.0';
 	}
 
@@ -683,5 +748,149 @@ class WMDS_Leads {
 	 */
 	private static function length( $value ) {
 		return WMDS_Str::length( $value );
+	}
+
+	/*
+	 * An enquiry is a name, an address, a phone number and an IP. WordPress
+	 * has a tool for "send me what you hold on me" and one for "delete it"
+	 * (Tools → Export / Erase Personal Data); without these two callbacks
+	 * neither of them knew the enquiries existed.
+	 */
+
+	/**
+	 * @param array $exporters
+	 * @return array
+	 */
+	public static function privacy_exporters( $exporters ) {
+		$exporters = is_array( $exporters ) ? $exporters : array();
+
+		$exporters['wp-mobile-de-sync'] = array(
+			'exporter_friendly_name' => __( 'Vehicle enquiries', 'wp-mobile-de-sync' ),
+			'callback'               => array( __CLASS__, 'privacy_export' ),
+		);
+
+		return $exporters;
+	}
+
+	/**
+	 * @param array $erasers
+	 * @return array
+	 */
+	public static function privacy_erasers( $erasers ) {
+		$erasers = is_array( $erasers ) ? $erasers : array();
+
+		$erasers['wp-mobile-de-sync'] = array(
+			'eraser_friendly_name' => __( 'Vehicle enquiries', 'wp-mobile-de-sync' ),
+			'callback'             => array( __CLASS__, 'privacy_erase' ),
+		);
+
+		return $erasers;
+	}
+
+	/**
+	 * @param string $email
+	 * @param int    $page
+	 * @return int[] Enquiries sent from that address, fifty at a time.
+	 */
+	private static function leads_of( $email, $page ) {
+		$email = trim( (string) $email );
+		if ( '' === $email ) {
+			return array();
+		}
+
+		return array_map(
+			'intval',
+			get_posts(
+				array(
+					'post_type'      => self::CPT,
+					'post_status'    => 'any',
+					'posts_per_page' => 50,
+					'paged'          => max( 1, (int) $page ),
+					'orderby'        => 'ID',
+					'order'          => 'ASC',
+					'fields'         => 'ids',
+					'meta_key'       => '_wmds_email', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- a privacy request, run by hand and rarely.
+					'meta_value'     => $email, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- see above.
+				)
+			)
+		);
+	}
+
+	/**
+	 * @param string $email
+	 * @param int    $page
+	 * @return array{data:array,done:bool}
+	 */
+	public static function privacy_export( $email, $page = 1 ) {
+		$ids  = self::leads_of( $email, $page );
+		$data = array();
+
+		$fields = array(
+			'_wmds_name'    => __( 'Name', 'wp-mobile-de-sync' ),
+			'_wmds_email'   => __( 'E-mail', 'wp-mobile-de-sync' ),
+			'_wmds_phone'   => __( 'Phone', 'wp-mobile-de-sync' ),
+			'_wmds_url'     => __( 'Vehicle', 'wp-mobile-de-sync' ),
+			'_wmds_consent' => __( 'Consent', 'wp-mobile-de-sync' ),
+			'_wmds_ip'      => __( 'From', 'wp-mobile-de-sync' ),
+		);
+
+		foreach ( $ids as $id ) {
+			$rows = array(
+				array(
+					'name'  => __( 'Received', 'wp-mobile-de-sync' ),
+					'value' => (string) get_post_field( 'post_date', $id ),
+				),
+				array(
+					'name'  => __( 'Your message', 'wp-mobile-de-sync' ),
+					'value' => (string) get_post_field( 'post_content', $id ),
+				),
+			);
+
+			foreach ( $fields as $key => $label ) {
+				$value = (string) get_post_meta( $id, $key, true );
+				if ( '' !== $value ) {
+					$rows[] = array(
+						'name'  => $label,
+						'value' => $value,
+					);
+				}
+			}
+
+			$data[] = array(
+				'group_id'    => 'wmds-enquiries',
+				'group_label' => __( 'Vehicle enquiries', 'wp-mobile-de-sync' ),
+				'item_id'     => 'wmds-enquiry-' . $id,
+				'data'        => $rows,
+			);
+		}
+
+		return array(
+			'data' => $data,
+			'done' => count( $ids ) < 50,
+		);
+	}
+
+	/**
+	 * @param string $email
+	 * @param int    $page Unused: what was found is deleted, so the next call
+	 *                     starts at the beginning again.
+	 * @return array{items_removed:int,items_retained:bool,messages:array,done:bool}
+	 */
+	public static function privacy_erase( $email, $page = 1 ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- the signature is WordPress's.
+		$ids     = self::leads_of( $email, 1 );
+		$removed = 0;
+
+		foreach ( $ids as $id ) {
+			if ( wp_delete_post( $id, true ) ) {
+				++$removed;
+			}
+		}
+
+		return array(
+			'items_removed'  => $removed,
+			'items_retained' => $removed < count( $ids ),
+			'messages'       => array(),
+			'done'           => count( $ids ) < 50 || $removed < count( $ids ),
+		);
 	}
 }

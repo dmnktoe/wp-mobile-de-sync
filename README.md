@@ -10,7 +10,7 @@
 **[Project page and download](https://dmnktoe.github.io/wp-mobile-de-sync/)**
 
 Synchronises a dealer's vehicle inventory from the mobile.de **Search API**
-into the `fahrzeuge` custom post type — with bundled templates that any theme
+into the `vehicles` custom post type — with bundled templates that any theme
 can override and filtering of its own, so an inventory can be searched without
 a second plugin.
 
@@ -20,8 +20,10 @@ Vehicle data lands in post meta under stable field names. That is the
 interface for templates, facets and custom queries, and it does not change
 within a major version:
 
-- CPT `fahrzeuge`, shortcodes `[vehicles]`, `[vehicle-filter]`,
+- CPT `vehicles`, shortcodes `[vehicles]`, `[vehicle-filter]`,
   `[vehicle-count]` and `[vehicle-logo]`
+- Blocks under **mobile.de Sync**: Vehicles, Vehicle filter, Vehicle count
+  and Vehicle enquiry (each renders through the shortcode it stands for)
 - one meta key per vehicle property, plus every equipment feature the feed sets
 - the same keys are FacetWP sources (`cf/make`, `cf/price_raw`, …) for a site
   that already uses it
@@ -275,7 +277,8 @@ define( 'DISABLE_WP_CRON', true );
 */15 * * * * cd /path/to/site && wp cron event run --due-now
 ```
 
-The settings screen warns when the last run is more than six hours old.
+The settings screen warns when the last run is overdue: older than two
+intervals, and never less than six hours.
 
 ## When it stops
 
@@ -354,15 +357,6 @@ Inside the loop the shortcode reads `emissionSticker_key` from the vehicle; pass
 `$vehicle->emission_sticker_url()` return the file for a template, and
 `wmds_emission_sticker_url` filters the result.
 
-## List-view icons
-
-`mileage.svg`, `fuel.svg`, `gearbox.svg` and `emission.svg` are expected under
-`wp-content/icons/`. For a different path:
-
-```php
-define( 'WMDS_ICONS', 'https://example.com/path/to/icons/' );
-```
-
 ## Development
 
 ```
@@ -392,9 +386,8 @@ a tree it no longer describes.
 
 Four files are required outright anyway, and the reason is worth knowing
 before you tidy them away: **a file that does something when it loads cannot
-be loaded lazily.** `class-wmds-compat.php` holds functions rather than a
-class, and the logo, sticker and WP-CLI files each register something at file
-level. Nothing on a page that only writes `[vehicle-logo]` would ever mention
+be loaded lazily.** The logo, sticker and WP-CLI files each register something
+at file level. Nothing on a page that only writes `[vehicle-logo]` would ever mention
 `WMDS_Logos`, so an autoloaded file would never run and the shortcode would
 simply not exist. `tests/test-boot.php` and `tests/test-autoloader.php` both
 fail if that require disappears.
@@ -492,7 +485,14 @@ checks that on every push.
 Stubs prove the logic, not that the plugin works inside WordPress.
 `tests/integration/run.sh` closes that gap: it installs a real WordPress on a
 real database, activates the plugin and drives the sync through WP-CLI, while
-a local mock server answers as mobile.de from the same fixtures.
+a local mock server answers as mobile.de from the same fixtures. It then serves
+the site and fetches the archive, a filtered archive, a vehicle and a page of
+shortcodes and blocks — under the default block theme and under a classic one —
+and fails on any PHP notice in the log. WP-CLI never renders a page; a template
+that calls a method that does not exist passes everything else.
+
+`"generate": 40` in the mock's state file adds forty vehicles derived from the
+fixture, enough to see pagination, facet counts and sliders do something.
 
 ```
 sh tests/integration/run.sh
@@ -529,15 +529,14 @@ plugin's own options, transients, user meta and cron events are gone.
 Every template is resolved through the same hierarchy, first match wins:
 
 1. `wp-mobile-de-sync/<file>` in the child theme, then in the parent theme
-2. `<file>` in the child theme, then in the parent theme — where an earlier
-   solution expected `mob_vehicle-list.php`
+2. `<file>` in the child theme, then in the parent theme
 3. the bundled file under `templates/`
 
 | File | Rendered for |
 |---|---|
-| `single-fahrzeuge.php` | the detail page |
-| `archive-fahrzeuge.php` | the vehicle archive |
-| `mob_vehicle-list.php` | `[vehicles]`, and its alias `[fahrzeuge-anzeigen]` |
+| `single-vehicles.php` | the detail page |
+| `archive-vehicles.php` | the vehicle archive |
+| `vehicle-list.php` | `[vehicles]` |
 | `parts/vehicle-card.php` | one card, used by the last two |
 | `parts/vehicle-gallery.php` | the photos on the detail page |
 | `parts/filter-bar.php` | the filter components |
@@ -545,8 +544,11 @@ Every template is resolved through the same hierarchy, first match wins:
 
 The card is a part of its own, so a theme can restyle the grid item without
 copying the loop around it. It reads `$args['heading']` (`h2` to `h4`) and
-`$args['warnings']`. The bundled templates require no CSS framework and work
-with the active theme's `get_header()` / `get_footer()`.
+`$args['warnings']`. The bundled templates require no CSS framework. A page
+template opens with `WMDS_Templates::header()` and closes with
+`WMDS_Templates::footer()` rather than `get_header()` / `get_footer()`: in a
+classic theme they are the same thing, in a block theme — which has no
+`header.php` — they wrap the page in the theme's header and footer parts.
 
 The bundled stylesheet loads on the vehicle archive, on a detail page and on
 any post whose content renders the shortcode; the shortcode enqueues it as
@@ -579,8 +581,10 @@ can restyle the whole thing in one rule rather than selector by selector:
 }
 ```
 
-The dark variant follows `prefers-color-scheme`. A theme that knows its own
-answer overrides the properties and ours never applies.
+A dark set of values ships with it and is opt-in: put the class `wmds-dark` on
+`<body>` or on any wrapper. It deliberately does not follow
+`prefers-color-scheme` — that describes the visitor's system, not the theme, and
+a light theme seen from a dark system lost every border.
 
 ## Filtering
 
@@ -600,7 +604,7 @@ field the feed fills:
     [vehicle-filter layout="sidebar" facets="make,price,fuel"]
     [vehicles filters="yes" pagination="yes" posts_per_page="12"]
 
-The bundled archive template already carries the bar, so `/fahrzeuge/` filters
+The bundled archive template already carries the bar, so `/vehicles/` filters
 without a shortcode anywhere.
 
 Every option states how many vehicles are behind it. That number is counted
@@ -631,13 +635,21 @@ to be whitelisted first:
 
     [vehicles make="Audi" fuel="Diesel" interior_type="Teilleder"]
 
-`marke`, `modell`, `zustand`, `kraftstoffart`, `getriebe` and `anzahl` map onto
-their English counterparts, and `[fahrzeuge-anzeigen]` and `[fahrzeug-logo]`
-stay registered, so pages written against the old names keep working.
+`make`, `model`, `condition`, `fuel`, `gearbox` and `posts_per_page` (and any
+other vehicle meta key) filter the list when passed as shortcode attributes.
 
-If a site brings its own templates that call helper functions from an earlier
-solution, `includes/class-wmds-compat.php` provides equivalents — but only
-when they are not already defined.
+## The blocks
+
+Under **mobile.de Sync** in the block inserter:
+
+| Block | Shortcode it renders |
+|---|---|
+| Vehicles | `[vehicles]` |
+| Vehicle filter | `[vehicle-filter]` |
+| Vehicle count | `[vehicle-count]` |
+| Vehicle enquiry | `[vehicle-enquiry]` |
+
+Sidebar controls map onto the shortcode attributes.
 
 ## Known limits
 

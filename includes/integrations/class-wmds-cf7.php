@@ -33,6 +33,8 @@ class WMDS_Cf7 {
 		add_filter( 'wpcf7_special_mail_tags', array( __CLASS__, 'mail_tag' ), 10, 4 );
 		add_filter( 'wpcf7_mail_components', array( __CLASS__, 'mail_components' ), 10, 3 );
 		add_action( 'wpcf7_mail_sent', array( __CLASS__, 'record' ) );
+		// And when it was not sent: that is the enquiry most worth keeping.
+		add_action( 'wpcf7_mail_failed', array( __CLASS__, 'record' ) );
 	}
 
 	/** @return bool */

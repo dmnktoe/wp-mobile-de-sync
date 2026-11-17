@@ -46,8 +46,12 @@ class WMDS_Tab_About {
 						<td><code><?php echo esc_html( WMDS_CPT ); ?></code></td>
 					</tr>
 					<tr>
-						<td><?php esc_html_e( 'Shortcodes', 'wp-mobile-de-sync' ); ?></td>
-						<td><code>[vehicles]</code> <code>[vehicle-logo]</code></td>
+						<td><?php esc_html_e( 'Placing vehicles', 'wp-mobile-de-sync' ); ?></td>
+						<td>
+							<a href="<?php echo esc_url( WMDS_Status::settings_url( 'usage' ) ); ?>">
+								<?php esc_html_e( 'Blocks, shortcodes and widgets', 'wp-mobile-de-sync' ); ?>
+							</a>
+						</td>
 					</tr>
 					<tr>
 						<td><?php esc_html_e( 'Author', 'wp-mobile-de-sync' ); ?></td>

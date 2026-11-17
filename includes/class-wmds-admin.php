@@ -60,6 +60,13 @@ class WMDS_Admin {
 	}
 
 	public static function assets() {
+		// The status dot in the admin bar and the notice are only ever shown
+		// to people who may manage the plugin; nobody else needs the files or
+		// the nonce that comes with them.
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			return;
+		}
+
 		wp_enqueue_style( 'wmds-admin', WMDS_URL . 'assets/admin.css', array(), WMDS_VERSION );
 		wp_enqueue_script( 'wmds-admin', WMDS_URL . 'assets/admin.js', array(), WMDS_VERSION, true );
 		wp_localize_script(
@@ -67,14 +74,18 @@ class WMDS_Admin {
 			'wmdsAdmin',
 			array(
 				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-				'nonce'   => wp_create_nonce( self::NONCE ),
+				'nonce'   => current_user_can( 'manage_options' ) ? wp_create_nonce( self::NONCE ) : '',
 				'i18n'    => array(
-					'testing'  => __( 'Testing the connection…', 'wp-mobile-de-sync' ),
-					'starting' => __( 'Starting…', 'wp-mobile-de-sync' ),
+					'testing'    => __( 'Testing the connection…', 'wp-mobile-de-sync' ),
+					'starting'   => __( 'Starting…', 'wp-mobile-de-sync' ),
 					/* translators: 1: vehicles processed so far, 2: total to process. */
-					'progress' => __( '%1$d of %2$d vehicles processed', 'wp-mobile-de-sync' ),
-					'done'     => __( 'Sync finished.', 'wp-mobile-de-sync' ),
-					'failed'   => __( 'The request failed. The browser could not reach WordPress.', 'wp-mobile-de-sync' ),
+					'progress'   => __( '%1$d of %2$d vehicles processed', 'wp-mobile-de-sync' ),
+					'done'       => __( 'Sync finished.', 'wp-mobile-de-sync' ),
+					'failed'     => __( 'The request failed. The browser could not reach WordPress.', 'wp-mobile-de-sync' ),
+					/* translators: %1$d: HTTP status code. */
+					'unexpected' => __( 'WordPress answered with something unexpected (HTTP %1$d). The session may have expired — reload the page and try again.', 'wp-mobile-de-sync' ),
+					/* translators: %1$d: number of vehicles still to be imported. */
+					'unfinished' => __( '%1$d vehicles are still pending. The scheduled runs carry on from here.', 'wp-mobile-de-sync' ),
 				),
 			)
 		);
@@ -87,6 +98,7 @@ class WMDS_Admin {
 			'schedule'     => __( 'Schedule', 'wp-mobile-de-sync' ),
 			'enquiries'    => __( 'Enquiries', 'wp-mobile-de-sync' ),
 			'integrations' => __( 'Integrations', 'wp-mobile-de-sync' ),
+			'usage'        => __( 'Usage', 'wp-mobile-de-sync' ),
 			'status'       => __( 'Status & log', 'wp-mobile-de-sync' ),
 			'tools'        => __( 'Tools', 'wp-mobile-de-sync' ),
 			'system'       => __( 'System', 'wp-mobile-de-sync' ),
@@ -129,6 +141,8 @@ class WMDS_Admin {
 					WMDS_Tab_Enquiries::render();
 				} elseif ( 'integrations' === $tab ) {
 					WMDS_Tab_Integrations::render();
+				} elseif ( 'usage' === $tab ) {
+					WMDS_Tab_Usage::render();
 				} elseif ( 'status' === $tab ) {
 					WMDS_Tab_Status::render( $status );
 				} elseif ( 'tools' === $tab ) {

@@ -87,6 +87,7 @@ class WMDS_Mail {
 
 		return ( '' === $name )
 			? sprintf( 'Reply-To: %s', $email )
-			: sprintf( 'Reply-To: %s <%s>', $name, $email );
+			// Quoted: a bare "Doe, John" is two addresses to a mail parser.
+			: sprintf( 'Reply-To: "%s" <%s>', str_replace( array( '"', '\\' ), '', $name ), $email );
 	}
 }

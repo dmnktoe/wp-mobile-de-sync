@@ -50,7 +50,7 @@ class WMDS_Refdata {
 	 * @param string $field         Field name from the ad, e.g. 'gearbox'.
 	 * @param string $key           The key, e.g. 'MANUAL_GEAR'.
 	 * @param string $vehicle_class The vehicle's vehicleClass, needed for make/category.
-	 * @return string Localised label, otherwise the key itself.
+	 * @return string Localised label, otherwise the key in readable form.
 	 */
 	public function label( $field, $key, $vehicle_class = 'Car' ) {
 		$key = trim( (string) $key );
@@ -61,7 +61,32 @@ class WMDS_Refdata {
 		$path  = str_replace( '%class%', rawurlencode( $vehicle_class ), self::$tables[ $field ] );
 		$table = $this->table( $path );
 
-		return isset( $table[ $key ] ) ? $table[ $key ] : $key;
+		return isset( $table[ $key ] ) ? $table[ $key ] : self::readable( $key );
+	}
+
+	/**
+	 * What to show for a key the reference data has no label for.
+	 *
+	 * The API gains values before they are documented, and the reference
+	 * endpoint has bad days. MERCEDES-BENZ and AUTOMATIC_GEAR on a public
+	 * page look like a broken site; Mercedes-Benz and Automatic Gear do not.
+	 *
+	 * @param string $key
+	 * @return string
+	 */
+	public static function readable( $key ) {
+		$key = trim( (string) $key );
+
+		if ( '' === $key || ! preg_match( '/^[A-Z0-9_ -]+$/', $key ) ) {
+			return $key;
+		}
+
+		// Short all-capitals keys are names in their own right: BMW, MG, DS.
+		if ( strlen( $key ) <= 3 ) {
+			return $key;
+		}
+
+		return ucwords( strtolower( str_replace( '_', ' ', $key ) ), ' -' );
 	}
 
 	/**

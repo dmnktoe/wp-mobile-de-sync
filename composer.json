@@ -1,6 +1,6 @@
 {
 	"name": "dmnktoe/wp-mobile-de-sync",
-	"description": "Synchronises a dealer's vehicle inventory from mobile.de into the fahrzeuge custom post type.",
+	"description": "Synchronises a dealer's vehicle inventory from mobile.de into the vehicles custom post type.",
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
 	"require": {

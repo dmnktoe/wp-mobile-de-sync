@@ -20,7 +20,7 @@ $wmds_value = function ( $field ) use ( $wmds_values ) {
 	return isset( $wmds_values[ $field ] ) ? (string) $wmds_values[ $field ] : '';
 };
 ?>
-<section class="wmds-enquiry" id="wmds-enquiry">
+<section class="wmds-scope wmds-enquiry" id="wmds-enquiry">
 	<h2 class="wmds-enquiry__heading"><?php echo esc_html( $wmds_heading ); ?></h2>
 
 	<?php if ( $wmds_state['sent'] ) : ?>

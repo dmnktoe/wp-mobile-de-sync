@@ -368,9 +368,10 @@ class WMDS_Fake_WPDB {
 			}
 
 			$rows[] = (object) array(
-				'ID'       => $id,
-				'ad_id'    => (string) $meta[ WMDS_Importer::META_AD_ID ],
-				'modified' => isset( $meta[ WMDS_Importer::META_MODIFIED ] )
+				'ID'          => $id,
+				'post_status' => $post['post_status'],
+				'ad_id'       => (string) $meta[ WMDS_Importer::META_AD_ID ],
+				'modified'    => isset( $meta[ WMDS_Importer::META_MODIFIED ] )
 					? (string) $meta[ WMDS_Importer::META_MODIFIED ]
 					: '',
 			);
@@ -441,5 +442,41 @@ class WMDS_Fake_Refdata extends WMDS_Refdata {
 
 	public function label( $field, $key, $vehicle_class = 'Car' ) {
 		return ( '' === (string) $key ) ? '' : 'L:' . $key;
+	}
+}
+
+if ( ! function_exists( 'wp_slash' ) ) {
+	function wp_slash( $value ) {
+		return $value;
+	}
+}
+
+if ( ! function_exists( 'delete_post_meta_by_key' ) ) {
+	function delete_post_meta_by_key( $key ) {
+		foreach ( $GLOBALS['wp_fake']['meta'] as $post_id => $meta ) {
+			unset( $GLOBALS['wp_fake']['meta'][ $post_id ][ $key ] );
+		}
+
+		return true;
+	}
+}
+
+if ( ! function_exists( 'wp_untrash_post' ) ) {
+	function wp_untrash_post( $post_id ) {
+		$post_id = (int) $post_id;
+		if ( ! isset( $GLOBALS['wp_fake']['posts'][ $post_id ] ) ) {
+			return false;
+		}
+		$GLOBALS['wp_fake']['posts'][ $post_id ]['post_status'] = 'draft';
+
+		return true;
+	}
+}
+
+if ( ! function_exists( 'delete_post_thumbnail' ) ) {
+	function delete_post_thumbnail( $post_id ) {
+		unset( $GLOBALS['wp_fake']['thumbs'][ (int) $post_id ] );
+
+		return true;
 	}
 }

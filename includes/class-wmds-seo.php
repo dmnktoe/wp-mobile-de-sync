@@ -12,6 +12,28 @@ class WMDS_Seo {
 
 	public static function init() {
 		add_action( 'wp_head', array( __CLASS__, 'render' ), 5 );
+		add_filter( 'wp_robots', array( __CLASS__, 'robots' ) );
+	}
+
+	/**
+	 * Keeps filtered and sorted views of the archive out of the index.
+	 *
+	 * Every combination of filters is an address of its own, and a crawler
+	 * that follows them finds the same vehicles a few thousand times over.
+	 * The links are still followed, so the vehicles themselves are reached.
+	 *
+	 * @param array $robots
+	 * @return array
+	 */
+	public static function robots( $robots ) {
+		$robots = is_array( $robots ) ? $robots : array();
+
+		if ( is_post_type_archive( WMDS_CPT ) && WMDS_Facet_Request::selection() ) {
+			$robots['noindex'] = true;
+			$robots['follow']  = true;
+		}
+
+		return $robots;
 	}
 
 	public static function render() {

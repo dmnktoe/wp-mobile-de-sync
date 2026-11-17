@@ -2,13 +2,14 @@
 
 require_once __DIR__ . '/bootstrap.php';
 
-define( 'WMDS_CPT', 'fahrzeuge' );
+define( 'WMDS_CPT', 'vehicles' );
 
 class WMDS_Status {
-	const FAILED = 'failed';
-	const STALE  = 'stale';
-	const OK     = 'ok';
-	const NEVER  = 'never';
+	const FAILED  = 'failed';
+	const ABORTED = 'aborted';
+	const STALE   = 'stale';
+	const OK      = 'ok';
+	const NEVER   = 'never';
 
 	/**
 	 * @param array $stats

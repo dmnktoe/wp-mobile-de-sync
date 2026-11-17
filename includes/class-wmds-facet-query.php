@@ -172,6 +172,14 @@ class WMDS_Facet_Query {
 			return;
 		}
 
+		/**
+		 * Vehicles on one archive page. Twelve fills a row of two, three or
+		 * four; the ten WordPress would use leaves a ragged last row.
+		 *
+		 * @param int $per_page
+		 */
+		$query->set( 'posts_per_page', max( 1, (int) apply_filters( 'wmds_archive_per_page', 12 ) ) );
+
 		$selection = WMDS_Facet_Request::selection();
 		if ( ! $selection ) {
 			return;

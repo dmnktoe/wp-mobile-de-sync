@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-get_header();
+WMDS_Templates::header();
 
 while ( have_posts() ) :
 	the_post();
@@ -12,7 +12,7 @@ while ( have_posts() ) :
 	$images  = $vehicle->images();
 	?>
 
-<article id="fahrzeug-<?php the_ID(); ?>" class="wmds-scope wmds-single">
+<article id="vehicle-<?php the_ID(); ?>" class="wmds-scope wmds-single<?php echo esc_attr( WMDS_Templates::wrapper_class() ); ?>">
 
 	<header class="wmds-single__header">
 		<?php $logo = $vehicle->logo_url(); ?>
@@ -34,7 +34,7 @@ while ( have_posts() ) :
 		<p class="wmds-warning"><?php echo esc_html( implode( ' · ', $vehicle->warnings() ) ); ?></p>
 	<?php endif; ?>
 
-	<div class="wmds-single__main">
+	<div class="wmds-single__main<?php echo ( $images || has_post_thumbnail() ) ? '' : ' wmds-single__main--no-gallery'; ?>">
 
 		<?php WMDS_Templates::render( 'parts/vehicle-gallery.php', array( 'images' => $images ) ); ?>
 
@@ -169,4 +169,4 @@ while ( have_posts() ) :
 	<?php
 endwhile;
 
-get_footer();
+WMDS_Templates::footer();

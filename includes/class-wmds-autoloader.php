@@ -16,8 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * each, integrations/ is the code that talks to another plugin and has to
  * survive that plugin not being there.
  *
- * Three files are deliberately not left to this. class-wmds-compat.php holds
- * functions rather than a class, and class-wmds-logos.php and
+ * Two files are deliberately not left to this: class-wmds-logos.php and
  * class-wmds-stickers.php each register a shortcode at file level. A file
  * that does something when it loads cannot be loaded lazily: nothing would
  * ever mention the class on a page that only uses the shortcode, so the

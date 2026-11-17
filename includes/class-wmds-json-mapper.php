@@ -226,9 +226,14 @@ class WMDS_Json_Mapper {
 		$meta['construction-year'] = $this->str( $ad, 'constructionYear' );
 		$meta['owners']            = $this->str( $ad, 'numberOfPreviousOwners' );
 
-		$meta['damageRepaired'] = ! empty( $ad['damageUnrepaired'] ) ? 'true' : 'false';
-		$meta['roadWorthy']     = ! empty( $ad['roadworthy'] ) ? 'true' : 'false';
-		$meta['roadworthy']     = $meta['roadWorthy'];
+		$meta['damageUnrepaired'] = ! empty( $ad['damageUnrepaired'] ) ? 'true' : 'false';
+
+		// Only when the ad says so. A field mobile.de left out is not a
+		// vehicle that cannot be driven, and "Not roadworthy" on the card of
+		// a sound one costs the sale.
+		$meta['roadWorthy'] = array_key_exists( 'roadworthy', $ad )
+			? ( $ad['roadworthy'] ? 'true' : 'false' )
+			: '';
 
 		$meta['exteriorColor']           = $this->label( 'exteriorColor', $this->str( $ad, 'exteriorColor' ), $class );
 		$meta['manufacturer_color_name'] = WMDS_Creole::decode_field( $this->str( $ad, 'manufacturerColorName' ) );

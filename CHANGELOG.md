@@ -3,18 +3,111 @@
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [2.3.0] – 2026-11-16
+
+Tested end to end against a real WordPress, a real database and a mock of the
+mobile.de API, in a browser, under a block theme and a classic one. Most of
+what is listed under Fixed was found that way.
+
+### Changed
+- The custom post type, rewrite slug and templates are English throughout:
+  `vehicles`, `/vehicles/`, `single-vehicles.php`, `archive-vehicles.php` and
+  `vehicle-list.php`. There is no migration and no redirect from the earlier
+  names: the plugin had no installs to carry over.
+- German shortcode aliases and attributes, the `more_fields()` and
+  `custom_taxonomies_terms_links()` shims and the unused `WMDS_ICONS` constant
+  are gone.
+- A full or forced sync is a stored state, not a flag on one pass. It holds
+  until a pass completes, whoever starts the passes in between.
+- A failed detail call leaves the vehicle untouched and counts as a failure.
+  It used to write the listing on its own, which emptied the description and
+  every field only the detail call carries.
+- Pictures are kept by the hash mobile.de names them with. An ad that gained
+  one photo costs one download instead of fifteen, and nothing is deleted
+  before its replacement is in place.
+- Vehicles open in the classic editor, where the importer's fields and its
+  warning are visible.
+- The dark palette is opt-in through the class `wmds-dark`. It no longer
+  follows `prefers-color-scheme`, which describes the visitor's system rather
+  than the theme.
+- The archive shows twelve vehicles a page (`wmds_archive_per_page`).
+- A confirmation mail no longer quotes the visitor's message back to an
+  address nobody verified.
+- The meta key for unrepaired damage is `damageUnrepaired`, which is what it
+  holds; the duplicate `roadworthy` beside `roadWorthy` is gone.
 
 ### Fixed
+- **Block themes.** The bundled templates called `get_header()`, which a block
+  theme answers with a deprecation notice and a bare document — no theme
+  header, no styles, no content width. They now render inside the theme's own
+  header and footer parts. Classic themes get a page width and gutter.
+- **The card picture.** The manufacturer logo was sized by the rule meant for
+  the photo and covered it on every card.
 - The filter bar, the vehicle list and the vehicle archive died with "call to
   undefined method" on every page that rendered them. Splitting the facet
-  engine in 2.2.0 left `selection()` on neither half, and nothing called it
-  until a page was rendered. It is back where the request is read.
+  engine in 2.2.0 left `selection()` on neither half.
+- A full sync ended after its first batch: the follow-up passes ran
+  incrementally, found nothing and stopped, and nothing was ever removed.
+  `wp wmds sync --force --all` re-read the same twenty vehicles two hundred
+  times.
+- Vehicles in the bin counted as inventory, so every sold vehicle was a
+  removal candidate again on each full sync and enough of them tripped the
+  safety guard. One that returns to the feed gets its post back.
+- A run that died between writing a vehicle and its pictures left half a
+  gallery that was never retried: the modification date is now written last.
+- An aborted run — wrong password, API down — left no record. The status
+  stayed "Up to date" and later blamed the cron setup. It has a status of its
+  own now, and alerts cover it.
+- The alert check that runs when a sync finishes always saw the import lock
+  and did nothing. It fires after the lock is released.
+- "Sync overdue" was a fixed six hours, so a site that syncs once a day was
+  overdue for eighteen of every twenty-four.
+- Fields and features a dealer removed from an ad stayed on the vehicle.
+- Past the API's pagination cap, vehicles outside the window looked sold and
+  were removed.
+- An update put a vehicle somebody had set to draft back on the site.
+- Labels and number formats were stored in the language of whoever pressed
+  "Sync now" instead of the site's.
+- A reference key without a label was printed raw: `MERCEDES-BENZ`,
+  `AUTOMATIC_GEAR`. It is shown in readable form.
+- An ad that does not mention roadworthiness was labelled "Not roadworthy".
+- A VAT rate of 20 was printed as 2.
+- Range filters: the slider stopped short of the dearest vehicle, and number
+  fields refused ordinary figures because they carried `min`, `max` and
+  `step`.
+- `[vehicles make="BMW" filters="yes"]` offered every make with the counts of
+  the whole inventory. An attribute that names a facet is now the starting
+  selection.
+- The filter form lost the query string of its action, which with plain
+  permalinks sent every search to the front page. It also sent every empty
+  field; only what was chosen is in the address now.
+- Facet counts stayed stale on sites with an object cache, and for ten minutes
+  after every sync on all others.
+- A standalone `[vehicle-filter]` or `[vehicle-enquiry]` had no styling scope,
+  and nothing set `box-sizing`, which pushed fields out of their boxes.
+- The enquiry form bounced the first submission from any page-cached vehicle
+  page, lost the visitor's text after a validation error on sites with an
+  object cache, and stored whole submissions for requests it refused.
+- An archive that fits on one page raised a deprecation in `wp_kses_post()`.
+- The logo index used `GLOB_BRACE`, which does not exist on Alpine and is a
+  fatal error there on PHP 8.
+- Admin: a save without a tab emptied the username; actions that change
+  something were accepted as links; "Reload from mobile.de" showed its answer
+  on the wrong screen; a dismissed notice never came back; the progress bar
+  reported "could not reach WordPress" for every unexpected answer and
+  "finished" with vehicles pending; the admin bar announced an overdue run as
+  upcoming; `wp plugin list` asked GitHub once per plugin row.
 - The structure test only checked static properties, which is how a missing
-  method shipped. It now checks methods and constants too, on `self::` and on
-  the class by name, and reads the templates as well.
+  method shipped. It checks methods and constants too.
 
 ### Added
+- The integration test renders pages over HTTP — archive, filtered archive,
+  vehicle, shortcodes and blocks, under a block theme and a classic one — and
+  fails on any PHP notice. Everything before went through WP-CLI, which never
+  renders a page.
+- Enquiries take part in WordPress's personal data export and erasure.
+- `wmds_client_ip` for sites behind a proxy, `wmds_archive_per_page`.
+- 128 strings that had no German translation have one.
 - Contact Form 7. A form of the site's own can ask about the vehicle the
   visitor is looking at: `[_wmds_vehicle_title]`, `[_wmds_vehicle_price]`,
   `[_wmds_vehicle_listing]` and ten more go straight into the mail template
@@ -45,6 +138,10 @@ versioning follows [Semantic Versioning](https://semver.org/).
   update — the stale counts nobody could explain.
 - An **Integrations** tab for the three of them, and `wmds_vehicle_stored`
   and `wmds_mail_sent` for anything else that needs the same two moments.
+- Four blocks under **mobile.de Sync**: Vehicles, Vehicle filter, Vehicle
+  count and Vehicle enquiry. Each renders the matching shortcode.
+- A **Usage** settings tab for blocks, shortcodes and the dashboard widget.
+  The widget Configure panel links to it.
 
 ## [2.2.0] – 2026-08-08
 

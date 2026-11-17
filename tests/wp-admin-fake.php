@@ -420,7 +420,7 @@ if ( ! function_exists( 'get_the_title' ) ) {
 
 if ( ! function_exists( 'get_permalink' ) ) {
 	function get_permalink( $post = 0 ) {
-		return 'https://example.invalid/fahrzeuge/one/';
+		return 'https://example.invalid/vehicles/one/';
 	}
 }
 
@@ -480,7 +480,7 @@ if ( ! function_exists( 'get_post_type_object' ) ) {
 
 if ( ! function_exists( 'get_post_type_archive_link' ) ) {
 	function get_post_type_archive_link( $type ) {
-		return 'https://example.invalid/fahrzeuge/';
+		return 'https://example.invalid/vehicles/';
 	}
 }
 
@@ -529,5 +529,15 @@ if ( ! function_exists( 'get_site_transient' ) ) {
 if ( ! function_exists( 'set_site_transient' ) ) {
 	function set_site_transient( $key, $value, $ttl = 0 ) {
 		return true;
+	}
+}
+
+if ( ! function_exists( 'wp_get_schedules' ) ) {
+	function wp_get_schedules() {
+		return array(
+			'hourly'     => array( 'interval' => 3600 ),
+			'daily'      => array( 'interval' => 86400 ),
+			'wmds_15min' => array( 'interval' => 900 ),
+		);
 	}
 }

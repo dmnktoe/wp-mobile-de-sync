@@ -4,11 +4,11 @@ Tags: mobile.de, vehicles, dealership, facetwp, contact form 7
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 2.2.0
+Stable tag: 2.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Synchronises a dealer's vehicle inventory from mobile.de into the "fahrzeuge" custom post type.
+Synchronises a dealer's vehicle inventory from mobile.de into the "vehicles" custom post type.
 
 == Description ==
 
@@ -16,7 +16,9 @@ Fetches a dealer's vehicle inventory through the mobile.de Search API and
 stores it as WordPress posts. The vehicle data lives in post meta under stable
 field names — ready to use for your own templates, queries and filters.
 
-* CPT `fahrzeuge`, shortcodes `[vehicles]`, `[vehicle-filter]`, `[vehicle-count]`
+* CPT `vehicles`, shortcodes `[vehicles]`, `[vehicle-filter]`, `[vehicle-count]`
+* Blocks for the same: Vehicles, Vehicle filter, Vehicle count, Vehicle enquiry
+* Usage tab in Sync Settings: blocks, shortcodes and the dashboard widget
 * Filtering of its own: dropdowns, checkboxes, radio buttons, range sliders,
   search and sorting — no second plugin needed
 * One meta key per property, listed as FacetWP facet sources under "mobile.de"
@@ -77,13 +79,6 @@ are delayed considerably as a result. Recommended:
 plus a cron job at your host calling `wp cron event run --due-now` or
 `wp-cron.php` every 15 minutes.
 
-= Icons =
-
-The list view expects `mileage.svg`, `fuel.svg`, `gearbox.svg` and
-`emission.svg` under `wp-content/icons/`. For a different path:
-
-    define( 'WMDS_ICONS', 'https://example.com/path/to/icons/' );
-
 == Frequently Asked Questions ==
 
 = Why are no vehicles being imported? =
@@ -119,6 +114,26 @@ Pkw-EnVKV, so the bundled German catalogue carries the statutory wording rather
 than a translation of the English source.
 
 == Changelog ==
+
+= 2.3.0 =
+* Changed: the post type, rewrite slug and templates are English — `vehicles`,
+  `/vehicles/`, `single-vehicles.php`, `vehicle-list.php`. German shortcode
+  aliases and attributes are removed.
+* Fixed: the bundled pages render inside block themes. They called
+  `get_header()`, which a block theme answers with a deprecation and a page
+  without the theme's header, styles or width.
+* Fixed: on a card the manufacturer logo covered the vehicle photo.
+* Fixed: the archive, the list and the filter bar died with "Call to undefined
+  method".
+* Fixed: a full sync ended after its first batch and never removed anything;
+  a failed detail call emptied the vehicle; an aborted run showed as "Up to
+  date"; vehicles in the bin tripped the removal guard.
+* Fixed: range filters refused ordinary figures, a shortcode's fixed filter was
+  unknown to the filter bar, and facet counts went stale after every sync.
+* Fixed: the enquiry form bounced the first submission from a cached page.
+* New: Contact Form 7, mail delivery and FacetWP integrations, four blocks, a
+  Usage tab, and enquiries in WordPress's personal data export and erasure.
+* The full list is in CHANGELOG.md.
 
 = 2.2.0 =
 * New: filtering of its own. `[vehicle-filter]` renders dropdowns, radio
