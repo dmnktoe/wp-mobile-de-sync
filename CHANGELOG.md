@@ -3,6 +3,21 @@
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
+## [2.4.2] – 2026-11-17
+
+### Fixed
+- **A backlog showed as "in sync".** Between two passes of a run that still
+  had vehicles to process nothing holds the lock, and the status read "The
+  inventory is in sync" with dozens left and sold vehicles not yet removed.
+  It now reads "Sync in progress" with the number still to go, in the admin,
+  the admin bar and `wp wmds status`.
+- **A backlog moved one batch every fifteen minutes.** A pass that leaves
+  vehicles books the next one in a minute, on the regular event's hook.
+  WordPress refuses a single event within ten minutes of an identical one,
+  so whenever the regular run was that close the follow-up was dropped. It
+  has a hook of its own now, `wmds_import_followup`, and the next-run time
+  shown is whichever of the two comes first.
+
 ## [2.4.1] – 2026-11-17
 
 ### Fixed

@@ -265,7 +265,10 @@ $stats                     = $importer->run( array( 'batch' => 2 ) );
 
 wmds_assert( 'two in this pass', 2, $stats['created'] );
 wmds_assert( 'three remain pending', 3, $stats['pending'] );
-wmds_assert( 'follow-up scheduled', array( WMDS_CRON_HOOK ), wmds_fake( 'scheduled' ) );
+wmds_assert( 'follow-up scheduled, on a hook of its own', array( WMDS_Importer::FOLLOWUP_HOOK ), wmds_fake( 'scheduled' ) );
+
+WMDS_Importer::schedule_followup();
+wmds_assert( 'and only once, however often a pass asks', array( WMDS_Importer::FOLLOWUP_HOOK ), wmds_fake( 'scheduled' ) );
 wmds_assert(
 	'watermark is held back',
 	'',
@@ -643,7 +646,7 @@ $stats                     = $importer->run( array( 'budget' => 0 ) );
 
 wmds_assert( 'only the first vehicle was done', 1, $stats['created'] );
 wmds_assert( 'the rest is pending', 4, $stats['pending'] );
-wmds_assert( 'and comes back on the next run', true, in_array( WMDS_CRON_HOOK, wmds_fake( 'scheduled' ), true ) );
+wmds_assert( 'and comes back on the next run', true, in_array( WMDS_Importer::FOLLOWUP_HOOK, wmds_fake( 'scheduled' ), true ) );
 wmds_assert( 'the lock is released either way', 0, WMDS_Importer::locked_since() );
 
 wmds_section( 'A pass cut short does not count as a full reconciliation' );
@@ -710,7 +713,7 @@ wmds_assert( 'it stopped before the last page', true, count( $client->searched )
 wmds_assert( 'the unread vehicle was not trashed', 'publish', wmds_fake( 'posts' )[ $unread ]['post_status'] );
 wmds_assert( 'nothing was removed at all', 0, $stats['removed'] );
 wmds_assert( 'the watermark did not move', '', (string) get_option( WMDS_Importer::OPT_WATERMARK, '' ) );
-wmds_assert( 'and the run comes back', true, in_array( WMDS_CRON_HOOK, wmds_fake( 'scheduled' ), true ) );
+wmds_assert( 'and the run comes back', true, in_array( WMDS_Importer::FOLLOWUP_HOOK, wmds_fake( 'scheduled' ), true ) );
 
 wmds_section( 'Images are only replaced once the new ones are in' );
 

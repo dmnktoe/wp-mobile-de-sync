@@ -2403,3 +2403,12 @@ msgstr "Vorheriges Bild"
 
 msgid "Next image"
 msgstr "Nächstes Bild"
+
+msgid "Sync in progress"
+msgstr "Abgleich läuft noch"
+
+#. translators: %d: number of vehicles still to be processed.
+msgid "%d vehicle is still to be processed. The next pass starts on its own; vehicles sold in the meantime are removed once the whole inventory has been read."
+msgid_plural "%d vehicles are still to be processed. The next pass starts on its own; vehicles sold in the meantime are removed once the whole inventory has been read."
+msgstr[0] "%d Fahrzeug ist noch abzuarbeiten. Der nächste Durchgang startet von selbst; inzwischen verkaufte Fahrzeuge werden entfernt, sobald der ganze Bestand gelesen ist."
+msgstr[1] "%d Fahrzeuge sind noch abzuarbeiten. Der nächste Durchgang startet von selbst; inzwischen verkaufte Fahrzeuge werden entfernt, sobald der ganze Bestand gelesen ist."

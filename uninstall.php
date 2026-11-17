@@ -15,6 +15,7 @@ delete_option( 'wmds_mail_failure' );
 delete_option( 'wmds_facet_version' );
 
 wp_clear_scheduled_hook( 'wmds_import_event' );
+wp_clear_scheduled_hook( 'wmds_import_followup' );
 wp_clear_scheduled_hook( 'wmds_full_sync_event' );
 wp_clear_scheduled_hook( 'wmds_alert_event' );
 wp_clear_scheduled_hook( 'wmds_alert_weekly_event' );

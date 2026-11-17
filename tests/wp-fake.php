@@ -310,6 +310,12 @@ if ( ! function_exists( 'current_time' ) ) {
 	}
 }
 
+if ( ! function_exists( 'wp_next_scheduled' ) ) {
+	function wp_next_scheduled( $hook, $args = array() ) {
+		return in_array( $hook, $GLOBALS['wp_fake']['scheduled'], true ) ? 1785585660 : false;
+	}
+}
+
 if ( ! function_exists( 'wp_schedule_single_event' ) ) {
 	function wp_schedule_single_event( $timestamp, $hook, $args = array() ) {
 		$GLOBALS['wp_fake']['scheduled'][] = $hook;
