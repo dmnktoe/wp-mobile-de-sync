@@ -176,15 +176,40 @@ class WMDS_Vehicle {
 	 * @return array<string, string>
 	 */
 	public function highlights() {
-		return array_filter(
-			array(
-				__( 'Mileage', 'wp-mobile-de-sync' )      => $this->mileage(),
-				__( 'First registration', 'wp-mobile-de-sync' ) => $this->first_registration(),
-				__( 'Power', 'wp-mobile-de-sync' )        => $this->power(),
-				__( 'Transmission', 'wp-mobile-de-sync' ) => $this->get( 'gearbox' ),
-				__( 'Fuel', 'wp-mobile-de-sync' )         => $this->get( 'fuel' ),
-			)
+		$highlights = array();
+		foreach ( $this->facts() as $fact ) {
+			$highlights[ $fact['label'] ] = $fact['value'];
+		}
+
+		return $highlights;
+	}
+
+	/**
+	 * The key figures, keyed by what they are, so a template can put an
+	 * icon to each. Figures the vehicle does not have are left out.
+	 *
+	 * @return array<string, array{label:string,value:string}>
+	 */
+	public function facts() {
+		$facts = array(
+			'mileage'      => array( __( 'Mileage', 'wp-mobile-de-sync' ), $this->mileage() ),
+			'registration' => array( __( 'First registration', 'wp-mobile-de-sync' ), $this->first_registration() ),
+			'power'        => array( __( 'Power', 'wp-mobile-de-sync' ), $this->power() ),
+			'gearbox'      => array( __( 'Transmission', 'wp-mobile-de-sync' ), $this->get( 'gearbox' ) ),
+			'fuel'         => array( __( 'Fuel', 'wp-mobile-de-sync' ), $this->get( 'fuel' ) ),
 		);
+
+		$out = array();
+		foreach ( $facts as $key => $fact ) {
+			if ( '' !== (string) $fact[1] ) {
+				$out[ $key ] = array(
+					'label' => $fact[0],
+					'value' => (string) $fact[1],
+				);
+			}
+		}
+
+		return $out;
 	}
 
 	/**

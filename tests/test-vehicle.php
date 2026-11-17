@@ -173,6 +173,11 @@ wmds_assert( 'no fuel entry', false, isset( $highlights['Fuel'] ) );
 wmds_assert( 'order is preserved', 'Mileage', key( $highlights ) );
 wmds_assert( 'value is formatted', '78,000 km', $highlights['Mileage'] );
 
+$facts = $v->facts();
+wmds_assert( 'the facts carry the same figures under fixed keys', array( 'mileage', 'registration', 'power', 'gearbox' ), array_keys( $facts ) );
+wmds_assert( 'with the label beside the value', 'Mileage', $facts['mileage']['label'] );
+wmds_assert( 'and the value formatted', '78,000 km', $facts['mileage']['value'] );
+
 wmds_section( 'Specifications, grouped' );
 
 $v     = wmds_vehicle_with(

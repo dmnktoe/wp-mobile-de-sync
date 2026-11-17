@@ -170,7 +170,11 @@ class WMDS_Facet_Request {
 				$out[] = array(
 					'key'   => $key,
 					'label' => $label,
-					'value' => self::range_label( $value, isset( $facets[ $key ]['unit'] ) ? $facets[ $key ]['unit'] : '' ),
+					'value' => self::range_label(
+						$value,
+						isset( $facets[ $key ]['unit'] ) ? $facets[ $key ]['unit'] : '',
+						! isset( $facets[ $key ]['grouping'] ) || false !== $facets[ $key ]['grouping']
+					),
 					'url'   => self::url_without( $selection, $key ),
 				);
 				continue;
@@ -202,22 +206,23 @@ class WMDS_Facet_Request {
 	/**
 	 * @param array  $range
 	 * @param string $unit
+	 * @param bool   $grouping
 	 * @return string
 	 */
-	public static function range_label( array $range, $unit = '' ) {
+	public static function range_label( array $range, $unit = '', $grouping = true ) {
 		$unit = ( '' === $unit ) ? '' : ' ' . $unit;
 
 		if ( isset( $range['min'], $range['max'] ) ) {
 			/* translators: 1: lower bound, 2: upper bound including the unit. */
-			return sprintf( __( '%1$s to %2$s', 'wp-mobile-de-sync' ), self::number( $range['min'] ), self::number( $range['max'] ) . $unit );
+			return sprintf( __( '%1$s to %2$s', 'wp-mobile-de-sync' ), self::number( $range['min'], $grouping ), self::number( $range['max'], $grouping ) . $unit );
 		}
 		if ( isset( $range['min'] ) ) {
 			/* translators: %s: lower bound including the unit. */
-			return sprintf( __( 'from %s', 'wp-mobile-de-sync' ), self::number( $range['min'] ) . $unit );
+			return sprintf( __( 'from %s', 'wp-mobile-de-sync' ), self::number( $range['min'], $grouping ) . $unit );
 		}
 		if ( isset( $range['max'] ) ) {
 			/* translators: %s: upper bound including the unit. */
-			return sprintf( __( 'up to %s', 'wp-mobile-de-sync' ), self::number( $range['max'] ) . $unit );
+			return sprintf( __( 'up to %s', 'wp-mobile-de-sync' ), self::number( $range['max'], $grouping ) . $unit );
 		}
 
 		return '';
@@ -225,10 +230,12 @@ class WMDS_Facet_Request {
 
 	/**
 	 * @param float $value
+	 * @param bool  $grouping False for figures like a year, which are never
+	 *                        written with a thousands separator.
 	 * @return string
 	 */
-	public static function number( $value ) {
-		return number_format_i18n( (float) $value );
+	public static function number( $value, $grouping = true ) {
+		return $grouping ? number_format_i18n( (float) $value ) : (string) round( (float) $value );
 	}
 
 	/**

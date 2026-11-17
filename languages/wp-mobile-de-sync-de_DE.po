@@ -1074,14 +1074,6 @@ msgstr "Unfallfahrzeug, nicht repariert"
 msgid "Not roadworthy"
 msgstr "Nicht fahrbereit"
 
-#: templates/archive-fahrzeuge.php:91
-msgid "&laquo; Previous"
-msgstr "&laquo; Zurück"
-
-#: templates/archive-fahrzeuge.php:92
-msgid "Next &raquo;"
-msgstr "Weiter &raquo;"
-
 #: templates/archive-fahrzeuge.php:100 templates/mob_vehicle-list.php:118
 msgid "No vehicles are available at the moment."
 msgstr "Zurzeit sind keine Fahrzeuge verfügbar."
@@ -2381,3 +2373,33 @@ msgstr "Leer = aktuelles Fahrzeug."
 
 msgid "overdue"
 msgstr "überfällig"
+
+msgid "View vehicle"
+msgstr "Fahrzeug ansehen"
+
+#. translators: %d: number of vehicles the current filters leave.
+msgid "%d vehicle in stock"
+msgid_plural "%d vehicles in stock"
+msgstr[0] "%d Fahrzeug im Bestand"
+msgstr[1] "%d Fahrzeuge im Bestand"
+
+msgid "Find your vehicle"
+msgstr "Fahrzeugsuche"
+
+msgid "More filters"
+msgstr "Weitere Filter"
+
+msgid "Previous"
+msgstr "Zurück"
+
+msgid "Next"
+msgstr "Weiter"
+
+msgid "Enquire now"
+msgstr "Jetzt anfragen"
+
+msgid "Previous image"
+msgstr "Vorheriges Bild"
+
+msgid "Next image"
+msgstr "Nächstes Bild"

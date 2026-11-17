@@ -3,6 +3,34 @@
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
+## [2.4.0] – 2026-11-17
+
+### Changed
+- **The archive and the detail page are redesigned.** Cards with the photo
+  on top, the make's logo beside the title, the key figures as icons and the
+  price at the foot. A detail page with a gallery that has arrows, a counter
+  and the arrow keys, a price box that stays in view with the key figures and
+  the buttons to enquire or call, and the description, the specifications
+  and the features as sections below.
+- The filter bar shows search and dropdowns and folds everything else away
+  behind "More filters"; it opens by itself when one of those is in use.
+  Checkboxes and radios are toggles, ranges show their values beside the
+  label.
+- The templates bring their own sizes, spacing and controls and undo what a
+  theme does to content inside them, so they look the same in any theme.
+  Colours and radii are custom properties on `.wmds-scope`.
+- `WMDS_Vehicle::facts()` returns the key figures keyed by what they are, so
+  a template can put an icon to each. `WMDS_Templates::icon()` draws them.
+
+### Fixed
+- Under Salient the footer covered the vehicles: it is revealed from below,
+  and only Salient's content container pushes it away. The templates open
+  that container now (`wmds_theme_wrapper` for other themes that need one).
+- Under Salient 18 the page shrank to the width of its text.
+- Picking a sort order did not reload the list in themes that replace selects
+  with select2, which reports the change through jQuery only.
+- The first-registration range read "2,015 – 2,025".
+
 ## [2.3.1] – 2026-11-17
 
 ### Changed

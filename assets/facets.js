@@ -16,9 +16,13 @@
 		return isNaN( parsed ) ? fallback : parsed;
 	}
 
-	function format( value ) {
+	function format( value, plain ) {
+		if ( plain ) {
+			return String( Math.round( Number( value ) ) );
+		}
+
 		try {
-			return Number( value ).toLocaleString();
+			return Number( value ).toLocaleString( document.documentElement.lang || undefined );
 		} catch ( error ) {
 			return String( value );
 		}
@@ -36,6 +40,8 @@
 			return;
 		}
 
+		var plain = field.hasAttribute( 'data-plain' );
+		var unit = field.getAttribute( 'data-unit' ) || '';
 		var floor = toNumber( field.getAttribute( 'data-min' ), 0 );
 		var ceiling = toNumber( field.getAttribute( 'data-max' ), 0 );
 		var span = ceiling - floor;
@@ -45,7 +51,7 @@
 			var to = toNumber( high.value, ceiling );
 
 			if ( readout ) {
-				readout.textContent = format( from ) + ' – ' + format( to );
+				readout.textContent = format( from, plain ) + ' – ' + format( to, plain ) + ( unit ? ' ' + unit : '' );
 			}
 
 			if ( fill && span > 0 ) {
@@ -127,17 +133,26 @@
 
 		form.addEventListener( 'submit', prune );
 
+		function submitSort() {
+			// requestSubmit() runs validation and the handler above;
+			// submit() does neither.
+			if ( form.requestSubmit ) {
+				form.requestSubmit();
+			} else {
+				prune();
+				form.submit();
+			}
+		}
+
 		if ( sort ) {
-			sort.addEventListener( 'change', function () {
-				// requestSubmit() runs validation and the handler above;
-				// submit() does neither.
-				if ( form.requestSubmit ) {
-					form.requestSubmit();
-				} else {
-					prune();
-					form.submit();
-				}
-			} );
+			// Themes that dress selects up with select2 (Salient, WooCommerce
+			// shops) announce the change through jQuery only, which a native
+			// listener never hears. jQuery's own .on() hears both.
+			if ( window.jQuery ) {
+				window.jQuery( sort ).on( 'change', submitSort );
+			} else {
+				sort.addEventListener( 'change', submitSort );
+			}
 		}
 
 		form.classList.add( 'wmds-facets--enhanced' );

@@ -189,6 +189,12 @@ wmds_assert(
 
 wmds_assert( 'nothing anywhere stays empty', '', WMDS_Templates::locate( 'does-not-exist.php' ) );
 
+wmds_section( 'Icons' );
+
+wmds_assert_contains( 'a known icon is an svg', '<svg class="wmds-icon wmds-icon--mileage"', WMDS_Templates::icon( 'mileage' ) );
+wmds_assert_contains( 'hidden from screen readers', 'aria-hidden="true"', WMDS_Templates::icon( 'fuel' ) );
+wmds_assert( 'an unknown one is nothing', '', WMDS_Templates::icon( 'does-not-exist' ) );
+
 add_filter(
 	'wmds_template',
 	function ( $found, $file ) {

@@ -8,24 +8,44 @@ WMDS_Templates::header();
 
 while ( have_posts() ) :
 	the_post();
-	$vehicle = new WMDS_Vehicle();
-	$images  = $vehicle->images();
+	$vehicle  = new WMDS_Vehicle();
+	$images   = $vehicle->images();
+	$archive  = get_post_type_archive_link( WMDS_CPT );
+	$logo     = $vehicle->logo_url();
+	$enquiry  = WMDS_Leads::enabled();
+	$phone    = $vehicle->seller_phone();
+	$email    = $vehicle->seller_email();
+	$sticker  = $vehicle->emission_sticker_url();
+	$subtitle = array_filter(
+		array(
+			$vehicle->get( 'category' ),
+			$vehicle->get( 'condition' ),
+			$vehicle->first_registration(),
+		)
+	);
 	?>
 
 <article id="vehicle-<?php the_ID(); ?>" class="wmds-scope wmds-single<?php echo esc_attr( WMDS_Templates::wrapper_class() ); ?>">
 
+	<?php if ( $archive ) : ?>
+		<nav class="wmds-single__back">
+			<a href="<?php echo esc_url( $archive ); ?>">
+				<?php WMDS_Templates::the_icon( 'arrow-left' ); ?>
+				<?php esc_html_e( 'All vehicles', 'wp-mobile-de-sync' ); ?>
+			</a>
+		</nav>
+	<?php endif; ?>
+
 	<header class="wmds-single__header">
-		<?php $logo = $vehicle->logo_url(); ?>
 		<?php if ( $logo ) : ?>
-			<img class="wmds-single__logo" src="<?php echo esc_url( $logo ); ?>"
-				alt="<?php echo esc_attr( $vehicle->get( 'make' ) ); ?>" loading="lazy">
+			<span class="wmds-single__logo">
+				<img src="<?php echo esc_url( $logo ); ?>" alt="<?php echo esc_attr( $vehicle->get( 'make' ) ); ?>" width="56" height="56">
+			</span>
 		<?php endif; ?>
-		<div>
+		<div class="wmds-single__titles">
 			<h1 class="wmds-single__title"><?php the_title(); ?></h1>
-			<?php if ( $vehicle->has( 'category' ) || $vehicle->has( 'condition' ) ) : ?>
-				<p class="wmds-single__subtitle">
-					<?php echo esc_html( trim( $vehicle->get( 'category' ) . ' · ' . $vehicle->get( 'condition' ), ' ·' ) ); ?>
-				</p>
+			<?php if ( $subtitle ) : ?>
+				<p class="wmds-single__subtitle"><?php echo esc_html( implode( ' · ', $subtitle ) ); ?></p>
 			<?php endif; ?>
 		</div>
 	</header>
@@ -41,7 +61,7 @@ while ( have_posts() ) :
 		<aside class="wmds-summary">
 			<?php if ( $vehicle->price() ) : ?>
 				<p class="wmds-price">
-					<span><?php echo esc_html( $vehicle->price() ); ?></span>
+					<span class="wmds-price__amount"><?php echo esc_html( $vehicle->price() ); ?></span>
 					<small><?php echo esc_html( $vehicle->vat_note() ); ?></small>
 				</p>
 			<?php endif; ?>
@@ -50,86 +70,84 @@ while ( have_posts() ) :
 				<p class="wmds-availability"><?php echo esc_html( $vehicle->availability_note() ); ?></p>
 			<?php endif; ?>
 
-			<?php if ( $vehicle->highlights() ) : ?>
+			<?php if ( $vehicle->facts() ) : ?>
 				<dl class="wmds-highlights">
-					<?php foreach ( $vehicle->highlights() as $label => $value ) : ?>
-						<dt><?php echo esc_html( $label ); ?></dt>
-						<dd><?php echo esc_html( $value ); ?></dd>
+					<?php foreach ( $vehicle->facts() as $key => $fact ) : ?>
+						<div class="wmds-highlight">
+							<dt><?php WMDS_Templates::the_icon( $key ); ?><span><?php echo esc_html( $fact['label'] ); ?></span></dt>
+							<dd><?php echo esc_html( $fact['value'] ); ?></dd>
+						</div>
 					<?php endforeach; ?>
 				</dl>
 			<?php endif; ?>
 
-			<?php if ( $vehicle->inspection() ) : ?>
-				<p class="wmds-inspection"><?php echo esc_html( $vehicle->inspection() ); ?></p>
-			<?php endif; ?>
-
-			<?php
-			$wmds_sticker = $vehicle->emission_sticker_url();
-			if ( '' !== $wmds_sticker ) :
-				?>
-				<p class="wmds-sticker">
-					<img src="<?php echo esc_url( $wmds_sticker ); ?>"
-						alt="<?php echo esc_attr( $vehicle->emission_sticker_label() ); ?>"
-						width="40" height="40" loading="lazy">
-				</p>
-			<?php endif; ?>
-
-			<?php if ( $vehicle->seller_email() || $vehicle->seller_phone() ) : ?>
-				<div class="wmds-contact">
-					<h2><?php esc_html_e( 'Enquiry', 'wp-mobile-de-sync' ); ?></h2>
-					<?php if ( $vehicle->seller() ) : ?>
-						<p class="wmds-contact__name"><?php echo esc_html( $vehicle->seller() ); ?></p>
+			<?php if ( $vehicle->inspection() || '' !== $sticker ) : ?>
+				<div class="wmds-summary__badges">
+					<?php if ( '' !== $sticker ) : ?>
+						<img class="wmds-sticker" src="<?php echo esc_url( $sticker ); ?>"
+							alt="<?php echo esc_attr( $vehicle->emission_sticker_label() ); ?>"
+							width="36" height="36" loading="lazy">
 					<?php endif; ?>
-					<?php if ( $vehicle->seller_phone() ) : ?>
-						<p>
-							<a href="tel:<?php echo esc_attr( preg_replace( '/[^\d+]/', '', $vehicle->seller_phone() ) ); ?>">
-								<?php echo esc_html( $vehicle->seller_phone() ); ?>
-							</a>
-						</p>
-					<?php endif; ?>
-					<?php if ( $vehicle->seller_email() ) : ?>
-						<p>
-							<a class="wmds-button"
-								href="mailto:<?php echo esc_attr( $vehicle->seller_email() ); ?>?subject=
-								<?php
-									/* translators: %s: the vehicle title. */
-									echo rawurlencode( sprintf( __( 'Enquiry about %s', 'wp-mobile-de-sync' ), get_the_title() ) );
-								?>
-								">
-								<?php esc_html_e( 'Send an e-mail', 'wp-mobile-de-sync' ); ?>
-							</a>
-						</p>
+					<?php if ( $vehicle->inspection() ) : ?>
+						<span class="wmds-inspection"><?php WMDS_Templates::the_icon( 'check' ); ?><?php echo esc_html( $vehicle->inspection() ); ?></span>
 					<?php endif; ?>
 				</div>
+			<?php endif; ?>
+
+			<?php if ( $enquiry || $phone || $email ) : ?>
+				<div class="wmds-summary__actions">
+					<?php if ( $enquiry ) : ?>
+						<a class="wmds-button wmds-button--primary wmds-button--block" href="#wmds-enquiry">
+							<?php WMDS_Templates::the_icon( 'message' ); ?>
+							<?php esc_html_e( 'Enquire now', 'wp-mobile-de-sync' ); ?>
+						</a>
+					<?php endif; ?>
+					<?php if ( $phone ) : ?>
+						<a class="wmds-button wmds-button--block<?php echo $enquiry ? '' : ' wmds-button--primary'; ?>"
+							href="tel:<?php echo esc_attr( preg_replace( '/[^\d+]/', '', $phone ) ); ?>">
+							<?php WMDS_Templates::the_icon( 'phone' ); ?>
+							<?php echo esc_html( $phone ); ?>
+						</a>
+					<?php endif; ?>
+					<?php if ( $email && ! $enquiry ) : ?>
+						<a class="wmds-button wmds-button--block"
+							href="mailto:<?php echo esc_attr( $email ); ?>?subject=<?php /* translators: %s: the vehicle title. */ echo rawurlencode( sprintf( __( 'Enquiry about %s', 'wp-mobile-de-sync' ), get_the_title() ) ); ?>">
+							<?php WMDS_Templates::the_icon( 'mail' ); ?>
+							<?php esc_html_e( 'Send an e-mail', 'wp-mobile-de-sync' ); ?>
+						</a>
+					<?php endif; ?>
+				</div>
+			<?php endif; ?>
+
+			<?php if ( $vehicle->seller() ) : ?>
+				<p class="wmds-summary__seller"><?php echo esc_html( $vehicle->seller() ); ?></p>
 			<?php endif; ?>
 		</aside>
 	</div>
 
-	<?php
-	if ( WMDS_Leads::enabled() ) {
-		WMDS_Templates::render( 'parts/enquiry-form.php', array( 'vehicle_id' => get_the_ID() ) );
-	}
-	?>
-
 	<?php if ( $vehicle->get( 'enriched_description' ) ) : ?>
-		<section class="wmds-description">
-			<h2><?php esc_html_e( 'Description', 'wp-mobile-de-sync' ); ?></h2>
-			<?php echo wp_kses_post( $vehicle->get( 'enriched_description' ) ); ?>
+		<section class="wmds-section wmds-description">
+			<h2 class="wmds-section__title"><?php esc_html_e( 'Description', 'wp-mobile-de-sync' ); ?></h2>
+			<div class="wmds-description__body">
+				<?php echo wp_kses_post( $vehicle->get( 'enriched_description' ) ); ?>
+			</div>
 		</section>
 	<?php endif; ?>
 
 	<?php $specs = $vehicle->specifications(); ?>
 	<?php if ( $specs ) : ?>
-		<section class="wmds-specs">
-			<h2><?php esc_html_e( 'Specifications', 'wp-mobile-de-sync' ); ?></h2>
+		<section class="wmds-section wmds-specs">
+			<h2 class="wmds-section__title"><?php esc_html_e( 'Specifications', 'wp-mobile-de-sync' ); ?></h2>
 			<div class="wmds-specs__groups">
 				<?php foreach ( $specs as $group => $rows ) : ?>
 					<div class="wmds-specs__group">
 						<h3><?php echo esc_html( $group ); ?></h3>
 						<dl>
 							<?php foreach ( $rows as $label => $value ) : ?>
-								<dt><?php echo esc_html( $label ); ?></dt>
-								<dd><?php echo esc_html( $value ); ?></dd>
+								<div class="wmds-specs__row">
+									<dt><?php echo esc_html( $label ); ?></dt>
+									<dd><?php echo esc_html( $value ); ?></dd>
+								</div>
 							<?php endforeach; ?>
 						</dl>
 					</div>
@@ -140,15 +158,21 @@ while ( have_posts() ) :
 
 	<?php $features = $vehicle->features(); ?>
 	<?php if ( $features ) : ?>
-		<section class="wmds-features">
-			<h2><?php esc_html_e( 'Features', 'wp-mobile-de-sync' ); ?></h2>
+		<section class="wmds-section wmds-features">
+			<h2 class="wmds-section__title"><?php esc_html_e( 'Features', 'wp-mobile-de-sync' ); ?></h2>
 			<ul>
 				<?php foreach ( $features as $feature ) : ?>
-					<li><?php echo esc_html( $feature ); ?></li>
+					<li><?php WMDS_Templates::the_icon( 'check' ); ?><span><?php echo esc_html( $feature ); ?></span></li>
 				<?php endforeach; ?>
 			</ul>
 		</section>
 	<?php endif; ?>
+
+	<?php
+	if ( $enquiry ) {
+		WMDS_Templates::render( 'parts/enquiry-form.php', array( 'vehicle_id' => get_the_ID() ) );
+	}
+	?>
 
 	<?php if ( $vehicle->has( 'emissionFuelConsumption_Combined' ) || $vehicle->has( 'emissionFuelConsumption_CO2' ) ) : ?>
 		<footer class="wmds-legal">

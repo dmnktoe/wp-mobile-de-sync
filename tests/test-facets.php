@@ -277,4 +277,28 @@ wmds_assert( 'only a lower one', 'from 1,000 €', WMDS_Facets::range_label( arr
 wmds_assert( 'only an upper one', 'up to 2,000 €', WMDS_Facets::range_label( array( 'max' => 2000 ), '€' ) );
 wmds_assert( 'neither', '', WMDS_Facets::range_label( array() ) );
 
+wmds_assert(
+	'a year has no thousands separator',
+	'2015 to 2025',
+	WMDS_Facets::range_label(
+		array(
+			'min' => 2015,
+			'max' => 2025,
+		),
+		'',
+		false
+	)
+);
+$wmds_definitions = WMDS_Facets::definitions();
+wmds_assert( 'and the registration year is marked as one', false, $wmds_definitions['year']['grouping'] );
+$wmds_year_chips = WMDS_Facets::chips(
+	array(
+		'year' => array(
+			'min' => 2015,
+			'max' => 2025,
+		),
+	)
+);
+wmds_assert( 'and its chip reads that way too', '2015 to 2025', $wmds_year_chips[0]['value'] );
+
 wmds_result();
