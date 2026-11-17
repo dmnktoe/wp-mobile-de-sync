@@ -306,7 +306,8 @@ makes silence evidence rather than an assumption.
 with the statistics of every completed run, for anything else.
 
 **A regular run fetches only what changed.** Once a day a full reconciliation
-runs in addition — and only after one of those are sold vehicles removed.
+runs in addition — and only one of those removes sold vehicles: as soon as it
+has read the whole listing, before the first batch is written.
 
 ## Error handling
 
@@ -317,7 +318,8 @@ list — that case is covered by a test.
 
 Three independent guards apply to removal:
 
-1. Nothing is ever removed after a partial pass.
+1. Nothing is removed unless the whole listing was read: not by an
+   incremental run, and not by a full one whose listing was cut short.
 2. A run that saw no vehicle at all removes nothing — this happens with a
    wrong seller ID, where the API answers with an empty result rather than an
    error.

@@ -75,7 +75,7 @@ $teillauf = WMDS_Sync_Plan::removals(
 	false
 );
 wmds_assert( 'nichts zu entfernen', 0, count( $teillauf['remove'] ) );
-wmds_assert_contains( 'with a reason', 'Partial pass', $teillauf['abort'] );
+wmds_assert_contains( 'with a reason', 'Partial listing', $teillauf['abort'] );
 
 wmds_section( 'Removal: an empty result never deletes the inventory' );
 

@@ -4,7 +4,7 @@ Tags: mobile.de, vehicles, dealership, facetwp, contact form 7
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 2.4.2
+Stable tag: 2.4.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -114,6 +114,11 @@ Pkw-EnVKV, so the bundled German catalogue carries the statutory wording rather
 than a translation of the English source.
 
 == Changelog ==
+
+= 2.4.3 =
+* Changed: sold vehicles are removed as soon as a full sync has read the whole
+  listing, not after its last batch - so the site never shows more vehicles
+  than mobile.de. The guards against removing too much are unchanged.
 
 = 2.4.2 =
 * Fixed: between two passes of an unfinished run the status said "in sync";
