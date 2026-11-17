@@ -89,9 +89,9 @@ class WMDS_Templates {
 	 */
 	public static function template_include( $template ) {
 		if ( is_singular( WMDS_CPT ) ) {
-			$file = 'single-vehicles.php';
+			$file = 'single-' . WMDS_CPT . '.php';
 		} elseif ( is_post_type_archive( WMDS_CPT ) ) {
-			$file = 'archive-vehicles.php';
+			$file = 'archive-' . WMDS_CPT . '.php';
 		} else {
 			return $template;
 		}

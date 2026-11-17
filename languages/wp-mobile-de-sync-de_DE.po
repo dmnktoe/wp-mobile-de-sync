@@ -1984,8 +1984,8 @@ msgstr "[%s] Fahrzeug-Sync, die Woche in einer E-Mail"
 msgid "[Test] %s"
 msgstr "[Test] %s"
 
-msgid "Synchronises a dealer's vehicle inventory from the mobile.de Search API into a \"vehicles\" custom post type. Brings its own filters, templates, blocks and shortcodes, and works with existing theme templates."
-msgstr "Synchronisiert den Fahrzeugbestand eines Händlers aus der mobile.de Search-API in den Inhaltstyp „vehicles“. Bringt eigene Filter, Templates, Blöcke und Shortcodes mit und arbeitet mit vorhandenen Theme-Templates zusammen."
+msgid "Synchronises a dealer's vehicle inventory from the mobile.de Search API into a \"fahrzeuge\" custom post type. Brings its own filters, templates, blocks and shortcodes, and works with existing theme templates."
+msgstr "Synchronisiert den Fahrzeugbestand eines Händlers aus der mobile.de Search-API in den Inhaltstyp „fahrzeuge“. Bringt eigene Filter, Templates, Blöcke und Shortcodes mit und arbeitet mit vorhandenen Theme-Templates zusammen."
 
 msgid "This action has to be submitted from its form."
 msgstr "Diese Aktion muss über ihr Formular abgeschickt werden."
@@ -2233,8 +2233,19 @@ msgstr "Die Sperre nur aufheben, wenn sicher kein Import mehr läuft. Zwei Läuf
 msgid "How to place vehicles on the site"
 msgstr "So kommen Fahrzeuge auf die Website"
 
-msgid "Blocks in the editor, shortcodes in content or templates, and a dashboard widget in wp-admin. The post type is vehicles; the archive is /vehicles/."
-msgstr "Blöcke im Editor, Shortcodes in Inhalten oder Templates und ein Dashboard-Widget im Adminbereich. Der Inhaltstyp heißt vehicles; das Archiv liegt unter /vehicles/."
+#. translators: 1: post type name, 2: archive URL.
+msgid "Blocks in the editor, shortcodes in content or templates, and a dashboard widget in wp-admin. The post type is %1$s; the archive is %2$s."
+msgstr "Blöcke im Editor, Shortcodes in Inhalten oder Templates und ein Dashboard-Widget im Adminbereich. Der Inhaltstyp heißt %1$s; das Archiv liegt unter %2$s."
+
+msgid "Address"
+msgstr "Adresse"
+
+msgid "Slug"
+msgstr "Titelform (Slug)"
+
+#. translators: %s: the default slug.
+msgid "The archive and every vehicle are served under this. Empty means %s. Links to the old address stop working when it changes."
+msgstr "Darunter sind das Archiv und jedes Fahrzeug erreichbar. Leer bedeutet %s. Wird sie geändert, funktionieren Links auf die alte Adresse nicht mehr."
 
 msgid "Blocks"
 msgstr "Blöcke"

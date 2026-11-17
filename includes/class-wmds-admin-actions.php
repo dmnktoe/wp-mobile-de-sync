@@ -100,7 +100,7 @@ class WMDS_Admin_Actions {
 		// A form that does not say which tab it is saves nothing. Falling
 		// back to the connection tab read its fields out of a submission
 		// that had none and emptied the username.
-		if ( ! in_array( $tab, array( 'connection', 'schedule', 'enquiries', 'integrations', 'status' ), true ) ) {
+		if ( ! in_array( $tab, array( 'connection', 'schedule', 'enquiries', 'integrations', 'status', 'usage' ), true ) ) {
 			WMDS_Admin_Notices::notice( 'error', __( 'Nothing was saved: the form did not say which settings it holds.', 'wp-mobile-de-sync' ) );
 
 			return;
@@ -114,6 +114,8 @@ class WMDS_Admin_Actions {
 			self::save_integrations();
 		} elseif ( 'status' === $tab ) {
 			self::save_alerts();
+		} elseif ( 'usage' === $tab ) {
+			self::save_slug();
 		} else {
 			self::save_connection();
 		}
@@ -163,6 +165,20 @@ class WMDS_Admin_Actions {
 		// phpcs:enable WordPress.Security.NonceVerification
 
 		self::resync_schedule();
+	}
+
+	private static function save_slug() {
+		$before = WMDS_Settings::slug();
+
+		// phpcs:ignore WordPress.Security.NonceVerification -- verified in handle() before this runs.
+		WMDS_Settings::update( array( 'slug' => sanitize_title( wp_unslash( $_POST['wmds_slug'] ?? '' ) ) ) );
+
+		if ( WMDS_Settings::slug() !== $before ) {
+			// The post type is registered with the old slug for the rest of
+			// this request. Dropping the stored rules makes the next request
+			// build them from the new one.
+			delete_option( 'rewrite_rules' );
+		}
 	}
 
 	private static function save_alerts() {

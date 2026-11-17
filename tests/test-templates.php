@@ -144,7 +144,7 @@ require_once __DIR__ . '/bootstrap.php';
 define( 'WMDS_DIR', dirname( __DIR__ ) . '/' );
 define( 'WMDS_URL', 'https://example.invalid/wp-content/plugins/wp-mobile-de-sync/' );
 define( 'WMDS_VERSION', '0.0.0-test' );
-define( 'WMDS_CPT', 'vehicles' );
+define( 'WMDS_CPT', 'fahrzeuge' );
 
 require_once __DIR__ . '/../includes/class-wmds-templates.php';
 require_once __DIR__ . '/../includes/class-wmds-blocks.php';

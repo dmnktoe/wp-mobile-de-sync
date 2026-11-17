@@ -91,7 +91,7 @@ if ( ! defined( 'WMDS_VERSION' ) ) {
 	define( 'WMDS_VERSION', '2.3.0' );
 }
 if ( ! defined( 'WMDS_CPT' ) ) {
-	define( 'WMDS_CPT', 'vehicles' );
+	define( 'WMDS_CPT', 'fahrzeuge' );
 }
 if ( ! defined( 'WMDS_URL' ) ) {
 	define( 'WMDS_URL', 'https://example.invalid/wp-content/plugins/wp-mobile-de-sync/' );

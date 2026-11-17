@@ -9,9 +9,48 @@ class WMDS_Tab_Usage {
 		<div class="wmds-card">
 			<h2><?php esc_html_e( 'How to place vehicles on the site', 'wp-mobile-de-sync' ); ?></h2>
 			<p>
-				<?php esc_html_e( 'Blocks in the editor, shortcodes in content or templates, and a dashboard widget in wp-admin. The post type is vehicles; the archive is /vehicles/.', 'wp-mobile-de-sync' ); ?>
+				<?php
+				echo wp_kses_post(
+					sprintf(
+						/* translators: 1: post type name, 2: archive URL. */
+						esc_html__( 'Blocks in the editor, shortcodes in content or templates, and a dashboard widget in wp-admin. The post type is %1$s; the archive is %2$s.', 'wp-mobile-de-sync' ),
+						'<code>' . esc_html( WMDS_CPT ) . '</code>',
+						'<a href="' . esc_url( home_url( '/' . WMDS_Settings::slug() . '/' ) ) . '"><code>/' . esc_html( WMDS_Settings::slug() ) . '/</code></a>'
+					)
+				);
+				?>
 			</p>
 		</div>
+
+		<?php WMDS_Admin_Ui::form_open( 'usage' ); ?>
+		<div class="wmds-card">
+			<h2><?php esc_html_e( 'Address', 'wp-mobile-de-sync' ); ?></h2>
+			<table class="form-table" role="presentation">
+				<tr>
+					<th scope="row"><label for="wmds_slug"><?php esc_html_e( 'Slug', 'wp-mobile-de-sync' ); ?></label></th>
+					<td>
+						<code><?php echo esc_html( untrailingslashit( home_url() ) ); ?>/</code>
+						<input type="text" name="wmds_slug" id="wmds_slug" class="regular-text code"
+							value="<?php echo esc_attr( WMDS_Settings::slug() ); ?>"
+							placeholder="<?php echo esc_attr( WMDS_Settings::DEFAULT_SLUG ); ?>">
+						<code>/</code>
+						<p class="description">
+							<?php
+							echo wp_kses_post(
+								sprintf(
+									/* translators: %s: the default slug. */
+									esc_html__( 'The archive and every vehicle are served under this. Empty means %s. Links to the old address stop working when it changes.', 'wp-mobile-de-sync' ),
+									'<code>' . esc_html( WMDS_Settings::DEFAULT_SLUG ) . '</code>'
+								)
+							);
+							?>
+						</p>
+					</td>
+				</tr>
+			</table>
+			<?php submit_button( __( 'Save', 'wp-mobile-de-sync' ) ); ?>
+		</div>
+		</form>
 
 		<div class="wmds-card">
 			<h2><?php esc_html_e( 'Blocks', 'wp-mobile-de-sync' ); ?></h2>

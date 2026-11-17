@@ -6,6 +6,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 class WMDS_Settings {
 	const OPTION = 'wmds_settings';
 
+	const DEFAULT_SLUG = 'fahrzeuge';
+
 	/**
 	 * @param string $key      Setting name.
 	 * @param string $fallback Returned when the setting is unset or empty.
@@ -42,6 +44,23 @@ class WMDS_Settings {
 		$code   = strtolower( substr( $locale, 0, 2 ) );
 
 		return preg_match( '/^[a-z]{2}$/', $code ) ? $code : 'en';
+	}
+
+	/**
+	 * The URL base of the archive and of every vehicle: /fahrzeuge/ and
+	 * /fahrzeuge/audi-a4/ by default.
+	 *
+	 * @return string
+	 */
+	public static function slug() {
+		$slug = sanitize_title( (string) self::get( 'slug' ) );
+
+		/**
+		 * @param string $slug The slug the archive and the vehicles are served under.
+		 */
+		$slug = sanitize_title( (string) apply_filters( 'wmds_slug', '' !== $slug ? $slug : self::DEFAULT_SLUG ) );
+
+		return '' !== $slug ? $slug : self::DEFAULT_SLUG;
 	}
 
 	public static function seller_id() {

@@ -10,7 +10,7 @@
 **[Project page and download](https://dmnktoe.github.io/wp-mobile-de-sync/)**
 
 Synchronises a dealer's vehicle inventory from the mobile.de **Search API**
-into the `vehicles` custom post type — with bundled templates that any theme
+into the `fahrzeuge` custom post type — with bundled templates that any theme
 can override and filtering of its own, so an inventory can be searched without
 a second plugin.
 
@@ -526,6 +526,11 @@ plugin's own options, transients, user meta and cron events are gone.
 
 ## Customising
 
+The post type is `fahrzeuge`, and so are the archive and every vehicle:
+`/fahrzeuge/` and `/fahrzeuge/audi-a4/`. The address can be changed under
+**Settings → Usage → Address**, or in code with the `wmds_slug` filter. Old
+links are not redirected when it changes.
+
 Every template is resolved through the same hierarchy, first match wins:
 
 1. `wp-mobile-de-sync/<file>` in the child theme, then in the parent theme
@@ -534,8 +539,8 @@ Every template is resolved through the same hierarchy, first match wins:
 
 | File | Rendered for |
 |---|---|
-| `single-vehicles.php` | the detail page |
-| `archive-vehicles.php` | the vehicle archive |
+| `single-fahrzeuge.php` | the detail page |
+| `archive-fahrzeuge.php` | the vehicle archive |
 | `vehicle-list.php` | `[vehicles]` |
 | `parts/vehicle-card.php` | one card, used by the last two |
 | `parts/vehicle-gallery.php` | the photos on the detail page |
@@ -559,6 +564,7 @@ well when it runs, which covers widgets and page builders.
 | `wmds_logo_url` | override the logo URL |
 | `wmds_enqueue_styles` | switch off the bundled stylesheet |
 | `wmds_template` | point a template at a different file |
+| `wmds_slug` | change the address of the archive and the vehicles |
 | `wmds_facets` | add, remove or reorder the filter components |
 | `wmds_facet_sorts` | change the sort orders on offer |
 | `wmds_enquiry_recipients` | decide where an enquiry is sent |
@@ -604,7 +610,7 @@ field the feed fills:
     [vehicle-filter layout="sidebar" facets="make,price,fuel"]
     [vehicles filters="yes" pagination="yes" posts_per_page="12"]
 
-The bundled archive template already carries the bar, so `/vehicles/` filters
+The bundled archive template already carries the bar, so `/fahrzeuge/` filters
 without a shortcode anywhere.
 
 Every option states how many vehicles are behind it. That number is counted

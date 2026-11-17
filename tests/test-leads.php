@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/bootstrap.php';
 
-define( 'WMDS_CPT', 'vehicles' );
+define( 'WMDS_CPT', 'fahrzeuge' );
 
 function is_email( $email ) {
 	return (bool) filter_var( (string) $email, FILTER_VALIDATE_EMAIL );

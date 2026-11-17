@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/bootstrap.php';
 
-define( 'WMDS_CPT', 'vehicles' );
+define( 'WMDS_CPT', 'fahrzeuge' );
 
 function is_singular( $post_types = '' ) {
 	return false;
@@ -202,7 +202,7 @@ $args = WMDS_Facets::query_args(
 	array( 'posts_per_page' => 12 )
 );
 
-wmds_assert( 'the post type is ours', 'vehicles', $args['post_type'] );
+wmds_assert( 'the post type is ours', 'fahrzeuge', $args['post_type'] );
 wmds_assert( 'only published vehicles', 'publish', $args['post_status'] );
 wmds_assert( 'the caller keeps their own arguments', 12, $args['posts_per_page'] );
 wmds_assert( 'the search term becomes s', 'estate', $args['s'] );
