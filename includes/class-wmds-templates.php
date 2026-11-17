@@ -116,12 +116,15 @@ class WMDS_Templates {
 
 		if ( function_exists( 'get_template' ) && 'salient' === get_template() ) {
 			$wrapper = array(
-				'<div class="container-wrap"><div class="container main-content"><div class="row">',
+				'<div class="container-wrap"><div class="container main-content wmds-theme-frame"><div class="row">',
 				'</div></div></div>',
 			);
 		}
 
 		/**
+		 * The class wmds-theme-frame on the theme's container takes the
+		 * template's own side margins away, so the two do not add up.
+		 *
 		 * @param array{0:string,1:string} $wrapper Opening and closing markup.
 		 */
 		$wrapper = apply_filters( 'wmds_theme_wrapper', $wrapper );

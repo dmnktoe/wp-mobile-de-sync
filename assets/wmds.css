@@ -176,6 +176,11 @@
 	padding: 32px var(--wmds-page-gutter, 20px) 64px;
 }
 
+/* Inside a theme's own content container, which brings its margins. */
+.wmds-theme-frame .wmds-page {
+	padding-inline: 0;
+}
+
 /* --- Buttons --- */
 
 .wmds-scope .wmds-button {
@@ -1741,6 +1746,25 @@
 
 	.wmds-scope .wmds-price__amount {
 		font-size: 30px;
+	}
+
+	.wmds-scope .wmds-single__header {
+		align-items: flex-start;
+		gap: 12px;
+	}
+
+	.wmds-scope .wmds-single__logo {
+		width: 44px;
+		height: 44px;
+	}
+
+	.wmds-scope .wmds-single__logo img {
+		width: 30px;
+		height: 30px;
+	}
+
+	.wmds-scope .wmds-single__title {
+		font-size: 24px;
 	}
 }
 
