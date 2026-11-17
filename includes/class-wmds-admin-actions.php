@@ -36,6 +36,7 @@ class WMDS_Admin_Actions {
 			'unlock'       => array( __CLASS__, 'do_unlock' ),
 			'check-update' => array( __CLASS__, 'do_check_update' ),
 			'test-alert'   => array( __CLASS__, 'do_test_alert' ),
+			'test-mail'    => array( __CLASS__, 'do_test_mail' ),
 		);
 
 		if ( isset( $handlers[ $action ] ) ) {
@@ -72,6 +73,7 @@ class WMDS_Admin_Actions {
 			'full'       => 'status',
 			'clear-log'  => 'status',
 			'test-alert' => 'status',
+			'test-mail'  => 'integrations',
 			'flush'      => 'tools',
 			'unlock'     => 'tools',
 			'forget'     => 'connection',
@@ -385,6 +387,36 @@ class WMDS_Admin_Actions {
 		}
 
 		WMDS_Admin_Notices::notice( 'error', __( 'WordPress could not send the mail. Alerts will not arrive either until that is fixed — an SMTP plugin is the usual answer.', 'wp-mobile-de-sync' ) );
+	}
+
+	/**
+	 * A plain mail to where enquiries go.
+	 *
+	 * The alert test goes to the alert address, which on many sites is the
+	 * agency's rather than the dealer's; whether an enquiry arrives is a
+	 * question about the enquiry address.
+	 */
+	private static function do_test_mail() {
+		$to   = WMDS_Leads::recipients();
+		$site = wp_specialchars_decode( (string) get_option( 'blogname' ), ENT_QUOTES );
+		$list = implode( ', ', $to );
+
+		$sent = WMDS_Mail::send(
+			$to,
+			/* translators: %s: site name. */
+			sprintf( __( '[%s] Test mail', 'wp-mobile-de-sync' ), $site ),
+			__( 'This is a test mail from the vehicle plugin. It went the same way an enquiry goes: if it has arrived, enquiries arrive too.', 'wp-mobile-de-sync' )
+		);
+
+		if ( $sent ) {
+			/* translators: %s: the addresses the test mail was sent to. */
+			WMDS_Admin_Notices::notice( 'success', sprintf( __( 'A test mail has been handed over for %s. If it is not there within a few minutes, look in the spam folder.', 'wp-mobile-de-sync' ), $list ) );
+
+			return;
+		}
+
+		/* translators: %s: the addresses the test mail was meant for. */
+		WMDS_Admin_Notices::notice( 'error', sprintf( __( 'WordPress could not send the test mail to %s.', 'wp-mobile-de-sync' ), $list ) );
 	}
 
 	private static function do_clear_log() {

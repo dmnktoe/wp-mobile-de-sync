@@ -4,7 +4,7 @@ Tags: mobile.de, vehicles, dealership, facetwp, contact form 7
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 2.4.4
+Stable tag: 2.4.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -114,6 +114,11 @@ Pkw-EnVKV, so the bundled German catalogue carries the statutory wording rather
 than a translation of the English source.
 
 == Changelog ==
+
+= 2.4.5 =
+* Added: each enquiry records whether its mail was handed over, and to whom.
+* Changed: the test mail on the Integrations tab goes to the enquiry address.
+* Fixed: the consent notice on a stored enquiry showed raw markup.
 
 = 2.4.4 =
 * Fixed: the German label for unrepaired damage called any damaged vehicle an

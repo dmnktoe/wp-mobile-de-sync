@@ -194,6 +194,40 @@ $no_vehicle = WMDS_Leads::compose( wmds_lead_data(), array(), 'Autohaus Example'
 wmds_assert( 'an enquiry about nothing in particular still has a subject', '[Autohaus Example] Enquiry', $no_vehicle['subject'] );
 wmds_assert_contains( 'and still carries the message', 'When could I come', $no_vehicle['body'] );
 
+wmds_section( 'What the record says about the mail' );
+
+wmds_assert(
+	'a mail that went out names where it went',
+	'Handed over to the mailer for a@example.invalid, b@example.invalid',
+	WMDS_Leads::delivery_note( true, array( 'a@example.invalid', 'b@example.invalid' ), array(), 100 )
+);
+wmds_assert(
+	'one that did not carries the error of this attempt',
+	'Not sent: SMTP connect() failed.',
+	WMDS_Leads::delivery_note(
+		false,
+		array( 'a@example.invalid' ),
+		array(
+			'time'    => 100,
+			'message' => 'SMTP connect() failed.',
+		),
+		100
+	)
+);
+wmds_assert(
+	'but not an older error that belongs to some other mail',
+	'Not sent',
+	WMDS_Leads::delivery_note(
+		false,
+		array( 'a@example.invalid' ),
+		array(
+			'time'    => 50,
+			'message' => 'Old error',
+		),
+		100
+	)
+);
+
 wmds_section( 'The confirmation the enquirer gets' );
 
 $reply = WMDS_Leads::compose_confirmation( wmds_lead_data(), $vehicle, 'Autohaus Example' );

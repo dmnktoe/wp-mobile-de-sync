@@ -3,6 +3,23 @@
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
+## [2.4.5] – 2026-11-17
+
+### Added
+- **Each enquiry records what became of its mail**: handed over to the mailer
+  and for which addresses, or not sent and why. An enquiry on the screen but
+  not in the inbox now says whether it was sent at all.
+
+### Changed
+- **The test mail on the Integrations tab goes to the enquiry address**, and
+  the card names that address. It used to send a test alert to the alert
+  address, which is often not where enquiries go.
+
+### Fixed
+- The consent notice on a stored enquiry showed its link as raw markup; it is
+  shown as text now. The enquiry text is labelled as the message the visitor
+  wrote rather than with the word the sync log uses.
+
 ## [2.4.4] – 2026-11-17
 
 ### Fixed

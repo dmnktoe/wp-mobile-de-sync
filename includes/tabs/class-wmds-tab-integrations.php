@@ -174,7 +174,16 @@ class WMDS_Tab_Integrations {
 			<?php endif; ?>
 
 			<p>
-				<?php WMDS_Admin_Ui::action_button( 'test-alert', __( 'Send a test mail', 'wp-mobile-de-sync' ), 'secondary', '', 'integrations' ); ?>
+				<?php WMDS_Admin_Ui::action_button( 'test-mail', __( 'Send a test mail', 'wp-mobile-de-sync' ), 'secondary', '', 'integrations' ); ?>
+			</p>
+			<p class="description">
+				<?php
+				printf(
+					/* translators: %s: the addresses enquiries are sent to. */
+					esc_html__( 'Goes to %s, where enquiries go.', 'wp-mobile-de-sync' ),
+					'<strong>' . esc_html( implode( ', ', WMDS_Leads::recipients() ) ) . '</strong>'
+				);
+				?>
 			</p>
 		</div>
 		<?php

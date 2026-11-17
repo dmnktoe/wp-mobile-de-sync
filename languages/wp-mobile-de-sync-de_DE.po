@@ -2412,3 +2412,40 @@ msgid "%d vehicle is still to be processed. The next pass starts on its own; veh
 msgid_plural "%d vehicles are still to be processed. The next pass starts on its own; vehicles sold in the meantime are removed once the whole inventory has been read."
 msgstr[0] "%d Fahrzeug ist noch abzuarbeiten. Der nächste Durchgang startet von selbst; inzwischen verkaufte Fahrzeuge werden entfernt, sobald der ganze Bestand gelesen ist."
 msgstr[1] "%d Fahrzeuge sind noch abzuarbeiten. Der nächste Durchgang startet von selbst; inzwischen verkaufte Fahrzeuge werden entfernt, sobald der ganze Bestand gelesen ist."
+
+msgctxt "what the enquirer wrote"
+msgid "Message"
+msgstr "Nachricht"
+
+msgid "Delivery"
+msgstr "Zustellung"
+
+#. translators: %s: the addresses the enquiry was sent to.
+msgid "Handed over to the mailer for %s"
+msgstr "An den Mailversand übergeben für %s"
+
+#. translators: %s: the error WordPress reported.
+msgid "Not sent: %s"
+msgstr "Nicht versendet: %s"
+
+msgid "Not sent"
+msgstr "Nicht versendet"
+
+#. translators: %s: site name.
+msgid "[%s] Test mail"
+msgstr "[%s] Test-E-Mail"
+
+msgid "This is a test mail from the vehicle plugin. It went the same way an enquiry goes: if it has arrived, enquiries arrive too."
+msgstr "Dies ist eine Test-E-Mail aus dem Fahrzeug-Plugin. Sie ist denselben Weg gegangen wie eine Anfrage: Ist sie angekommen, kommen auch Anfragen an."
+
+#. translators: %s: the addresses the test mail was sent to.
+msgid "A test mail has been handed over for %s. If it is not there within a few minutes, look in the spam folder."
+msgstr "Eine Test-E-Mail an %s wurde übergeben. Ist sie nach ein paar Minuten nicht da, bitte im Spam-Ordner nachsehen."
+
+#. translators: %s: the addresses the test mail was meant for.
+msgid "WordPress could not send the test mail to %s."
+msgstr "WordPress konnte die Test-E-Mail an %s nicht versenden."
+
+#. translators: %s: the addresses enquiries are sent to.
+msgid "Goes to %s, where enquiries go."
+msgstr "Geht an %s – dorthin, wohin auch Anfragen gehen."
