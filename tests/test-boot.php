@@ -75,6 +75,8 @@ wmds_section( 'The plugin file wires itself up' );
 wmds_assert( 'the autoloader is registered', true, spl_autoload_registered() );
 wmds_assert( 'the post type is registered on init', true, in_array( 'init', $GLOBALS['wmds_boot_actions'], true ) );
 wmds_assert( 'the import event has a listener', true, in_array( WMDS_CRON_HOOK, $GLOBALS['wmds_boot_actions'], true ) );
+wmds_assert( 'a lost schedule is looked for on init', true, function_exists( 'wmds_maybe_ensure_schedule' ) );
+
 
 wmds_section( 'Classes nobody required by hand are there anyway' );
 
@@ -132,5 +134,19 @@ foreach ( array( 'vehicles', 'vehicle-filter', 'vehicle-count', 'vehicle-enquiry
 		in_array( $wmds_tag, $GLOBALS['wmds_boot_shortcodes'], true )
 	);
 }
+
+wmds_section( 'A lost schedule comes back' );
+
+// wp-admin-fake.php keeps the schedule in $GLOBALS['wmds_admin_schedule'],
+// hook => next run, and is_admin() is true there.
+$GLOBALS['wmds_admin_schedule'] = array();
+
+wmds_maybe_ensure_schedule();
+wmds_assert( 'the sync is scheduled again', true, isset( $GLOBALS['wmds_admin_schedule'][ WMDS_CRON_HOOK ] ) );
+wmds_assert( 'and so is the daily full sync', true, isset( $GLOBALS['wmds_admin_schedule'][ WMDS_CRON_FULL_HOOK ] ) );
+
+$GLOBALS['wmds_admin_schedule'][ WMDS_CRON_HOOK ] = 12345;
+wmds_ensure_schedule();
+wmds_assert( 'an event that is there is left alone', 12345, $GLOBALS['wmds_admin_schedule'][ WMDS_CRON_HOOK ] );
 
 wmds_result();
