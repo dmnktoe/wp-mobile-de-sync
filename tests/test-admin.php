@@ -19,7 +19,7 @@ define( 'WMDS_DIR', dirname( __DIR__ ) . '/' );
 define( 'WMDS_URL', 'https://example.invalid/wp-content/plugins/wp-mobile-de-sync/' );
 define( 'WMDS_VERSION', '0.0.0-test' );
 define( 'WMDS_FILE', dirname( __DIR__ ) . '/wp-mobile-de-sync.php' );
-define( 'WMDS_CPT', 'vehicles' );
+define( 'WMDS_CPT', 'fahrzeuge' );
 define( 'WMDS_CRON_HOOK', 'wmds_import_event' );
 define( 'WMDS_CRON_FULL_HOOK', 'wmds_full_sync_event' );
 
@@ -237,6 +237,55 @@ wmds_run_action(
 wmds_assert( 'the status tab writes the alert settings', true, WMDS_Alerts::enabled() );
 wmds_assert( 'and the cooldown', 3600, WMDS_Alerts::cooldown() );
 wmds_assert( 'the enquiry recipient survives', 'sales@example.invalid', WMDS_Settings::get( 'enquiry_recipient' ) );
+
+wmds_section( 'The slug' );
+
+wmds_assert( 'fahrzeuge until one is set', 'fahrzeuge', WMDS_Settings::slug() );
+
+$GLOBALS['wmds_admin_options']['rewrite_rules'] = array( 'fahrzeuge/?$' => 'index.php?post_type=fahrzeuge' );
+
+wmds_run_action(
+	'save',
+	array(
+		'wmds_tab'  => 'usage',
+		'wmds_slug' => 'fahrzeuge',
+	)
+);
+wmds_assert( 'saving the same slug keeps the rewrite rules', true, isset( $GLOBALS['wmds_admin_options']['rewrite_rules'] ) );
+
+wmds_run_action(
+	'save',
+	array(
+		'wmds_tab'  => 'usage',
+		'wmds_slug' => ' Unsere Autos/ ',
+	)
+);
+wmds_assert( 'a typed slug is cleaned up', 'unsere-autos', WMDS_Settings::slug() );
+wmds_assert( 'a new slug drops the rewrite rules so they are rebuilt', false, isset( $GLOBALS['wmds_admin_options']['rewrite_rules'] ) );
+wmds_assert( 'the username survives saving the slug', 'other', WMDS_Settings::username() );
+wmds_assert( 'and the interval', 'wmds_30min', WMDS_Settings::interval() );
+
+wmds_run_action(
+	'save',
+	array(
+		'wmds_tab'  => 'usage',
+		'wmds_slug' => '',
+	)
+);
+wmds_assert( 'emptying it falls back to fahrzeuge', 'fahrzeuge', WMDS_Settings::slug() );
+
+wmds_run_action(
+	'save',
+	array(
+		'wmds_tab'  => 'usage',
+		'wmds_slug' => '///',
+	)
+);
+wmds_assert( 'so does a slug that cleans up to nothing', 'fahrzeuge', WMDS_Settings::slug() );
+
+// Rendering starts from a clean slate, so these come last.
+wmds_assert_contains( 'the usage tab offers it', 'name="wmds_slug"', wmds_render_tab( 'usage' ) );
+wmds_assert_contains( 'and names the archive under it', '/fahrzeuge/', wmds_render_tab( 'usage' ) );
 
 wmds_section( 'An unticked checkbox is a no, not an absence' );
 

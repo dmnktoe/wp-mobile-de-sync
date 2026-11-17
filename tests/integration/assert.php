@@ -376,7 +376,7 @@ if ( 'unconfigured' === $wmds_it_phase ) {
 
 	$vehicles = get_posts(
 		array(
-			'post_type'   => 'vehicles',
+			'post_type'   => 'fahrzeuge',
 			'post_status' => 'publish',
 			'numberposts' => 50,
 		)

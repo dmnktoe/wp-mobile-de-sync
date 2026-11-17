@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/bootstrap.php';
 
-define( 'WMDS_CPT', 'vehicles' );
+define( 'WMDS_CPT', 'fahrzeuge' );
 
 class WMDS_Status {
 	const FAILED  = 'failed';

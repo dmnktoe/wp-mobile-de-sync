@@ -2,8 +2,8 @@
 /**
  * Plugin Name: mobile.de Sync
  * Plugin URI:  https://github.com/dmnktoe/wp-mobile-de-sync
- * Description: Synchronises a dealer's vehicle inventory from the mobile.de Search API into a "vehicles" custom post type. Brings its own filters, templates, blocks and shortcodes, and works with existing theme templates.
- * Version:     2.3.0
+ * Description: Synchronises a dealer's vehicle inventory from the mobile.de Search API into a "fahrzeuge" custom post type. Brings its own filters, templates, blocks and shortcodes, and works with existing theme templates.
+ * Version:     2.3.1
  * Author:      Domenik Töfflinger
  * Author URI:  https://github.com/dmnktoe
  * License:     GPL-2.0-or-later
@@ -18,12 +18,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'WMDS_VERSION', '2.3.0' );
+define( 'WMDS_VERSION', '2.3.1' );
 define( 'WMDS_FILE', __FILE__ );
 define( 'WMDS_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WMDS_URL', plugin_dir_url( __FILE__ ) );
 
-define( 'WMDS_CPT', 'vehicles' );
+define( 'WMDS_CPT', 'fahrzeuge' );
 
 define( 'WMDS_CRON_HOOK', 'wmds_import_event' );
 define( 'WMDS_CRON_FULL_HOOK', 'wmds_full_sync_event' );
@@ -80,7 +80,7 @@ function wmds_register_cpt() {
 			'show_in_menu'       => true,
 			'query_var'          => true,
 			'rewrite'            => array(
-				'slug'       => 'vehicles',
+				'slug'       => WMDS_Settings::slug(),
 				'with_front' => false,
 			),
 			'capability_type'    => 'post',

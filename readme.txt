@@ -4,11 +4,11 @@ Tags: mobile.de, vehicles, dealership, facetwp, contact form 7
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 2.3.0
+Stable tag: 2.3.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Synchronises a dealer's vehicle inventory from mobile.de into the "vehicles" custom post type.
+Synchronises a dealer's vehicle inventory from mobile.de into the "fahrzeuge" custom post type.
 
 == Description ==
 
@@ -114,6 +114,13 @@ Pkw-EnVKV, so the bundled German catalogue carries the statutory wording rather
 than a translation of the English source.
 
 == Changelog ==
+
+= 2.3.1 =
+* Changed: the post type is `fahrzeuge` again, and so are `/fahrzeuge/`,
+  `single-fahrzeuge.php` and `archive-fahrzeuge.php`. Updating from 2.1 or 2.2
+  keeps the vehicles, their addresses and any theme templates.
+* Added: the address of the archive and the vehicles can be changed under
+  Settings → Usage → Address, or with the `wmds_slug` filter.
 
 = 2.3.0 =
 * Changed: the post type, rewrite slug and templates are English — `vehicles`,

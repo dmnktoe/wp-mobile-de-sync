@@ -11,7 +11,7 @@
 
 require_once __DIR__ . '/bootstrap.php';
 
-define( 'WMDS_CPT', 'vehicles' );
+define( 'WMDS_CPT', 'fahrzeuge' );
 
 $GLOBALS['wmds_test_options'] = array();
 $GLOBALS['wmds_test_meta']    = array();

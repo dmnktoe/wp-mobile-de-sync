@@ -3,6 +3,20 @@
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
+## [2.3.1] – 2026-11-17
+
+### Changed
+- The post type is `fahrzeuge` again, and so are the address and the page
+  templates: `/fahrzeuge/`, `single-fahrzeuge.php`, `archive-fahrzeuge.php`.
+  2.3.0 renamed them to `vehicles`, which left every vehicle of an existing
+  install under a post type nobody registered. Updating from 2.1 or 2.2 now
+  keeps the vehicles, their addresses and any theme templates.
+
+### Added
+- The address of the archive and the vehicles can be changed under
+  **Settings → Usage → Address**, or with the `wmds_slug` filter. It defaults
+  to `fahrzeuge`.
+
 ## [2.3.0] – 2026-11-16
 
 Tested end to end against a real WordPress, a real database and a mock of the
@@ -13,7 +27,8 @@ what is listed under Fixed was found that way.
 - The custom post type, rewrite slug and templates are English throughout:
   `vehicles`, `/vehicles/`, `single-vehicles.php`, `archive-vehicles.php` and
   `vehicle-list.php`. There is no migration and no redirect from the earlier
-  names: the plugin had no installs to carry over.
+  names. (Reverted for the post type, the address and the page templates in
+  2.3.1.)
 - German shortcode aliases and attributes, the `more_fields()` and
   `custom_taxonomies_terms_links()` shims and the unused `WMDS_ICONS` constant
   are gone.

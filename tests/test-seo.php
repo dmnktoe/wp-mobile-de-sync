@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/bootstrap.php';
 
-define( 'WMDS_CPT', 'vehicles' );
+define( 'WMDS_CPT', 'fahrzeuge' );
 
 function wp_strip_all_tags( $text ) {
 	return strip_tags( (string) $text );

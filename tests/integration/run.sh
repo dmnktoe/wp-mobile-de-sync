@@ -195,7 +195,7 @@ web_port=$((port + 1))
 page_id=$(wpcli post create --post_type=page --post_status=publish --post_title="Stock" \
 	--post_content='[vehicle-filter] [vehicles posts_per_page="1" pagination="yes" filters="yes"] <!-- wp:wmds/vehicles {"postsPerPage":2} /--> <!-- wp:wmds/vehicle-count /--> [vehicle-enquiry]' \
 	--porcelain)
-vehicle=$(wpcli post list --post_type=vehicles --posts_per_page=1 --field=post_name)
+vehicle=$(wpcli post list --post_type=fahrzeuge --posts_per_page=1 --field=post_name)
 
 wpcli server --host=127.0.0.1 --port="$web_port" > "$work/web.log" 2>&1 &
 web_pid=$!
@@ -222,13 +222,13 @@ fetch() {
 	echo "   ok    $1"
 }
 
-fetch "the archive" "/?post_type=vehicles" 'class="wmds-card"'
-fetch "the archive carries the theme's own header" "/?post_type=vehicles" 'wp-site-blocks'
-fetch "the archive, filtered" "/?post_type=vehicles&wmds_make=Volvo&wmds_price_max=50000&wmds_sort=price-asc" 'V90'
-fetch "a filter that matches nothing" "/?post_type=vehicles&wmds_q=zzzzzz" 'wmds-empty'
-fetch "the filter form keeps the query string of its action" "/?post_type=vehicles" 'name="post_type" value="vehicles"'
-fetch "a vehicle" "/?vehicles=$vehicle" 'wmds-single'
-fetch "a vehicle carries its enquiry form" "/?vehicles=$vehicle" 'wmds-enquiry__form'
+fetch "the archive" "/?post_type=fahrzeuge" 'class="wmds-card"'
+fetch "the archive carries the theme's own header" "/?post_type=fahrzeuge" 'wp-site-blocks'
+fetch "the archive, filtered" "/?post_type=fahrzeuge&wmds_make=Volvo&wmds_price_max=50000&wmds_sort=price-asc" 'V90'
+fetch "a filter that matches nothing" "/?post_type=fahrzeuge&wmds_q=zzzzzz" 'wmds-empty'
+fetch "the filter form keeps the query string of its action" "/?post_type=fahrzeuge" 'name="post_type" value="fahrzeuge"'
+fetch "a vehicle" "/?fahrzeuge=$vehicle" 'wmds-single'
+fetch "a vehicle carries its enquiry form" "/?fahrzeuge=$vehicle" 'wmds-enquiry__form'
 fetch "the shortcodes and blocks on a page" "/?page_id=$page_id" 'wmds-facets'
 fetch "the list on that page" "/?page_id=$page_id" 'wmds-grid--shortcode'
 fetch "its second page" "/?page_id=$page_id&paged=2" 'class="wmds-card"'
@@ -236,8 +236,8 @@ fetch "its second page" "/?page_id=$page_id&paged=2" 'class="wmds-card"'
 # The classic path: a theme that has a header.php.
 default_theme=$(wpcli theme list --status=active --field=name)
 if wpcli theme install https://downloads.wordpress.org/theme/twentytwentyone.latest-stable.zip --activate > /dev/null 2>&1; then
-	fetch "the archive in a classic theme" "/?post_type=vehicles" 'class="wmds-card"'
-	fetch "a vehicle in a classic theme" "/?vehicles=$vehicle" 'wmds-single'
+	fetch "the archive in a classic theme" "/?post_type=fahrzeuge" 'class="wmds-card"'
+	fetch "a vehicle in a classic theme" "/?fahrzeuge=$vehicle" 'wmds-single'
 	wpcli theme activate "$default_theme" > /dev/null
 else
 	echo "   skip  classic theme could not be installed"

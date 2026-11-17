@@ -1,7 +1,7 @@
 <?php
 
 define( 'ABSPATH', __DIR__ . '/wp-stubs/' );
-define( 'WMDS_CPT', 'vehicles' );
+define( 'WMDS_CPT', 'fahrzeuge' );
 define( 'WMDS_CRON_HOOK', 'wmds_import_event' );
 define( 'WMDS_DIR', dirname( __DIR__ ) . '/' );
 define( 'WMDS_URL', 'https://example.invalid/plugins/wp-mobile-de-sync/' );
