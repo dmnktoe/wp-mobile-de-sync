@@ -35,7 +35,6 @@ class WMDS_Admin_Actions {
 			'refresh'      => array( __CLASS__, 'do_refresh' ),
 			'unlock'       => array( __CLASS__, 'do_unlock' ),
 			'check-update' => array( __CLASS__, 'do_check_update' ),
-			'test-alert'   => array( __CLASS__, 'do_test_alert' ),
 			'test-mail'    => array( __CLASS__, 'do_test_mail' ),
 		);
 
@@ -67,16 +66,15 @@ class WMDS_Admin_Actions {
 		}
 
 		$tabs = array(
-			'save'       => 'connection',
-			'test'       => 'connection',
-			'sync'       => 'status',
-			'full'       => 'status',
-			'clear-log'  => 'status',
-			'test-alert' => 'status',
-			'test-mail'  => 'integrations',
-			'flush'      => 'tools',
-			'unlock'     => 'tools',
-			'forget'     => 'connection',
+			'save'      => 'connection',
+			'test'      => 'connection',
+			'sync'      => 'status',
+			'full'      => 'status',
+			'clear-log' => 'status',
+			'test-mail' => 'integrations',
+			'flush'     => 'tools',
+			'unlock'    => 'tools',
+			'forget'    => 'connection',
 		);
 
 		$tab = isset( $tabs[ $action ] ) ? $tabs[ $action ] : '';
@@ -379,25 +377,15 @@ class WMDS_Admin_Actions {
 		delete_site_transient( 'update_plugins' );
 	}
 
-	private static function do_test_alert() {
-		if ( WMDS_Alerts::send_test() ) {
-			WMDS_Admin_Notices::notice( 'success', __( 'A test alert has been sent. If it does not arrive, the problem is the site\'s mail, not the sync.', 'wp-mobile-de-sync' ) );
-
-			return;
-		}
-
-		WMDS_Admin_Notices::notice( 'error', __( 'WordPress could not send the mail. Alerts will not arrive either until that is fixed — an SMTP plugin is the usual answer.', 'wp-mobile-de-sync' ) );
-	}
-
 	/**
-	 * A plain mail to where enquiries go.
+	 * One test mail for every address the plugin writes to.
 	 *
-	 * The alert test goes to the alert address, which on many sites is the
-	 * agency's rather than the dealer's; whether an enquiry arrives is a
-	 * question about the enquiry address.
+	 * Enquiries and alerts keep addresses of their own, and one button covers
+	 * both: whether mail leaves this site is a property of the site, not of
+	 * the kind of message.
 	 */
 	private static function do_test_mail() {
-		$to   = WMDS_Leads::recipients();
+		$to   = WMDS_Mail::test_recipients();
 		$site = wp_specialchars_decode( (string) get_option( 'blogname' ), ENT_QUOTES );
 		$list = implode( ', ', $to );
 
@@ -405,12 +393,12 @@ class WMDS_Admin_Actions {
 			$to,
 			/* translators: %s: site name. */
 			sprintf( __( '[%s] Test mail', 'wp-mobile-de-sync' ), $site ),
-			__( 'This is a test mail from the vehicle plugin. It went the same way an enquiry goes: if it has arrived, enquiries arrive too.', 'wp-mobile-de-sync' )
+			__( 'This is a test mail from the mobile.de Sync plugin. It was sent the same way as enquiries and sync alerts.', 'wp-mobile-de-sync' )
 		);
 
 		if ( $sent ) {
 			/* translators: %s: the addresses the test mail was sent to. */
-			WMDS_Admin_Notices::notice( 'success', sprintf( __( 'A test mail has been handed over for %s. If it is not there within a few minutes, look in the spam folder.', 'wp-mobile-de-sync' ), $list ) );
+			WMDS_Admin_Notices::notice( 'success', sprintf( __( 'The test mail to %s has been handed over for delivery. If it does not arrive within a few minutes, please check the spam folder and the mail settings of the site.', 'wp-mobile-de-sync' ), $list ) );
 
 			return;
 		}

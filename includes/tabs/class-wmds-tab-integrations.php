@@ -151,7 +151,7 @@ class WMDS_Tab_Integrations {
 			</p>
 
 			<p class="description">
-				<?php esc_html_e( 'Enquiries and alerts are sent with wp_mail(). Without an SMTP plugin that means PHP mail(): unauthenticated, sent from whatever address the server decides on, and accepted by the local sendmail whether or not anything is ever delivered. An enquiry that ends up in a spam folder is a lost customer, and nothing on this site would say so.', 'wp-mobile-de-sync' ); ?>
+				<?php esc_html_e( 'Enquiries and alerts are sent with wp_mail(). Without an SMTP plugin this means PHP mail(): no authentication, a sender address chosen by the server, and no confirmation that a message was delivered. Enquiries may therefore end up in spam folders unnoticed.', 'wp-mobile-de-sync' ); ?>
 			</p>
 
 			<?php if ( $failure ) : ?>
@@ -180,9 +180,17 @@ class WMDS_Tab_Integrations {
 				<?php
 				printf(
 					/* translators: %s: the addresses enquiries are sent to. */
-					esc_html__( 'Goes to %s, where enquiries go.', 'wp-mobile-de-sync' ),
+					esc_html__( 'Enquiries: %s', 'wp-mobile-de-sync' ),
 					'<strong>' . esc_html( implode( ', ', WMDS_Leads::recipients() ) ) . '</strong>'
 				);
+				if ( WMDS_Alerts::enabled() ) {
+					echo '<br>';
+					printf(
+						/* translators: %s: the addresses sync alerts are sent to. */
+						esc_html__( 'Sync alerts: %s', 'wp-mobile-de-sync' ),
+						'<strong>' . esc_html( implode( ', ', WMDS_Alerts::recipients() ) ) . '</strong>'
+					);
+				}
 				?>
 			</p>
 		</div>

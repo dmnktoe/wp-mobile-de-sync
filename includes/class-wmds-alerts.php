@@ -244,27 +244,6 @@ class WMDS_Alerts {
 		return WMDS_Mail::send( self::recipients(), $mail['subject'], $mail['body'] );
 	}
 
-	/** @return bool Whether a test alert went out. */
-	public static function send_test() {
-		$status = WMDS_Status::get();
-
-		$mail = self::compose(
-			self::PROBLEM,
-			$status,
-			self::log(),
-			self::site(),
-			WMDS_Status::settings_url( 'status' )
-		);
-
-		$mail['subject'] = sprintf(
-			/* translators: %s: the subject an alert would have carried. */
-			__( '[Test] %s', 'wp-mobile-de-sync' ),
-			$mail['subject']
-		);
-
-		return self::send( $mail );
-	}
-
 	/** Clears the memory, so the next problem is reported rather than suppressed. */
 	public static function forget() {
 		delete_option( self::OPT_LAST );

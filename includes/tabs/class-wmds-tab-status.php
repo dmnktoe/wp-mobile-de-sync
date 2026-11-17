@@ -201,15 +201,6 @@ class WMDS_Tab_Status {
 		</div>
 		</form>
 
-		<?php if ( WMDS_Alerts::enabled() ) : ?>
-			<div class="wmds-card">
-				<h2><?php esc_html_e( 'Does it arrive', 'wp-mobile-de-sync' ); ?></h2>
-				<p class="description">
-					<?php esc_html_e( 'Sends the mail an alert would send right now, marked as a test. A WordPress installation that cannot send mail at all fails here rather than on the day it matters.', 'wp-mobile-de-sync' ); ?>
-				</p>
-				<?php WMDS_Admin_Ui::action_button( 'test-alert', __( 'Send a test alert', 'wp-mobile-de-sync' ), 'secondary' ); ?>
-			</div>
-		<?php endif; ?>
 		<?php
 	}
 

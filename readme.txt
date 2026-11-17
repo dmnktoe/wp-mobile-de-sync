@@ -117,7 +117,9 @@ than a translation of the English source.
 
 = 2.4.5 =
 * Added: each enquiry records whether its mail was handed over, and to whom.
-* Changed: the test mail on the Integrations tab goes to the enquiry address.
+* Changed: one test mail on the Integrations tab for both the enquiry and the
+  alert address; the separate test alert is gone.
+* Changed: German texts revised for a professional tone.
 * Fixed: the consent notice on a stored enquiry showed raw markup.
 
 = 2.4.4 =

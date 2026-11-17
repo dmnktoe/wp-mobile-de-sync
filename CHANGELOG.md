@@ -11,9 +11,13 @@ versioning follows [Semantic Versioning](https://semver.org/).
   not in the inbox now says whether it was sent at all.
 
 ### Changed
-- **The test mail on the Integrations tab goes to the enquiry address**, and
-  the card names that address. It used to send a test alert to the alert
-  address, which is often not where enquiries go.
+- **One test mail instead of two.** The test button on the Integrations tab
+  sends a single mail to every address the plugin writes to - the enquiry
+  address and, when alerts are on, the alert address - and lists both. The
+  separate test alert on the Status tab is gone. Enquiries and alerts keep
+  their own addresses.
+- **German texts revised** for a neutral, professional tone throughout the
+  admin screens, the enquiry form and the mails.
 
 ### Fixed
 - The consent notice on a stored enquiry showed its link as raw markup; it is
