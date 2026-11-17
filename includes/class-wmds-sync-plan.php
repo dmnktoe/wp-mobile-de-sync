@@ -67,7 +67,7 @@ class WMDS_Sync_Plan {
 		);
 
 		if ( ! $is_full ) {
-			$result['abort'] = 'Partial pass - removal happens only after a full sync.';
+			$result['abort'] = 'Partial listing - removal happens only once a full one has been read.';
 			return $result;
 		}
 

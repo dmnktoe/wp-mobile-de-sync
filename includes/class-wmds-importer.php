@@ -311,10 +311,17 @@ class WMDS_Importer {
 
 		$complete = ( 0 === $pending ) && ! $truncated;
 
-		// What the API did not hand out is not gone. Past the pagination cap
-		// the listing is a window on the inventory, and everything outside it
-		// would look sold.
-		$reconcile = $is_full && $complete && ! $capped;
+		// Whether a vehicle is sold is settled by the listing, not by the
+		// batches: a full listing read to its last page names every ad there
+		// is, and the batches after it only rewrite text and pictures. So the
+		// sold ones go in the first pass of a full sync - waiting for the last
+		// batch kept them published for hours on a large backlog, next to the
+		// new ones already added.
+		//
+		// What the API did not hand out is not gone. A listing cut short
+		// names only part of the inventory, and past the pagination cap it is
+		// a window on it; in both, everything outside would look sold.
+		$reconcile = $is_full && ! $truncated && ! $capped;
 		$removal   = WMDS_Sync_Plan::removals( $plan['seen'], $known, $reconcile );
 		$removed   = 0;
 

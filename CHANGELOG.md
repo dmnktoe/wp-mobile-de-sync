@@ -3,6 +3,18 @@
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
+## [2.4.3] – 2026-11-17
+
+### Changed
+- **Sold vehicles are removed in the first pass of a full sync**, as soon as
+  the whole listing has been read, instead of after the last batch. Whether
+  a vehicle is sold is settled by the listing; the batches after it only
+  rewrite text and pictures. On a large backlog the old order kept sold
+  vehicles published for hours next to the new ones already added - 203
+  published against 167 at mobile.de. The guards are unchanged: a listing cut
+  short or past the pagination cap removes nothing, nor does one with no
+  vehicle at all, nor one that would take more than 30 percent.
+
 ## [2.4.2] – 2026-11-17
 
 ### Fixed

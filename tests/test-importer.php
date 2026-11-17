@@ -649,7 +649,7 @@ wmds_assert( 'the rest is pending', 4, $stats['pending'] );
 wmds_assert( 'and comes back on the next run', true, in_array( WMDS_Importer::FOLLOWUP_HOOK, wmds_fake( 'scheduled' ), true ) );
 wmds_assert( 'the lock is released either way', 0, WMDS_Importer::locked_since() );
 
-wmds_section( 'A pass cut short does not count as a full reconciliation' );
+wmds_section( 'A full listing settles what is sold, even with batches left' );
 
 wmds_fake_reset();
 foreach ( array( '1', '2', '3', '4', '5' ) as $seed ) {
@@ -671,9 +671,13 @@ $stats                     = $importer->run(
 );
 
 wmds_assert( 'work is left over', true, $stats['pending'] > 0 );
-wmds_assert( 'nothing was removed', 0, $stats['removed'] );
-wmds_assert( 'the vanished vehicle is still published', 'publish', wmds_fake( 'posts' )[ $gone ]['post_status'] );
-wmds_assert( 'the watermark did not move', '', (string) get_option( WMDS_Importer::OPT_WATERMARK, '' ) );
+wmds_assert( 'the vehicle the listing no longer names is removed right away', 1, $stats['removed'] );
+wmds_assert( 'into the bin', 'trash', wmds_fake( 'posts' )[ $gone ]['post_status'] );
+wmds_assert( 'the ones still listed stay', 'publish', wmds_fake( 'posts' )[ wmds_post_for( '5' ) ]['post_status'] );
+wmds_assert( 'the watermark did not move: the batches are not done', '', (string) get_option( WMDS_Importer::OPT_WATERMARK, '' ) );
+
+$stats = $importer->run();
+wmds_assert( 'the next pass finds nothing more to remove', 0, $stats['removed'] );
 
 wmds_section( 'A listing cut short removes nothing' );
 
