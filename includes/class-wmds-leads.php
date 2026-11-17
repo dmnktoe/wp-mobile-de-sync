@@ -280,21 +280,21 @@ class WMDS_Leads {
 
 		$email = isset( $data['email'] ) ? trim( (string) $data['email'] ) : '';
 		if ( '' === $email ) {
-			$errors['email'] = __( 'Please give us an e-mail address to answer to.', 'wp-mobile-de-sync' );
+			$errors['email'] = __( 'Please enter an e-mail address so that we can reply.', 'wp-mobile-de-sync' );
 		} elseif ( ! is_email( $email ) ) {
-			$errors['email'] = __( 'That does not look like an e-mail address.', 'wp-mobile-de-sync' );
+			$errors['email'] = __( 'Please enter a valid e-mail address.', 'wp-mobile-de-sync' );
 		}
 
 		$phone = isset( $data['phone'] ) ? trim( (string) $data['phone'] ) : '';
 		if ( '' !== $phone && ( self::length( $phone ) > self::MAX_PHONE || ! preg_match( '/^[0-9 +()\/-]+$/', $phone ) ) ) {
-			$errors['phone'] = __( 'That does not look like a phone number.', 'wp-mobile-de-sync' );
+			$errors['phone'] = __( 'Please enter a valid phone number.', 'wp-mobile-de-sync' );
 		}
 
 		$message = isset( $data['message'] ) ? trim( (string) $data['message'] ) : '';
 		if ( '' === $message ) {
-			$errors['message'] = __( 'Please tell us what you would like to know.', 'wp-mobile-de-sync' );
+			$errors['message'] = __( 'Please enter a message.', 'wp-mobile-de-sync' );
 		} elseif ( self::length( $message ) < self::MIN_MESSAGE ) {
-			$errors['message'] = __( 'A few more words, please.', 'wp-mobile-de-sync' );
+			$errors['message'] = __( 'Please enter a more detailed message.', 'wp-mobile-de-sync' );
 		} elseif ( self::length( $message ) > self::MAX_MESSAGE ) {
 			$errors['message'] = __( 'That message is too long.', 'wp-mobile-de-sync' );
 		}
@@ -395,7 +395,7 @@ class WMDS_Leads {
 		$title = isset( $vehicle['title'] ) ? (string) $vehicle['title'] : '';
 
 		/* translators: %s: site name. */
-		$subject = sprintf( __( '[%s] We have your enquiry', 'wp-mobile-de-sync' ), $site );
+		$subject = sprintf( __( '[%s] Confirmation of your enquiry', 'wp-mobile-de-sync' ), $site );
 
 		$lines = array();
 
@@ -483,7 +483,7 @@ class WMDS_Leads {
 		}
 
 		if ( ! $stored && ! $mailed ) {
-			self::bounce( $back, array( 'form' => __( 'The enquiry could not be sent. Please call us instead.', 'wp-mobile-de-sync' ) ), $posted );
+			self::bounce( $back, array( 'form' => __( 'Unfortunately, the enquiry could not be sent. Please contact us by phone.', 'wp-mobile-de-sync' ) ), $posted );
 		}
 
 		set_transient( $key, $sent + 1, self::RATE_TTL );
@@ -684,8 +684,8 @@ class WMDS_Leads {
 		return array(
 			'expired' => __( 'The form has expired. Please send it again.', 'wp-mobile-de-sync' ),
 			'off'     => __( 'Enquiries are switched off.', 'wp-mobile-de-sync' ),
-			'quick'   => __( 'That was too quick to be real. Please try again.', 'wp-mobile-de-sync' ),
-			'limit'   => __( 'Several enquiries have already been sent from here. Please try again later.', 'wp-mobile-de-sync' ),
+			'quick'   => __( 'The form was submitted too quickly. Please try again.', 'wp-mobile-de-sync' ),
+			'limit'   => __( 'Several enquiries have already been sent. Please try again later.', 'wp-mobile-de-sync' ),
 		);
 	}
 

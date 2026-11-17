@@ -35,7 +35,7 @@ class WMDS_Tab_Tools {
 		<div class="wmds-card">
 			<h2><?php esc_html_e( 'Import', 'wp-mobile-de-sync' ); ?></h2>
 			<p class="description">
-				<?php esc_html_e( 'Runs the sync in batches of 20 vehicles and keeps going until nothing is left. Leaving this page stops it — the schedule picks the rest up on its own.', 'wp-mobile-de-sync' ); ?>
+				<?php esc_html_e( 'Runs the sync in batches of 20 vehicles until all are processed. Leaving this page interrupts the process; the schedule processes the remaining vehicles automatically.', 'wp-mobile-de-sync' ); ?>
 			</p>
 			<p>
 				<button type="button" class="button button-primary" id="wmds-sync">
@@ -59,7 +59,7 @@ class WMDS_Tab_Tools {
 						<?php
 						printf(
 							/* translators: %s: how long ago the running import started, e.g. "20 mins". */
-							esc_html__( 'An import has held the lock since %s. A run that was cut short by a PHP time limit leaves it behind; releasing it lets the next run start.', 'wp-mobile-de-sync' ),
+							esc_html__( 'The import lock has been set since %s. It remains in place if a run was interrupted by a PHP time limit. Once it is released, the next run can start.', 'wp-mobile-de-sync' ),
 							esc_html( WMDS_Status::relative_time( $locked_since ) )
 						);
 						?>
@@ -69,7 +69,7 @@ class WMDS_Tab_Tools {
 						'unlock',
 						__( 'Release the lock', 'wp-mobile-de-sync' ),
 						'secondary',
-						__( 'Release the lock only once you are sure no import is still running. Two runs writing the same vehicles at once will conflict. Continue?', 'wp-mobile-de-sync' )
+						__( 'Only release the lock if you are certain that no import is running. Two simultaneous runs can interfere with each other. Continue?', 'wp-mobile-de-sync' )
 					);
 					?>
 				</div>
@@ -78,7 +78,7 @@ class WMDS_Tab_Tools {
 				<?php
 				printf(
 					/* translators: %s: the WP-CLI command, already marked up. */
-					esc_html__( 'For the very first import of a large inventory the command line has no time limit and is the better route: %s', 'wp-mobile-de-sync' ),
+					esc_html__( 'For the initial import of a large inventory, the command line is recommended because it has no time limit: %s', 'wp-mobile-de-sync' ),
 					'<code>wp wmds sync --full --all</code>'
 				);
 				?>
@@ -93,7 +93,7 @@ class WMDS_Tab_Tools {
 						<td>
 							<strong><?php esc_html_e( 'Force a full sync', 'wp-mobile-de-sync' ); ?></strong>
 							<p class="description">
-								<?php esc_html_e( 'Discards the change marker. The next run reads every ad again instead of only the changed ones, and it is the first one allowed to remove sold vehicles.', 'wp-mobile-de-sync' ); ?>
+								<?php esc_html_e( 'Resets the change marker. The next run reads all listings instead of only changed ones and removes sold vehicles.', 'wp-mobile-de-sync' ); ?>
 							</p>
 						</td>
 						<td>
@@ -102,7 +102,7 @@ class WMDS_Tab_Tools {
 								'full',
 								__( 'Force', 'wp-mobile-de-sync' ),
 								'secondary',
-								__( 'This discards the change marker, so the next run re-reads the whole inventory. Continue?', 'wp-mobile-de-sync' )
+								__( 'The change marker will be reset and the next run will read the entire inventory. Continue?', 'wp-mobile-de-sync' )
 							);
 							?>
 						</td>
@@ -111,7 +111,7 @@ class WMDS_Tab_Tools {
 						<td>
 							<strong><?php esc_html_e( 'Re-fetch reference data', 'wp-mobile-de-sync' ); ?></strong>
 							<p class="description">
-								<?php esc_html_e( 'Throws away the cached labels for transmission, fuel and colours, plus the logo index.', 'wp-mobile-de-sync' ); ?>
+								<?php esc_html_e( 'Deletes the cached labels for transmission, fuel and colours, as well as the logo index.', 'wp-mobile-de-sync' ); ?>
 							</p>
 						</td>
 						<td>

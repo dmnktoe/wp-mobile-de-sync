@@ -68,7 +68,7 @@ class WMDS_Requirements {
 				: ( $unpatched
 					? sprintf(
 						/* translators: %s: oldest PHP version still receiving security fixes. */
-						__( 'This release no longer gets security fixes. PHP %s or newer is worth asking your host for.', 'wp-mobile-de-sync' ),
+						__( 'This PHP version no longer receives security updates. Please ask your host for PHP %s or later.', 'wp-mobile-de-sync' ),
 						self::SUPPORTED_PHP
 					)
 					: '' )
@@ -98,13 +98,13 @@ class WMDS_Requirements {
 	/** @return array */
 	private static function extensions() {
 		$required = array(
-			'json'    => __( 'Reads the API responses.', 'wp-mobile-de-sync' ),
+			'json'    => __( 'Required to process the API responses.', 'wp-mobile-de-sync' ),
 			'openssl' => __( 'Needed for the HTTPS calls to mobile.de.', 'wp-mobile-de-sync' ),
 		);
 
 		$optional = array(
-			'curl'     => __( 'WordPress falls back to PHP streams without it, which is slower.', 'wp-mobile-de-sync' ),
-			'mbstring' => __( 'Without it, umlauts in descriptions can be cut off mid-character.', 'wp-mobile-de-sync' ),
+			'curl'     => __( 'Without this extension, WordPress uses PHP streams, which is slower.', 'wp-mobile-de-sync' ),
+			'mbstring' => __( 'Without this extension, umlauts in descriptions may be corrupted when text is shortened.', 'wp-mobile-de-sync' ),
 		);
 
 		$checks = array();
@@ -164,14 +164,14 @@ class WMDS_Requirements {
 			$status = self::OK;
 			$value  = $execution . ' s';
 			$hint   = $liftable && $execution < self::WANTED_EXECUTION
-				? __( 'Low, but the plugin is allowed to raise it for the duration of a run.', 'wp-mobile-de-sync' )
+				? __( 'Low, but the plugin can increase it for the duration of a run.', 'wp-mobile-de-sync' )
 				: '';
 		} else {
 			$status = self::WARN;
 			$value  = $execution . ' s';
 			$hint   = sprintf(
 				/* translators: %d: seconds of execution time worth having. */
-				__( 'set_time_limit() is disabled here, so a run has to stop after a few vehicles and continue on the next one. %d seconds would let it work through a whole batch.', 'wp-mobile-de-sync' ),
+				__( 'set_time_limit() is disabled on this server. A run is therefore interrupted after a few vehicles and continued in the next one. With %d seconds, a complete batch can be processed in one run.', 'wp-mobile-de-sync' ),
 				self::WANTED_EXECUTION
 			);
 		}
@@ -196,7 +196,7 @@ class WMDS_Requirements {
 			$enough ? self::OK : self::WARN,
 			$enough ? '' : sprintf(
 				/* translators: %s: recommended memory limit. */
-				__( 'Resizing large vehicle photos can run out of memory below %s.', 'wp-mobile-de-sync' ),
+				__( 'Below %s, there may not be enough memory to resize large vehicle photos.', 'wp-mobile-de-sync' ),
 				size_format( self::WANTED_MEMORY )
 			)
 		);
@@ -217,7 +217,7 @@ class WMDS_Requirements {
 			__( 'Uploads folder', 'wp-mobile-de-sync' ),
 			$writable ? __( 'writable', 'wp-mobile-de-sync' ) : __( 'not writable', 'wp-mobile-de-sync' ),
 			$writable ? self::OK : self::FAIL,
-			$writable ? '' : __( 'Vehicle images are stored in the media library and cannot be written without it.', 'wp-mobile-de-sync' )
+			$writable ? '' : __( 'Vehicle images are stored in the media library, which requires write access.', 'wp-mobile-de-sync' )
 		);
 
 		$permalinks = (string) get_option( 'permalink_structure', '' );
@@ -229,7 +229,7 @@ class WMDS_Requirements {
 			__( 'Permalinks', 'wp-mobile-de-sync' ),
 			$pretty ? __( 'pretty', 'wp-mobile-de-sync' ) : __( 'plain', 'wp-mobile-de-sync' ),
 			$pretty ? self::OK : self::WARN,
-			$pretty ? '' : __( 'Vehicle pages work either way, but their addresses stay numeric.', 'wp-mobile-de-sync' )
+			$pretty ? '' : __( 'Vehicle pages work without it, but their addresses remain numeric.', 'wp-mobile-de-sync' )
 		);
 
 		$rewrite = self::rewrite();
@@ -253,7 +253,7 @@ class WMDS_Requirements {
 			self::OK,
 			$cron_off
 				? __( 'The recommended setting, as long as a system cron calls wp-cron.php regularly.', 'wp-mobile-de-sync' )
-				: __( 'Runs are triggered by page views. On a quiet site they are delayed accordingly.', 'wp-mobile-de-sync' )
+				: __( 'Runs are triggered by page views and are delayed on sites with little traffic.', 'wp-mobile-de-sync' )
 		);
 
 		$checks[] = self::outbound();
@@ -269,7 +269,7 @@ class WMDS_Requirements {
 			return array(
 				'value'  => 'nginx',
 				'status' => self::OK,
-				'hint'   => __( 'Rewriting is handled by the server configuration.', 'wp-mobile-de-sync' ),
+				'hint'   => __( 'URL rewriting is handled by the server configuration.', 'wp-mobile-de-sync' ),
 			);
 		}
 
@@ -277,7 +277,7 @@ class WMDS_Requirements {
 			return array(
 				'value'  => __( 'not detectable', 'wp-mobile-de-sync' ),
 				'status' => self::OK,
-				'hint'   => __( 'The server does not report its modules. If vehicle pages open, rewriting works.', 'wp-mobile-de-sync' ),
+				'hint'   => __( 'The server does not report its modules. If vehicle pages open, URL rewriting works.', 'wp-mobile-de-sync' ),
 			);
 		}
 
@@ -286,7 +286,7 @@ class WMDS_Requirements {
 		return array(
 			'value'  => $loaded ? __( 'mod_rewrite active', 'wp-mobile-de-sync' ) : __( 'mod_rewrite missing', 'wp-mobile-de-sync' ),
 			'status' => $loaded ? self::OK : self::WARN,
-			'hint'   => $loaded ? '' : __( 'Without it, pretty permalinks for vehicle pages cannot work.', 'wp-mobile-de-sync' ),
+			'hint'   => $loaded ? '' : __( 'Without this module, pretty permalinks for vehicle pages do not work.', 'wp-mobile-de-sync' ),
 		);
 	}
 

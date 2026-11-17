@@ -13,7 +13,7 @@ class WMDS_Tab_About {
 			<h2><?php esc_html_e( 'mobile.de Sync', 'wp-mobile-de-sync' ); ?></h2>
 
 			<p>
-				<?php esc_html_e( 'Keeps a dealer\'s inventory on mobile.de and the vehicles on this site in step. The mobile.de Search API is read on a schedule and every ad becomes a regular WordPress post that themes, FacetWP and the block editor can work with like any other.', 'wp-mobile-de-sync' ); ?>
+				<?php esc_html_e( 'Synchronises a dealer\'s inventory on mobile.de with this site. The mobile.de Search API is queried on a schedule, and each listing is created as a regular WordPress post, compatible with themes, FacetWP and the block editor.', 'wp-mobile-de-sync' ); ?>
 			</p>
 
 			<table class="widefat striped wmds-table">

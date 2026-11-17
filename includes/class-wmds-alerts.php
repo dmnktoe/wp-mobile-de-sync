@@ -201,7 +201,7 @@ class WMDS_Alerts {
 	 */
 	public static function compose_summary( array $status, $site, $url ) {
 		/* translators: %s: site name. */
-		$subject = sprintf( __( '[%s] Vehicle sync, the week in one mail', 'wp-mobile-de-sync' ), $site );
+		$subject = sprintf( __( '[%s] Vehicle sync: weekly summary', 'wp-mobile-de-sync' ), $site );
 
 		$lines = array(
 			isset( $status['label'] ) ? (string) $status['label'] : '',

@@ -39,7 +39,7 @@ class WMDS_Tab_Usage {
 							echo wp_kses_post(
 								sprintf(
 									/* translators: %s: the default slug. */
-									esc_html__( 'The archive and every vehicle are served under this. Empty means %s. Links to the old address stop working when it changes.', 'wp-mobile-de-sync' ),
+									esc_html__( 'The archive and all vehicle pages are available under this address. If empty, %s is used. After a change, links to the previous address no longer work.', 'wp-mobile-de-sync' ),
 									'<code>' . esc_html( WMDS_Settings::DEFAULT_SLUG ) . '</code>'
 								)
 							);

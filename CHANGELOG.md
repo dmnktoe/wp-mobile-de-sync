@@ -16,8 +16,8 @@ versioning follows [Semantic Versioning](https://semver.org/).
   address and, when alerts are on, the alert address - and lists both. The
   separate test alert on the Status tab is gone. Enquiries and alerts keep
   their own addresses.
-- **German texts revised** for a neutral, professional tone throughout the
-  admin screens, the enquiry form and the mails.
+- **Texts revised in English and German** for a neutral, professional tone
+  throughout the admin screens, the enquiry form and the mails.
 
 ### Fixed
 - The consent notice on a stored enquiry showed its link as raw markup; it is

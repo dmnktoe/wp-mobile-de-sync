@@ -174,7 +174,7 @@ class WMDS_Blocks {
 			),
 			'wmds/vehicle-count'   => array(
 				'title'       => __( 'Vehicle count', 'wp-mobile-de-sync' ),
-				'description' => __( 'How many vehicles the current filters leave.', 'wp-mobile-de-sync' ),
+				'description' => __( 'Number of vehicles remaining with the current filters.', 'wp-mobile-de-sync' ),
 				'icon'        => 'editor-ol',
 				'keywords'    => array( 'count', 'number' ),
 				'attributes'  => array(
@@ -187,7 +187,7 @@ class WMDS_Blocks {
 			),
 			'wmds/vehicle-enquiry' => array(
 				'title'       => __( 'Vehicle enquiry', 'wp-mobile-de-sync' ),
-				'description' => __( 'A form that asks about a vehicle.', 'wp-mobile-de-sync' ),
+				'description' => __( 'An enquiry form for a vehicle.', 'wp-mobile-de-sync' ),
 				'icon'        => 'email',
 				'keywords'    => array( 'enquiry', 'form', 'contact' ),
 				'attributes'  => array(

@@ -149,7 +149,7 @@ class WMDS_Posts {
 		if ( '' === $ad_id ) {
 			printf(
 				'<span class="wmds-badge wmds-badge-warning" title="%s">%s</span>',
-				esc_attr__( 'Created by hand, not by the importer. A sync leaves it alone.', 'wp-mobile-de-sync' ),
+				esc_attr__( 'Created manually, not imported. The sync does not modify this entry.', 'wp-mobile-de-sync' ),
 				esc_html__( 'not synced', 'wp-mobile-de-sync' )
 			);
 			return;
@@ -363,7 +363,7 @@ class WMDS_Posts {
 		$ad_id = (string) get_post_meta( $post->ID, WMDS_Importer::META_AD_ID, true );
 
 		if ( '' === $ad_id ) {
-			echo '<p>' . esc_html__( 'This vehicle was not created by the importer. A sync leaves it alone.', 'wp-mobile-de-sync' ) . '</p>';
+			echo '<p>' . esc_html__( 'This vehicle was not imported. The sync does not modify it.', 'wp-mobile-de-sync' ) . '</p>';
 			return;
 		}
 
@@ -414,8 +414,8 @@ class WMDS_Posts {
 		}
 
 		echo '<div class="notice notice-warning wmds-edit-notice"><p>';
-		echo '<strong>' . esc_html__( 'Managed by the importer.', 'wp-mobile-de-sync' ) . '</strong> ';
-		esc_html_e( 'Title, description, fields and photos are overwritten as soon as the ad changes on mobile.de. Edit the ad there, not here.', 'wp-mobile-de-sync' );
+		echo '<strong>' . esc_html__( 'Managed by the import.', 'wp-mobile-de-sync' ) . '</strong> ';
+		esc_html_e( 'Title, description, fields and photos are overwritten as soon as the listing changes on mobile.de. Please make changes in the listing on mobile.de.', 'wp-mobile-de-sync' );
 		echo '</p></div>';
 	}
 

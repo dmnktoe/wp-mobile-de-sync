@@ -209,7 +209,7 @@ class WMDS_Smtp {
 				'status' => $sound ? WMDS_Requirements::OK : WMDS_Requirements::WARN,
 				'hint'   => $sound
 					? ''
-					: __( 'PHP mail() is unauthenticated, so enquiries and alerts are treated as spam by many providers or dropped without a bounce. An SMTP plugin sending through the mailbox the site answers from is the usual answer.', 'wp-mobile-de-sync' ),
+					: __( 'PHP mail() is unauthenticated, so many e-mail providers classify enquiries and alerts as spam or reject them without notice. An SMTP plugin that sends through the site\'s mailbox is recommended.', 'wp-mobile-de-sync' ),
 			),
 		);
 
@@ -222,7 +222,7 @@ class WMDS_Smtp {
 				'label'  => __( 'Last mail error', 'wp-mobile-de-sync' ),
 				'value'  => $failure['message'],
 				'status' => WMDS_Requirements::WARN,
-				'hint'   => __( 'Reported by WordPress when a message could not be handed over. It clears itself as soon as the plugin sends one successfully.', 'wp-mobile-de-sync' ),
+				'hint'   => __( 'Reported by WordPress when an e-mail could not be handed over. The notice is removed automatically once the plugin has sent an e-mail successfully.', 'wp-mobile-de-sync' ),
 			);
 		}
 

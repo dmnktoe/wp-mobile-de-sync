@@ -232,7 +232,7 @@ wmds_section( 'The confirmation the enquirer gets' );
 
 $reply = WMDS_Leads::compose_confirmation( wmds_lead_data(), $vehicle, 'Autohaus Example' );
 
-wmds_assert( 'it says who it is from', '[Autohaus Example] We have your enquiry', $reply['subject'] );
+wmds_assert( 'it says who it is from', '[Autohaus Example] Confirmation of your enquiry', $reply['subject'] );
 wmds_assert_contains( 'it greets them by name', 'Alex Beispiel', $reply['body'] );
 wmds_assert_contains( 'it names the vehicle', 'Audi A4 Avant', $reply['body'] );
 wmds_assert( 'and does not mail their text to an address nobody verified', false, strpos( $reply['body'], 'When could I come and see the car?' ) );

@@ -33,7 +33,7 @@ class WMDS_Tab_Integrations {
 				esc_html(
 					sprintf(
 						/* translators: %s: name of the third-party plugin. */
-						__( '%s is not active on this site. Nothing here does anything until it is.', 'wp-mobile-de-sync' ),
+						__( '%s is not active on this site. The following settings therefore have no effect.', 'wp-mobile-de-sync' ),
 						$name
 					)
 				)
@@ -57,7 +57,7 @@ class WMDS_Tab_Integrations {
 			<?php self::badge( WMDS_Cf7::active(), WMDS_Cf7::version(), 'Contact Form 7' ); ?>
 
 			<p class="description">
-				<?php esc_html_e( 'A form of your own can ask about the vehicle the visitor is looking at. Put a mail tag into the mail template of the form and it is filled in when the form is sent from a vehicle page — no field in the form needed.', 'wp-mobile-de-sync' ); ?>
+				<?php esc_html_e( 'A custom form can refer to the vehicle currently being viewed. Mail tags in the form\'s mail template are filled in automatically when the form is submitted from a vehicle page; no additional form field is required.', 'wp-mobile-de-sync' ); ?>
 			</p>
 
 			<table class="widefat striped wmds-table">
@@ -81,7 +81,7 @@ class WMDS_Tab_Integrations {
 				<?php
 				printf(
 					/* translators: 1: an example form tag, 2: the field option, both already marked up. */
-					esc_html__( 'The same values are available as a form tag when one should travel with the submission: %1$s, where %2$s takes any of the names above.', 'wp-mobile-de-sync' ),
+					esc_html__( 'The same values are available as a form tag if they should be submitted with the form: %1$s, where %2$s accepts any of the names above.', 'wp-mobile-de-sync' ),
 					'<code>[wmds_vehicle vehicle field:price]</code>',
 					'<code>field:</code>'
 				);
@@ -95,10 +95,10 @@ class WMDS_Tab_Integrations {
 						<label>
 							<input type="checkbox" name="wmds_cf7_store" value="yes"
 								<?php checked( WMDS_Cf7::stores() ); ?>>
-							<?php esc_html_e( 'File a submission sent from a vehicle page under Enquiries', 'wp-mobile-de-sync' ); ?>
+							<?php esc_html_e( 'Store submissions from vehicle pages under Enquiries', 'wp-mobile-de-sync' ); ?>
 						</label>
 						<p class="description">
-							<?php esc_html_e( 'Name, address, phone number and message are read from the form under the names it uses. Submissions from any other page are left alone.', 'wp-mobile-de-sync' ); ?>
+							<?php esc_html_e( 'Name, e-mail address, phone number and message are taken from the form\'s field names. Submissions from other pages are not recorded.', 'wp-mobile-de-sync' ); ?>
 						</p>
 					</td>
 				</tr>
@@ -108,10 +108,10 @@ class WMDS_Tab_Integrations {
 						<label>
 							<input type="checkbox" name="wmds_cf7_copy_seller" value="yes"
 								<?php checked( WMDS_Cf7::copies_seller() ); ?>>
-							<?php esc_html_e( 'Add the address the feed carries for that vehicle as a recipient', 'wp-mobile-de-sync' ); ?>
+							<?php esc_html_e( 'Add the address stored in the feed for this vehicle as a recipient', 'wp-mobile-de-sync' ); ?>
 						</label>
 						<p class="description">
-							<?php esc_html_e( 'Only to the mail that goes to you, never to the confirmation the visitor receives.', 'wp-mobile-de-sync' ); ?>
+							<?php esc_html_e( 'Applies only to the e-mail sent to you, not to the confirmation sent to the visitor.', 'wp-mobile-de-sync' ); ?>
 						</p>
 					</td>
 				</tr>
@@ -121,7 +121,7 @@ class WMDS_Tab_Integrations {
 				<?php
 				printf(
 					/* translators: %s: link to the Enquiries tab, already marked up. */
-					esc_html__( 'The form the plugin brings itself can be switched off under %s, so a vehicle page carries one form rather than two.', 'wp-mobile-de-sync' ),
+					esc_html__( 'The plugin\'s built-in form can be disabled under %s so that only one form appears on a vehicle page.', 'wp-mobile-de-sync' ),
 					sprintf(
 						'<a href="%s">%s</a>',
 						esc_url( WMDS_Status::settings_url( 'enquiries' ) ),
@@ -169,7 +169,7 @@ class WMDS_Tab_Integrations {
 					</tbody>
 				</table>
 				<p class="description">
-					<?php esc_html_e( 'Recorded for every message this site sends, not only ours. It clears itself as soon as one goes out successfully.', 'wp-mobile-de-sync' ); ?>
+					<?php esc_html_e( 'Recorded for all e-mails sent by this site, not only those of the plugin. The notice is removed automatically once an e-mail has been sent successfully.', 'wp-mobile-de-sync' ); ?>
 				</p>
 			<?php endif; ?>
 
@@ -205,7 +205,7 @@ class WMDS_Tab_Integrations {
 			<?php self::badge( WMDS_Facetwp::active(), WMDS_Facetwp::version(), 'FacetWP' ); ?>
 
 			<p class="description">
-				<?php esc_html_e( 'The plugin filters on its own and needs FacetWP for nothing. A site that was built on FacetWP keeps working all the same: the meta keys are unchanged, they appear in the facet source list under "mobile.de" with readable labels, and the sort orders the filter bar offers are offered to a FacetWP template too.', 'wp-mobile-de-sync' ); ?>
+				<?php esc_html_e( 'The plugin includes its own filters and does not require FacetWP. Existing FacetWP setups continue to work: the meta keys are unchanged, appear in the facet source list under "mobile.de" with readable labels, and the filter bar\'s sort orders are also available to FacetWP templates.', 'wp-mobile-de-sync' ); ?>
 			</p>
 
 			<table class="form-table" role="presentation">
@@ -215,10 +215,10 @@ class WMDS_Tab_Integrations {
 						<label>
 							<input type="checkbox" name="wmds_facetwp_reindex" value="yes"
 								<?php checked( WMDS_Facetwp::reindexes() ); ?>>
-							<?php esc_html_e( 'Re-index a vehicle once the sync has finished writing it', 'wp-mobile-de-sync' ); ?>
+							<?php esc_html_e( 'Re-index a vehicle once the sync has finished saving it', 'wp-mobile-de-sync' ); ?>
 						</label>
 						<p class="description">
-							<?php esc_html_e( 'FacetWP indexes when a post is saved. The import saves the post first and writes the meta afterwards, so what FacetWP indexed on its own is the state before the update — which is where stale counts come from. Leave this on unless the index is maintained elsewhere.', 'wp-mobile-de-sync' ); ?>
+							<?php esc_html_e( 'FacetWP indexes when a post is saved. The import saves the post first and the meta data afterwards, so FacetWP\'s automatic index reflects the state before the update, which leads to outdated counts. Keep this enabled unless the index is maintained elsewhere.', 'wp-mobile-de-sync' ); ?>
 						</p>
 					</td>
 				</tr>

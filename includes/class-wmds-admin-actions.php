@@ -6,7 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class WMDS_Admin_Actions {
 	public static function handle() {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You are not allowed to do this.', 'wp-mobile-de-sync' ), '', array( 'response' => 403 ) );
+			wp_die( esc_html__( 'You do not have permission to do this.', 'wp-mobile-de-sync' ), '', array( 'response' => 403 ) );
 		}
 		check_admin_referer( WMDS_Admin::NONCE );
 
@@ -17,7 +17,7 @@ class WMDS_Admin_Actions {
 		// save an empty form or delete the credentials.
 		$method = isset( $_SERVER['REQUEST_METHOD'] ) ? strtoupper( sanitize_key( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) ) : 'GET';
 		if ( 'POST' !== $method && ! in_array( $action, array( 'sync', 'refresh', 'check-update', 'export-log' ), true ) ) {
-			wp_die( esc_html__( 'This action has to be submitted from its form.', 'wp-mobile-de-sync' ), '', array( 'response' => 405 ) );
+			wp_die( esc_html__( 'This action must be submitted from its form.', 'wp-mobile-de-sync' ), '', array( 'response' => 405 ) );
 		}
 
 		if ( 'export-log' === $action ) {
@@ -101,7 +101,7 @@ class WMDS_Admin_Actions {
 		// back to the connection tab read its fields out of a submission
 		// that had none and emptied the username.
 		if ( ! in_array( $tab, array( 'connection', 'schedule', 'enquiries', 'integrations', 'status', 'usage' ), true ) ) {
-			WMDS_Admin_Notices::notice( 'error', __( 'Nothing was saved: the form did not say which settings it holds.', 'wp-mobile-de-sync' ) );
+			WMDS_Admin_Notices::notice( 'error', __( 'Nothing was saved: the form did not specify which settings it contains.', 'wp-mobile-de-sync' ) );
 
 			return;
 		}
@@ -241,7 +241,7 @@ class WMDS_Admin_Actions {
 
 		delete_option( WMDS_Status::OPT_LAST_TEST );
 
-		WMDS_Admin_Notices::notice( 'success', __( 'Credentials deleted. Nothing is imported until new ones are stored.', 'wp-mobile-de-sync' ) );
+		WMDS_Admin_Notices::notice( 'success', __( 'Credentials deleted. No vehicles will be imported until new credentials are saved.', 'wp-mobile-de-sync' ) );
 	}
 
 	private static function resync_schedule() {
@@ -294,7 +294,7 @@ class WMDS_Admin_Actions {
 		if ( ! empty( $result['capped'] ) ) {
 			$message .= ' ' . sprintf(
 				/* translators: %d: maximum number of ads reachable through pagination. */
-				__( 'Warning: across paginated pages the API hands out at most %d vehicles, so a reconciliation would be incomplete.', 'wp-mobile-de-sync' ),
+				__( 'Note: the API returns at most %d vehicles across paginated requests, so a reconciliation would be incomplete.', 'wp-mobile-de-sync' ),
 				WMDS_Client::PAGINATION_CAP
 			);
 		}
@@ -325,7 +325,7 @@ class WMDS_Admin_Actions {
 		if ( $stats['pending'] > 0 ) {
 			$message .= ' ' . sprintf(
 				/* translators: %d: number of vehicles still pending. */
-				__( '%d vehicles still pending – the rest continues automatically.', 'wp-mobile-de-sync' ),
+				__( '%d vehicles pending. Processing will continue automatically.', 'wp-mobile-de-sync' ),
 				$stats['pending']
 			);
 		}
@@ -360,7 +360,7 @@ class WMDS_Admin_Actions {
 
 		WMDS_Admin_Notices::notice(
 			'success',
-			__( 'Watermark discarded. The next run reads the whole inventory again and is the first one allowed to remove sold vehicles.', 'wp-mobile-de-sync' )
+			__( 'Change marker reset. The next run reads the entire inventory and removes sold vehicles.', 'wp-mobile-de-sync' )
 		);
 	}
 
@@ -369,7 +369,7 @@ class WMDS_Admin_Actions {
 		WMDS_Logos::flush();
 		WMDS_Posts::flush_makes();
 
-		WMDS_Admin_Notices::notice( 'success', __( 'Reference data discarded. It will be fetched again on the next run.', 'wp-mobile-de-sync' ) );
+		WMDS_Admin_Notices::notice( 'success', __( 'Reference data reset. It will be retrieved again on the next run.', 'wp-mobile-de-sync' ) );
 	}
 
 	private static function do_check_update() {
@@ -417,7 +417,7 @@ class WMDS_Admin_Actions {
 		$post_id = isset( $_REQUEST['post'] ) ? (int) $_REQUEST['post'] : 0; // phpcs:ignore WordPress.Security.NonceVerification -- verified in handle() before this runs.
 
 		if ( ! $post_id || WMDS_CPT !== get_post_type( $post_id ) ) {
-			WMDS_Admin_Notices::notice( 'error', __( 'That is not a vehicle.', 'wp-mobile-de-sync' ) );
+			WMDS_Admin_Notices::notice( 'error', __( 'This entry is not a vehicle.', 'wp-mobile-de-sync' ) );
 			return;
 		}
 

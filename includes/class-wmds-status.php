@@ -104,8 +104,8 @@ class WMDS_Status {
 			return sprintf(
 				/* translators: %d: number of vehicles still to be processed. */
 				_n(
-					'%d vehicle is still to be processed. The next pass starts on its own; vehicles sold in the meantime are removed once the whole inventory has been read.',
-					'%d vehicles are still to be processed. The next pass starts on its own; vehicles sold in the meantime are removed once the whole inventory has been read.',
+					'%d vehicle is still to be processed. The next pass starts automatically; vehicles sold in the meantime are removed once the entire inventory has been read.',
+					'%d vehicles are still to be processed. The next pass starts automatically; vehicles sold in the meantime are removed once the entire inventory has been read.',
 					max( 1, (int) $pending ),
 					'wp-mobile-de-sync'
 				),
@@ -114,12 +114,12 @@ class WMDS_Status {
 		}
 
 		$texts = array(
-			self::UNCONFIGURED => __( 'Username, password and the seller ID (or a dealer name instead) are missing. Nothing is imported until they are stored.', 'wp-mobile-de-sync' ),
+			self::UNCONFIGURED => __( 'Username, password and seller ID (or dealer name) are missing. No vehicles will be imported until they are saved.', 'wp-mobile-de-sync' ),
 			self::RUNNING      => __( 'An import is in progress. Large inventories are processed in batches across several runs.', 'wp-mobile-de-sync' ),
-			self::NEVER        => __( 'The credentials are stored, but no run has completed yet. Start the first import from the tools below.', 'wp-mobile-de-sync' ),
-			self::STALE        => __( 'The last run is long overdue. The schedule is most likely not being triggered — check the cron setup.', 'wp-mobile-de-sync' ),
-			self::ABORTED      => __( 'mobile.de could not be reached or refused the request, so nothing was imported. The log below has the reason — wrong credentials are the usual one.', 'wp-mobile-de-sync' ),
-			self::FAILED       => __( 'Some vehicles could not be processed in the last run. The log below names them.', 'wp-mobile-de-sync' ),
+			self::NEVER        => __( 'The credentials are saved, but no run has been completed yet. Please start the first import using the tools below.', 'wp-mobile-de-sync' ),
+			self::STALE        => __( 'The last run is significantly overdue. The schedule is probably not being triggered; please check the cron setup.', 'wp-mobile-de-sync' ),
+			self::ABORTED      => __( 'mobile.de could not be reached or rejected the request; nothing was imported. The log below shows the cause — incorrect credentials are the most common one.', 'wp-mobile-de-sync' ),
+			self::FAILED       => __( 'Some vehicles could not be processed in the last run. See the log below for details.', 'wp-mobile-de-sync' ),
 			self::OK           => __( 'The inventory is in sync.', 'wp-mobile-de-sync' ),
 		);
 

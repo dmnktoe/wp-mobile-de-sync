@@ -263,7 +263,7 @@ wmds_assert_contains(
 );
 wmds_assert_contains(
 	'no ZIP attached',
-	'no installable ZIP',
+	'does not contain an installable ZIP',
 	WMDS_Updater::reason( 200, release_json( array( 'assets' => array() ) ) )
 );
 
