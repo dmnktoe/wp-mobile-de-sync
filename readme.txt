@@ -4,7 +4,7 @@ Tags: mobile.de, vehicles, dealership, facetwp, contact form 7
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 2.4.1
+Stable tag: 2.4.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -114,6 +114,13 @@ Pkw-EnVKV, so the bundled German catalogue carries the statutory wording rather
 than a translation of the English source.
 
 == Changelog ==
+
+= 2.4.2 =
+* Fixed: between two passes of an unfinished run the status said "in sync";
+  it now says "Sync in progress" with the number still to go.
+* Fixed: an unfinished run continued only every fifteen minutes, because
+  WordPress dropped the follow-up booked a minute later. It has a hook of its
+  own now.
 
 = 2.4.1 =
 * Fixed: a sync schedule WordPress had dropped - during an update, for

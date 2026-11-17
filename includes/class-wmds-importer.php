@@ -21,6 +21,15 @@ class WMDS_Importer {
 	const LOCK          = 'wmds_import_lock';
 	const OPT_LAST_RUN  = 'wmds_last_run';
 	const OPT_WATERMARK = 'wmds_watermark';
+
+	/**
+	 * The event a pass books when it leaves vehicles for the next one. It is
+	 * not the regular event: WordPress refuses a single event within ten
+	 * minutes of an identical one, so a follow-up booked on the regular hook
+	 * was swallowed whenever the next regular run was close, and a backlog
+	 * moved forward one batch every fifteen minutes.
+	 */
+	const FOLLOWUP_HOOK = 'wmds_import_followup';
 	const OPT_LOG       = 'wmds_log';
 
 	const BATCH = 20;
@@ -169,7 +178,7 @@ class WMDS_Importer {
 		}
 
 		self::unlock();
-		wp_schedule_single_event( time() + 60, WMDS_CRON_HOOK );
+		self::schedule_followup();
 	}
 
 	public static function touch_lock() {
@@ -762,7 +771,14 @@ class WMDS_Importer {
 	}
 
 	private function reschedule() {
-		wp_schedule_single_event( time() + 60, WMDS_CRON_HOOK );
+		self::schedule_followup();
+	}
+
+	/** Books the next pass in a minute, unless one is booked already. */
+	public static function schedule_followup() {
+		if ( ! wp_next_scheduled( self::FOLLOWUP_HOOK ) ) {
+			wp_schedule_single_event( time() + 60, self::FOLLOWUP_HOOK );
+		}
 	}
 
 	/**

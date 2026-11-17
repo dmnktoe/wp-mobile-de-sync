@@ -70,8 +70,13 @@ class WMDS_CLI {
 		$watermark = get_option( WMDS_Importer::OPT_WATERMARK, '' );
 		WP_CLI::log( 'Change marker:    ' . ( $watermark ? $watermark : '(empty - next run is a full sync)' ) );
 
-		$next = wp_next_scheduled( WMDS_CRON_HOOK );
+		$next = WMDS_Status::next_run();
 		WP_CLI::log( 'Next run:         ' . ( $next ? gmdate( 'Y-m-d H:i:s', $next ) . ' UTC' : 'not scheduled' ) );
+
+		$last = get_option( WMDS_Importer::OPT_LAST_RUN, array() );
+		if ( is_array( $last ) && ! empty( $last['pending'] ) ) {
+			WP_CLI::log( 'Still to process: ' . (int) $last['pending'] . ' vehicles (wp wmds sync --all finishes them now)' );
+		}
 
 		if ( defined( 'DISABLE_WP_CRON' ) && DISABLE_WP_CRON ) {
 			WP_CLI::log( 'WP-Cron:          disabled - a system cron must be running.' );

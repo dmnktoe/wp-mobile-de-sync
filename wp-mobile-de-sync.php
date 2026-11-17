@@ -3,7 +3,7 @@
  * Plugin Name: mobile.de Sync
  * Plugin URI:  https://github.com/dmnktoe/wp-mobile-de-sync
  * Description: Synchronises a dealer's vehicle inventory from the mobile.de Search API into a "fahrzeuge" custom post type. Brings its own filters, templates, blocks and shortcodes, and works with existing theme templates.
- * Version:     2.4.1
+ * Version:     2.4.2
  * Author:      Domenik Töfflinger
  * Author URI:  https://github.com/dmnktoe
  * License:     GPL-2.0-or-later
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'WMDS_VERSION', '2.4.1' );
+define( 'WMDS_VERSION', '2.4.2' );
 define( 'WMDS_FILE', __FILE__ );
 define( 'WMDS_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WMDS_URL', plugin_dir_url( __FILE__ ) );
@@ -140,6 +140,7 @@ function wmds_cron_schedules( $schedules ) {
 }
 
 add_action( WMDS_CRON_HOOK, 'wmds_run_import' );
+add_action( WMDS_Importer::FOLLOWUP_HOOK, 'wmds_run_import' );
 function wmds_run_import() {
 	if ( ! WMDS_Settings::is_configured() ) {
 		return;
@@ -192,6 +193,7 @@ function wmds_maybe_ensure_schedule() {
 register_deactivation_hook( __FILE__, 'wmds_deactivate' );
 function wmds_deactivate() {
 	wp_clear_scheduled_hook( WMDS_CRON_HOOK );
+	wp_clear_scheduled_hook( WMDS_Importer::FOLLOWUP_HOOK );
 	wp_clear_scheduled_hook( WMDS_CRON_FULL_HOOK );
 	WMDS_Alerts::unschedule();
 	delete_transient( WMDS_Importer::LOCK );

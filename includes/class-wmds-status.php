@@ -17,6 +17,7 @@ class WMDS_Status {
 	const STALE        = 'stale';
 	const ABORTED      = 'aborted';
 	const FAILED       = 'failed';
+	const CATCHING_UP  = 'catching_up';
 	const OK           = 'ok';
 
 	/**
@@ -47,6 +48,11 @@ class WMDS_Status {
 		if ( ! empty( $last['failed'] ) ) {
 			return self::FAILED;
 		}
+		// Between two passes nothing holds the lock, but the run is not
+		// done: calling that "in sync" hid four weeks of backlog once.
+		if ( ! empty( $last['pending'] ) ) {
+			return self::CATCHING_UP;
+		}
 
 		return self::OK;
 	}
@@ -59,7 +65,7 @@ class WMDS_Status {
 		if ( self::UNCONFIGURED === $level || self::ABORTED === $level ) {
 			return 'error';
 		}
-		if ( self::RUNNING === $level ) {
+		if ( self::RUNNING === $level || self::CATCHING_UP === $level ) {
 			return 'info';
 		}
 		if ( self::OK === $level ) {
@@ -81,6 +87,7 @@ class WMDS_Status {
 			self::STALE        => __( 'Sync overdue', 'wp-mobile-de-sync' ),
 			self::ABORTED      => __( 'Last run was aborted', 'wp-mobile-de-sync' ),
 			self::FAILED       => __( 'Last run had failures', 'wp-mobile-de-sync' ),
+			self::CATCHING_UP  => __( 'Sync in progress', 'wp-mobile-de-sync' ),
 			self::OK           => __( 'Up to date', 'wp-mobile-de-sync' ),
 		);
 
@@ -89,9 +96,23 @@ class WMDS_Status {
 
 	/**
 	 * @param string $level
+	 * @param int    $pending Vehicles the last pass left for the next one.
 	 * @return string
 	 */
-	public static function explanation( $level ) {
+	public static function explanation( $level, $pending = 0 ) {
+		if ( self::CATCHING_UP === $level ) {
+			return sprintf(
+				/* translators: %d: number of vehicles still to be processed. */
+				_n(
+					'%d vehicle is still to be processed. The next pass starts on its own; vehicles sold in the meantime are removed once the whole inventory has been read.',
+					'%d vehicles are still to be processed. The next pass starts on its own; vehicles sold in the meantime are removed once the whole inventory has been read.',
+					max( 1, (int) $pending ),
+					'wp-mobile-de-sync'
+				),
+				max( 1, (int) $pending )
+			);
+		}
+
 		$texts = array(
 			self::UNCONFIGURED => __( 'Username, password and the seller ID (or a dealer name instead) are missing. Nothing is imported until they are stored.', 'wp-mobile-de-sync' ),
 			self::RUNNING      => __( 'An import is in progress. Large inventories are processed in batches across several runs.', 'wp-mobile-de-sync' ),
@@ -113,6 +134,21 @@ class WMDS_Status {
 		return in_array( $level, array( self::UNCONFIGURED, self::STALE, self::ABORTED, self::FAILED ), true );
 	}
 
+	/**
+	 * @return int|false Unix time of the next run, a follow-up pass or the
+	 *                   regular one, whichever comes first.
+	 */
+	public static function next_run() {
+		$times = array_filter(
+			array(
+				wp_next_scheduled( WMDS_CRON_HOOK ),
+				wp_next_scheduled( WMDS_Importer::FOLLOWUP_HOOK ),
+			)
+		);
+
+		return $times ? (int) min( $times ) : false;
+	}
+
 	/** @return array Everything the UI needs, read once. */
 	public static function get() {
 		$last = get_option( WMDS_Importer::OPT_LAST_RUN, array() );
@@ -128,14 +164,14 @@ class WMDS_Status {
 			'level'       => $level,
 			'severity'    => self::severity( $level ),
 			'label'       => self::label( $level ),
-			'explanation' => self::explanation( $level ),
+			'explanation' => self::explanation( $level, isset( $last['pending'] ) ? (int) $last['pending'] : 0 ),
 			'configured'  => $configured,
 			'running'     => $running,
 			'count'       => self::count(),
 			'last'        => $last,
 			'tested'      => self::tested(),
 			'last_ts'     => $last_ts,
-			'next'        => wp_next_scheduled( WMDS_CRON_HOOK ),
+			'next'        => self::next_run(),
 			'pending'     => isset( $last['pending'] ) ? (int) $last['pending'] : 0,
 			'incremental' => '' !== (string) get_option( WMDS_Importer::OPT_WATERMARK, '' ),
 		);

@@ -111,6 +111,36 @@ wmds_assert(
 	level( true, false, $ok, $fresh )
 );
 
+wmds_assert(
+	'a pass that left vehicles for the next is not in sync yet',
+	WMDS_Status::CATCHING_UP,
+	level(
+		true,
+		false,
+		array(
+			'failed'  => 0,
+			'pending' => 60,
+		),
+		$fresh
+	)
+);
+wmds_assert(
+	'failures still outrank a backlog',
+	WMDS_Status::FAILED,
+	level(
+		true,
+		false,
+		array(
+			'failed'  => 1,
+			'pending' => 60,
+		),
+		$fresh
+	)
+);
+wmds_assert( 'catching up is informational', 'info', WMDS_Status::severity( WMDS_Status::CATCHING_UP ) );
+wmds_assert( 'and nobody is alerted over it', false, WMDS_Status::is_actionable( WMDS_Status::CATCHING_UP ) );
+wmds_assert_contains( 'the explanation names the backlog', '60 vehicles are still to be processed', WMDS_Status::explanation( WMDS_Status::CATCHING_UP, 60 ) );
+
 wmds_section( 'Level: the edge of the stale window' );
 
 wmds_assert(
