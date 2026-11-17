@@ -3,6 +3,14 @@
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
+## [2.4.4] – 2026-11-17
+
+### Fixed
+- **German wording for damaged vehicles.** mobile.de's `damageUnrepaired`
+  flag covers any unrepaired damage, but the German label for it called the
+  vehicle an accident vehicle, so an engine failure read as an accident. It
+  now uses mobile.de's own terms for damaged-unrepaired and not roadworthy.
+
 ## [2.4.3] – 2026-11-17
 
 ### Changed

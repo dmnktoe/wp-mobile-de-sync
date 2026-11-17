@@ -1068,11 +1068,11 @@ msgstr "Schwacke-Code"
 
 #: includes/class-wmds-vehicle.php:232
 msgid "Damaged, unrepaired"
-msgstr "Unfallfahrzeug, nicht repariert"
+msgstr "Beschädigt, nicht repariert"
 
 #: includes/class-wmds-vehicle.php:235
 msgid "Not roadworthy"
-msgstr "Nicht fahrbereit"
+msgstr "Nicht fahrtauglich"
 
 #: templates/archive-fahrzeuge.php:100 templates/mob_vehicle-list.php:118
 msgid "No vehicles are available at the moment."
