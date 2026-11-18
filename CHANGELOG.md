@@ -11,7 +11,7 @@ versioning follows [Semantic Versioning](https://semver.org/).
   alert mails. Each line is now translated when it is written; entries from
   before the update stay as they are until they roll out of the log.
 - The kind of run reads "Changes sync" instead of "Incremental sync", in
-  German "Abgleich der Änderungen".
+  English and in the German translation.
 
 ## [2.4.5] – 2026-11-17
 
