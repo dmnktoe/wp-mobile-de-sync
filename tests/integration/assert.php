@@ -159,7 +159,7 @@ if ( 'unconfigured' === $wmds_it_phase ) {
 		wmds_it_same(
 			'image hashes recorded in order',
 			array( '99c3997d960b89eae1b66fb104c8d8a2', '626f22c8cd526fa930ad9542eb510f85' ),
-			get_post_meta( $rover->ID, WMDS_Importer::META_IMAGES, true )
+			get_post_meta( $rover->ID, WMDS_Images::META_LIST, true )
 		);
 
 		wmds_it_ok( 'featured image set', in_array( (int) get_post_thumbnail_id( $rover->ID ), $rover_images, true ) );
@@ -285,7 +285,7 @@ if ( 'unconfigured' === $wmds_it_phase ) {
 		isset( $published['427312402'] ) ? $published['427312402']->post_title : ''
 	);
 
-	$log   = get_option( WMDS_Importer::OPT_LOG, array() );
+	$log   = WMDS_Log::entries();
 	$first = is_array( $log ) && $log ? (string) $log[0]['message'] : '';
 	wmds_it_ok( 'the reload is in the log', false !== strpos( $first, 'Reloaded 424776053 on request' ), $first );
 
@@ -322,7 +322,7 @@ if ( 'unconfigured' === $wmds_it_phase ) {
 	wmds_it_same( 'and the status says so', WMDS_Status::ABORTED, WMDS_Status::get()['level'] );
 	wmds_it_same( 'lock released after the failure', false, get_transient( WMDS_Importer::LOCK ) );
 
-	$log   = get_option( WMDS_Importer::OPT_LOG, array() );
+	$log   = WMDS_Log::entries();
 	$first = is_array( $log ) && $log ? (string) $log[0]['message'] : '';
 	wmds_it_ok( 'failure written to the log', false !== strpos( $first, 'HTTP 500' ), $first );
 

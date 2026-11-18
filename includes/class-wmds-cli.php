@@ -101,12 +101,12 @@ class WMDS_CLI {
 		}
 
 		$limit = isset( $assoc['log'] ) ? (int) $assoc['log'] : 10;
-		$log   = get_option( WMDS_Importer::OPT_LOG, array() );
-		if ( is_array( $log ) && $log ) {
+		$log   = WMDS_Log::entries( $limit );
+		if ( $log ) {
 			WP_CLI::log( '' );
 			WP_CLI::log( 'Log:' );
-			foreach ( array_slice( $log, 0, $limit ) as $entry ) {
-				WP_CLI::log( sprintf( '  [%s] %s', $entry['time'], $entry['message'] ) );
+			foreach ( $log as $entry ) {
+				WP_CLI::log( '  ' . WMDS_Log::line( $entry ) );
 			}
 		}
 	}

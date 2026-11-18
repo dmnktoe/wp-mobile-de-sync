@@ -4,7 +4,7 @@ Tags: mobile.de, vehicles, dealership, facetwp, contact form 7
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 2.4.6
+Stable tag: 2.5.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -114,6 +114,15 @@ Pkw-EnVKV, so the bundled German catalogue carries the statutory wording rather
 than a translation of the English source.
 
 == Changelog ==
+
+= 2.5.0 =
+* Added: vehicles taken off mobile.de leave the site with the next scheduled run.
+* Added: the address of a removed vehicle leads to the overview with a note.
+* Added: similar vehicles at the end of a vehicle page.
+* Added: enquiry status (new / answered), count in the menu, reply by e-mail.
+* Added: Opel and Hyundai logos; a tool to delete unused vehicle pictures.
+* Changed: five settings tabs instead of nine, starting on an overview.
+* Changed: pictures of a removed vehicle are deleted right away.
 
 = 2.4.6 =
 * Changed: the sync log is written in the site's language.

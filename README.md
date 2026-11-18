@@ -112,15 +112,27 @@ The **edit form** says outright that the importer owns the record, and a meta
 box shows the ad ID, the modification date, the number of imported photos and a
 button that re-reads this one vehicle.
 
-The **settings screen** is split into Connection, Schedule, Enquiries,
-Integrations, Status & log, Tools, System and About, with the status card
-above the tabs.
-Each tab is a form of its own and saves only what it owns. Every action goes through
-`admin-post.php` and leaves through a redirect, so a reload never repeats it.
-“Test connection” and “Sync now” run over AJAX; the sync drives one batch per
+The **settings screen** has five tabs:
+
+| Tab | Holds |
+|---|---|
+| Overview | the status, the getting-started checklist, “Sync now”, the newest enquiries and log entries — the page it opens on |
+| Settings | credentials, which inventory, interval and label language, the address on the site, similar vehicles, notifications about problems |
+| Enquiries | the form on a vehicle page, its recipients and privacy notice, mail delivery and the test mail |
+| Embedding | blocks, shortcodes and widgets; Contact Form 7 and FacetWP |
+| Tools & system | the connection test, maintenance, the log, the server requirements, version and help |
+
+The Enquiries tab shows how many enquiries are still unanswered, and so does
+the menu entry. Each tab with settings is one form and saves only what it
+owns; the settings themselves are described once, in `WMDS_Settings::fields()`
+— type, default and how a posted value is cleaned — so a new setting is a
+line there and a field in a tab. Every action goes through `admin-post.php`
+and leaves through a redirect, so a reload never repeats it. “Test
+connection” and “Sync now” run over AJAX; the sync drives one batch per
 request and shows real progress instead of a spinner over a request that may
-time out. The log can be filtered down to problems, downloaded and cleared, and
-a full sync can be forced without waiting for the daily reconciliation.
+time out. The log can be filtered down to problems, downloaded and cleared, a
+full sync can be forced, and pictures of vehicles that are no longer on the
+site can be deleted from the media library.
 
 ## Enquiries
 
@@ -133,6 +145,11 @@ It is **also filed** under **Vehicles → Enquiries**. Mail is the part of this
 that fails: a wrong SMTP setting, a full mailbox, a spam filter. An enquiry
 that only ever existed as an e-mail is gone when that e-mail is. One that was
 written down is not.
+
+Each enquiry is **new** until somebody marks it answered — in the list, or in
+the enquiry itself, next to a **Reply by e-mail** button that opens the mail
+program with the address, a subject naming the vehicle and the message quoted.
+The number of unanswered enquiries sits next to the menu entry.
 
 **Vehicles → Sync Settings → Enquiries** sets who receives them (several
 addresses allowed), whether the address the feed carries for that vehicle gets
@@ -155,7 +172,8 @@ wrong.
 
 Three plugins turn up on a dealer site often enough to be worth meeting
 halfway. All three are optional, none is required, and what they add sits
-under **Vehicles → Sync Settings → Integrations**.
+under **Vehicles → Sync Settings → Embedding**, mail delivery under
+**Enquiries**.
 
 ### Contact Form 7
 
@@ -203,7 +221,7 @@ decides on, and accepted by the local sendmail whether or not anything is ever
 delivered. An enquiry in a spam folder is a lost customer, and nothing on the
 site would say so.
 
-The Integrations tab and **System** name the mailer plugin that is installed —
+The Enquiries tab and **Tools & system** name the mailer plugin that is installed —
 WP Mail SMTP, FluentSMTP, Post SMTP, Easy WP SMTP, WP Offload SES, Mailgun,
 Brevo — and, where it can be read, what it has been told to send through. A
 plugin installed but left on `mail` is called out, because that is the setting
@@ -295,9 +313,9 @@ fixed" is the one message nobody wants to wait six hours for.
 "Not configured" is never mailed about. A plugin nobody has set up yet is not
 a fault.
 
-**Send a test alert** sends the mail an alert would send right now. A
-WordPress installation that cannot send mail at all — no SMTP configured, the
-usual case on a fresh server — fails there rather than on the day it matters.
+**Send a test mail** on the Enquiries tab sends one mail to every address the
+plugin writes to — the enquiry address and, when alerts are on, the alert
+address — and names them. Enquiries and alerts keep addresses of their own.
 
 The optional weekly summary goes out even when nothing is wrong, which is what
 makes silence evidence rather than an assumption.
@@ -305,9 +323,13 @@ makes silence evidence rather than an assumption.
 `wmds_alert_recipients` decides who is written to; `wmds_run_finished` fires
 with the statistics of every completed run, for anything else.
 
-**A regular run fetches only what changed.** Once a day a full reconciliation
-runs in addition — and only one of those removes sold vehicles: as soon as it
-has read the whole listing, before the first batch is written.
+**A regular run fetches only what changed** — and then asks mobile.de, in one
+small request, how many vehicles the inventory holds. When the site would not
+hold the same number after the pass, the pass reads the whole listing instead
+and removes what is gone, so a vehicle taken off mobile.de leaves the site
+with the next scheduled run. Once a day a full reconciliation runs in
+addition. Removal happens as soon as a full listing has been read, before the
+first batch is written.
 
 ## Error handling
 
@@ -327,7 +349,15 @@ Three independent guards apply to removal:
    with a reason. Below that sits an absolute floor of three vehicles, so
    small inventories are not permanently blocked.
 
-Removed vehicles go to the **trash**, not into the void.
+Removed vehicles go to the **trash**, not into the void; their pictures are
+deleted from the media library at the same time. A vehicle that comes back
+into the feed is restored under its old address and downloads its pictures
+again.
+
+**The address of a removed vehicle** does not end in “page not found”: it
+leads to the vehicle overview, filtered by the make that was asked for while
+there is still one in stock, with a note that the vehicle is no longer
+available.
 
 ## WP-CLI
 
@@ -341,7 +371,7 @@ wp wmds flush-cache            re-fetch reference data
 
 ## Logos
 
-30 manufacturer logos ship with the plugin, output via `[vehicle-logo]`. For a
+32 manufacturer logos ship with the plugin, output via `[vehicle-logo]`. For a
 missing make, drop a file into `wp-content/uploads/wmds-logos/` named after the
 make (`Tesla.png`). Case, spaces and special characters do not matter — the
 lookup normalises both sides.
@@ -417,8 +447,24 @@ Only the first is public in the sense that matters: a theme overriding
 | `WMDS_Admin_Ui` | the markup shared between tabs |
 | `WMDS_Tab_*` | one class per tab, in `includes/tabs/` |
 
-A tab is a class with a `render()` method. Adding one means a class, a line
-in `WMDS_Admin::tabs()` and a line in the loop that requires them.
+A tab is a class with a `render()` method, and a `fields()` method when it
+holds settings. Adding one means a class and a line in `WMDS_Admin::tabs()`
+(and in `WMDS_Admin::forms()` when it saves something).
+
+### Where the rest lives
+
+| Class | Does |
+|---|---|
+| `WMDS_Plugin` | wires the plugin into WordPress: post type, cron events, activation |
+| `WMDS_Settings` | every setting, its type and default, and reading a submitted form |
+| `WMDS_Importer` | a sync pass: listing, plan, vehicles, removal |
+| `WMDS_Images` | the pictures of a vehicle, and deleting them once it is gone |
+| `WMDS_Log` | the sync log, with a level per entry |
+| `WMDS_Leads` | stored enquiries: post type, list, status, privacy tools |
+| `WMDS_Lead_Form` | the enquiry form on the site and what it accepts |
+| `WMDS_Lead_Mail` | the mails an enquiry sends |
+| `WMDS_Removed` | the address of a vehicle that is no longer on the site |
+| `WMDS_Similar` | similar vehicles at the end of a vehicle page |
 
 ### The admin screen has a net under it
 
@@ -548,6 +594,7 @@ Every template is resolved through the same hierarchy, first match wins:
 | `parts/vehicle-gallery.php` | the photos on the detail page |
 | `parts/filter-bar.php` | the filter components |
 | `parts/enquiry-form.php` | the enquiry form |
+| `parts/similar-vehicles.php` | similar vehicles at the end of the detail page |
 
 The card is a part of its own, so a theme can restyle the grid item without
 copying the loop around it. It reads `$args['heading']` (`h2` to `h4`) and

@@ -125,7 +125,7 @@ class WMDS_Facets {
 	}
 }
 
-class WMDS_Leads {
+class WMDS_Lead_Form {
 	public static $last_atts;
 
 	public static function shortcode( $atts = array() ) {
@@ -208,7 +208,7 @@ wmds_assert(
 		'vehicle' => 42,
 		'heading' => 'Ask',
 	),
-	WMDS_Leads::$last_atts
+	WMDS_Lead_Form::$last_atts
 );
 
 wmds_assert(

@@ -36,6 +36,7 @@ class WMDS_Admin_Actions {
 			'unlock'       => array( __CLASS__, 'do_unlock' ),
 			'check-update' => array( __CLASS__, 'do_check_update' ),
 			'test-mail'    => array( __CLASS__, 'do_test_mail' ),
+			'clean-images' => array( __CLASS__, 'do_clean_images' ),
 		);
 
 		if ( isset( $handlers[ $action ] ) ) {
@@ -66,15 +67,16 @@ class WMDS_Admin_Actions {
 		}
 
 		$tabs = array(
-			'save'      => 'connection',
-			'test'      => 'connection',
-			'sync'      => 'status',
-			'full'      => 'status',
-			'clear-log' => 'status',
-			'test-mail' => 'integrations',
-			'flush'     => 'tools',
-			'unlock'    => 'tools',
-			'forget'    => 'connection',
+			'save'         => 'settings',
+			'forget'       => 'settings',
+			'test'         => 'tools',
+			'sync'         => 'overview',
+			'full'         => 'tools',
+			'clear-log'    => 'tools',
+			'flush'        => 'tools',
+			'unlock'       => 'tools',
+			'clean-images' => 'tools',
+			'test-mail'    => 'enquiries',
 		);
 
 		$tab = isset( $tabs[ $action ] ) ? $tabs[ $action ] : '';
@@ -95,138 +97,86 @@ class WMDS_Admin_Actions {
 	 * setting out of one submission emptied the ones the other tabs own.
 	 */
 	private static function do_save() {
-		$tab = isset( $_POST['wmds_tab'] ) ? sanitize_key( wp_unslash( $_POST['wmds_tab'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification -- verified in handle() before this runs.
+		// phpcs:disable WordPress.Security.NonceVerification -- verified in handle() before this runs.
+		$tab     = isset( $_POST['wmds_tab'] ) ? sanitize_key( wp_unslash( $_POST['wmds_tab'] ) ) : '';
+		$forms   = WMDS_Admin::forms();
+		$request = wp_unslash( $_POST );
+		// phpcs:enable WordPress.Security.NonceVerification
 
-		// A form that does not say which tab it is saves nothing. Falling
-		// back to the connection tab read its fields out of a submission
-		// that had none and emptied the username.
-		if ( ! in_array( $tab, array( 'connection', 'schedule', 'enquiries', 'integrations', 'status', 'usage' ), true ) ) {
+		// A form that does not say which tab it is saves nothing. Guessing
+		// read the fields of one tab out of a submission that had none and
+		// emptied them.
+		if ( ! isset( $forms[ $tab ] ) ) {
 			WMDS_Admin_Notices::notice( 'error', __( 'Nothing was saved: the form did not specify which settings it contains.', 'wp-mobile-de-sync' ) );
 
 			return;
 		}
 
-		if ( 'schedule' === $tab ) {
-			self::save_schedule();
-		} elseif ( 'enquiries' === $tab ) {
-			self::save_enquiries();
-		} elseif ( 'integrations' === $tab ) {
-			self::save_integrations();
-		} elseif ( 'status' === $tab ) {
-			self::save_alerts();
-		} elseif ( 'usage' === $tab ) {
-			self::save_slug();
-		} else {
-			self::save_connection();
+		$before = array();
+		foreach ( $forms[ $tab ] as $key ) {
+			$before[ $key ] = WMDS_Settings::get( $key );
 		}
+
+		$values = WMDS_Settings::from_request( $forms[ $tab ], is_array( $request ) ? $request : array() );
+
+		// Either the seller ID or the dealer name, never both: the radio
+		// button says which one the form means.
+		if ( isset( $values['seller_id'] ) ) {
+			$mode = isset( $request['wmds_seller_mode'] ) ? sanitize_key( (string) $request['wmds_seller_mode'] ) : 'id';
+
+			if ( 'dealer' === $mode ) {
+				$values['seller_id'] = '';
+			} else {
+				$values['dealer'] = '';
+			}
+		}
+
+		WMDS_Settings::update( $values );
+
+		self::after_save( $before );
 
 		WMDS_Admin_Notices::notice( 'success', __( 'Settings saved.', 'wp-mobile-de-sync' ) );
 	}
 
-	private static function save_connection() {
-		// phpcs:disable WordPress.Security.NonceVerification -- verified in handle() before this runs.
-		$mode = isset( $_POST['wmds_seller_mode'] ) ? sanitize_key( wp_unslash( $_POST['wmds_seller_mode'] ) ) : 'id';
-
-		$values = array(
-			'username' => sanitize_text_field( wp_unslash( $_POST['wmds_username'] ?? '' ) ),
-		);
-
-		if ( 'dealer' === $mode ) {
-			$values['seller_id'] = '';
-			$values['dealer']    = sanitize_text_field( wp_unslash( $_POST['wmds_dealer'] ?? '' ) );
-		} else {
-			$values['seller_id'] = preg_replace( '/\D/', '', (string) wp_unslash( $_POST['wmds_seller_id'] ?? '' ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- preg_replace strips it to digits, which is stricter than any sanitiser.
-			$values['dealer']    = '';
+	/**
+	 * What a changed setting sets in motion.
+	 *
+	 * @param array $before The values of the submitted settings before saving.
+	 */
+	private static function after_save( array $before ) {
+		$changed = array();
+		foreach ( $before as $key => $value ) {
+			if ( (string) WMDS_Settings::get( $key ) !== (string) $value ) {
+				$changed[] = $key;
+			}
 		}
-
-		$password = (string) wp_unslash( $_POST['wmds_password'] ?? '' ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- a password is stored verbatim on purpose.
-		if ( '' !== $password ) {
-			$values['password'] = $password;
-		}
-		// phpcs:enable WordPress.Security.NonceVerification
-
-		WMDS_Settings::update( $values );
 
 		// A test passed for the credentials that were there before.
-		delete_option( WMDS_Status::OPT_LAST_TEST );
-	}
+		if ( array_intersect( array( 'username', 'password', 'seller_id', 'dealer' ), $changed ) ) {
+			delete_option( WMDS_Status::OPT_LAST_TEST );
+		}
 
-	private static function save_schedule() {
-		// phpcs:disable WordPress.Security.NonceVerification -- verified in handle() before this runs.
-		$language = sanitize_key( wp_unslash( $_POST['wmds_language'] ?? '' ) );
+		if ( in_array( 'interval', $changed, true ) ) {
+			WMDS_Plugin::resync_schedule();
+		}
 
-		WMDS_Settings::update(
-			array(
-				// Empty is "the site's language"; anything else has to be offered.
-				'language' => array_key_exists( $language, WMDS_Tab_Schedule::languages() ) ? $language : '',
-				'interval' => sanitize_key( wp_unslash( $_POST['wmds_interval'] ?? 'wmds_15min' ) ),
-			)
-		);
-		// phpcs:enable WordPress.Security.NonceVerification
-
-		self::resync_schedule();
-	}
-
-	private static function save_slug() {
-		$before = WMDS_Settings::slug();
-
-		// phpcs:ignore WordPress.Security.NonceVerification -- verified in handle() before this runs.
-		WMDS_Settings::update( array( 'slug' => sanitize_title( wp_unslash( $_POST['wmds_slug'] ?? '' ) ) ) );
-
-		if ( WMDS_Settings::slug() !== $before ) {
-			// The post type is registered with the old slug for the rest of
-			// this request. Dropping the stored rules makes the next request
-			// build them from the new one.
+		// The post type is registered with the old slug for the rest of this
+		// request. Dropping the stored rules makes the next request build
+		// them from the new one.
+		if ( in_array( 'slug', $changed, true ) ) {
 			delete_option( 'rewrite_rules' );
 		}
-	}
 
-	private static function save_alerts() {
-		// phpcs:disable WordPress.Security.NonceVerification -- verified in handle() before this runs.
-		$was_enabled = WMDS_Alerts::enabled();
+		if ( array_key_exists( 'alerts_enabled', $before ) ) {
+			// Switched on again: the last problem reported is not news to
+			// anybody any more, and the next one should not wait for a
+			// cooldown that started back then.
+			if ( in_array( 'alerts_enabled', $changed, true ) && WMDS_Alerts::enabled() ) {
+				WMDS_Alerts::forget();
+			}
 
-		WMDS_Settings::update(
-			array(
-				'alerts_enabled'   => isset( $_POST['wmds_alerts_enabled'] ) ? 'yes' : 'no',
-				'alerts_weekly'    => isset( $_POST['wmds_alerts_weekly'] ) ? 'yes' : 'no',
-				'alerts_recipient' => sanitize_text_field( wp_unslash( $_POST['wmds_alerts_recipient'] ?? '' ) ),
-				'alerts_cooldown'  => absint( wp_unslash( $_POST['wmds_alerts_cooldown'] ?? 21600 ) ),
-			)
-		);
-		// phpcs:enable WordPress.Security.NonceVerification
-
-		if ( ! $was_enabled && WMDS_Alerts::enabled() ) {
-			WMDS_Alerts::forget();
+			WMDS_Alerts::schedule();
 		}
-
-		WMDS_Alerts::schedule();
-	}
-
-	private static function save_enquiries() {
-		// phpcs:disable WordPress.Security.NonceVerification -- verified in handle() before this runs.
-		WMDS_Settings::update(
-			array(
-				'enquiry_enabled'     => isset( $_POST['wmds_enquiry_enabled'] ) ? 'yes' : 'no',
-				'enquiry_copy_seller' => isset( $_POST['wmds_enquiry_copy_seller'] ) ? 'yes' : 'no',
-				'enquiry_autoreply'   => isset( $_POST['wmds_enquiry_autoreply'] ) ? 'yes' : 'no',
-				'enquiry_store'       => isset( $_POST['wmds_enquiry_store'] ) ? 'yes' : 'no',
-				'enquiry_recipient'   => sanitize_text_field( wp_unslash( $_POST['wmds_enquiry_recipient'] ?? '' ) ),
-				'enquiry_consent'     => wp_kses_post( wp_unslash( $_POST['wmds_enquiry_consent'] ?? '' ) ), // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- wp_kses_post is the sanitiser; a link is allowed here on purpose.
-			)
-		);
-		// phpcs:enable WordPress.Security.NonceVerification
-	}
-
-	private static function save_integrations() {
-		// phpcs:disable WordPress.Security.NonceVerification -- verified in handle() before this runs.
-		WMDS_Settings::update(
-			array(
-				'cf7_store'       => isset( $_POST['wmds_cf7_store'] ) ? 'yes' : 'no',
-				'cf7_copy_seller' => isset( $_POST['wmds_cf7_copy_seller'] ) ? 'yes' : 'no',
-				'facetwp_reindex' => isset( $_POST['wmds_facetwp_reindex'] ) ? 'yes' : 'no',
-			)
-		);
-		// phpcs:enable WordPress.Security.NonceVerification
 	}
 
 	private static function do_forget() {
@@ -242,18 +192,6 @@ class WMDS_Admin_Actions {
 		delete_option( WMDS_Status::OPT_LAST_TEST );
 
 		WMDS_Admin_Notices::notice( 'success', __( 'Credentials deleted. No vehicles will be imported until new credentials are saved.', 'wp-mobile-de-sync' ) );
-	}
-
-	private static function resync_schedule() {
-		$current = wp_get_schedule( WMDS_CRON_HOOK );
-		$wanted  = WMDS_Settings::interval();
-
-		if ( $current === $wanted ) {
-			return;
-		}
-
-		wp_clear_scheduled_hook( WMDS_CRON_HOOK );
-		wp_schedule_event( time() + 60, $wanted, WMDS_CRON_HOOK );
 	}
 
 	private static function do_unlock() {
@@ -407,8 +345,21 @@ class WMDS_Admin_Actions {
 		WMDS_Admin_Notices::notice( 'error', sprintf( __( 'WordPress could not send the test mail to %s.', 'wp-mobile-de-sync' ), $list ) );
 	}
 
+	private static function do_clean_images() {
+		$deleted = WMDS_Images::delete_orphans();
+
+		WMDS_Admin_Notices::notice(
+			'success',
+			sprintf(
+				/* translators: %d: number of pictures deleted. */
+				_n( '%d unused vehicle picture deleted.', '%d unused vehicle pictures deleted.', $deleted, 'wp-mobile-de-sync' ),
+				$deleted
+			)
+		);
+	}
+
 	private static function do_clear_log() {
-		delete_option( WMDS_Importer::OPT_LOG );
+		WMDS_Log::clear();
 
 		WMDS_Admin_Notices::notice( 'success', __( 'Log cleared.', 'wp-mobile-de-sync' ) );
 	}
@@ -428,7 +379,7 @@ class WMDS_Admin_Actions {
 		}
 
 		delete_post_meta( $post_id, WMDS_Importer::META_HASH );
-		delete_post_meta( $post_id, WMDS_Importer::META_IMAGES );
+		delete_post_meta( $post_id, WMDS_Images::META_LIST );
 
 		$importer = new WMDS_Importer();
 		$result   = $importer->refresh( $ad_id );
@@ -458,17 +409,14 @@ class WMDS_Admin_Actions {
 	}
 
 	private static function export_log() {
-		$log = get_option( WMDS_Importer::OPT_LOG, array() );
-		$log = is_array( $log ) ? $log : array();
-
 		nocache_headers();
 		header( 'Content-Type: text/plain; charset=utf-8' );
 		header( 'Content-Disposition: attachment; filename="mobile-de-sync-log.txt"' );
 
-		foreach ( $log as $entry ) {
+		foreach ( WMDS_Log::entries() as $entry ) {
 			// Plain text in a download: escaping it for HTML would put &amp;
 			// and &#039; into the file.
-			printf( "[%s] %s\n", $entry['time'], $entry['message'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- text/plain, sent as an attachment.
+			echo WMDS_Log::line( $entry ) . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- text/plain, sent as an attachment.
 		}
 
 		exit;

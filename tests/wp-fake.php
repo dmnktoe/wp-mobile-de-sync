@@ -414,6 +414,12 @@ class WMDS_Fake_Client {
 	/** @var WP_Error|null Error instead of a search result. */
 	public $search_error = null;
 
+	/** @var int|WP_Error|null What total() answers; null skips the check. */
+	public $total = null;
+
+	/** @var int How often total() was asked. */
+	public $totals_asked = 0;
+
 	/** @var array Record of the calls made. */
 	public $searched = array();
 	public $fetched  = array();
@@ -443,6 +449,12 @@ class WMDS_Fake_Client {
 				'max_pages' => 1,
 				'capped'    => false,
 			);
+	}
+
+	public function total() {
+		++$this->totals_asked;
+
+		return $this->total;
 	}
 
 	public function ad( $ad_id ) {

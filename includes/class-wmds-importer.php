@@ -8,12 +8,9 @@ class WMDS_Importer {
 
 	const META_MODIFIED = '_wmds_modified';
 	const META_HASH     = '_wmds_hash';
-	const META_IMAGES   = '_wmds_image_hashes';
 	const META_KEYS     = '_wmds_keys';
 	const META_RETRIES  = '_wmds_image_retries';
 
-	/** On an attachment: the hash mobile.de gave the picture it was made from. */
-	const META_IMAGE_HASH = '_wmds_image_hash';
 
 	/** Passes a vehicle is retried for a picture that will not download. */
 	const IMAGE_RETRIES = 3;
@@ -30,13 +27,10 @@ class WMDS_Importer {
 	 * moved forward one batch every fifteen minutes.
 	 */
 	const FOLLOWUP_HOOK = 'wmds_import_followup';
-	const OPT_LOG       = 'wmds_log';
 
 	const BATCH = 20;
 
 	const LOCK_TTL = 900;
-
-	const MAX_IMAGES = 15;
 
 	const BUDGET_SHARE = 0.6;
 	const MAX_RUNTIME  = 300;
@@ -214,48 +208,37 @@ class WMDS_Importer {
 		$watermark = (string) get_option( self::OPT_WATERMARK, '' );
 		$is_full   = ( '' === $watermark );
 
-		$ads       = array();
-		$page      = 1;
-		$pages     = 1;
-		$capped    = false;
-		$truncated = false;
-		$guard     = 40;
+		list( $known, $trashed ) = $this->known_map();
 
-		do {
-			self::touch_lock();
+		$listing = $this->listing( $watermark, $deadline );
+		if ( is_wp_error( $listing ) ) {
+			return $listing;
+		}
 
-			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- disabled on many hosts, the deadline below covers that case.
-			@set_time_limit( 0 );
+		$plan = WMDS_Sync_Plan::build( $listing['ads'], $known );
 
-			$result = $this->client->search( $page, WMDS_Client::MAX_PAGE_SIZE, $watermark );
-			if ( is_wp_error( $result ) ) {
-				/* translators: 1: page number, 2: the error message. */
-				$this->log( sprintf( __( 'Aborted on page %1$d: %2$s', 'wp-mobile-de-sync' ), $page, $result->get_error_message() ) );
-				return $result;
+		// A changes-only listing cannot see a vehicle that left mobile.de: it
+		// is not changed, it is gone. One small request for the size of the
+		// whole inventory tells whether that happened. When the site would
+		// not hold as many vehicles as mobile.de lists after this pass, the
+		// pass reads the full listing instead and removes what is missing -
+		// now, not at the next daily full sync.
+		if ( ! $is_full && $this->inventory_differs( count( $known ) + count( $plan['create'] ) ) ) {
+			$is_full = true;
+			$listing = $this->listing( '', $deadline );
+			if ( is_wp_error( $listing ) ) {
+				return $listing;
 			}
 
-			$ads    = array_merge( $ads, $result['ads'] );
-			$capped = $capped || ! empty( $result['capped'] );
-			$pages  = max( 1, (int) $result['max_pages'] );
-			++$page;
+			$plan = WMDS_Sync_Plan::build( $listing['ads'], $known );
+		}
 
-			if ( $deadline && $page <= $pages && $page <= $guard && time() >= $deadline ) {
-				$truncated = true;
-
-				$this->log(
-					sprintf(
-						/* translators: 1: pages read, 2: pages in total. */
-						__( 'Listing stopped after %1$d of %2$d pages because of the execution time limit. This pass only processes what it has read and removes nothing.', 'wp-mobile-de-sync' ),
-						$page - 1,
-						$pages
-					)
-				);
-				break;
-			}
-		} while ( $page <= $pages && $page <= $guard );
+		$ads       = $listing['ads'];
+		$capped    = $listing['capped'];
+		$truncated = $listing['truncated'];
 
 		if ( $capped ) {
-			$this->log(
+			WMDS_Log::problem(
 				sprintf(
 					/* translators: %d: the maximum number of vehicles the API returns. */
 					__( 'Warning: the inventory exceeds the %d vehicles the API returns across paginated requests. This reconciliation is incomplete.', 'wp-mobile-de-sync' ),
@@ -263,10 +246,6 @@ class WMDS_Importer {
 				)
 			);
 		}
-
-		list( $known, $trashed ) = $this->known_map();
-
-		$plan = WMDS_Sync_Plan::build( $ads, $known );
 
 		$todo    = array_merge( $plan['create'], $plan['update'] );
 		$pending = max( 0, count( $todo ) - $batch );
@@ -283,7 +262,7 @@ class WMDS_Importer {
 				$left     = count( $todo ) - $done;
 				$pending += $left;
 
-				$this->log(
+				WMDS_Log::write(
 					sprintf(
 						/* translators: 1: vehicles processed, 2: vehicles left. */
 						__( 'Pass stopped after %1$d vehicles because of the execution time limit; %2$d remaining.', 'wp-mobile-de-sync' ),
@@ -313,12 +292,10 @@ class WMDS_Importer {
 
 		$complete = ( 0 === $pending ) && ! $truncated;
 
-		// Whether a vehicle is sold is settled by the listing, not by the
+		// Whether a vehicle is gone is settled by the listing, not by the
 		// batches: a full listing read to its last page names every ad there
 		// is, and the batches after it only rewrite text and pictures. So the
-		// sold ones go in the first pass of a full sync - waiting for the last
-		// batch kept them published for hours on a large backlog, next to the
-		// new ones already added.
+		// missing ones go in the first pass of a full sync.
 		//
 		// What the API did not hand out is not gone. A listing cut short
 		// names only part of the inventory, and past the pagination cap it is
@@ -329,11 +306,12 @@ class WMDS_Importer {
 
 		if ( '' !== $removal['abort'] ) {
 			if ( $reconcile ) {
-				$this->log( $removal['abort'] );
+				WMDS_Log::problem( $removal['abort'] );
 			}
 		} else {
 			foreach ( $removal['remove'] as $post_id ) {
 				if ( wp_trash_post( $post_id ) ) {
+					WMDS_Images::release( $post_id );
 					++$removed;
 				}
 			}
@@ -355,7 +333,7 @@ class WMDS_Importer {
 			// A vehicle that failed keeps the watermark where it was, so the
 			// next scheduled run lists it again; only an unfinished pass
 			// needs one sooner than that.
-			$this->reschedule();
+			self::schedule_followup();
 		}
 
 		$stats = array(
@@ -373,35 +351,127 @@ class WMDS_Importer {
 
 		update_option( self::OPT_LAST_RUN, $stats, false );
 
-		// Written in the site's language, which run() has switched to: the
-		// log is read on a German screen and in German alert mails, and an
-		// English line among them reads like an error.
+		WMDS_Log::write( self::describe_run( $stats ), $failed ? WMDS_Log::PROBLEM : WMDS_Log::INFO );
+
+		return $stats;
+	}
+
+	/**
+	 * The log line for a pass, in the site's language: run() has switched
+	 * to it, so a German site gets German lines whatever the admin's own
+	 * profile language is.
+	 *
+	 * @param array $stats As execute() returns them.
+	 * @return string
+	 */
+	public static function describe_run( array $stats ) {
 		$summary = sprintf(
 			/* translators: 1: vehicles seen, 2: created, 3: updated, 4: skipped, 5: removed, 6: images. */
 			__( '%1$d seen, %2$d created, %3$d updated, %4$d skipped, %5$d removed, %6$d images', 'wp-mobile-de-sync' ),
 			$stats['seen'],
-			$created,
-			$updated,
+			$stats['created'],
+			$stats['updated'],
 			$stats['skipped'],
-			$removed,
-			$images
+			$stats['removed'],
+			$stats['images']
 		);
 
-		if ( $pending ) {
-			/* translators: %d: vehicles still to be processed. */
-			$summary .= sprintf( __( ', %d still to process', 'wp-mobile-de-sync' ), $pending );
+		if ( ! empty( $stats['failed'] ) ) {
+			/* translators: %d: vehicles that could not be processed. */
+			$summary .= sprintf( __( ', %d failed', 'wp-mobile-de-sync' ), $stats['failed'] );
 		}
 
-		$this->log(
+		if ( ! empty( $stats['pending'] ) ) {
+			/* translators: %d: vehicles still to be processed. */
+			$summary .= sprintf( __( ', %d still to process', 'wp-mobile-de-sync' ), $stats['pending'] );
+		}
+
+		return sprintf(
+			/* translators: 1: kind of run, 2: the counts. */
+			__( '%1$s: %2$s.', 'wp-mobile-de-sync' ),
+			$stats['full'] ? __( 'Full sync', 'wp-mobile-de-sync' ) : __( 'Changes sync', 'wp-mobile-de-sync' ),
+			$summary
+		);
+	}
+
+	/**
+	 * Reads the listing, page by page.
+	 *
+	 * @param string $watermark Only ads changed since then; empty for all.
+	 * @param int    $deadline  Unix time the listing has to stop by, 0 for none.
+	 * @return array{ads:array[],capped:bool,truncated:bool}|WP_Error
+	 */
+	private function listing( $watermark, $deadline ) {
+		$ads       = array();
+		$page      = 1;
+		$pages     = 1;
+		$capped    = false;
+		$truncated = false;
+		$guard     = 40;
+
+		do {
+			self::touch_lock();
+
+			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- disabled on many hosts, the deadline below covers that case.
+			@set_time_limit( 0 );
+
+			$result = $this->client->search( $page, WMDS_Client::MAX_PAGE_SIZE, $watermark );
+			if ( is_wp_error( $result ) ) {
+				/* translators: 1: page number, 2: the error message. */
+				WMDS_Log::problem( sprintf( __( 'Aborted on page %1$d: %2$s', 'wp-mobile-de-sync' ), $page, $result->get_error_message() ) );
+				return $result;
+			}
+
+			$ads    = array_merge( $ads, $result['ads'] );
+			$capped = $capped || ! empty( $result['capped'] );
+			$pages  = max( 1, (int) $result['max_pages'] );
+			++$page;
+
+			if ( $deadline && $page <= $pages && $page <= $guard && time() >= $deadline ) {
+				$truncated = true;
+
+				WMDS_Log::write(
+					sprintf(
+						/* translators: 1: pages read, 2: pages in total. */
+						__( 'Listing stopped after %1$d of %2$d pages because of the execution time limit. This pass only processes what it has read and removes nothing.', 'wp-mobile-de-sync' ),
+						$page - 1,
+						$pages
+					)
+				);
+				break;
+			}
+		} while ( $page <= $pages && $page <= $guard );
+
+		return array(
+			'ads'       => $ads,
+			'capped'    => $capped,
+			'truncated' => $truncated,
+		);
+	}
+
+	/**
+	 * @param int $expected Vehicles the site holds once this pass is through.
+	 * @return bool Whether mobile.de lists a different number. An answer that
+	 *              does not come counts as no difference: the next run asks
+	 *              again, and the daily full sync settles it in any case.
+	 */
+	private function inventory_differs( $expected ) {
+		$total = $this->client->total();
+
+		if ( ! is_int( $total ) || $total === (int) $expected ) {
+			return false;
+		}
+
+		WMDS_Log::write(
 			sprintf(
-				/* translators: 1: kind of run, 2: the counts. */
-				__( '%1$s: %2$s.', 'wp-mobile-de-sync' ),
-				$is_full ? __( 'Full sync', 'wp-mobile-de-sync' ) : __( 'Changes sync', 'wp-mobile-de-sync' ),
-				$summary
+				/* translators: 1: vehicles listed on mobile.de, 2: vehicles on the site. */
+				__( 'mobile.de lists %1$d vehicles, the site would hold %2$d. This pass reads the full inventory.', 'wp-mobile-de-sync' ),
+				$total,
+				(int) $expected
 			)
 		);
 
-		return $stats;
+		return true;
 	}
 
 	/**
@@ -421,7 +491,7 @@ class WMDS_Importer {
 		$detail = $this->client->ad( $ad_id );
 		if ( is_wp_error( $detail ) ) {
 			/* translators: 1: mobile.de ad ID, 2: the error message. */
-			$this->log( sprintf( __( 'Reload failed for %1$s: %2$s', 'wp-mobile-de-sync' ), $ad_id, $detail->get_error_message() ) );
+			WMDS_Log::problem( sprintf( __( 'Reload failed for %1$s: %2$s', 'wp-mobile-de-sync' ), $ad_id, $detail->get_error_message() ) );
 			return $detail;
 		}
 
@@ -441,7 +511,7 @@ class WMDS_Importer {
 		}
 
 		/* translators: 1: mobile.de ad ID, 2: outcome (created, updated, skipped), 3: number of images. */
-		$this->log( sprintf( __( 'Reloaded %1$s on request: %2$s, %3$d images.', 'wp-mobile-de-sync' ), $ad_id, self::outcome_label( $outcome ), $images ) );
+		WMDS_Log::write( sprintf( __( 'Reloaded %1$s on request: %2$s, %3$d images.', 'wp-mobile-de-sync' ), $ad_id, self::outcome_label( $outcome ), $images ) );
 
 		return array(
 			'outcome' => $outcome,
@@ -472,7 +542,7 @@ class WMDS_Importer {
 		// call knows, and then mark the vehicle as up to date.
 		if ( is_wp_error( $detail ) ) {
 			/* translators: 1: mobile.de ad ID, 2: the error message. */
-			$this->log( sprintf( __( 'Detail call failed for %1$s: %2$s', 'wp-mobile-de-sync' ), $ad_id, $detail->get_error_message() ) );
+			WMDS_Log::problem( sprintf( __( 'Detail call failed for %1$s: %2$s', 'wp-mobile-de-sync' ), $ad_id, $detail->get_error_message() ) );
 
 			return 'error';
 		}
@@ -515,7 +585,7 @@ class WMDS_Importer {
 		}
 
 		if ( is_wp_error( $result ) || ! $result ) {
-			$this->log(
+			WMDS_Log::problem(
 				is_wp_error( $result )
 					/* translators: 1: mobile.de ad ID, 2: the error message. */
 					? sprintf( __( 'Could not save the vehicle %1$s: %2$s', 'wp-mobile-de-sync' ), $ad_id, $result->get_error_message() )
@@ -535,21 +605,21 @@ class WMDS_Importer {
 			update_post_meta( $post_id, self::META_HASH, $hash );
 		}
 
-		$wanted   = array_slice( $mapped['images'], 0, self::MAX_IMAGES );
-		$stored   = get_post_meta( $post_id, self::META_IMAGES, true );
+		$wanted   = array_slice( $mapped['images'], 0, WMDS_Images::MAX );
+		$stored   = get_post_meta( $post_id, WMDS_Images::META_LIST, true );
 		$complete = true;
 
 		if ( ! $wanted ) {
 			if ( $stored ) {
-				$this->sync_images( $post_id, array(), $mapped['title'] );
-				delete_post_meta( $post_id, self::META_IMAGES );
+				WMDS_Images::sync( $post_id, array(), $mapped['title'] );
+				delete_post_meta( $post_id, WMDS_Images::META_LIST );
 			}
 		} elseif ( WMDS_Sync_Plan::images_changed( $stored, $wanted ) || ! has_post_thumbnail( $post_id ) ) {
-			$result   = $this->sync_images( $post_id, $wanted, $mapped['title'] );
+			$result   = WMDS_Images::sync( $post_id, $wanted, $mapped['title'] );
 			$images  += $result['downloaded'];
 			$complete = count( $result['hashes'] ) === count( $wanted );
 
-			update_post_meta( $post_id, self::META_IMAGES, $result['hashes'] );
+			update_post_meta( $post_id, WMDS_Images::META_LIST, $result['hashes'] );
 		}
 
 		// Last, and only once everything is in: this is the mark that makes
@@ -612,134 +682,6 @@ class WMDS_Importer {
 	}
 
 	/**
-	 * Brings the attached pictures in line with what the ad shows.
-	 *
-	 * A picture that is already here is kept — mobile.de names each one by a
-	 * hash, so an ad that gained one photo costs one download, not fifteen.
-	 * Whatever the ad no longer shows is deleted, and only then: nothing is
-	 * removed before its replacement is in place.
-	 *
-	 * @param int    $post_id
-	 * @param array  $images Already capped to MAX_IMAGES by the caller.
-	 * @param string $title
-	 * @return array{hashes:string[],downloaded:int} Hashes now attached, in
-	 *               order — shorter than $images when a download failed.
-	 */
-	private function sync_images( $post_id, array $images, $title ) {
-		require_once ABSPATH . 'wp-admin/includes/file.php';
-		require_once ABSPATH . 'wp-admin/includes/media.php';
-		require_once ABSPATH . 'wp-admin/includes/image.php';
-
-		$existing = array();
-		$unnamed  = array();
-
-		foreach ( get_attached_media( 'image', $post_id ) as $attachment ) {
-			$hash = (string) get_post_meta( $attachment->ID, self::META_IMAGE_HASH, true );
-
-			if ( '' === $hash || isset( $existing[ $hash ] ) ) {
-				$unnamed[] = (int) $attachment->ID;
-			} else {
-				$existing[ $hash ] = (int) $attachment->ID;
-			}
-		}
-
-		$kept       = array();
-		$hashes     = array();
-		$downloaded = 0;
-
-		foreach ( array_values( $images ) as $index => $image ) {
-			$hash = isset( $image['hash'] ) ? (string) $image['hash'] : '';
-
-			if ( '' !== $hash && isset( $existing[ $hash ] ) ) {
-				$attachment = $existing[ $hash ];
-			} else {
-				$attachment = $this->sideload( $post_id, $image, $title, $index );
-				if ( ! $attachment ) {
-					continue;
-				}
-
-				++$downloaded;
-				if ( '' !== $hash ) {
-					update_post_meta( $attachment, self::META_IMAGE_HASH, $hash );
-				}
-			}
-
-			// The gallery reads the attachments by menu_order.
-			wp_update_post(
-				array(
-					'ID'         => $attachment,
-					'menu_order' => count( $kept ),
-				)
-			);
-
-			$kept[]   = $attachment;
-			$hashes[] = $hash;
-		}
-
-		if ( $images && ! $kept ) {
-			// Nothing came through. The pictures already there are better
-			// than none.
-			return array(
-				'hashes'     => array(),
-				'downloaded' => 0,
-			);
-		}
-
-		foreach ( array_merge( array_values( $existing ), $unnamed ) as $old ) {
-			if ( ! in_array( $old, $kept, true ) ) {
-				wp_delete_attachment( $old, true );
-			}
-		}
-
-		if ( $kept ) {
-			set_post_thumbnail( $post_id, $kept[0] );
-		} else {
-			delete_post_thumbnail( $post_id );
-		}
-
-		return array(
-			'hashes'     => $hashes,
-			'downloaded' => $downloaded,
-		);
-	}
-
-	/**
-	 * @param int    $post_id
-	 * @param array  $image
-	 * @param string $title
-	 * @param int    $index
-	 * @return int Attachment ID, 0 when the picture could not be fetched.
-	 */
-	private function sideload( $post_id, array $image, $title, $index ) {
-		$tmp = download_url( $image['url'], 30 );
-		if ( is_wp_error( $tmp ) ) {
-			/* translators: 1: image address, 2: the error message. */
-			$this->log( sprintf( __( 'Image could not be downloaded: %1$s (%2$s)', 'wp-mobile-de-sync' ), $image['url'], $tmp->get_error_message() ) );
-
-			return 0;
-		}
-
-		$file = array(
-			'name'     => sanitize_file_name( $title . '-' . ( $index + 1 ) . '.jpg' ),
-			'tmp_name' => $tmp,
-		);
-
-		$attachment = media_handle_sideload( $file, $post_id, $title );
-		if ( is_wp_error( $attachment ) ) {
-			if ( file_exists( $tmp ) ) {
-				wp_delete_file( $tmp );
-			}
-
-			/* translators: 1: image address, 2: the error message. */
-			$this->log( sprintf( __( 'Image could not be stored: %1$s (%2$s)', 'wp-mobile-de-sync' ), $image['url'], $attachment->get_error_message() ) );
-
-			return 0;
-		}
-
-		return (int) $attachment;
-	}
-
-	/**
 	 * The vehicles WordPress holds, by ad ID, in one query.
 	 *
 	 * Those in the bin come back separately. They are not part of the
@@ -790,25 +732,6 @@ class WMDS_Importer {
 	}
 
 	/**
-	 * @param int $post_id
-	 */
-	public static function delete_attachments( $post_id ) {
-		$post_id = (int) $post_id;
-
-		if ( WMDS_CPT !== get_post_type( $post_id ) ) {
-			return;
-		}
-
-		foreach ( get_attached_media( 'image', $post_id ) as $attachment ) {
-			wp_delete_attachment( $attachment->ID, true );
-		}
-	}
-
-	private function reschedule() {
-		self::schedule_followup();
-	}
-
-	/**
 	 * @param string $outcome As process() returns it.
 	 * @return string The same, in words.
 	 */
@@ -825,30 +748,6 @@ class WMDS_Importer {
 	public static function schedule_followup() {
 		if ( ! wp_next_scheduled( self::FOLLOWUP_HOOK ) ) {
 			wp_schedule_single_event( time() + 60, self::FOLLOWUP_HOOK );
-		}
-	}
-
-	/**
-	 * @param string $message
-	 */
-	private function log( $message ) {
-		$log = get_option( self::OPT_LOG, array() );
-		if ( ! is_array( $log ) ) {
-			$log = array();
-		}
-
-		array_unshift(
-			$log,
-			array(
-				'time'    => current_time( 'mysql' ),
-				'message' => (string) $message,
-			)
-		);
-
-		update_option( self::OPT_LOG, array_slice( $log, 0, 50 ), false );
-
-		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			error_log( '[wp-mobile-de-sync] ' . $message ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- only under WP_DEBUG; the durable log is the option above.
 		}
 	}
 }

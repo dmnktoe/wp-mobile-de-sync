@@ -160,18 +160,6 @@ msgstr "Einstellungen öffnen"
 msgid "Connection"
 msgstr "Verbindung"
 
-#: includes/class-wmds-admin.php:541
-msgid "Schedule"
-msgstr "Zeitplan"
-
-#: includes/class-wmds-admin.php:542
-msgid "Status & log"
-msgstr "Status & Protokoll"
-
-#: includes/class-wmds-admin.php:543
-msgid "Tools"
-msgstr "Werkzeuge"
-
 #: includes/class-wmds-admin.php:559
 msgid "mobile.de Sync"
 msgstr "mobile.de Sync"
@@ -195,10 +183,6 @@ msgstr "nicht eingeplant"
 #: includes/class-wmds-admin.php:624
 msgid "Next run"
 msgstr "Nächster Lauf"
-
-#: includes/class-wmds-admin.php:631 includes/class-wmds-admin.php:957
-msgid "incremental"
-msgstr "nur Änderungen"
 
 #: includes/class-wmds-admin.php:632
 msgid "full"
@@ -329,10 +313,6 @@ msgstr "Entfernt Benutzername, Passwort sowie Verkäufer-ID bzw. Händlername au
 msgid "Delete the stored credentials?"
 msgstr "Die hinterlegten Zugangsdaten löschen?"
 
-#: includes/class-wmds-admin.php:822
-msgid "Interval"
-msgstr "Intervall"
-
 #: includes/class-wmds-admin.php:825
 msgid "Run every"
 msgstr "Lauf alle"
@@ -356,10 +336,6 @@ msgstr "Stündlich"
 #: includes/class-wmds-admin.php:812
 msgid "Once a day"
 msgstr "Einmal täglich"
-
-#: includes/class-wmds-admin.php:846
-msgid "Each run retrieves only changed listings. In addition, a full reconciliation runs once a day and moves sold vehicles to the trash."
-msgstr "Jeder Lauf ruft nur geänderte Anzeigen ab. Zusätzlich findet einmal täglich ein vollständiger Abgleich statt, bei dem verkaufte Fahrzeuge in den Papierkorb verschoben werden."
 
 #: includes/class-wmds-admin.php:851
 msgid "Label language"
@@ -419,38 +395,9 @@ msgstr "<strong>WP-Cron wird durch Seitenaufrufe ausgelöst, nicht zeitgesteuert
 msgid "Next scheduled run:"
 msgstr "Nächster geplanter Lauf:"
 
-#: includes/class-wmds-admin.php:942
-msgid "No run has completed yet."
-msgstr "Bisher wurde kein Lauf ausgeführt."
-
 #: includes/class-wmds-admin.php:947 includes/class-wmds-admin.php:1033
 msgid "Time"
 msgstr "Zeitpunkt"
-
-#: includes/class-wmds-admin.php:951
-msgid "Type"
-msgstr "Art"
-
-#: includes/class-wmds-admin.php:956
-msgid "full reconciliation"
-msgstr "vollständiger Abgleich"
-
-#: includes/class-wmds-admin.php:963
-msgid "Result"
-msgstr "Ergebnis"
-
-#: includes/class-wmds-admin.php:968
-msgid "Failed"
-msgstr "Fehlgeschlagen"
-
-#. translators: %d: number of vehicles that could not be processed.
-#: includes/class-wmds-admin.php:974
-msgid "%d vehicles could not be processed"
-msgstr "%d Fahrzeuge konnten nicht verarbeitet werden"
-
-#: includes/class-wmds-admin.php:984
-msgid "Still queued"
-msgstr "Noch in der Warteschlange"
 
 #. translators: %d: number of vehicles still pending.
 #: includes/class-wmds-admin.php:990
@@ -485,14 +432,6 @@ msgstr "Das Protokoll ist leer."
 msgid "Message"
 msgstr "Meldung"
 
-#: includes/class-wmds-admin.php:1075
-msgid "Store the credentials first."
-msgstr "Zuerst die Zugangsdaten hinterlegen."
-
-#: includes/class-wmds-admin.php:1077
-msgid "Go to the connection settings"
-msgstr "Zu den Verbindungseinstellungen"
-
 #: includes/class-wmds-admin.php:1084
 msgid "Asks mobile.de for a single vehicle. Writes nothing."
 msgstr "Fragt bei mobile.de ein einzelnes Fahrzeug ab. Schreibt nichts."
@@ -500,10 +439,6 @@ msgstr "Fragt bei mobile.de ein einzelnes Fahrzeug ab. Schreibt nichts."
 #: includes/class-wmds-admin.php:1087 includes/class-wmds-admin.php:1092
 msgid "Test connection"
 msgstr "Verbindung testen"
-
-#: includes/class-wmds-admin.php:1097
-msgid "Import"
-msgstr "Import"
 
 #: includes/class-wmds-admin.php:1099
 msgid "Runs the sync in batches of 20 vehicles until all are processed. Leaving this page interrupts the process; the schedule processes the remaining vehicles automatically."
@@ -880,10 +815,6 @@ msgstr "Ein Import läuft gerade. Große Bestände werden in Paketen über mehre
 msgid "The credentials are saved, but no run has been completed yet. Please start the first import using the tools below."
 msgstr "Die Zugangsdaten sind hinterlegt, es wurde jedoch noch kein Lauf ausgeführt. Bitte den ersten Import unten unter „Werkzeuge“ starten."
 
-#: includes/class-wmds-status.php:102
-msgid "The last run was more than six hours ago. The schedule is probably not being triggered; please check the cron setup."
-msgstr "Der letzte Lauf liegt mehr als sechs Stunden zurück. Vermutlich wird der Zeitplan nicht ausgelöst; bitte die Cron-Einrichtung prüfen."
-
 #: includes/class-wmds-status.php:103
 msgid "Some vehicles could not be processed in the last run. See the log below for details."
 msgstr "Im letzten Lauf konnten einige Fahrzeuge nicht verarbeitet werden. Details enthält das Protokoll unten."
@@ -896,10 +827,6 @@ msgstr "Der Bestand ist synchron."
 #: includes/class-wmds-status.php:179
 msgid "%1$d seen · %2$d created · %3$d updated · %4$d skipped · %5$d removed · %6$d images"
 msgstr "%1$d gesehen · %2$d angelegt · %3$d aktualisiert · %4$d übersprungen · %5$d entfernt · %6$d Bilder"
-
-#: includes/class-wmds-updater.php:85
-msgid "Synchronises a dealer's vehicle inventory from the mobile.de Search API into a \"fahrzeuge\" custom post type. Brings its own filters, templates and shortcodes, and works with existing theme templates."
-msgstr "Synchronisiert den Fahrzeugbestand eines Händlers aus der mobile.de-Such-API in den Custom Post Type „fahrzeuge“. Bringt eigene Filter, Templates und Shortcodes mit und arbeitet mit vorhandenen Theme-Templates zusammen."
 
 #: includes/class-wmds-updater.php:233
 msgid "No notes for this version."
@@ -1438,14 +1365,6 @@ msgid "WP_HTTP_BLOCK_EXTERNAL is set and these hosts are not in WP_ACCESSIBLE_HO
 msgstr "WP_HTTP_BLOCK_EXTERNAL ist gesetzt und diese Hosts stehen nicht in WP_ACCESSIBLE_HOSTS: %s"
 
 #: includes/class-wmds-admin.php
-msgid "System"
-msgstr "System"
-
-#: includes/class-wmds-admin.php
-msgid "About"
-msgstr "Über"
-
-#: includes/class-wmds-admin.php
 msgid "Check for updates"
 msgstr "Nach Updates suchen"
 
@@ -1967,12 +1886,6 @@ msgstr "WordPress hat unerwartet geantwortet (HTTP %1$d). Möglicherweise ist di
 msgid "%1$d vehicles are still pending. The scheduled runs will continue processing."
 msgstr "%1$d Fahrzeuge stehen noch aus. Die geplanten Läufe setzen die Verarbeitung fort."
 
-msgid "Integrations"
-msgstr "Integrationen"
-
-msgid "Usage"
-msgstr "Verwendung"
-
 msgid "Run overdue by %s"
 msgstr "Lauf seit %s überfällig"
 
@@ -2207,9 +2120,6 @@ msgstr "Blöcke im Editor, Shortcodes in Inhalten oder Templates und ein Dashboa
 
 msgid "Address"
 msgstr "Adresse"
-
-msgid "Slug"
-msgstr "Titelform (Slug)"
 
 #. translators: %s: the default slug.
 msgid "The archive and all vehicle pages are available under this address. If empty, %s is used. After a change, links to the previous address no longer work."
@@ -2492,3 +2402,122 @@ msgstr "Der Lauf hat kein einziges Fahrzeug erhalten; es wurde nichts entfernt."
 
 msgid "Safety guard: %1$d of %2$d vehicles would be removed (limit %3$d). Nothing was deleted; please check the inventory on mobile.de and start the run again."
 msgstr "Sicherheitssperre: %1$d von %2$d Fahrzeugen würden entfernt (Grenze %3$d). Es wurde nichts gelöscht; bitte den Bestand auf mobile.de prüfen und den Lauf erneut starten."
+
+msgid "changes only"
+msgstr "nur Änderungen"
+
+msgid "Overview"
+msgstr "Übersicht"
+
+msgid "Embedding"
+msgstr "Einbinden"
+
+msgid "Tools & system"
+msgstr "Werkzeuge & System"
+
+msgid ", %d failed"
+msgstr ", %d fehlgeschlagen"
+
+msgid "mobile.de lists %1$d vehicles, the site would hold %2$d. This pass reads the full inventory."
+msgstr "mobile.de listet %1$d Fahrzeuge, die Website hätte %2$d. Dieser Durchgang liest den gesamten Bestand."
+
+msgid "New"
+msgstr "Neu"
+
+msgid "Answered"
+msgstr "Beantwortet"
+
+msgid "Your enquiry about %s"
+msgstr "Ihre Anfrage zum %s"
+
+msgid "Your enquiry"
+msgstr "Ihre Anfrage"
+
+msgid "Hello,"
+msgstr "Guten Tag,"
+
+msgid "Reply"
+msgstr "Antworten"
+
+msgid "Mark as answered"
+msgstr "Als beantwortet markieren"
+
+msgid "Mark as new"
+msgstr "Als neu markieren"
+
+msgid "Status"
+msgstr "Status"
+
+msgid "Reply by e-mail"
+msgstr "Per E-Mail antworten"
+
+msgid "All enquiries have been answered."
+msgstr "Alle Anfragen sind beantwortet."
+
+msgid "Recent enquiries"
+msgstr "Neueste Anfragen"
+
+msgid "All enquiries"
+msgstr "Alle Anfragen"
+
+msgid "Recent log entries"
+msgstr "Neueste Protokolleinträge"
+
+msgid "Full log"
+msgstr "Vollständiges Protokoll"
+
+msgid "Synchronisation"
+msgstr "Synchronisation"
+
+msgid "Save settings"
+msgstr "Einstellungen speichern"
+
+msgid "Each run retrieves the listings changed since the last one and checks whether mobile.de still lists as many vehicles as the site shows. If not, the run reads the whole inventory and removes the vehicles that are gone. A full sync also runs once a day."
+msgstr "Jeder Lauf ruft die seit dem letzten Lauf geänderten Anzeigen ab und prüft, ob mobile.de noch so viele Fahrzeuge listet, wie die Website zeigt. Falls nicht, liest der Lauf den gesamten Bestand und entfernt nicht mehr vorhandene Fahrzeuge. Zusätzlich findet einmal täglich ein vollständiger Abgleich statt."
+
+msgid "Website"
+msgstr "Website"
+
+msgid "Show similar vehicles at the end of a vehicle page"
+msgstr "Ähnliche Fahrzeuge am Ende einer Fahrzeugseite anzeigen"
+
+msgid "Vehicles of the same make first, then those closest in price."
+msgstr "Zuerst Fahrzeuge derselben Marke, dann die preislich nächsten."
+
+msgid "Delete unused vehicle images"
+msgstr "Ungenutzte Fahrzeugbilder löschen"
+
+msgid "The media library holds no pictures of vehicles that are no longer on the site."
+msgstr "Die Mediathek enthält keine Bilder von Fahrzeugen, die nicht mehr auf der Website sind."
+
+msgid "Delete"
+msgstr "Löschen"
+
+msgid "Delete these pictures from the media library?"
+msgstr "Diese Bilder aus der Mediathek löschen?"
+
+msgid "The vehicle you were looking for is no longer available. Here is our current inventory."
+msgstr "Das gesuchte Fahrzeug ist nicht mehr verfügbar. Hier finden Sie unseren aktuellen Bestand."
+
+msgid "Similar vehicles"
+msgstr "Ähnliche Fahrzeuge"
+
+msgid "%d unused vehicle picture deleted."
+msgid_plural "%d unused vehicle pictures deleted."
+msgstr[0] "%d ungenutztes Fahrzeugbild gelöscht."
+msgstr[1] "%d ungenutzte Fahrzeugbilder gelöscht."
+
+msgid "%d enquiry has not been answered yet."
+msgid_plural "%d enquiries have not been answered yet."
+msgstr[0] "%d Anfrage ist noch nicht beantwortet."
+msgstr[1] "%d Anfragen sind noch nicht beantwortet."
+
+msgid "%d new"
+msgid_plural "%d new"
+msgstr[0] "%d neu"
+msgstr[1] "%d neu"
+
+msgid "%d picture of a vehicle that is no longer on the site is still in the media library. Pictures uploaded by hand are never touched."
+msgid_plural "%d pictures of vehicles that are no longer on the site are still in the media library. Pictures uploaded by hand are never touched."
+msgstr[0] "%d Bild eines Fahrzeugs, das nicht mehr auf der Website ist, liegt noch in der Mediathek. Von Hand hochgeladene Bilder werden nie angetastet."
+msgstr[1] "%d Bilder von Fahrzeugen, die nicht mehr auf der Website sind, liegen noch in der Mediathek. Von Hand hochgeladene Bilder werden nie angetastet."

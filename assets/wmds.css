@@ -1697,6 +1697,18 @@
 	font-weight: 600;
 }
 
+.wmds-scope .wmds-notice {
+	margin: 0 0 20px;
+	padding: 12px 16px;
+	border-radius: var(--wmds-radius-md);
+	background: var(--wmds-canvas);
+	font-size: 15px;
+}
+
+.wmds-scope .wmds-similar .wmds-grid {
+	margin-top: 0;
+}
+
 .wmds-scope .wmds-legal {
 	margin-top: 8px;
 	color: var(--wmds-muted);

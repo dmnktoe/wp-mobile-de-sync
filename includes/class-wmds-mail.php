@@ -15,9 +15,10 @@ class WMDS_Mail {
 	 *
 	 * @param string   $configured Comma-separated, as stored in the settings.
 	 * @param string[] $extra      Further addresses, added once each.
+	 * @param bool     $fallback   Whether an empty list means the administrator.
 	 * @return string[]
 	 */
-	public static function addresses( $configured, array $extra = array() ) {
+	public static function addresses( $configured, array $extra = array(), $fallback = true ) {
 		$to = array();
 
 		foreach ( explode( ',', (string) $configured ) as $address ) {
@@ -27,7 +28,7 @@ class WMDS_Mail {
 			}
 		}
 
-		if ( ! $to ) {
+		if ( ! $to && $fallback ) {
 			$to[] = (string) get_option( 'admin_email' );
 		}
 
@@ -47,7 +48,7 @@ class WMDS_Mail {
 	 * @return string[]
 	 */
 	public static function test_recipients() {
-		$to = WMDS_Leads::recipients();
+		$to = WMDS_Lead_Mail::recipients();
 
 		if ( WMDS_Alerts::enabled() ) {
 			$to = array_merge( $to, WMDS_Alerts::recipients() );

@@ -43,7 +43,7 @@ class WMDS_Facetwp {
 
 	/** @return bool Whether a vehicle is re-indexed after a sync wrote it. */
 	public static function reindexes() {
-		return 'no' !== WMDS_Settings::get( 'facetwp_reindex', 'yes' );
+		return WMDS_Settings::flag( 'facetwp_reindex' );
 	}
 
 	/**

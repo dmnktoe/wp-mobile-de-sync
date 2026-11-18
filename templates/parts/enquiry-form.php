@@ -11,7 +11,7 @@ $wmds_heading    = isset( $wmds_args['heading'] ) && '' !== $wmds_args['heading'
 	? (string) $wmds_args['heading']
 	: __( 'Enquire about this vehicle', 'wp-mobile-de-sync' );
 
-$wmds_state   = WMDS_Leads::state();
+$wmds_state   = WMDS_Lead_Form::state();
 $wmds_errors  = $wmds_state['errors'];
 $wmds_values  = $wmds_state['values'];
 $wmds_consent = WMDS_Leads::consent_text();
@@ -34,8 +34,8 @@ $wmds_value = function ( $field ) use ( $wmds_values ) {
 		<?php endif; ?>
 
 		<form class="wmds-enquiry__form" method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
-			<?php wp_nonce_field( WMDS_Leads::NONCE ); ?>
-			<input type="hidden" name="action" value="<?php echo esc_attr( WMDS_Leads::ACTION ); ?>">
+			<?php wp_nonce_field( WMDS_Lead_Form::NONCE ); ?>
+			<input type="hidden" name="action" value="<?php echo esc_attr( WMDS_Lead_Form::ACTION ); ?>">
 			<input type="hidden" name="wmds_vehicle" value="<?php echo esc_attr( $wmds_vehicle_id ); ?>">
 			<input type="hidden" name="wmds_opened" value="<?php echo esc_attr( time() ); ?>">
 

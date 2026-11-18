@@ -3,38 +3,30 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Enquiries as they are kept: the post type, the screens that list and show
+ * them, and what the privacy tools of WordPress find in them.
+ */
 class WMDS_Leads {
 	const CPT = 'wmds_lead';
 
-	const NONCE  = 'wmds_enquiry';
-	const ACTION = 'wmds_enquiry';
-
-	const STATE = 'wmds_lead_form_';
-	const RATE  = 'wmds_lead_rate_';
-
-	const STATE_TTL = 900;
-	const RATE_TTL  = 3600;
-	const RATE_MAX  = 5;
-
-	const MIN_SECONDS = 3;
-
-	const MAX_MESSAGE = 5000;
-	const MIN_MESSAGE = 10;
-	const MAX_FIELD   = 100;
-	const MAX_PHONE   = 40;
-
 	const SOURCE = 'enquiry-form';
+
+	/** On an enquiry: NEW until somebody marks it answered. */
+	const META_STATUS = '_wmds_status';
+	const NEW_LEAD    = 'new';
+	const ANSWERED    = 'answered';
+
+	const STATUS_ACTION = 'wmds_lead_status';
+
+	/** @var int|null Unanswered enquiries, counted once per request. */
+	private static $new = null;
 
 	public static function init() {
 		add_action( 'init', array( __CLASS__, 'register_cpt' ) );
 
-		add_shortcode( 'vehicle-enquiry', array( __CLASS__, 'shortcode' ) );
-
 		add_filter( 'wp_privacy_personal_data_exporters', array( __CLASS__, 'privacy_exporters' ) );
 		add_filter( 'wp_privacy_personal_data_erasers', array( __CLASS__, 'privacy_erasers' ) );
-
-		add_action( 'admin_post_' . self::ACTION, array( __CLASS__, 'handle' ) );
-		add_action( 'admin_post_nopriv_' . self::ACTION, array( __CLASS__, 'handle' ) );
 
 		if ( ! is_admin() ) {
 			return;
@@ -42,7 +34,181 @@ class WMDS_Leads {
 
 		add_filter( 'manage_' . self::CPT . '_posts_columns', array( __CLASS__, 'columns' ) );
 		add_action( 'manage_' . self::CPT . '_posts_custom_column', array( __CLASS__, 'column' ), 10, 2 );
+		add_filter( 'post_row_actions', array( __CLASS__, 'row_actions' ), 10, 2 );
 		add_action( 'add_meta_boxes_' . self::CPT, array( __CLASS__, 'meta_box' ) );
+		add_action( 'admin_menu', array( __CLASS__, 'menu_count' ), 99 );
+		add_action( 'admin_post_' . self::STATUS_ACTION, array( __CLASS__, 'handle_status' ) );
+	}
+
+	/**
+	 * @param int $post_id
+	 * @return bool Whether nobody has marked the enquiry answered yet.
+	 */
+	public static function is_new( $post_id ) {
+		return self::ANSWERED !== get_post_meta( (int) $post_id, self::META_STATUS, true );
+	}
+
+	/**
+	 * @param int $post_id
+	 * @return string
+	 */
+	public static function status_label( $post_id ) {
+		return self::is_new( $post_id )
+			? __( 'New', 'wp-mobile-de-sync' )
+			: __( 'Answered', 'wp-mobile-de-sync' );
+	}
+
+	/**
+	 * @return int Enquiries nobody has marked answered.
+	 */
+	public static function count_new() {
+		if ( null !== self::$new ) {
+			return self::$new;
+		}
+
+		global $wpdb;
+
+		self::$new = (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(*)
+				 FROM {$wpdb->posts} p
+				 LEFT JOIN {$wpdb->postmeta} s ON s.post_id = p.ID AND s.meta_key = %s
+				 WHERE p.post_type = %s AND p.post_status = 'publish'
+				   AND ( s.meta_value IS NULL OR s.meta_value != %s )",
+				self::META_STATUS,
+				self::CPT,
+				self::ANSWERED
+			)
+		);
+
+		return self::$new;
+	}
+
+	/**
+	 * @param int    $post_id
+	 * @param string $status NEW_LEAD or ANSWERED.
+	 */
+	public static function set_status( $post_id, $status ) {
+		update_post_meta( (int) $post_id, self::META_STATUS, self::ANSWERED === $status ? self::ANSWERED : self::NEW_LEAD );
+
+		self::$new = null;
+	}
+
+	/**
+	 * The number of unanswered enquiries next to the menu entry, the way
+	 * WordPress shows pending comments.
+	 */
+	public static function menu_count() {
+		global $submenu;
+
+		$new    = self::count_new();
+		$parent = 'edit.php?post_type=' . WMDS_CPT;
+
+		if ( ! $new || empty( $submenu[ $parent ] ) ) {
+			return;
+		}
+
+		foreach ( $submenu[ $parent ] as $index => $item ) {
+			if ( isset( $item[2] ) && 'edit.php?post_type=' . self::CPT === $item[2] ) {
+				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- the documented way to put a count on a menu entry.
+				$submenu[ $parent ][ $index ][0] .= sprintf(
+					' <span class="awaiting-mod count-%1$d"><span class="pending-count">%2$s</span></span>',
+					$new,
+					esc_html( number_format_i18n( $new ) )
+				);
+			}
+		}
+	}
+
+	/**
+	 * @param int    $post_id
+	 * @param string $status
+	 * @return string Address that sets the status and comes back.
+	 */
+	public static function status_url( $post_id, $status ) {
+		return wp_nonce_url(
+			add_query_arg(
+				array(
+					'action' => self::STATUS_ACTION,
+					'lead'   => (int) $post_id,
+					'status' => $status,
+				),
+				admin_url( 'admin-post.php' )
+			),
+			self::STATUS_ACTION . '_' . (int) $post_id
+		);
+	}
+
+	public static function handle_status() {
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- checked right below, against the ID it names.
+		$post_id = isset( $_GET['lead'] ) ? (int) $_GET['lead'] : 0;
+		$status  = isset( $_GET['status'] ) ? sanitize_key( wp_unslash( $_GET['status'] ) ) : '';
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+
+		check_admin_referer( self::STATUS_ACTION . '_' . $post_id );
+
+		if ( ! $post_id || self::CPT !== get_post_type( $post_id ) || ! current_user_can( 'edit_post', $post_id ) ) {
+			wp_die( esc_html__( 'You do not have permission to do this.', 'wp-mobile-de-sync' ), '', array( 'response' => 403 ) );
+		}
+
+		self::set_status( $post_id, $status );
+
+		$back = wp_get_referer();
+		wp_safe_redirect( $back ? $back : admin_url( 'edit.php?post_type=' . self::CPT ) );
+		exit;
+	}
+
+	/**
+	 * A mail to the enquirer, with the subject and their message already in.
+	 *
+	 * @param int $post_id
+	 * @return string mailto: address, empty when there is no e-mail address.
+	 */
+	public static function reply_url( $post_id ) {
+		$email = (string) get_post_meta( (int) $post_id, '_wmds_email', true );
+		if ( '' === $email ) {
+			return '';
+		}
+
+		$vehicle = (int) get_post_meta( (int) $post_id, '_wmds_vehicle', true );
+		$subject = $vehicle
+			/* translators: %s: vehicle title. */
+			? sprintf( __( 'Your enquiry about %s', 'wp-mobile-de-sync' ), get_the_title( $vehicle ) )
+			: __( 'Your enquiry', 'wp-mobile-de-sync' );
+
+		$name     = (string) get_post_meta( (int) $post_id, '_wmds_name', true );
+		$message  = (string) get_post_field( 'post_content', (int) $post_id );
+		$greeting = '' !== $name
+			/* translators: %s: the name the enquirer gave. */
+			? sprintf( __( 'Hello %s,', 'wp-mobile-de-sync' ), $name )
+			: __( 'Hello,', 'wp-mobile-de-sync' );
+
+		$quoted = '> ' . str_replace( "\n", "\n> ", str_replace( "\r", '', $message ) );
+		$body   = $greeting . "\n\n\n\n" . __( 'Your message:', 'wp-mobile-de-sync' ) . "\n" . $quoted;
+
+		return 'mailto:' . rawurlencode( $email ) . '?subject=' . rawurlencode( $subject ) . '&body=' . rawurlencode( $body );
+	}
+
+	/**
+	 * @param array   $actions
+	 * @param WP_Post $post
+	 * @return array
+	 */
+	public static function row_actions( $actions, $post ) {
+		if ( self::CPT !== $post->post_type ) {
+			return $actions;
+		}
+
+		$reply = self::reply_url( $post->ID );
+		if ( '' !== $reply ) {
+			$actions['wmds_reply'] = sprintf( '<a href="%s">%s</a>', esc_attr( $reply ), esc_html__( 'Reply', 'wp-mobile-de-sync' ) );
+		}
+
+		$actions['wmds_status'] = self::is_new( $post->ID )
+			? sprintf( '<a href="%s">%s</a>', esc_url( self::status_url( $post->ID, self::ANSWERED ) ), esc_html__( 'Mark as answered', 'wp-mobile-de-sync' ) )
+			: sprintf( '<a href="%s">%s</a>', esc_url( self::status_url( $post->ID, self::NEW_LEAD ) ), esc_html__( 'Mark as new', 'wp-mobile-de-sync' ) );
+
+		return $actions;
 	}
 
 	/**
@@ -53,6 +219,7 @@ class WMDS_Leads {
 		return array(
 			'cb'           => isset( $columns['cb'] ) ? $columns['cb'] : '',
 			'title'        => __( 'Enquiry', 'wp-mobile-de-sync' ),
+			'wmds_status'  => __( 'Status', 'wp-mobile-de-sync' ),
 			'wmds_contact' => __( 'Contact', 'wp-mobile-de-sync' ),
 			'wmds_vehicle' => __( 'Vehicle', 'wp-mobile-de-sync' ),
 			'date'         => isset( $columns['date'] ) ? $columns['date'] : __( 'Received', 'wp-mobile-de-sync' ),
@@ -64,6 +231,16 @@ class WMDS_Leads {
 	 * @param int    $post_id
 	 */
 	public static function column( $column, $post_id ) {
+		if ( 'wmds_status' === $column ) {
+			printf(
+				'<span class="wmds-lead-status wmds-lead-status-%s">%s</span>',
+				self::is_new( $post_id ) ? 'new' : 'answered',
+				esc_html( self::status_label( $post_id ) )
+			);
+
+			return;
+		}
+
 		if ( 'wmds_contact' === $column ) {
 			$email = (string) get_post_meta( $post_id, '_wmds_email', true );
 			$phone = (string) get_post_meta( $post_id, '_wmds_phone', true );
@@ -174,6 +351,29 @@ class WMDS_Leads {
 
 		printf( '<p><strong>%s</strong></p>', esc_html_x( 'Message', 'what the enquirer wrote', 'wp-mobile-de-sync' ) );
 		printf( '<p style="white-space:pre-wrap">%s</p>', esc_html( $post->post_content ) );
+
+		self::render_actions( $post->ID );
+	}
+
+	/**
+	 * Status, and the two things to do with an enquiry: answer it and say so.
+	 *
+	 * @param int $post_id
+	 */
+	private static function render_actions( $post_id ) {
+		$reply = self::reply_url( $post_id );
+		$new   = self::is_new( $post_id );
+		?>
+		<p class="wmds-lead-actions">
+			<span class="wmds-lead-status wmds-lead-status-<?php echo $new ? 'new' : 'answered'; ?>"><?php echo esc_html( self::status_label( $post_id ) ); ?></span>
+			<?php if ( '' !== $reply ) : ?>
+				<a class="button button-primary" href="<?php echo esc_attr( $reply ); ?>"><?php esc_html_e( 'Reply by e-mail', 'wp-mobile-de-sync' ); ?></a>
+			<?php endif; ?>
+			<a class="button" href="<?php echo esc_url( self::status_url( $post_id, $new ? self::ANSWERED : self::NEW_LEAD ) ); ?>">
+				<?php echo esc_html( $new ? __( 'Mark as answered', 'wp-mobile-de-sync' ) : __( 'Mark as new', 'wp-mobile-de-sync' ) ); ?>
+			</a>
+		</p>
+		<?php
 	}
 
 	public static function register_cpt() {
@@ -206,290 +406,12 @@ class WMDS_Leads {
 
 	/** @return bool Whether the form is offered at all. */
 	public static function enabled() {
-		return 'no' !== WMDS_Settings::get( 'enquiry_enabled', 'yes' );
-	}
-
-	/**
-	 * @param WMDS_Vehicle|null $vehicle
-	 * @return string[] Where a new enquiry is sent.
-	 */
-	public static function recipients( WMDS_Vehicle $vehicle = null ) {
-		$extra = array();
-
-		if ( $vehicle && 'yes' === WMDS_Settings::get( 'enquiry_copy_seller', 'no' ) ) {
-			$extra[] = $vehicle->seller_email();
-		}
-
-		$to = WMDS_Mail::addresses( WMDS_Settings::get( 'enquiry_recipient', '' ), $extra );
-
-		/**
-		 * @param string[] $to
-		 */
-		return (array) apply_filters( 'wmds_enquiry_recipients', $to );
-	}
-
-	/**
-	 * What became of the mail, for the record of the enquiry.
-	 *
-	 * "Handed over" and no more: wp_mail() knows that the mailer took the
-	 * message, not that it arrived. That is still the first question when an
-	 * enquiry is on the screen but not in the inbox: was it sent at all, and
-	 * to whom.
-	 *
-	 * @param bool     $mailed  What wp_mail() returned.
-	 * @param string[] $to      The recipients it was sent to.
-	 * @param array    $failure As WMDS_Smtp::failure() returns it.
-	 * @param int      $tried   When the attempt started; an older failure is someone else's.
-	 * @return string
-	 */
-	public static function delivery_note( $mailed, array $to, array $failure, $tried ) {
-		if ( $mailed ) {
-			/* translators: %s: the addresses the enquiry was sent to. */
-			return sprintf( __( 'Handed over to the mailer for %s', 'wp-mobile-de-sync' ), implode( ', ', $to ) );
-		}
-
-		if ( ! empty( $failure['message'] ) && isset( $failure['time'] ) && (int) $failure['time'] >= (int) $tried ) {
-			/* translators: %s: the error WordPress reported. */
-			return sprintf( __( 'Not sent: %s', 'wp-mobile-de-sync' ), $failure['message'] );
-		}
-
-		return __( 'Not sent', 'wp-mobile-de-sync' );
+		return WMDS_Settings::flag( 'enquiry_enabled' );
 	}
 
 	/** @return string The consent line, empty when none is required. */
 	public static function consent_text() {
-		return trim( (string) WMDS_Settings::get( 'enquiry_consent', '' ) );
-	}
-
-	/**
-	 * Everything that can be decided about a submission without a database.
-	 *
-	 * @param array $data Cleaned field values.
-	 * @param bool  $consent_required
-	 * @return array<string, string> Field name => what is wrong with it.
-	 */
-	public static function validate( array $data, $consent_required = false ) {
-		$errors = array();
-
-		$name = isset( $data['name'] ) ? trim( (string) $data['name'] ) : '';
-		if ( '' === $name ) {
-			$errors['name'] = __( 'Please tell us your name.', 'wp-mobile-de-sync' );
-		} elseif ( self::length( $name ) > self::MAX_FIELD ) {
-			$errors['name'] = __( 'That name is too long.', 'wp-mobile-de-sync' );
-		}
-
-		$email = isset( $data['email'] ) ? trim( (string) $data['email'] ) : '';
-		if ( '' === $email ) {
-			$errors['email'] = __( 'Please enter an e-mail address so that we can reply.', 'wp-mobile-de-sync' );
-		} elseif ( ! is_email( $email ) ) {
-			$errors['email'] = __( 'Please enter a valid e-mail address.', 'wp-mobile-de-sync' );
-		}
-
-		$phone = isset( $data['phone'] ) ? trim( (string) $data['phone'] ) : '';
-		if ( '' !== $phone && ( self::length( $phone ) > self::MAX_PHONE || ! preg_match( '/^[0-9 +()\/-]+$/', $phone ) ) ) {
-			$errors['phone'] = __( 'Please enter a valid phone number.', 'wp-mobile-de-sync' );
-		}
-
-		$message = isset( $data['message'] ) ? trim( (string) $data['message'] ) : '';
-		if ( '' === $message ) {
-			$errors['message'] = __( 'Please enter a message.', 'wp-mobile-de-sync' );
-		} elseif ( self::length( $message ) < self::MIN_MESSAGE ) {
-			$errors['message'] = __( 'Please enter a more detailed message.', 'wp-mobile-de-sync' );
-		} elseif ( self::length( $message ) > self::MAX_MESSAGE ) {
-			$errors['message'] = __( 'That message is too long.', 'wp-mobile-de-sync' );
-		}
-
-		if ( $consent_required && empty( $data['consent'] ) ) {
-			$errors['consent'] = __( 'Please agree to the privacy notice.', 'wp-mobile-de-sync' );
-		}
-
-		return $errors;
-	}
-
-	/**
-	 * The checks a person never notices and a script always fails.
-	 *
-	 * @param array $data
-	 * @param int   $now Unix time of the submission.
-	 * @return bool
-	 */
-	public static function is_spam( array $data, $now ) {
-		if ( '' !== trim( (string) ( isset( $data['website'] ) ? $data['website'] : '' ) ) ) {
-			return true;
-		}
-
-		$opened = isset( $data['opened'] ) ? (int) $data['opened'] : 0;
-
-		if ( $opened <= 0 || $opened > $now ) {
-			return true;
-		}
-
-		return ( $now - $opened ) < self::MIN_SECONDS;
-	}
-
-	/**
-	 * @param int $sent How many this address or IP has already sent.
-	 * @return bool
-	 */
-	public static function over_limit( $sent ) {
-		return (int) $sent >= self::RATE_MAX;
-	}
-
-	/**
-	 * @param array  $data    Cleaned field values.
-	 * @param array  $vehicle title, url, ad_id, price - whatever is known.
-	 * @param string $site   Site name.
-	 * @return array{subject:string,body:string}
-	 */
-	public static function compose( array $data, array $vehicle, $site ) {
-		$title = isset( $vehicle['title'] ) ? (string) $vehicle['title'] : '';
-
-		$subject = '' !== $title
-			/* translators: 1: site name, 2: vehicle title. */
-			? sprintf( __( '[%1$s] Enquiry: %2$s', 'wp-mobile-de-sync' ), $site, $title )
-			/* translators: %s: site name. */
-			: sprintf( __( '[%s] Enquiry', 'wp-mobile-de-sync' ), $site );
-
-		$lines = array();
-
-		if ( '' !== $title ) {
-			$lines[] = __( 'Vehicle', 'wp-mobile-de-sync' ) . ': ' . $title;
-		}
-		if ( ! empty( $vehicle['ad_id'] ) ) {
-			$lines[] = __( 'Listing number', 'wp-mobile-de-sync' ) . ': ' . $vehicle['ad_id'];
-		}
-		if ( ! empty( $vehicle['price'] ) ) {
-			$lines[] = __( 'Price', 'wp-mobile-de-sync' ) . ': ' . $vehicle['price'];
-		}
-		if ( ! empty( $vehicle['url'] ) ) {
-			$lines[] = $vehicle['url'];
-		}
-
-		if ( $lines ) {
-			$lines[] = '';
-		}
-
-		$lines[] = __( 'Name', 'wp-mobile-de-sync' ) . ': ' . $data['name'];
-		$lines[] = __( 'E-mail', 'wp-mobile-de-sync' ) . ': ' . $data['email'];
-
-		if ( ! empty( $data['phone'] ) ) {
-			$lines[] = __( 'Phone', 'wp-mobile-de-sync' ) . ': ' . $data['phone'];
-		}
-
-		$lines[] = '';
-		$lines[] = $data['message'];
-
-		return array(
-			'subject' => $subject,
-			'body'    => implode( "\n", $lines ),
-		);
-	}
-
-	/**
-	 * @param array  $data
-	 * @param array  $vehicle
-	 * @param string $site
-	 * @return array{subject:string,body:string}
-	 */
-	public static function compose_confirmation( array $data, array $vehicle, $site ) {
-		$title = isset( $vehicle['title'] ) ? (string) $vehicle['title'] : '';
-
-		/* translators: %s: site name. */
-		$subject = sprintf( __( '[%s] Confirmation of your enquiry', 'wp-mobile-de-sync' ), $site );
-
-		$lines = array();
-
-		/* translators: %s: the name the enquirer gave. */
-		$lines[] = sprintf( __( 'Hello %s,', 'wp-mobile-de-sync' ), $data['name'] );
-		$lines[] = '';
-
-		$lines[] = '' !== $title
-			/* translators: %s: vehicle title. */
-			? sprintf( __( 'thank you for your enquiry about the %s. We will get back to you.', 'wp-mobile-de-sync' ), $title )
-			: __( 'thank you for your enquiry. We will get back to you.', 'wp-mobile-de-sync' );
-
-		if ( ! empty( $vehicle['url'] ) ) {
-			$lines[] = '';
-			$lines[] = $vehicle['url'];
-		}
-
-		// The message is not sent back. The address it would go to is
-		// whatever was typed into the form, and a confirmation that quotes
-		// the text is a way to have this site mail anything to anybody.
-		$lines[] = '';
-		$lines[] = $site;
-
-		return array(
-			'subject' => $subject,
-			'body'    => implode( "\n", $lines ),
-		);
-	}
-
-	public static function handle() {
-		$posted = self::read_request();
-
-		$referer = wp_get_referer();
-		$back    = $referer ? $referer : home_url( '/' );
-
-		// Only for somebody who is logged in. A nonce for a visitor is the
-		// same for every visitor and protects nothing, and it is printed into
-		// a page that a page cache keeps for longer than the nonce lives:
-		// the first enquiry from a cached vehicle page would always bounce.
-		if ( is_user_logged_in() && ! wp_verify_nonce( isset( $_POST['_wpnonce'] ) ? sanitize_key( wp_unslash( $_POST['_wpnonce'] ) ) : '', self::NONCE ) ) {
-			self::refuse( $back, 'expired' );
-		}
-
-		if ( ! self::enabled() ) {
-			self::refuse( $back, 'off' );
-		}
-
-		if ( self::is_spam( $posted, time() ) ) {
-			self::refuse( $back, 'quick' );
-		}
-
-		$key  = self::RATE . md5( self::client_ip() );
-		$sent = (int) get_transient( $key );
-		if ( self::over_limit( $sent ) ) {
-			self::refuse( $back, 'limit' );
-		}
-
-		$consent_required = ( '' !== self::consent_text() );
-
-		$errors = self::validate( $posted, $consent_required );
-		if ( $errors ) {
-			self::bounce( $back, $errors, $posted );
-		}
-
-		$post_id = isset( $posted['vehicle'] ) ? (int) $posted['vehicle'] : 0;
-		$vehicle = null;
-
-		// Published only: the form posts an ID, and the title and address of
-		// a draft are nobody's business.
-		if ( $post_id && WMDS_CPT === get_post_type( $post_id ) && 'publish' === get_post_status( $post_id ) ) {
-			$vehicle = new WMDS_Vehicle( $post_id );
-		} else {
-			$post_id = 0;
-		}
-
-		$context = self::context( $post_id, $vehicle );
-		$site    = wp_specialchars_decode( (string) get_option( 'blogname' ), ENT_QUOTES );
-
-		$stored = self::store( $posted, $post_id, $context );
-		$tried  = time();
-		$mailed = self::send( $posted, $context, $site, $vehicle );
-
-		if ( $stored ) {
-			update_post_meta( $stored, '_wmds_delivery', wp_slash( self::delivery_note( $mailed, self::recipients( $vehicle ), WMDS_Smtp::failure(), $tried ) ) );
-		}
-
-		if ( ! $stored && ! $mailed ) {
-			self::bounce( $back, array( 'form' => __( 'Unfortunately, the enquiry could not be sent. Please contact us by phone.', 'wp-mobile-de-sync' ) ), $posted );
-		}
-
-		set_transient( $key, $sent + 1, self::RATE_TTL );
-
-		wp_safe_redirect( add_query_arg( 'wmds_enquiry', 'sent', $context['url'] ? $context['url'] : $back ) . '#wmds-enquiry' );
-		exit;
+		return trim( (string) WMDS_Settings::get( 'enquiry_consent' ) );
 	}
 
 	/**
@@ -521,8 +443,8 @@ class WMDS_Leads {
 	 * @param array $context
 	 * @return int The stored post ID, 0 when storing is switched off or failed.
 	 */
-	private static function store( array $data, $post_id, array $context ) {
-		if ( 'no' === WMDS_Settings::get( 'enquiry_store', 'yes' ) ) {
+	public static function store( array $data, $post_id, array $context ) {
+		if ( ! WMDS_Settings::flag( 'enquiry_store' ) ) {
 			return 0;
 		}
 
@@ -574,15 +496,16 @@ class WMDS_Leads {
 
 		$meta = array_merge(
 			array(
-				'_wmds_name'    => $name,
-				'_wmds_email'   => isset( $data['email'] ) ? $data['email'] : '',
-				'_wmds_phone'   => isset( $data['phone'] ) ? $data['phone'] : '',
-				'_wmds_vehicle' => $post_id,
-				'_wmds_ad_id'   => $context['ad_id'],
-				'_wmds_url'     => $context['url'],
-				'_wmds_consent' => empty( $data['consent'] ) ? '' : self::consent_text(),
-				'_wmds_ip'      => self::client_ip(),
-				'_wmds_source'  => self::SOURCE,
+				'_wmds_name'      => $name,
+				'_wmds_email'     => isset( $data['email'] ) ? $data['email'] : '',
+				'_wmds_phone'     => isset( $data['phone'] ) ? $data['phone'] : '',
+				'_wmds_vehicle'   => $post_id,
+				'_wmds_ad_id'     => $context['ad_id'],
+				'_wmds_url'       => $context['url'],
+				'_wmds_consent'   => empty( $data['consent'] ) ? '' : self::consent_text(),
+				'_wmds_ip'        => WMDS_Lead_Form::client_ip(),
+				'_wmds_source'    => self::SOURCE,
+				self::META_STATUS => self::NEW_LEAD,
 			),
 			$extra
 		);
@@ -593,205 +516,6 @@ class WMDS_Leads {
 
 		return (int) $lead;
 	}
-
-	/**
-	 * @param array             $data
-	 * @param array             $context
-	 * @param string            $site
-	 * @param WMDS_Vehicle|null $vehicle
-	 * @return bool
-	 */
-	private static function send( array $data, array $context, $site, $vehicle ) {
-		$mail = self::compose( $data, $context, $site );
-
-		$sent = WMDS_Mail::send(
-			self::recipients( $vehicle ),
-			$mail['subject'],
-			$mail['body'],
-			array( WMDS_Mail::reply_to( $data['name'], $data['email'] ) )
-		);
-
-		if ( $sent && 'yes' === WMDS_Settings::get( 'enquiry_autoreply', 'no' ) ) {
-			$reply = self::compose_confirmation( $data, $context, $site );
-			WMDS_Mail::send( $data['email'], $reply['subject'], $reply['body'] );
-		}
-
-		return $sent;
-	}
-
-	/** @return array<string, string> */
-	private static function read_request() {
-		// phpcs:disable WordPress.Security.NonceVerification.Missing -- the nonce is checked in handle() before anything is done with this.
-		// Cut here, before anything is kept: what comes back to the form after
-		// a validation error is stored for a quarter of an hour, and nobody
-		// is owed room for a megabyte.
-		return array(
-			'name'    => isset( $_POST['wmds_name'] ) ? WMDS_Str::cut( sanitize_text_field( wp_unslash( $_POST['wmds_name'] ) ), self::MAX_FIELD ) : '',
-			'email'   => isset( $_POST['wmds_email'] ) ? WMDS_Str::cut( sanitize_email( wp_unslash( $_POST['wmds_email'] ) ), self::MAX_FIELD ) : '',
-			'phone'   => isset( $_POST['wmds_phone'] ) ? WMDS_Str::cut( sanitize_text_field( wp_unslash( $_POST['wmds_phone'] ) ), self::MAX_PHONE ) : '',
-			'message' => isset( $_POST['wmds_message'] ) ? WMDS_Str::cut( sanitize_textarea_field( wp_unslash( $_POST['wmds_message'] ) ), self::MAX_MESSAGE + 1 ) : '',
-			'consent' => isset( $_POST['wmds_consent'] ) ? '1' : '',
-			'website' => isset( $_POST['wmds_website'] ) ? sanitize_text_field( wp_unslash( $_POST['wmds_website'] ) ) : '',
-			'opened'  => isset( $_POST['wmds_opened'] ) ? absint( wp_unslash( $_POST['wmds_opened'] ) ) : 0,
-			'vehicle' => isset( $_POST['wmds_vehicle'] ) ? absint( wp_unslash( $_POST['wmds_vehicle'] ) ) : 0,
-		);
-		// phpcs:enable WordPress.Security.NonceVerification.Missing
-	}
-
-	/**
-	 * @param string $url
-	 * @param array  $errors
-	 * @param array  $values
-	 */
-	private static function bounce( $url, array $errors, array $values ) {
-		unset( $values['website'], $values['opened'] );
-
-		// Lower case: the token comes back through sanitize_key(), and an
-		// object cache, unlike the options table, tells aB from ab.
-		$token = strtolower( wp_generate_password( 16, false ) );
-
-		set_transient(
-			self::STATE . $token,
-			array(
-				'errors' => $errors,
-				'values' => $values,
-			),
-			self::STATE_TTL
-		);
-
-		wp_safe_redirect( add_query_arg( 'wmds_enquiry', $token, $url ) . '#wmds-enquiry' );
-		exit;
-	}
-
-	/**
-	 * Sends a submission back without keeping anything of it.
-	 *
-	 * For everything that is refused before the fields are even looked at.
-	 * The reason travels as a word in the address; nothing is written, so a
-	 * script that posts rubbish all day costs a redirect each time and not a
-	 * row in the database.
-	 *
-	 * @param string $url
-	 * @param string $reason One of the keys of refusals().
-	 */
-	private static function refuse( $url, $reason ) {
-		wp_safe_redirect( add_query_arg( 'wmds_enquiry', $reason, $url ) . '#wmds-enquiry' );
-		exit;
-	}
-
-	/** @return array<string, string> */
-	private static function refusals() {
-		return array(
-			'expired' => __( 'The form has expired. Please send it again.', 'wp-mobile-de-sync' ),
-			'off'     => __( 'Enquiries are switched off.', 'wp-mobile-de-sync' ),
-			'quick'   => __( 'The form was submitted too quickly. Please try again.', 'wp-mobile-de-sync' ),
-			'limit'   => __( 'Several enquiries have already been sent. Please try again later.', 'wp-mobile-de-sync' ),
-		);
-	}
-
-	/** @return array{errors:array,values:array,sent:bool} What the form should show after a redirect. */
-	public static function state() {
-		$empty = array(
-			'errors' => array(),
-			'values' => array(),
-			'sent'   => false,
-		);
-
-		$token = isset( $_GET['wmds_enquiry'] ) ? sanitize_key( wp_unslash( $_GET['wmds_enquiry'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- reads back a redirect of our own, and the token is a lookup key.
-		if ( '' === $token ) {
-			return $empty;
-		}
-
-		if ( 'sent' === $token ) {
-			$empty['sent'] = true;
-
-			return $empty;
-		}
-
-		$refusals = self::refusals();
-		if ( isset( $refusals[ $token ] ) ) {
-			$empty['errors'] = array( 'form' => $refusals[ $token ] );
-
-			return $empty;
-		}
-
-		$state = get_transient( self::STATE . $token );
-		if ( ! is_array( $state ) ) {
-			return $empty;
-		}
-
-		delete_transient( self::STATE . $token );
-
-		return array(
-			'errors' => isset( $state['errors'] ) ? (array) $state['errors'] : array(),
-			'values' => isset( $state['values'] ) ? (array) $state['values'] : array(),
-			'sent'   => false,
-		);
-	}
-
-	/**
-	 * @param array $atts
-	 * @return string
-	 */
-	public static function shortcode( $atts = array() ) {
-		$atts = shortcode_atts(
-			array(
-				'vehicle' => 0,
-				'heading' => '',
-			),
-			is_array( $atts ) ? $atts : array(),
-			'vehicle-enquiry'
-		);
-
-		if ( ! self::enabled() ) {
-			return '';
-		}
-
-		WMDS_Templates::maybe_enqueue( true );
-
-		ob_start();
-		WMDS_Templates::render(
-			'parts/enquiry-form.php',
-			array(
-				'vehicle_id' => (int) $atts['vehicle'] ? (int) $atts['vehicle'] : (int) get_the_ID(),
-				'heading'    => (string) $atts['heading'],
-			)
-		);
-
-		return ob_get_clean();
-	}
-
-	/** @return string */
-	private static function client_ip() {
-		$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
-
-		/**
-		 * The address a visitor is counted and recorded under. Behind a
-		 * proxy that does not rewrite REMOTE_ADDR every visitor arrives from
-		 * the proxy, and five enquiries an hour is then the limit for the
-		 * whole site — this is where to read the forwarded header instead.
-		 *
-		 * @param string $ip
-		 */
-		$ip = (string) apply_filters( 'wmds_client_ip', $ip );
-
-		return filter_var( $ip, FILTER_VALIDATE_IP ) ? $ip : '0.0.0.0';
-	}
-
-	/**
-	 * @param string $value
-	 * @return int
-	 */
-	private static function length( $value ) {
-		return WMDS_Str::length( $value );
-	}
-
-	/*
-	 * An enquiry is a name, an address, a phone number and an IP. WordPress
-	 * has a tool for "send me what you hold on me" and one for "delete it"
-	 * (Tools → Export / Erase Personal Data); without these two callbacks
-	 * neither of them knew the enquiries existed.
-	 */
 
 	/**
 	 * @param array $exporters

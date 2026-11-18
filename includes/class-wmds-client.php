@@ -108,6 +108,17 @@ class WMDS_Client {
 	}
 
 	/**
+	 * The size of the whole inventory, in one request for a single ad.
+	 *
+	 * @return int|WP_Error
+	 */
+	public function total() {
+		$result = $this->search( 1, 1 );
+
+		return is_wp_error( $result ) ? $result : (int) $result['total'];
+	}
+
+	/**
 	 * @param string $ad_id Ad ID. Deliberately a string - per the mobile.de
 	 *                      changelog the format grows to up to 16 digits
 	 *                      from 08/2026.

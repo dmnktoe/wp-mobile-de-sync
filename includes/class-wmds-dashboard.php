@@ -97,7 +97,7 @@ class WMDS_Dashboard {
 			</p>
 			<?php if ( current_user_can( 'manage_options' ) ) : ?>
 				<p>
-					<a href="<?php echo esc_url( WMDS_Status::settings_url( 'usage' ) ); ?>">
+					<a href="<?php echo esc_url( WMDS_Status::settings_url( 'embed' ) ); ?>">
 						<?php esc_html_e( 'Usage guide', 'wp-mobile-de-sync' ); ?>
 					</a>
 				</p>
@@ -157,7 +157,7 @@ class WMDS_Dashboard {
 			printf(
 				'<p class="wmds-widget-hint">%s <a href="%s">%s</a></p>',
 				esc_html( $status['explanation'] ),
-				esc_url( WMDS_Status::settings_url( 'status' ) ),
+				esc_url( WMDS_Status::settings_url( 'overview' ) ),
 				esc_html__( 'Open sync settings', 'wp-mobile-de-sync' )
 			);
 		}
@@ -246,7 +246,7 @@ class WMDS_Dashboard {
 			);
 			printf(
 				' <span class="wmds-muted">|</span> <a href="%s">%s</a>',
-				esc_url( WMDS_Status::settings_url( 'usage' ) ),
+				esc_url( WMDS_Status::settings_url( 'embed' ) ),
 				esc_html__( 'Blocks & shortcodes', 'wp-mobile-de-sync' )
 			);
 		}

@@ -27,6 +27,12 @@ $wmds_found     = (int) $GLOBALS['wp_query']->found_posts;
 		</p>
 	</header>
 
+	<?php if ( WMDS_Removed::arrived() ) : ?>
+		<p class="wmds-notice" role="status">
+			<?php esc_html_e( 'The vehicle you were looking for is no longer available. Here is our current inventory.', 'wp-mobile-de-sync' ); ?>
+		</p>
+	<?php endif; ?>
+
 	<?php
 	WMDS_Facets::enqueue();
 	WMDS_Templates::render(

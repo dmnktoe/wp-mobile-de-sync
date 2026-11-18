@@ -49,12 +49,12 @@ class WMDS_Cf7 {
 
 	/** @return bool Whether a submission from a vehicle page is filed. */
 	public static function stores() {
-		return 'no' !== WMDS_Settings::get( 'cf7_store', 'yes' );
+		return WMDS_Settings::flag( 'cf7_store' );
 	}
 
 	/** @return bool Whether the address the feed carries is added as a recipient. */
 	public static function copies_seller() {
-		return 'yes' === WMDS_Settings::get( 'cf7_copy_seller', 'no' );
+		return WMDS_Settings::flag( 'cf7_copy_seller' );
 	}
 
 	/**
@@ -324,7 +324,7 @@ class WMDS_Cf7 {
 			return '';
 		}
 
-		return WMDS_Str::scrub( $contact_form->title(), WMDS_Leads::MAX_FIELD );
+		return WMDS_Str::scrub( $contact_form->title(), WMDS_Lead_Form::MAX_FIELD );
 	}
 
 	/**
@@ -347,20 +347,20 @@ class WMDS_Cf7 {
 				$flat,
 				array( 'your-name', 'name', 'fullname', 'full-name', 'ihr-name' ),
 				array( 'name' ),
-				WMDS_Leads::MAX_FIELD
+				WMDS_Lead_Form::MAX_FIELD
 			),
 			'email'   => self::address( $flat ),
 			'phone'   => self::pick(
 				$flat,
 				array( 'your-phone', 'phone', 'tel', 'telephone', 'telefon' ),
 				array( 'phone', 'tel' ),
-				WMDS_Leads::MAX_PHONE
+				WMDS_Lead_Form::MAX_PHONE
 			),
 			'message' => self::pick(
 				$flat,
 				array( 'your-message', 'message', 'comments', 'your-subject', 'nachricht' ),
 				array( 'message', 'comment', 'enquiry', 'question', 'text', 'nachricht' ),
-				WMDS_Leads::MAX_MESSAGE,
+				WMDS_Lead_Form::MAX_MESSAGE,
 				true
 			),
 			'consent' => '',
@@ -451,7 +451,7 @@ class WMDS_Cf7 {
 			$flat,
 			array( 'your-email', 'email', 'e-mail', 'mail', 'ihre-email' ),
 			array( 'email', 'e-mail', 'mail' ),
-			WMDS_Leads::MAX_FIELD
+			WMDS_Lead_Form::MAX_FIELD
 		);
 
 		if ( '' !== $found && is_email( $found ) ) {
@@ -460,7 +460,7 @@ class WMDS_Cf7 {
 
 		foreach ( $flat as $value ) {
 			if ( is_email( $value ) ) {
-				return WMDS_Str::scrub( $value, WMDS_Leads::MAX_FIELD );
+				return WMDS_Str::scrub( $value, WMDS_Lead_Form::MAX_FIELD );
 			}
 		}
 
