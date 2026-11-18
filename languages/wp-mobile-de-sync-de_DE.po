@@ -198,7 +198,7 @@ msgstr "Nächster Lauf"
 
 #: includes/class-wmds-admin.php:631 includes/class-wmds-admin.php:957
 msgid "incremental"
-msgstr "inkrementell"
+msgstr "nur Änderungen"
 
 #: includes/class-wmds-admin.php:632
 msgid "full"
@@ -2430,3 +2430,65 @@ msgstr "Anfragen: %s"
 msgid "Sync alerts: %s"
 msgstr "Sync-Benachrichtigungen: %s"
 
+msgid "Aborted on page %1$d: %2$s"
+msgstr "Abgebrochen auf Seite %1$d: %2$s"
+
+msgid "Listing stopped after %1$d of %2$d pages because of the execution time limit. This pass only processes what it has read and removes nothing."
+msgstr "Abruf nach %1$d von %2$d Seiten wegen des Zeitlimits beendet. Dieser Durchgang verarbeitet nur das Gelesene und entfernt nichts."
+
+msgid "Warning: the inventory exceeds the %d vehicles the API returns across paginated requests. This reconciliation is incomplete."
+msgstr "Warnung: Der Bestand übersteigt die %d Fahrzeuge, die die API über paginierte Abfragen liefert. Dieser Abgleich ist unvollständig."
+
+msgid "Pass stopped after %1$d vehicles because of the execution time limit; %2$d remaining."
+msgstr "Durchgang nach %1$d Fahrzeugen wegen des Zeitlimits beendet; %2$d verbleibend."
+
+msgid "%1$d seen, %2$d created, %3$d updated, %4$d skipped, %5$d removed, %6$d images"
+msgstr "%1$d gesehen, %2$d angelegt, %3$d aktualisiert, %4$d übersprungen, %5$d entfernt, %6$d Bilder"
+
+msgid ", %d still to process"
+msgstr ", %d noch ausstehend"
+
+msgid "%1$s: %2$s."
+msgstr "%1$s: %2$s."
+
+msgid "Full sync"
+msgstr "Vollständiger Abgleich"
+
+msgid "Changes sync"
+msgstr "Abgleich der Änderungen"
+
+msgid "Reload failed for %1$s: %2$s"
+msgstr "Neu einlesen von %1$s fehlgeschlagen: %2$s"
+
+msgid "Reloaded %1$s on request: %2$s, %3$d images."
+msgstr "%1$s auf Anforderung neu eingelesen: %2$s, %3$d Bilder."
+
+msgid "Detail call failed for %1$s: %2$s"
+msgstr "Detailabruf für %1$s fehlgeschlagen: %2$s"
+
+msgid "Could not save the vehicle %1$s: %2$s"
+msgstr "Das Fahrzeug %1$s konnte nicht gespeichert werden: %2$s"
+
+msgid "Could not save the vehicle %s."
+msgstr "Das Fahrzeug %s konnte nicht gespeichert werden."
+
+msgid "Image could not be downloaded: %1$s (%2$s)"
+msgstr "Bild konnte nicht heruntergeladen werden: %1$s (%2$s)"
+
+msgid "Image could not be stored: %1$s (%2$s)"
+msgstr "Bild konnte nicht gespeichert werden: %1$s (%2$s)"
+
+msgid "created"
+msgstr "angelegt"
+
+msgid "updated"
+msgstr "aktualisiert"
+
+msgid "Partial listing - removal happens only once a full one has been read."
+msgstr "Teilabruf – verkaufte Fahrzeuge werden erst entfernt, wenn der vollständige Bestand gelesen wurde."
+
+msgid "The run did not see a single vehicle, so nothing was removed."
+msgstr "Der Lauf hat kein einziges Fahrzeug erhalten; es wurde nichts entfernt."
+
+msgid "Safety guard: %1$d of %2$d vehicles would be removed (limit %3$d). Nothing was deleted; please check the inventory on mobile.de and start the run again."
+msgstr "Sicherheitssperre: %1$d von %2$d Fahrzeugen würden entfernt (Grenze %3$d). Es wurde nichts gelöscht; bitte den Bestand auf mobile.de prüfen und den Lauf erneut starten."

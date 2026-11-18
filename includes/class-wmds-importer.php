@@ -229,7 +229,8 @@ class WMDS_Importer {
 
 			$result = $this->client->search( $page, WMDS_Client::MAX_PAGE_SIZE, $watermark );
 			if ( is_wp_error( $result ) ) {
-				$this->log( 'Aborted on page ' . $page . ': ' . $result->get_error_message() );
+				/* translators: 1: page number, 2: the error message. */
+				$this->log( sprintf( __( 'Aborted on page %1$d: %2$s', 'wp-mobile-de-sync' ), $page, $result->get_error_message() ) );
 				return $result;
 			}
 
@@ -243,8 +244,8 @@ class WMDS_Importer {
 
 				$this->log(
 					sprintf(
-						'Listing stopped after %d of %d pages to stay inside the execution limit. '
-						. 'This pass reconciles only what it read and removes nothing.',
+						/* translators: 1: pages read, 2: pages in total. */
+						__( 'Listing stopped after %1$d of %2$d pages because of the execution time limit. This pass only processes what it has read and removes nothing.', 'wp-mobile-de-sync' ),
 						$page - 1,
 						$pages
 					)
@@ -256,8 +257,8 @@ class WMDS_Importer {
 		if ( $capped ) {
 			$this->log(
 				sprintf(
-					'Warning: the inventory exceeds the %d vehicles the API hands out across '
-					. 'paginated pages. This reconciliation is incomplete.',
+					/* translators: %d: the maximum number of vehicles the API returns. */
+					__( 'Warning: the inventory exceeds the %d vehicles the API returns across paginated requests. This reconciliation is incomplete.', 'wp-mobile-de-sync' ),
 					WMDS_Client::PAGINATION_CAP
 				)
 			);
@@ -284,7 +285,8 @@ class WMDS_Importer {
 
 				$this->log(
 					sprintf(
-						'Pass stopped after %d vehicles to stay inside the execution limit, %d still to go.',
+						/* translators: 1: vehicles processed, 2: vehicles left. */
+						__( 'Pass stopped after %1$d vehicles because of the execution time limit; %2$d remaining.', 'wp-mobile-de-sync' ),
 						$done,
 						$left
 					)
@@ -371,17 +373,31 @@ class WMDS_Importer {
 
 		update_option( self::OPT_LAST_RUN, $stats, false );
 
+		// Written in the site's language, which run() has switched to: the
+		// log is read on a German screen and in German alert mails, and an
+		// English line among them reads like an error.
+		$summary = sprintf(
+			/* translators: 1: vehicles seen, 2: created, 3: updated, 4: skipped, 5: removed, 6: images. */
+			__( '%1$d seen, %2$d created, %3$d updated, %4$d skipped, %5$d removed, %6$d images', 'wp-mobile-de-sync' ),
+			$stats['seen'],
+			$created,
+			$updated,
+			$stats['skipped'],
+			$removed,
+			$images
+		);
+
+		if ( $pending ) {
+			/* translators: %d: vehicles still to be processed. */
+			$summary .= sprintf( __( ', %d still to process', 'wp-mobile-de-sync' ), $pending );
+		}
+
 		$this->log(
 			sprintf(
-				'%s: %d seen, %d created, %d updated, %d skipped, %d removed, %d images%s.',
-				$is_full ? 'Full sync' : 'Incremental sync',
-				$stats['seen'],
-				$created,
-				$updated,
-				$stats['skipped'],
-				$removed,
-				$images,
-				$pending ? sprintf( ', %d pending', $pending ) : ''
+				/* translators: 1: kind of run, 2: the counts. */
+				__( '%1$s: %2$s.', 'wp-mobile-de-sync' ),
+				$is_full ? __( 'Full sync', 'wp-mobile-de-sync' ) : __( 'Changes sync', 'wp-mobile-de-sync' ),
+				$summary
 			)
 		);
 
@@ -404,7 +420,8 @@ class WMDS_Importer {
 
 		$detail = $this->client->ad( $ad_id );
 		if ( is_wp_error( $detail ) ) {
-			$this->log( 'Reload failed for ' . $ad_id . ': ' . $detail->get_error_message() );
+			/* translators: 1: mobile.de ad ID, 2: the error message. */
+			$this->log( sprintf( __( 'Reload failed for %1$s: %2$s', 'wp-mobile-de-sync' ), $ad_id, $detail->get_error_message() ) );
 			return $detail;
 		}
 
@@ -423,7 +440,8 @@ class WMDS_Importer {
 			return new WP_Error( 'wmds_refresh_failed', __( 'The vehicle could not be saved.', 'wp-mobile-de-sync' ) );
 		}
 
-		$this->log( sprintf( 'Reloaded %s on request: %s, %d images.', $ad_id, $outcome, $images ) );
+		/* translators: 1: mobile.de ad ID, 2: outcome (created, updated, skipped), 3: number of images. */
+		$this->log( sprintf( __( 'Reloaded %1$s on request: %2$s, %3$d images.', 'wp-mobile-de-sync' ), $ad_id, self::outcome_label( $outcome ), $images ) );
 
 		return array(
 			'outcome' => $outcome,
@@ -453,7 +471,8 @@ class WMDS_Importer {
 		// would empty the description and delete every field only the detail
 		// call knows, and then mark the vehicle as up to date.
 		if ( is_wp_error( $detail ) ) {
-			$this->log( 'Detail call failed for ' . $ad_id . ': ' . $detail->get_error_message() );
+			/* translators: 1: mobile.de ad ID, 2: the error message. */
+			$this->log( sprintf( __( 'Detail call failed for %1$s: %2$s', 'wp-mobile-de-sync' ), $ad_id, $detail->get_error_message() ) );
 
 			return 'error';
 		}
@@ -496,7 +515,13 @@ class WMDS_Importer {
 		}
 
 		if ( is_wp_error( $result ) || ! $result ) {
-			$this->log( 'Could not save post for ' . $ad_id . ( is_wp_error( $result ) ? ': ' . $result->get_error_message() : '' ) );
+			$this->log(
+				is_wp_error( $result )
+					/* translators: 1: mobile.de ad ID, 2: the error message. */
+					? sprintf( __( 'Could not save the vehicle %1$s: %2$s', 'wp-mobile-de-sync' ), $ad_id, $result->get_error_message() )
+					/* translators: %s: mobile.de ad ID. */
+					: sprintf( __( 'Could not save the vehicle %s.', 'wp-mobile-de-sync' ), $ad_id )
+			);
 			return 'error';
 		}
 
@@ -688,7 +713,8 @@ class WMDS_Importer {
 	private function sideload( $post_id, array $image, $title, $index ) {
 		$tmp = download_url( $image['url'], 30 );
 		if ( is_wp_error( $tmp ) ) {
-			$this->log( 'Image could not be downloaded: ' . $image['url'] . ' (' . $tmp->get_error_message() . ')' );
+			/* translators: 1: image address, 2: the error message. */
+			$this->log( sprintf( __( 'Image could not be downloaded: %1$s (%2$s)', 'wp-mobile-de-sync' ), $image['url'], $tmp->get_error_message() ) );
 
 			return 0;
 		}
@@ -704,7 +730,8 @@ class WMDS_Importer {
 				wp_delete_file( $tmp );
 			}
 
-			$this->log( 'Image could not be stored: ' . $image['url'] . ' (' . $attachment->get_error_message() . ')' );
+			/* translators: 1: image address, 2: the error message. */
+			$this->log( sprintf( __( 'Image could not be stored: %1$s (%2$s)', 'wp-mobile-de-sync' ), $image['url'], $attachment->get_error_message() ) );
 
 			return 0;
 		}
@@ -779,6 +806,19 @@ class WMDS_Importer {
 
 	private function reschedule() {
 		self::schedule_followup();
+	}
+
+	/**
+	 * @param string $outcome As process() returns it.
+	 * @return string The same, in words.
+	 */
+	private static function outcome_label( $outcome ) {
+		$labels = array(
+			'created' => __( 'created', 'wp-mobile-de-sync' ),
+			'updated' => __( 'updated', 'wp-mobile-de-sync' ),
+		);
+
+		return isset( $labels[ $outcome ] ) ? $labels[ $outcome ] : (string) $outcome;
 	}
 
 	/** Books the next pass in a minute, unless one is booked already. */

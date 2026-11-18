@@ -165,7 +165,7 @@ $log = array(
 	),
 	array(
 		'time'    => '2026-08-08 08:45:00',
-		'message' => 'Incremental sync: 44 seen.',
+		'message' => 'Changes sync: 44 seen.',
 	),
 );
 

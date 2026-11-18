@@ -3,6 +3,16 @@
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
+## [2.4.6] – 2026-11-18
+
+### Changed
+- **The sync log is written in the site's language.** Its lines were fixed
+  English text, the only English on an otherwise German screen and in the
+  alert mails. Each line is now translated when it is written; entries from
+  before the update stay as they are until they roll out of the log.
+- The kind of run reads "Changes sync" instead of "Incremental sync", in
+  English and in the German translation.
+
 ## [2.4.5] – 2026-11-17
 
 ### Added
