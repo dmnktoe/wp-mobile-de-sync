@@ -24,7 +24,7 @@ wmds_assert( 'leer bleibt leer', '', WMDS_Logos::normalize( '   ' ) );
 wmds_section( 'Matching against assets/logos/' );
 
 $dateien = glob( WMDS_DIR . 'assets/logos/*.png' );
-wmds_assert( '30 Logos vorhanden', 30, count( (array) $dateien ) );
+wmds_assert( '32 logos bundled', 32, count( (array) $dateien ) );
 
 $schluessel = array(
 	'LAND ROVER'      => 'Land Rover',
@@ -39,6 +39,8 @@ $schluessel = array(
 	'HARLEY-DAVIDSON' => 'Harley-Davidson',
 	'VOLKSWAGEN'      => 'Volkswagen',
 	'SKODA'           => 'Skoda',
+	'OPEL'            => 'Opel',
+	'HYUNDAI'         => 'Hyundai',
 );
 
 foreach ( $schluessel as $key => $erwartet_im_dateinamen ) {
