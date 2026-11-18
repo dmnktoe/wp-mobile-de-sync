@@ -94,15 +94,24 @@ class WMDS_Admin {
 	/** @return array<string,string> */
 	public static function tabs() {
 		return array(
-			'connection'   => __( 'Connection', 'wp-mobile-de-sync' ),
-			'schedule'     => __( 'Schedule', 'wp-mobile-de-sync' ),
-			'enquiries'    => __( 'Enquiries', 'wp-mobile-de-sync' ),
-			'integrations' => __( 'Integrations', 'wp-mobile-de-sync' ),
-			'usage'        => __( 'Usage', 'wp-mobile-de-sync' ),
-			'status'       => __( 'Status & log', 'wp-mobile-de-sync' ),
-			'tools'        => __( 'Tools', 'wp-mobile-de-sync' ),
-			'system'       => __( 'System', 'wp-mobile-de-sync' ),
-			'about'        => __( 'About', 'wp-mobile-de-sync' ),
+			'overview'  => __( 'Overview', 'wp-mobile-de-sync' ),
+			'settings'  => __( 'Settings', 'wp-mobile-de-sync' ),
+			'enquiries' => __( 'Enquiries', 'wp-mobile-de-sync' ),
+			'embed'     => __( 'Embedding', 'wp-mobile-de-sync' ),
+			'tools'     => __( 'Tools & system', 'wp-mobile-de-sync' ),
+		);
+	}
+
+	/**
+	 * The settings each tab's form holds, by tab.
+	 *
+	 * @return array<string, string[]>
+	 */
+	public static function forms() {
+		return array(
+			'settings'  => WMDS_Tab_Settings::fields(),
+			'enquiries' => WMDS_Tab_Enquiries::fields(),
+			'embed'     => WMDS_Tab_Embed::fields(),
 		);
 	}
 
@@ -110,49 +119,43 @@ class WMDS_Admin {
 	private static function current_tab() {
 		$tab = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- navigation only.
 
-		return array_key_exists( $tab, self::tabs() ) ? $tab : 'connection';
+		return array_key_exists( $tab, self::tabs() ) ? $tab : 'overview';
 	}
 
 	public static function render() {
 		$status = WMDS_Status::get();
 		$tab    = self::current_tab();
+		$new    = WMDS_Leads::count_new();
 		?>
 		<div class="wrap wmds-wrap">
 			<h1><?php echo esc_html__( 'mobile.de Sync', 'wp-mobile-de-sync' ); ?></h1>
 
 			<?php WMDS_Admin_Notices::render_notices(); ?>
-			<?php WMDS_Admin_Ui::render_status_card( $status ); ?>
-			<?php WMDS_Admin_Ui::render_checklist( $status ); ?>
 
 			<nav class="nav-tab-wrapper wp-clearfix" aria-label="<?php esc_attr_e( 'Settings sections', 'wp-mobile-de-sync' ); ?>">
 				<?php foreach ( self::tabs() as $key => $label ) : ?>
 					<a class="nav-tab <?php echo $key === $tab ? 'nav-tab-active' : ''; ?>"
 						href="<?php echo esc_url( WMDS_Status::settings_url( $key ) ); ?>">
 						<?php echo esc_html( $label ); ?>
+						<?php if ( 'enquiries' === $key && $new ) : ?>
+							<span class="wmds-tab-count"><?php echo esc_html( number_format_i18n( $new ) ); ?></span>
+						<?php endif; ?>
 					</a>
 				<?php endforeach; ?>
 			</nav>
 
 			<div class="wmds-tab-body">
 				<?php
-				if ( 'schedule' === $tab ) {
-					WMDS_Tab_Schedule::render( $status );
+				if ( 'settings' === $tab ) {
+					WMDS_Tab_Settings::render( $status );
 				} elseif ( 'enquiries' === $tab ) {
 					WMDS_Tab_Enquiries::render();
-				} elseif ( 'integrations' === $tab ) {
-					WMDS_Tab_Integrations::render();
-				} elseif ( 'usage' === $tab ) {
-					WMDS_Tab_Usage::render();
-				} elseif ( 'status' === $tab ) {
-					WMDS_Tab_Status::render( $status );
+				} elseif ( 'embed' === $tab ) {
+					WMDS_Tab_Embed::render();
 				} elseif ( 'tools' === $tab ) {
 					WMDS_Tab_Tools::render( $status );
-				} elseif ( 'system' === $tab ) {
-					WMDS_Tab_System::render();
-				} elseif ( 'about' === $tab ) {
-					WMDS_Tab_About::render();
 				} else {
-					WMDS_Tab_Connection::render();
+					WMDS_Tab_Overview::render( $status );
 				}
 				?>
 			</div>

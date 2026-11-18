@@ -85,7 +85,7 @@ class WMDS_Adminbar {
 					esc_attr( $status['severity'] ),
 					esc_html( $status['label'] )
 				),
-				'href'   => WMDS_Status::settings_url( 'status' ),
+				'href'   => WMDS_Status::settings_url( 'overview' ),
 			)
 		);
 
@@ -95,7 +95,7 @@ class WMDS_Adminbar {
 					'parent' => self::ID,
 					'id'     => self::ID . '-setup',
 					'title'  => __( 'Enter credentials', 'wp-mobile-de-sync' ),
-					'href'   => WMDS_Status::settings_url( 'connection' ),
+					'href'   => WMDS_Status::settings_url( 'settings' ),
 				)
 			);
 
@@ -113,7 +113,7 @@ class WMDS_Adminbar {
 						esc_html( WMDS_Status::local_time( $status['last_ts'] ) ),
 						esc_html( WMDS_Status::summarise( $status['last'] ) )
 					),
-					'href'   => WMDS_Status::settings_url( 'status' ),
+					'href'   => WMDS_Status::settings_url( 'overview' ),
 				)
 			);
 		}
@@ -123,7 +123,7 @@ class WMDS_Adminbar {
 				'parent' => self::ID,
 				'id'     => self::ID . '-next',
 				'title'  => self::next_run( (int) $status['next'], time() ),
-				'href'   => WMDS_Status::settings_url( 'schedule' ),
+				'href'   => WMDS_Status::settings_url( 'settings' ),
 			)
 		);
 
@@ -137,7 +137,7 @@ class WMDS_Adminbar {
 						esc_html__( '%d vehicles still queued', 'wp-mobile-de-sync' ),
 						$status['pending']
 					),
-					'href'   => WMDS_Status::settings_url( 'status' ),
+					'href'   => WMDS_Status::settings_url( 'overview' ),
 				)
 			);
 		}

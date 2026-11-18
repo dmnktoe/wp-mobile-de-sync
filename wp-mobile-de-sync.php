@@ -3,7 +3,7 @@
  * Plugin Name: mobile.de Sync
  * Plugin URI:  https://github.com/dmnktoe/wp-mobile-de-sync
  * Description: Synchronises a dealer's vehicle inventory from the mobile.de Search API into a "fahrzeuge" custom post type. Brings its own filters, templates, blocks and shortcodes, and works with existing theme templates.
- * Version:     2.4.6
+ * Version:     2.5.0
  * Author:      Domenik Töfflinger
  * Author URI:  https://github.com/dmnktoe
  * License:     GPL-2.0-or-later
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'WMDS_VERSION', '2.4.6' );
+define( 'WMDS_VERSION', '2.5.0' );
 define( 'WMDS_FILE', __FILE__ );
 define( 'WMDS_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WMDS_URL', plugin_dir_url( __FILE__ ) );
@@ -36,166 +36,4 @@ WMDS_Autoloader::register();
 require_once WMDS_DIR . 'includes/class-wmds-logos.php';
 require_once WMDS_DIR . 'includes/class-wmds-stickers.php';
 
-WMDS_Updater::init();
-
-// The admin bar reads the status on the front end too, where the admin
-// screens are never loaded.
-add_action( 'init', array( 'WMDS_Adminbar', 'init' ) );
-WMDS_Alerts::init();
-
-if ( is_admin() ) {
-	add_action( 'plugins_loaded', array( 'WMDS_Admin', 'init' ) );
-	add_action( 'plugins_loaded', array( 'WMDS_Dashboard', 'init' ) );
-	add_action( 'plugins_loaded', array( 'WMDS_Posts', 'init' ) );
-}
-
-if ( defined( 'WP_CLI' ) && WP_CLI ) {
-	require_once WMDS_DIR . 'includes/class-wmds-cli.php';
-}
-
-add_action( 'init', 'wmds_load_textdomain' );
-function wmds_load_textdomain() {
-	load_plugin_textdomain( 'wp-mobile-de-sync', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
-}
-
-function wmds_register_cpt() {
-	register_post_type(
-		WMDS_CPT,
-		array(
-			'labels'             => array(
-				'name'          => __( 'Vehicles', 'wp-mobile-de-sync' ),
-				'singular_name' => __( 'Vehicle', 'wp-mobile-de-sync' ),
-				'menu_name'     => __( 'Vehicles', 'wp-mobile-de-sync' ),
-				'all_items'     => __( 'All Vehicles', 'wp-mobile-de-sync' ),
-				'add_new'       => __( 'Add New', 'wp-mobile-de-sync' ),
-				'add_new_item'  => __( 'Add New Vehicle', 'wp-mobile-de-sync' ),
-				'edit_item'     => __( 'Edit Vehicle', 'wp-mobile-de-sync' ),
-				'view_item'     => __( 'View Vehicle', 'wp-mobile-de-sync' ),
-				'search_items'  => __( 'Search Vehicles', 'wp-mobile-de-sync' ),
-				'not_found'     => __( 'No vehicles found', 'wp-mobile-de-sync' ),
-			),
-			'public'             => true,
-			'publicly_queryable' => true,
-			'show_ui'            => true,
-			'show_in_menu'       => true,
-			'query_var'          => true,
-			'rewrite'            => array(
-				'slug'       => WMDS_Settings::slug(),
-				'with_front' => false,
-			),
-			'capability_type'    => 'post',
-			'has_archive'        => true,
-			'hierarchical'       => false,
-			'menu_position'      => 25,
-			'menu_icon'          => 'dashicons-car',
-			'supports'           => array( 'title', 'editor', 'thumbnail', 'custom-fields' ),
-			'show_in_rest'       => true,
-		)
-	);
-}
-add_action( 'init', 'wmds_register_cpt' );
-
-// A vehicle is written by the importer, not by hand. The classic screen shows
-// its fields and the warning that says so; the block editor hides both.
-add_filter( 'use_block_editor_for_post_type', 'wmds_classic_editor', 10, 2 );
-/**
- * @param bool   $use
- * @param string $post_type
- * @return bool
- */
-function wmds_classic_editor( $use, $post_type ) {
-	return WMDS_CPT === $post_type ? false : $use;
-}
-
-add_action( 'before_delete_post', array( 'WMDS_Importer', 'delete_attachments' ) );
-
-WMDS_Templates::init();
-WMDS_Facets::init();
-WMDS_Blocks::init();
-WMDS_Leads::init();
-WMDS_Seo::init();
-WMDS_Smtp::init();
-
-// The two that read another plugin have to wait until it has loaded.
-add_action( 'plugins_loaded', array( 'WMDS_Cf7', 'init' ) );
-add_action( 'plugins_loaded', array( 'WMDS_Facetwp', 'init' ) );
-
-add_filter( 'cron_schedules', 'wmds_cron_schedules' );
-/**
- * @param array $schedules
- * @return array
- */
-function wmds_cron_schedules( $schedules ) {
-	foreach ( array( 5, 15, 30, 60 ) as $minutes ) {
-		$key = 'wmds_' . $minutes . 'min';
-		if ( ! isset( $schedules[ $key ] ) ) {
-			$schedules[ $key ] = array(
-				'interval' => $minutes * 60,
-				/* translators: %d: number of minutes between sync runs. */
-				'display'  => sprintf( __( 'Every %d minutes (mobile.de Sync)', 'wp-mobile-de-sync' ), $minutes ),
-			);
-		}
-	}
-	return $schedules;
-}
-
-add_action( WMDS_CRON_HOOK, 'wmds_run_import' );
-add_action( WMDS_Importer::FOLLOWUP_HOOK, 'wmds_run_import' );
-function wmds_run_import() {
-	if ( ! WMDS_Settings::is_configured() ) {
-		return;
-	}
-	$importer = new WMDS_Importer();
-	$importer->run();
-}
-
-add_action( WMDS_CRON_FULL_HOOK, 'wmds_force_full_sync' );
-function wmds_force_full_sync() {
-	delete_option( WMDS_Importer::OPT_WATERMARK );
-}
-
-register_activation_hook( __FILE__, 'wmds_activate' );
-function wmds_activate() {
-	wmds_register_cpt();
-	flush_rewrite_rules();
-
-	wmds_ensure_schedule();
-}
-
-/**
- * Puts back every event the plugin runs on that is missing.
- *
- * WordPress drops a recurring event for good when it comes due in a request
- * that does not know its interval - one in which the plugin is not loaded,
- * during an update for instance. Scheduling only on activation left a site
- * without a sync from then on, until someone saved the schedule by hand.
- */
-function wmds_ensure_schedule() {
-	if ( ! wp_next_scheduled( WMDS_CRON_HOOK ) ) {
-		wp_schedule_event( time() + 60, WMDS_Settings::interval(), WMDS_CRON_HOOK );
-	}
-	if ( ! wp_next_scheduled( WMDS_CRON_FULL_HOOK ) ) {
-		wp_schedule_event( time() + 300, 'daily', WMDS_CRON_FULL_HOOK );
-	}
-
-	WMDS_Alerts::schedule();
-}
-
-// Checked where it costs nobody anything: in wp-admin, and in the cron
-// requests WordPress makes for its own events several times a day.
-add_action( 'init', 'wmds_maybe_ensure_schedule', 20 );
-function wmds_maybe_ensure_schedule() {
-	if ( is_admin() || wp_doing_cron() || ( defined( 'WP_CLI' ) && WP_CLI ) ) {
-		wmds_ensure_schedule();
-	}
-}
-
-register_deactivation_hook( __FILE__, 'wmds_deactivate' );
-function wmds_deactivate() {
-	wp_clear_scheduled_hook( WMDS_CRON_HOOK );
-	wp_clear_scheduled_hook( WMDS_Importer::FOLLOWUP_HOOK );
-	wp_clear_scheduled_hook( WMDS_CRON_FULL_HOOK );
-	WMDS_Alerts::unschedule();
-	delete_transient( WMDS_Importer::LOCK );
-	flush_rewrite_rules();
-}
+WMDS_Plugin::boot( __FILE__ );

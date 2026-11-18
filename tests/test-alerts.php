@@ -33,10 +33,7 @@ class WMDS_Status {
 	}
 }
 
-class WMDS_Importer {
-	const OPT_LOG = 'wmds_log';
-}
-
+require_once __DIR__ . '/../includes/class-wmds-log.php';
 require_once __DIR__ . '/../includes/class-wmds-alerts.php';
 
 $hour = 3600;

@@ -84,7 +84,7 @@ wmds_section( 'A file that acts when it loads is loaded on purpose' );
  */
 $header = (string) file_get_contents( WMDS_DIR . 'wp-mobile-de-sync.php' );
 
-foreach ( array( 'logos', 'stickers', 'cli' ) as $eager ) {
+foreach ( array( 'logos', 'stickers' ) as $eager ) {
 	wmds_assert_contains(
 		sprintf( 'class-wmds-%s.php is required outright', $eager ),
 		'includes/class-wmds-' . $eager . ".php'",
@@ -104,8 +104,14 @@ wmds_section( 'The plugin header no longer keeps a list to forget' );
 
 wmds_assert(
 	'only the files that cannot be autoloaded are required',
-	4,
+	3,
 	preg_match_all( "/require_once WMDS_DIR \. 'includes\//", $header )
+);
+
+wmds_assert_contains(
+	'the WP-CLI file is required when WP-CLI runs',
+	"require_once WMDS_DIR . 'includes/class-wmds-cli.php'",
+	(string) file_get_contents( WMDS_DIR . 'includes/class-wmds-plugin.php' )
 );
 
 wmds_assert_contains(

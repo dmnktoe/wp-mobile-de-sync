@@ -36,6 +36,8 @@ foreach ( array(
 	'client',
 	'json-mapper',
 	'sync-plan',
+	'log',
+	'images',
 	'importer',
 	'logos',
 	'stickers',
@@ -44,6 +46,9 @@ foreach ( array(
 	'status',
 	'alerts',
 	'leads',
+	'lead-form',
+	'lead-mail',
+	'plugin',
 	'updater',
 	'posts',
 	'admin-notices',
@@ -62,7 +67,7 @@ foreach ( array( 'smtp', 'cf7', 'facetwp' ) as $wmds_integration ) {
 	require_once dirname( __DIR__ ) . '/includes/integrations/class-wmds-' . $wmds_integration . '.php';
 }
 
-foreach ( array( 'connection', 'schedule', 'enquiries', 'integrations', 'usage', 'status', 'tools', 'system', 'about' ) as $wmds_tab ) {
+foreach ( array( 'overview', 'settings', 'enquiries', 'embed', 'tools' ) as $wmds_tab ) {
 	require_once dirname( __DIR__ ) . '/includes/tabs/class-wmds-tab-' . $wmds_tab . '.php';
 }
 
@@ -134,11 +139,13 @@ wmds_assert( 'and the username is still there', 'dealer', WMDS_Settings::get( 'u
 wmds_run_action( 'save', array() );
 wmds_assert( 'a form without a tab saves nothing', 'dealer', WMDS_Settings::get( 'username' ) );
 
-wmds_section( 'Every tab is still there, in the order somebody learned' );
+wmds_section( 'The five tabs, the overview first' );
 
 wmds_admin_fake_reset();
 
-$tabs = array( 'connection', 'schedule', 'enquiries', 'integrations', 'usage', 'status', 'tools', 'system', 'about' );
+$tabs = array( 'overview', 'settings', 'enquiries', 'embed', 'tools' );
+
+wmds_assert( 'five tabs, in this order', $tabs, array_keys( WMDS_Admin::tabs() ) );
 
 foreach ( $tabs as $tab ) {
 	$markup = wmds_render_tab( $tab );
@@ -147,99 +154,148 @@ foreach ( $tabs as $tab ) {
 	wmds_assert_contains( sprintf( 'the %s tab is the active one', $tab ), 'tab=' . $tab, $markup );
 }
 
-wmds_assert_contains( 'an unknown tab falls back to the connection', 'wmds_username', wmds_render_tab( 'nonsense' ) );
-wmds_assert_contains( 'and so does no tab at all', 'wmds_username', wmds_render_tab( '' ) );
+wmds_assert_contains( 'an unknown tab falls back to the overview', 'wmds-status-card', wmds_render_tab( 'nonsense' ) );
+wmds_assert_contains( 'and so does no tab at all', 'wmds-status-card', wmds_render_tab( '' ) );
 
 wmds_section( 'Each tab carries the fields it owns' );
 
-wmds_assert_contains( 'connection: the username', 'name="wmds_username"', wmds_render_tab( 'connection' ) );
-wmds_assert_contains( 'connection: the seller ID', 'name="wmds_seller_id"', wmds_render_tab( 'connection' ) );
-wmds_assert_contains( 'schedule: the interval', 'name="wmds_interval"', wmds_render_tab( 'schedule' ) );
-wmds_assert_contains( 'schedule: the label language', 'name="wmds_language"', wmds_render_tab( 'schedule' ) );
-wmds_assert_contains( 'enquiries: the recipient', 'name="wmds_enquiry_recipient"', wmds_render_tab( 'enquiries' ) );
-wmds_assert_contains( 'enquiries: the privacy notice', 'name="wmds_enquiry_consent"', wmds_render_tab( 'enquiries' ) );
-wmds_assert_contains( 'integrations: the Contact Form 7 record', 'name="wmds_cf7_store"', wmds_render_tab( 'integrations' ) );
-wmds_assert_contains( 'integrations: the FacetWP re-index', 'name="wmds_facetwp_reindex"', wmds_render_tab( 'integrations' ) );
-wmds_assert_contains( 'integrations: a mail tag to copy', '[_wmds_vehicle_price]', wmds_render_tab( 'integrations' ) );
-wmds_assert_contains( 'usage: the blocks heading', 'Blocks', wmds_render_tab( 'usage' ) );
-wmds_assert_contains( 'usage: a shortcode example', '[vehicles', wmds_render_tab( 'usage' ) );
-wmds_assert_contains( 'usage: the dashboard widget', 'newest vehicles', wmds_render_tab( 'usage' ) );
-wmds_assert_contains( 'status: the alert switch', 'name="wmds_alerts_enabled"', wmds_render_tab( 'status' ) );
-wmds_assert_contains( 'status: the cooldown', 'name="wmds_alerts_cooldown"', wmds_render_tab( 'status' ) );
+$settings = wmds_render_tab( 'settings' );
+foreach ( array( 'username', 'password', 'seller_id', 'dealer', 'interval', 'language', 'slug', 'similar_enabled', 'alerts_enabled', 'alerts_recipient', 'alerts_cooldown', 'alerts_weekly' ) as $field ) {
+	wmds_assert_contains( 'settings: ' . $field, 'name="wmds_' . $field . '"', $settings );
+}
+
+$enquiries = wmds_render_tab( 'enquiries' );
+foreach ( WMDS_Tab_Enquiries::fields() as $field ) {
+	wmds_assert_contains( 'enquiries: ' . $field, 'name="wmds_' . $field . '"', $enquiries );
+}
+wmds_assert_contains( 'enquiries: the test mail', 'value="test-mail"', $enquiries );
+
+$embed = wmds_render_tab( 'embed' );
+foreach ( WMDS_Tab_Embed::fields() as $field ) {
+	wmds_assert_contains( 'embed: ' . $field, 'name="wmds_' . $field . '"', $embed );
+}
+wmds_assert_contains( 'embed: a mail tag to copy', '[_wmds_vehicle_price]', $embed );
+wmds_assert_contains( 'embed: a shortcode example', '[vehicles', $embed );
+wmds_assert_contains( 'embed: the dashboard widget', 'newest vehicles', $embed );
+
+$tools = wmds_render_tab( 'tools' );
+wmds_assert_contains( 'tools: the log', 'id="wmds-log"', $tools );
+wmds_assert_contains( 'tools: the requirements', 'wmds-requirements', $tools );
+wmds_assert_contains( 'tools: forcing a full sync', 'value="full"', $tools );
+
+wmds_assert_contains(
+	'overview: the sync button once configured',
+	'id="wmds-sync"',
+	( function () {
+		WMDS_Settings::update(
+			array(
+				'username'  => 'dealer',
+				'password'  => 'secret',
+				'seller_id' => '1',
+			)
+		);
+		$_GET['tab'] = 'overview';
+		ob_start();
+		WMDS_Admin::render();
+		return (string) ob_get_clean();
+	} )()
+);
+
+wmds_section( 'Every form names the settings it holds, and nothing is held twice' );
+
+$owned = array();
+foreach ( WMDS_Admin::forms() as $tab => $keys ) {
+	foreach ( $keys as $key ) {
+		wmds_assert( sprintf( '%s is a known setting', $key ), true, array_key_exists( $key, WMDS_Settings::fields() ) );
+		$owned[] = $key;
+	}
+}
+wmds_assert( 'no setting belongs to two forms', count( $owned ), count( array_unique( $owned ) ) );
 
 wmds_section( 'A tab saves its own settings' );
 
 wmds_admin_fake_reset();
 WMDS_Settings::update(
 	array(
-		'username'  => 'dealer',
-		'password'  => 'secret',
-		'seller_id' => '12345678',
-		'interval'  => 'daily',
-		'language'  => 'de',
+		'username'          => 'dealer',
+		'password'          => 'secret',
+		'seller_id'         => '12345678',
+		'interval'          => 'daily',
+		'language'          => 'de',
+		'enquiry_recipient' => 'sales@example.invalid',
 	)
 );
 
 wmds_run_action(
 	'save',
 	array(
-		'wmds_tab'      => 'schedule',
-		'wmds_interval' => 'wmds_30min',
-		'wmds_language' => 'fr',
-	)
-);
-
-wmds_assert( 'the schedule tab writes the interval', 'wmds_30min', WMDS_Settings::interval() );
-wmds_assert( 'and the language', 'fr', WMDS_Settings::get( 'language' ) );
-
-wmds_section( 'And leaves the settings the other tabs own alone' );
-
-wmds_assert( 'the username survives saving the schedule', 'dealer', WMDS_Settings::username() );
-wmds_assert( 'so does the seller ID', '12345678', WMDS_Settings::seller_id() );
-wmds_assert( 'and the password', 'secret', WMDS_Settings::password() );
-
-wmds_run_action(
-	'save',
-	array(
-		'wmds_tab'         => 'connection',
+		'wmds_tab'         => 'settings',
 		'wmds_username'    => 'other',
 		'wmds_seller_mode' => 'id',
 		'wmds_seller_id'   => '87654321',
+		'wmds_interval'    => 'wmds_30min',
+		'wmds_language'    => 'fr',
 	)
 );
 
-wmds_assert( 'the connection tab writes the username', 'other', WMDS_Settings::username() );
-wmds_assert( 'the interval survives saving the connection', 'wmds_30min', WMDS_Settings::interval() );
+wmds_assert( 'the settings tab writes the username', 'other', WMDS_Settings::username() );
+wmds_assert( 'and the seller ID', '87654321', WMDS_Settings::seller_id() );
+wmds_assert( 'and the interval', 'wmds_30min', WMDS_Settings::interval() );
+wmds_assert( 'and the language', 'fr', WMDS_Settings::get( 'language' ) );
 wmds_assert( 'an empty password field keeps the stored one', 'secret', WMDS_Settings::password() );
+wmds_assert( 'the event moves to the new interval', 'wmds_30min', isset( $GLOBALS['wmds_admin_recurrence'][ WMDS_CRON_HOOK ] ) ? $GLOBALS['wmds_admin_recurrence'][ WMDS_CRON_HOOK ] : 'wmds_30min' );
+
+wmds_section( 'And leaves the settings the other tabs own alone' );
+
+wmds_assert( 'the enquiry recipient survives saving the settings', 'sales@example.invalid', WMDS_Settings::get( 'enquiry_recipient' ) );
 
 wmds_run_action(
 	'save',
 	array(
 		'wmds_tab'               => 'enquiries',
-		'wmds_enquiry_recipient' => 'sales@example.invalid',
+		'wmds_enquiry_recipient' => 'verkauf@example.invalid, nonsense',
 		'wmds_enquiry_enabled'   => 'yes',
 	)
 );
 
-wmds_assert( 'the enquiries tab writes its recipient', 'sales@example.invalid', WMDS_Settings::get( 'enquiry_recipient' ) );
-wmds_assert( 'the username survives that too', 'other', WMDS_Settings::username() );
+wmds_assert( 'the enquiries tab writes its recipient, without what is no address', 'verkauf@example.invalid', WMDS_Settings::get( 'enquiry_recipient' ) );
+wmds_assert( 'the username survives that', 'other', WMDS_Settings::username() );
 wmds_assert( 'and the interval', 'wmds_30min', WMDS_Settings::interval() );
 
 wmds_run_action(
 	'save',
 	array(
-		'wmds_tab'             => 'status',
+		'wmds_tab'             => 'settings',
+		'wmds_username'        => 'other',
+		'wmds_seller_id'       => '87654321',
 		'wmds_alerts_enabled'  => 'yes',
 		'wmds_alerts_cooldown' => '3600',
 	)
 );
 
-wmds_assert( 'the status tab writes the alert settings', true, WMDS_Alerts::enabled() );
+wmds_assert( 'the alert settings are saved with the settings tab', true, WMDS_Alerts::enabled() );
 wmds_assert( 'and the cooldown', 3600, WMDS_Alerts::cooldown() );
-wmds_assert( 'the enquiry recipient survives', 'sales@example.invalid', WMDS_Settings::get( 'enquiry_recipient' ) );
+wmds_assert( 'a cooldown nobody offered falls back to the default', 21600, WMDS_Settings::from_request( array( 'alerts_cooldown' ), array( 'wmds_alerts_cooldown' => '5' ) )['alerts_cooldown'] );
+
+wmds_section( 'The dealer name and the seller ID exclude each other' );
+
+wmds_run_action(
+	'save',
+	array(
+		'wmds_tab'         => 'settings',
+		'wmds_username'    => 'other',
+		'wmds_seller_mode' => 'dealer',
+		'wmds_seller_id'   => '87654321',
+		'wmds_dealer'      => 'EXAMPLEDEALER',
+	)
+);
+
+wmds_assert( 'the dealer name is kept', 'EXAMPLEDEALER', WMDS_Settings::dealer() );
+wmds_assert( 'the seller ID is cleared', '', WMDS_Settings::seller_id() );
 
 wmds_section( 'The slug' );
 
+wmds_admin_fake_reset();
 wmds_assert( 'fahrzeuge until one is set', 'fahrzeuge', WMDS_Settings::slug() );
 
 $GLOBALS['wmds_admin_options']['rewrite_rules'] = array( 'fahrzeuge/?$' => 'index.php?post_type=fahrzeuge' );
@@ -247,62 +303,59 @@ $GLOBALS['wmds_admin_options']['rewrite_rules'] = array( 'fahrzeuge/?$' => 'inde
 wmds_run_action(
 	'save',
 	array(
-		'wmds_tab'  => 'usage',
-		'wmds_slug' => 'fahrzeuge',
+		'wmds_tab'  => 'settings',
+		'wmds_slug' => '',
 	)
 );
-wmds_assert( 'saving the same slug keeps the rewrite rules', true, isset( $GLOBALS['wmds_admin_options']['rewrite_rules'] ) );
+wmds_assert( 'saving no slug keeps the rewrite rules', true, isset( $GLOBALS['wmds_admin_options']['rewrite_rules'] ) );
 
 wmds_run_action(
 	'save',
 	array(
-		'wmds_tab'  => 'usage',
+		'wmds_tab'  => 'settings',
 		'wmds_slug' => ' Unsere Autos/ ',
 	)
 );
 wmds_assert( 'a typed slug is cleaned up', 'unsere-autos', WMDS_Settings::slug() );
 wmds_assert( 'a new slug drops the rewrite rules so they are rebuilt', false, isset( $GLOBALS['wmds_admin_options']['rewrite_rules'] ) );
-wmds_assert( 'the username survives saving the slug', 'other', WMDS_Settings::username() );
-wmds_assert( 'and the interval', 'wmds_30min', WMDS_Settings::interval() );
 
 wmds_run_action(
 	'save',
 	array(
-		'wmds_tab'  => 'usage',
-		'wmds_slug' => '',
-	)
-);
-wmds_assert( 'emptying it falls back to fahrzeuge', 'fahrzeuge', WMDS_Settings::slug() );
-
-wmds_run_action(
-	'save',
-	array(
-		'wmds_tab'  => 'usage',
+		'wmds_tab'  => 'settings',
 		'wmds_slug' => '///',
 	)
 );
-wmds_assert( 'so does a slug that cleans up to nothing', 'fahrzeuge', WMDS_Settings::slug() );
-
-// Rendering starts from a clean slate, so these come last.
-wmds_assert_contains( 'the usage tab offers it', 'name="wmds_slug"', wmds_render_tab( 'usage' ) );
-wmds_assert_contains( 'and names the archive under it', '/fahrzeuge/', wmds_render_tab( 'usage' ) );
+wmds_assert( 'a slug that cleans up to nothing falls back to fahrzeuge', 'fahrzeuge', WMDS_Settings::slug() );
+wmds_assert_contains( 'the settings tab shows the slug in use', 'value="fahrzeuge"', wmds_render_tab( 'settings' ) );
+wmds_assert_contains( 'the embed tab names the archive under it', '/fahrzeuge/', wmds_render_tab( 'embed' ) );
 
 wmds_section( 'An unticked checkbox is a no, not an absence' );
 
-wmds_run_action( 'save', array( 'wmds_tab' => 'status' ) );
+wmds_run_action(
+	'save',
+	array(
+		'wmds_tab'            => 'settings',
+		'wmds_alerts_enabled' => 'yes',
+	)
+);
+wmds_run_action( 'save', array( 'wmds_tab' => 'settings' ) );
 wmds_assert( 'unticking the alert switch switches it off', false, WMDS_Alerts::enabled() );
+wmds_assert( 'and the similar vehicles', false, WMDS_Settings::flag( 'similar_enabled' ) );
 
 wmds_section( 'Every action lands where it says it does' );
 
 $targets = array(
-	'save'      => 'tab=connection',
-	'test'      => 'tab=connection',
-	'sync'      => 'tab=status',
-	'full'      => 'tab=status',
-	'clear-log' => 'tab=status',
-	'flush'     => 'tab=tools',
-	'unlock'    => 'tab=tools',
-	'forget'    => 'tab=connection',
+	'save'         => 'tab=settings',
+	'forget'       => 'tab=settings',
+	'test'         => 'tab=tools',
+	'sync'         => 'tab=overview',
+	'full'         => 'tab=tools',
+	'clear-log'    => 'tab=tools',
+	'flush'        => 'tab=tools',
+	'unlock'       => 'tab=tools',
+	'clean-images' => 'tab=tools',
+	'test-mail'    => 'tab=enquiries',
 );
 
 foreach ( $targets as $action => $expected ) {
@@ -323,6 +376,6 @@ wmds_section( 'The screen is shut to anybody without the capability' );
 
 wmds_admin_fake_reset();
 $GLOBALS['wmds_admin_can'] = false;
-wmds_assert( 'no capability, no action', 'died', wmds_run_action( 'save', array( 'wmds_tab' => 'connection' ) ) );
+wmds_assert( 'no capability, no action', 'died', wmds_run_action( 'save', array( 'wmds_tab' => 'settings' ) ) );
 
 wmds_result();

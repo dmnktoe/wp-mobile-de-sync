@@ -15,6 +15,8 @@ require_once dirname( __DIR__ ) . '/includes/class-wmds-creole.php';
 require_once dirname( __DIR__ ) . '/includes/class-wmds-refdata.php';
 require_once dirname( __DIR__ ) . '/includes/class-wmds-json-mapper.php';
 require_once dirname( __DIR__ ) . '/includes/class-wmds-sync-plan.php';
+require_once dirname( __DIR__ ) . '/includes/class-wmds-log.php';
+require_once dirname( __DIR__ ) . '/includes/class-wmds-images.php';
 require_once dirname( __DIR__ ) . '/includes/class-wmds-importer.php';
 require_once dirname( __DIR__ ) . '/includes/class-wmds-logos.php';
 require_once dirname( __DIR__ ) . '/includes/class-wmds-vehicle.php';

@@ -101,7 +101,7 @@
 		well above the 15-minute threshold this sniff guards.
 	-->
 	<rule ref="WordPress.WP.CronInterval">
-		<exclude-pattern>wp-mobile-de-sync.php</exclude-pattern>
+		<exclude-pattern>includes/class-wmds-plugin.php</exclude-pattern>
 	</rule>
 
 	<!--
@@ -120,10 +120,13 @@
 		<!--
 			known_map() and the refdata cache need direct queries: one JOIN
 			across the whole inventory instead of a meta query per vehicle is
-			the entire point. uninstall.php deletes transients by prefix,
-			which has no API.
+			the entire point. The same goes for the count of unanswered
+			enquiries and the search for vehicle pictures nothing shows any
+			more. uninstall.php deletes transients by prefix, which has no API.
 		-->
 		<exclude-pattern>includes/class-wmds-importer.php</exclude-pattern>
+		<exclude-pattern>includes/class-wmds-leads.php</exclude-pattern>
+		<exclude-pattern>includes/class-wmds-images.php</exclude-pattern>
 		<exclude-pattern>includes/class-wmds-refdata.php</exclude-pattern>
 		<exclude-pattern>uninstall.php</exclude-pattern>
 	</rule>

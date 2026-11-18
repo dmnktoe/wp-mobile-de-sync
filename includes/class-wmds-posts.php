@@ -367,7 +367,7 @@ class WMDS_Posts {
 			return;
 		}
 
-		$images = get_post_meta( $post->ID, WMDS_Importer::META_IMAGES, true );
+		$images = get_post_meta( $post->ID, WMDS_Images::META_LIST, true );
 		$rows   = array(
 			__( 'Ad ID', 'wp-mobile-de-sync' )           => $ad_id,
 			__( 'Changed on mobile.de', 'wp-mobile-de-sync' ) => (string) get_post_meta( $post->ID, WMDS_Importer::META_MODIFIED, true ),

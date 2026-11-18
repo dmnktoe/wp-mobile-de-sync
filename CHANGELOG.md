@@ -3,6 +3,45 @@
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
+## [2.5.0] – 2026-11-18
+
+### Added
+- **Vehicles taken off mobile.de leave the site with the next scheduled run.**
+  Each changes-only run asks for the size of the whole inventory in one small
+  request. When the site would not hold the same number, the run reads the
+  full listing and removes what is gone, instead of waiting for the daily
+  full sync.
+- **The address of a removed vehicle leads to the overview** - filtered by its
+  make while that make is in stock - with a note that the vehicle is no longer
+  available, instead of "page not found".
+- **Similar vehicles** at the end of a vehicle page: the same make first, then
+  the closest in price. Can be switched off under Settings → Website.
+- **Enquiry status**: new until marked answered, in the list and in the
+  enquiry. The number of unanswered enquiries is shown next to the menu entry
+  and on the Enquiries tab. **Reply by e-mail** opens the mail program with
+  the address, a subject naming the vehicle and the message quoted.
+- **Opel and Hyundai logos.**
+- A tool to delete pictures of vehicles that are no longer on the site.
+
+### Changed
+- **Five tabs instead of nine**: Overview (the new start page with status,
+  sync button, newest enquiries and log entries), Settings, Enquiries,
+  Embedding, Tools & system. Mail delivery and the test mail moved to
+  Enquiries.
+- **Pictures of a removed vehicle are deleted right away**, not when the trash
+  is emptied 30 days later.
+- **Log entries carry a level**, so "problems only" works whatever language
+  the lines are written in.
+- Code structure: the plugin file only boots `WMDS_Plugin`; every setting is
+  described once in `WMDS_Settings::fields()`; the log (`WMDS_Log`) and the
+  pictures (`WMDS_Images`) left the importer; enquiries are split into the
+  stored records (`WMDS_Leads`), the form (`WMDS_Lead_Form`) and the mails
+  (`WMDS_Lead_Mail`).
+
+### Removed
+- The separate tabs Connection, Schedule, Integrations, Usage, Status & log,
+  System and About; their content lives in the five tabs above.
+
 ## [2.4.6] – 2026-11-18
 
 ### Changed

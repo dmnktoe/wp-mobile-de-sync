@@ -13,6 +13,8 @@ require_once dirname( __DIR__ ) . '/includes/class-wmds-creole.php';
 require_once dirname( __DIR__ ) . '/includes/class-wmds-refdata.php';
 require_once dirname( __DIR__ ) . '/includes/class-wmds-json-mapper.php';
 require_once dirname( __DIR__ ) . '/includes/class-wmds-sync-plan.php';
+require_once dirname( __DIR__ ) . '/includes/class-wmds-log.php';
+require_once dirname( __DIR__ ) . '/includes/class-wmds-images.php';
 require_once dirname( __DIR__ ) . '/includes/class-wmds-importer.php';
 require_once __DIR__ . '/wp-fake.php';
 
@@ -182,7 +184,7 @@ wmds_assert( 'featured image set', true, has_post_thumbnail( $post_111 ) );
 wmds_assert(
 	'image hashes remembered',
 	array( 'hash-111-1' ),
-	get_post_meta( $post_111, WMDS_Importer::META_IMAGES, true )
+	get_post_meta( $post_111, WMDS_Images::META_LIST, true )
 );
 
 wmds_section( 'Initial import: state after the run' );
@@ -190,7 +192,7 @@ wmds_section( 'Initial import: state after the run' );
 wmds_assert( 'lock released again', false, get_transient( WMDS_Importer::LOCK ) );
 wmds_assert( 'watermark set', true, '' !== (string) get_option( WMDS_Importer::OPT_WATERMARK, '' ) );
 wmds_assert( 'statistics stored', 2, get_option( WMDS_Importer::OPT_LAST_RUN )['created'] );
-wmds_assert_contains( 'log entry written', 'Full sync', get_option( WMDS_Importer::OPT_LOG )[0]['message'] );
+wmds_assert_contains( 'log entry written', 'Full sync', WMDS_Log::entries()[0]['message'] );
 wmds_assert( 'exactly one inventory query', 1, $GLOBALS['wpdb']->queries );
 wmds_assert( 'no follow-up scheduled', 0, count( wmds_fake( 'scheduled' ) ) );
 
@@ -251,7 +253,7 @@ wmds_assert( 'image re-downloaded', 1, $stats['images'] );
 wmds_assert(
 	'new hash stored',
 	array( 'hash-111-NEU' ),
-	get_post_meta( wmds_post_for( '111' ), WMDS_Importer::META_IMAGES, true )
+	get_post_meta( wmds_post_for( '111' ), WMDS_Images::META_LIST, true )
 );
 wmds_assert( 'only one attachment on the post', 1, count( wmds_fake( 'attachments' )[ wmds_post_for( '111' ) ] ) );
 
@@ -300,7 +302,7 @@ $result                    = $importer->run( array( 'full' => true ) );
 wmds_assert( 'run ends with a WP_Error', true, is_wp_error( $result ) );
 wmds_assert( 'nothing moved to trash', 0, count( wmds_fake( 'trashed' ) ) );
 wmds_assert( 'inventory untouched', 2, count( wmds_fake( 'posts' ) ) );
-wmds_assert_contains( 'reason in the log', 'Service Unavailable', get_option( WMDS_Importer::OPT_LOG )[0]['message'] );
+wmds_assert_contains( 'reason in the log', 'Service Unavailable', WMDS_Log::entries()[0]['message'] );
 wmds_assert( 'lock released regardless', false, get_transient( WMDS_Importer::LOCK ) );
 
 wmds_section( 'The detail call fails, the vehicle is left alone' );
@@ -314,7 +316,7 @@ wmds_assert( 'nothing is created from a listing alone', 0, $stats['created'] );
 wmds_assert( 'it counts as failed', 1, $stats['failed'] );
 wmds_assert( 'no post written', 0, count( wmds_fake( 'posts' ) ) );
 wmds_assert( 'the watermark stays, so the next run lists it again', '', (string) get_option( WMDS_Importer::OPT_WATERMARK, '' ) );
-wmds_assert_contains( 'failure logged', 'Detail call failed', get_option( WMDS_Importer::OPT_LOG )[1]['message'] );
+wmds_assert_contains( 'failure logged', 'Detail call failed', WMDS_Log::entries()[1]['message'] );
 
 wmds_fake_reset();
 $post_id = wmds_fake_seed_vehicle( '111', '2026-07-01T00:00:00+02:00' );
@@ -356,7 +358,7 @@ $stats                     = $importer->run();
 wmds_assert( 'vehicle created', 1, $stats['created'] );
 wmds_assert( 'one image instead of two', 1, $stats['images'] );
 wmds_assert( 'featured image set regardless', true, has_post_thumbnail( wmds_post_for( '111' ) ) );
-wmds_assert_contains( 'noted in the log', 'Image could not be downloaded', get_option( WMDS_Importer::OPT_LOG )[1]['message'] );
+wmds_assert_contains( 'noted in the log', 'Image could not be downloaded', WMDS_Log::entries()[1]['message'] );
 
 wmds_section( 'The API reports more vehicles than it hands out' );
 
@@ -368,7 +370,7 @@ $importer->run();
 wmds_assert_contains(
 	'warning in the log',
 	'This reconciliation is incomplete',
-	get_option( WMDS_Importer::OPT_LOG )[1]['message']
+	WMDS_Log::entries()[1]['message']
 );
 
 wmds_section( 'Removal: the normal case after a full sync' );
@@ -421,7 +423,7 @@ wmds_assert( 'inventory complete', 5, count( wmds_fake( 'posts' ) ) );
 wmds_assert_contains(
 	'abort explained',
 	'did not see a single vehicle',
-	get_option( WMDS_Importer::OPT_LOG )[1]['message']
+	WMDS_Log::entries()[1]['message']
 );
 
 wmds_section( 'Guard 3: more than 30 percent at once' );
@@ -447,7 +449,7 @@ wmds_assert( 'nothing in the trash', 0, count( wmds_fake( 'trashed' ) ) );
 wmds_assert_contains(
 	'abort states the count and the limit',
 	'8 of 20 vehicles would be removed (limit 6)',
-	get_option( WMDS_Importer::OPT_LOG )[1]['message']
+	WMDS_Log::entries()[1]['message']
 );
 
 wmds_section( 'Floor: small inventories stay workable' );
@@ -514,11 +516,11 @@ $stats                     = $importer->run();
 $post_id                   = wmds_post_for( '111' );
 
 wmds_assert( 'two of three landed', 2, $stats['images'] );
-wmds_assert( 'only the successful hashes stored', array( 'a', 'c' ), get_post_meta( $post_id, WMDS_Importer::META_IMAGES, true ) );
+wmds_assert( 'only the successful hashes stored', array( 'a', 'c' ), get_post_meta( $post_id, WMDS_Images::META_LIST, true ) );
 wmds_assert(
 	'the gap is still visible to the next run',
 	true,
-	WMDS_Sync_Plan::images_changed( get_post_meta( $post_id, WMDS_Importer::META_IMAGES, true ), $three_images )
+	WMDS_Sync_Plan::images_changed( get_post_meta( $post_id, WMDS_Images::META_LIST, true ), $three_images )
 );
 
 wmds_section( 'The next run repairs it' );
@@ -532,8 +534,8 @@ list( $importer, $client ) = wmds_setup(
 $stats                     = $importer->run( array( 'force' => true ) );
 
 wmds_assert( 'only the missing one is fetched', 1, $stats['images'] );
-wmds_assert( 'all three attached, in order', array( 'a', 'b', 'c' ), get_post_meta( wmds_post_for( '111' ), WMDS_Importer::META_IMAGES, true ) );
-wmds_assert( 'complete set on file', array( 'a', 'b', 'c' ), get_post_meta( $post_id, WMDS_Importer::META_IMAGES, true ) );
+wmds_assert( 'all three attached, in order', array( 'a', 'b', 'c' ), get_post_meta( wmds_post_for( '111' ), WMDS_Images::META_LIST, true ) );
+wmds_assert( 'complete set on file', array( 'a', 'b', 'c' ), get_post_meta( $post_id, WMDS_Images::META_LIST, true ) );
 
 wmds_section( 'A complete set is not fetched again' );
 
@@ -550,7 +552,7 @@ wmds_section( 'More images than the cap does not loop forever' );
 
 wmds_fake_reset();
 $many = array();
-foreach ( range( 1, WMDS_Importer::MAX_IMAGES + 5 ) as $n ) {
+foreach ( range( 1, WMDS_Images::MAX + 5 ) as $n ) {
 	$many[] = array(
 		'hash' => 'h' . $n,
 		'xxxl' => 'https://img.example.invalid/111-' . $n . '.jpg',
@@ -563,7 +565,7 @@ list( $importer, $client ) = wmds_setup(
 $stats                     = $importer->run();
 $post_id                   = wmds_post_for( '111' );
 
-wmds_assert( 'capped at MAX_IMAGES', WMDS_Importer::MAX_IMAGES, $stats['images'] );
+wmds_assert( 'capped at MAX_IMAGES', WMDS_Images::MAX, $stats['images'] );
 
 $GLOBALS['wp_fake']['downloaded'] = array();
 list( $importer, $client )        = wmds_setup(
@@ -574,7 +576,7 @@ $stats                            = $importer->run( array( 'force' => true ) );
 wmds_assert( 'a forced re-read does not re-download', 0, count( wmds_fake( 'downloaded' ) ) );
 wmds_assert( 'and adds no images', 0, $stats['images'] );
 
-wmds_section( 'A sold vehicle goes to the trash with its gallery intact' );
+wmds_section( 'A vehicle gone from mobile.de goes to the trash, its pictures go for good' );
 
 wmds_fake_reset();
 foreach ( array( '1', '2', '3', '4', '5' ) as $seed ) {
@@ -589,16 +591,78 @@ list( $importer, $client ) = wmds_setup( $ads );
 
 $sold                                       = wmds_post_for( '5' );
 $GLOBALS['wp_fake']['attachments'][ $sold ] = array( 901, 902 );
+update_post_meta( $sold, WMDS_Images::META_LIST, array( 'a', 'b' ) );
 
 $importer->run( array( 'full' => true ) );
 
 wmds_assert( 'the sold one is in the trash', 'trash', wmds_fake( 'posts' )[ $sold ]['post_status'] );
-wmds_assert( 'its images survive the trashing', 2, count( wmds_fake( 'attachments' )[ $sold ] ) );
+wmds_assert( 'its pictures are deleted', 0, count( wmds_fake( 'attachments' )[ $sold ] ) );
+wmds_assert( 'and so is the list of them, so a return downloads them again', '', get_post_meta( $sold, WMDS_Images::META_LIST, true ) );
 
-wmds_section( 'Permanent deletion takes the images with it' );
+wmds_section( 'Permanent deletion takes the pictures with it' );
 
-WMDS_Importer::delete_attachments( $sold );
+$GLOBALS['wp_fake']['attachments'][ $sold ] = array( 903 );
+WMDS_Images::delete_for( $sold );
 wmds_assert( 'attachments gone', 0, count( wmds_fake( 'attachments' )[ $sold ] ) );
+
+wmds_section( 'A changes-only run notices a vehicle that left mobile.de' );
+
+wmds_fake_reset();
+foreach ( array( '1', '2', '3' ) as $seed ) {
+	wmds_fake_seed_vehicle( $seed );
+}
+update_option( WMDS_Importer::OPT_WATERMARK, '2026-07-28T18:00:00+02:00' );
+
+// The changes-only listing names nothing; the full one names 1 and 2.
+list( $importer, $client ) = wmds_setup( array( wmds_ad( '1' ), wmds_ad( '2' ) ), array( 'total' => 2 ) );
+$gone                      = wmds_post_for( '3' );
+$stats                     = $importer->run();
+
+wmds_assert( 'the size of the inventory was asked for', 1, $client->totals_asked );
+wmds_assert( 'the pass became a full one', true, $stats['full'] );
+wmds_assert( 'the second listing was unfiltered', '', end( $client->searched )['since'] );
+wmds_assert( 'the vehicle that left is in the trash', 'trash', wmds_fake( 'posts' )[ $gone ]['post_status'] );
+wmds_assert( 'one removed', 1, $stats['removed'] );
+
+wmds_section( 'When the counts agree, the run stays a changes-only one' );
+
+wmds_fake_reset();
+foreach ( array( '1', '2' ) as $seed ) {
+	wmds_fake_seed_vehicle( $seed );
+}
+update_option( WMDS_Importer::OPT_WATERMARK, '2026-07-28T18:00:00+02:00' );
+
+list( $importer, $client ) = wmds_setup( array(), array( 'total' => 2 ) );
+$stats                     = $importer->run();
+
+wmds_assert( 'not a full pass', false, $stats['full'] );
+wmds_assert( 'one listing only', 1, count( $client->searched ) );
+wmds_assert( 'nothing removed', 0, $stats['removed'] );
+
+wmds_section( 'A vehicle new in this pass is counted before comparing' );
+
+wmds_fake_reset();
+foreach ( array( '1', '2' ) as $seed ) {
+	wmds_fake_seed_vehicle( $seed );
+}
+update_option( WMDS_Importer::OPT_WATERMARK, '2026-07-28T18:00:00+02:00' );
+
+list( $importer, $client ) = wmds_setup( array( wmds_ad( '9' ) ), array( 'total' => 3 ) );
+$stats                     = $importer->run();
+
+wmds_assert( 'two on the site plus one new is what mobile.de lists', false, $stats['full'] );
+wmds_assert( 'the new one is created', 1, $stats['created'] );
+
+wmds_section( 'No answer about the size is no reason for a full pass' );
+
+wmds_fake_reset();
+wmds_fake_seed_vehicle( '1' );
+update_option( WMDS_Importer::OPT_WATERMARK, '2026-07-28T18:00:00+02:00' );
+
+list( $importer, $client ) = wmds_setup( array(), array( 'total' => new WP_Error( 'http', 'timeout' ) ) );
+$stats                     = $importer->run();
+
+wmds_assert( 'still a changes-only pass', false, $stats['full'] );
 
 wmds_section( 'Reloading a single vehicle' );
 
@@ -787,7 +851,7 @@ $other                                       = wp_insert_post(
 );
 $GLOBALS['wp_fake']['attachments'][ $other ] = array( 901, 902 );
 
-WMDS_Importer::delete_attachments( $other );
+WMDS_Images::delete_for( $other );
 wmds_assert( 'untouched', 2, count( wmds_fake( 'attachments' )[ $other ] ) );
 
 wmds_section( 'A full sync stays full across its passes' );

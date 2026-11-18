@@ -61,6 +61,8 @@ require_once __DIR__ . '/../includes/class-wmds-num.php';
 require_once __DIR__ . '/../includes/class-wmds-date.php';
 require_once __DIR__ . '/../includes/class-wmds-mail.php';
 require_once __DIR__ . '/../includes/class-wmds-leads.php';
+require_once __DIR__ . '/../includes/class-wmds-lead-form.php';
+require_once __DIR__ . '/../includes/class-wmds-lead-mail.php';
 require_once __DIR__ . '/../includes/class-wmds-requirements.php';
 require_once __DIR__ . '/../includes/class-wmds-vehicle.php';
 require_once __DIR__ . '/../includes/integrations/class-wmds-cf7.php';
@@ -170,8 +172,8 @@ $long = WMDS_Cf7::fields(
 	)
 );
 
-wmds_assert( 'a name is cut to what a name can be', WMDS_Leads::MAX_FIELD, WMDS_Str::length( $long['name'] ) );
-wmds_assert( 'a message too', WMDS_Leads::MAX_MESSAGE, WMDS_Str::length( $long['message'] ) );
+wmds_assert( 'a name is cut to what a name can be', WMDS_Lead_Form::MAX_FIELD, WMDS_Str::length( $long['name'] ) );
+wmds_assert( 'a message too', WMDS_Lead_Form::MAX_MESSAGE, WMDS_Str::length( $long['message'] ) );
 
 wmds_section( 'How mail leaves this site' );
 

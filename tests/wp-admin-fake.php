@@ -553,3 +553,55 @@ if ( ! function_exists( 'wp_get_schedules' ) ) {
 		);
 	}
 }
+
+if ( ! isset( $GLOBALS['wpdb'] ) ) {
+	/**
+	 * Enough of $wpdb for the counts the screens show: nothing is stored, so
+	 * every count is the one the test put in $GLOBALS['wmds_admin_db'].
+	 */
+	class WMDS_Admin_Fake_WPDB {
+		public $posts    = 'wp_posts';
+		public $postmeta = 'wp_postmeta';
+		public $options  = 'wp_options';
+
+		public function prepare( $query ) {
+			return $query;
+		}
+
+		public function get_var( $query ) {
+			return isset( $GLOBALS['wmds_admin_db']['var'] ) ? $GLOBALS['wmds_admin_db']['var'] : 0;
+		}
+
+		public function get_col( $query ) {
+			return isset( $GLOBALS['wmds_admin_db']['col'] ) ? $GLOBALS['wmds_admin_db']['col'] : array();
+		}
+
+		public function esc_like( $text ) {
+			return addcslashes( (string) $text, '_%\\' );
+		}
+
+		public function query( $query ) {
+			return 0;
+		}
+	}
+
+	$GLOBALS['wpdb'] = new WMDS_Admin_Fake_WPDB();
+}
+
+if ( ! function_exists( 'get_posts' ) ) {
+	function get_posts( $args = array() ) {
+		return isset( $GLOBALS['wmds_admin_db']['posts'] ) ? $GLOBALS['wmds_admin_db']['posts'] : array();
+	}
+}
+
+if ( ! function_exists( 'get_edit_post_link' ) ) {
+	function get_edit_post_link( $post_id ) {
+		return 'https://example.invalid/wp-admin/post.php?post=' . (int) ( is_object( $post_id ) ? $post_id->ID : $post_id ) . '&action=edit';
+	}
+}
+
+if ( ! function_exists( 'get_post_time' ) ) {
+	function get_post_time( $format = 'U', $gmt = false, $post = null ) {
+		return 1786000000;
+	}
+}

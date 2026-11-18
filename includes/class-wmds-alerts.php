@@ -33,20 +33,20 @@ class WMDS_Alerts {
 
 	/** @return bool */
 	public static function enabled() {
-		return 'yes' === WMDS_Settings::get( 'alerts_enabled', 'no' );
+		return WMDS_Settings::flag( 'alerts_enabled' );
 	}
 
 	/** @return int Seconds before the same problem is reported again. */
 	public static function cooldown() {
 		$allowed = array( 3600, 21600, 43200, 86400 );
-		$stored  = (int) WMDS_Settings::get( 'alerts_cooldown', 21600 );
+		$stored  = (int) WMDS_Settings::get( 'alerts_cooldown' );
 
 		return in_array( $stored, $allowed, true ) ? $stored : 21600;
 	}
 
 	/** @return string[] */
 	public static function recipients() {
-		$to = WMDS_Mail::addresses( WMDS_Settings::get( 'alerts_recipient', '' ) );
+		$to = WMDS_Mail::addresses( WMDS_Settings::get( 'alerts_recipient' ) );
 
 		/**
 		 * @param string[] $to
@@ -107,7 +107,7 @@ class WMDS_Alerts {
 			return;
 		}
 
-		$mail = self::compose( $kind, $status, self::log(), self::site(), WMDS_Status::settings_url( 'status' ) );
+		$mail = self::compose( $kind, $status, WMDS_Log::entries(), self::site(), WMDS_Status::settings_url() );
 
 		self::send( $mail );
 
@@ -122,14 +122,14 @@ class WMDS_Alerts {
 	}
 
 	public static function weekly() {
-		if ( ! self::enabled() || 'yes' !== WMDS_Settings::get( 'alerts_weekly', 'no' ) ) {
+		if ( ! self::enabled() || ! WMDS_Settings::flag( 'alerts_weekly' ) ) {
 			return;
 		}
 		if ( ! WMDS_Settings::is_configured() ) {
 			return;
 		}
 
-		self::send( self::compose_summary( WMDS_Status::get(), self::site(), WMDS_Status::settings_url( 'status' ) ) );
+		self::send( self::compose_summary( WMDS_Status::get(), self::site(), WMDS_Status::settings_url() ) );
 	}
 
 	/**
@@ -180,7 +180,7 @@ class WMDS_Alerts {
 			$lines[] = '';
 			$lines[] = __( 'From the log:', 'wp-mobile-de-sync' );
 			foreach ( array_slice( $log, 0, self::LOG_LINES ) as $entry ) {
-				$lines[] = '  ' . self::line( $entry );
+				$lines[] = '  ' . ( is_array( $entry ) ? WMDS_Log::line( $entry ) : (string) $entry );
 			}
 		}
 
@@ -273,28 +273,6 @@ class WMDS_Alerts {
 	public static function unschedule() {
 		wp_clear_scheduled_hook( self::CHECK_HOOK );
 		wp_clear_scheduled_hook( self::WEEKLY_HOOK );
-	}
-
-	/** @return array The last log entries, newest first. */
-	private static function log() {
-		$log = get_option( WMDS_Importer::OPT_LOG, array() );
-
-		return is_array( $log ) ? $log : array();
-	}
-
-	/**
-	 * @param mixed $entry
-	 * @return string
-	 */
-	private static function line( $entry ) {
-		if ( is_array( $entry ) ) {
-			$time    = isset( $entry['time'] ) ? (string) $entry['time'] : '';
-			$message = isset( $entry['message'] ) ? (string) $entry['message'] : '';
-
-			return trim( $time . ' ' . $message );
-		}
-
-		return (string) $entry;
 	}
 
 	/** @return string */

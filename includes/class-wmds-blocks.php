@@ -263,7 +263,7 @@ class WMDS_Blocks {
 	 * @return string
 	 */
 	public static function render_enquiry( $attributes ) {
-		return WMDS_Leads::shortcode(
+		return WMDS_Lead_Form::shortcode(
 			array(
 				'vehicle' => isset( $attributes['vehicle'] ) ? (int) $attributes['vehicle'] : 0,
 				'heading' => isset( $attributes['heading'] ) ? (string) $attributes['heading'] : '',

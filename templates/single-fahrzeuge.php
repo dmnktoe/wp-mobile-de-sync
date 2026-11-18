@@ -174,6 +174,12 @@ while ( have_posts() ) :
 	}
 	?>
 
+	<?php
+	if ( WMDS_Settings::flag( 'similar_enabled' ) ) {
+		WMDS_Templates::render( 'parts/similar-vehicles.php', array( 'vehicle_id' => get_the_ID() ) );
+	}
+	?>
+
 	<?php if ( $vehicle->has( 'emissionFuelConsumption_Combined' ) || $vehicle->has( 'emissionFuelConsumption_CO2' ) ) : ?>
 		<footer class="wmds-legal">
 			<p>

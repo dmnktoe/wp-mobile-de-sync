@@ -9,16 +9,204 @@ class WMDS_Settings {
 	const DEFAULT_SLUG = 'fahrzeuge';
 
 	/**
-	 * @param string $key      Setting name.
-	 * @param string $fallback Returned when the setting is unset or empty.
+	 * Every setting, with its type and default. The forms post a field
+	 * named wmds_ plus the key; from_request() reads them by this table, so
+	 * a new setting is one line here and a field in a tab.
+	 *
+	 * Types: text, password (kept when left empty), digits, emails
+	 * (comma-separated list), html, slug, bool ("yes"/"no"), choice (one of
+	 * `choices`).
+	 *
+	 * @return array<string, array{type:string,default:mixed,choices?:array}>
+	 */
+	public static function fields() {
+		return array(
+			'username'            => array(
+				'type'    => 'text',
+				'default' => '',
+			),
+			'password'            => array(
+				'type'    => 'password',
+				'default' => '',
+			),
+			'seller_id'           => array(
+				'type'    => 'digits',
+				'default' => '',
+			),
+			'dealer'              => array(
+				'type'    => 'text',
+				'default' => '',
+			),
+			'interval'            => array(
+				'type'    => 'choice',
+				'default' => 'wmds_15min',
+				'choices' => array( 'wmds_5min', 'wmds_15min', 'wmds_30min', 'wmds_60min', 'daily' ),
+			),
+			'language'            => array(
+				'type'    => 'choice',
+				'default' => '',
+				'choices' => array( '', 'de', 'en', 'fr', 'it', 'es', 'nl', 'pl' ),
+			),
+			'slug'                => array(
+				'type'    => 'slug',
+				'default' => '',
+			),
+			'alerts_enabled'      => array(
+				'type'    => 'bool',
+				'default' => 'no',
+			),
+			'alerts_recipient'    => array(
+				'type'    => 'emails',
+				'default' => '',
+			),
+			'alerts_cooldown'     => array(
+				'type'    => 'choice',
+				'default' => 21600,
+				'choices' => array( 3600, 21600, 43200, 86400 ),
+			),
+			'alerts_weekly'       => array(
+				'type'    => 'bool',
+				'default' => 'no',
+			),
+			'enquiry_enabled'     => array(
+				'type'    => 'bool',
+				'default' => 'yes',
+			),
+			'enquiry_recipient'   => array(
+				'type'    => 'emails',
+				'default' => '',
+			),
+			'enquiry_copy_seller' => array(
+				'type'    => 'bool',
+				'default' => 'no',
+			),
+			'enquiry_autoreply'   => array(
+				'type'    => 'bool',
+				'default' => 'no',
+			),
+			'enquiry_store'       => array(
+				'type'    => 'bool',
+				'default' => 'yes',
+			),
+			'enquiry_consent'     => array(
+				'type'    => 'html',
+				'default' => '',
+			),
+			'similar_enabled'     => array(
+				'type'    => 'bool',
+				'default' => 'yes',
+			),
+			'cf7_store'           => array(
+				'type'    => 'bool',
+				'default' => 'yes',
+			),
+			'cf7_copy_seller'     => array(
+				'type'    => 'bool',
+				'default' => 'no',
+			),
+			'facetwp_reindex'     => array(
+				'type'    => 'bool',
+				'default' => 'yes',
+			),
+		);
+	}
+
+	/**
+	 * @param string     $key      Setting name.
+	 * @param mixed|null $fallback Returned when the setting is unset or
+	 *                             empty; null for the default in fields().
 	 * @return mixed
 	 */
-	public static function get( $key, $fallback = '' ) {
+	public static function get( $key, $fallback = null ) {
 		$opts = get_option( self::OPTION, array() );
 		if ( is_array( $opts ) && isset( $opts[ $key ] ) && '' !== $opts[ $key ] ) {
 			return $opts[ $key ];
 		}
-		return $fallback;
+
+		if ( null !== $fallback ) {
+			return $fallback;
+		}
+
+		$fields = self::fields();
+
+		return isset( $fields[ $key ] ) ? $fields[ $key ]['default'] : '';
+	}
+
+	/**
+	 * @param string $key A bool setting.
+	 * @return bool
+	 */
+	public static function flag( $key ) {
+		return 'yes' === self::get( $key );
+	}
+
+	/**
+	 * Reads and cleans the posted value of each named setting.
+	 *
+	 * A checkbox that was not ticked is not posted at all, so a bool
+	 * missing from the request is "no". A password left empty is left out,
+	 * which keeps the stored one.
+	 *
+	 * @param string[] $keys    Settings the submitted form holds.
+	 * @param array    $request Usually $_POST, unslashed.
+	 * @return array<string, mixed>
+	 */
+	public static function from_request( array $keys, array $request ) {
+		$fields = self::fields();
+		$values = array();
+
+		foreach ( $keys as $key ) {
+			if ( ! isset( $fields[ $key ] ) ) {
+				continue;
+			}
+
+			$field = $fields[ $key ];
+			$raw   = isset( $request[ 'wmds_' . $key ] ) ? $request[ 'wmds_' . $key ] : null;
+			$raw   = is_scalar( $raw ) ? (string) $raw : null;
+
+			switch ( $field['type'] ) {
+				case 'bool':
+					$values[ $key ] = ( null !== $raw && '' !== $raw ) ? 'yes' : 'no';
+					break;
+
+				case 'password':
+					if ( null !== $raw && '' !== $raw ) {
+						$values[ $key ] = $raw;
+					}
+					break;
+
+				case 'digits':
+					$values[ $key ] = preg_replace( '/\D/', '', (string) $raw );
+					break;
+
+				case 'emails':
+					$values[ $key ] = implode( ', ', WMDS_Mail::addresses( (string) $raw, array(), false ) );
+					break;
+
+				case 'html':
+					$values[ $key ] = wp_kses_post( (string) $raw );
+					break;
+
+				case 'slug':
+					$values[ $key ] = sanitize_title( (string) $raw );
+					break;
+
+				case 'choice':
+					$picked = null;
+					foreach ( $field['choices'] as $choice ) {
+						if ( (string) $choice === (string) $raw ) {
+							$picked = $choice;
+						}
+					}
+					$values[ $key ] = null === $picked ? $field['default'] : $picked;
+					break;
+
+				default:
+					$values[ $key ] = sanitize_text_field( (string) $raw );
+			}
+		}
+
+		return $values;
 	}
 
 	/** @return string The mobile.de API username. */
@@ -75,10 +263,10 @@ class WMDS_Settings {
 	 * @return string
 	 */
 	public static function interval() {
-		$allowed = array( 'wmds_5min', 'wmds_15min', 'wmds_30min', 'wmds_60min', 'daily' );
-		$value   = (string) self::get( 'interval', 'wmds_15min' );
+		$fields = self::fields();
+		$value  = (string) self::get( 'interval' );
 
-		return in_array( $value, $allowed, true ) ? $value : 'wmds_15min';
+		return in_array( $value, $fields['interval']['choices'], true ) ? $value : $fields['interval']['default'];
 	}
 
 	/**

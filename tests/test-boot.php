@@ -75,7 +75,7 @@ wmds_section( 'The plugin file wires itself up' );
 wmds_assert( 'the autoloader is registered', true, spl_autoload_registered() );
 wmds_assert( 'the post type is registered on init', true, in_array( 'init', $GLOBALS['wmds_boot_actions'], true ) );
 wmds_assert( 'the import event has a listener', true, in_array( WMDS_CRON_HOOK, $GLOBALS['wmds_boot_actions'], true ) );
-wmds_assert( 'a lost schedule is looked for on init', true, function_exists( 'wmds_maybe_ensure_schedule' ) );
+wmds_assert( 'a lost schedule is looked for on init', true, is_callable( array( 'WMDS_Plugin', 'maybe_ensure_schedule' ) ) );
 
 
 wmds_section( 'Classes nobody required by hand are there anyway' );
@@ -99,14 +99,22 @@ foreach ( array(
 	'WMDS_Num',
 	'WMDS_Date',
 	'WMDS_Mail',
+	'WMDS_Log',
+	'WMDS_Images',
+	'WMDS_Lead_Form',
+	'WMDS_Lead_Mail',
+	'WMDS_Removed',
+	'WMDS_Similar',
+	'WMDS_Plugin',
 ) as $wmds_class ) {
 	wmds_assert( sprintf( '%s resolved', $wmds_class ), true, class_exists( $wmds_class ) );
 }
 
 wmds_section( 'A tab is found in its own directory' );
 
-wmds_assert( 'WMDS_Tab_Connection resolved', true, class_exists( 'WMDS_Tab_Connection' ) );
-wmds_assert( 'WMDS_Tab_Status resolved', true, class_exists( 'WMDS_Tab_Status' ) );
+foreach ( array( 'Overview', 'Settings', 'Enquiries', 'Embed', 'Tools' ) as $wmds_tab ) {
+	wmds_assert( sprintf( 'WMDS_Tab_%s resolved', $wmds_tab ), true, class_exists( 'WMDS_Tab_' . $wmds_tab ) );
+}
 
 wmds_section( 'The shortcodes a lazy load would have swallowed' );
 
@@ -141,12 +149,12 @@ wmds_section( 'A lost schedule comes back' );
 // hook => next run, and is_admin() is true there.
 $GLOBALS['wmds_admin_schedule'] = array();
 
-wmds_maybe_ensure_schedule();
+WMDS_Plugin::maybe_ensure_schedule();
 wmds_assert( 'the sync is scheduled again', true, isset( $GLOBALS['wmds_admin_schedule'][ WMDS_CRON_HOOK ] ) );
 wmds_assert( 'and so is the daily full sync', true, isset( $GLOBALS['wmds_admin_schedule'][ WMDS_CRON_FULL_HOOK ] ) );
 
 $GLOBALS['wmds_admin_schedule'][ WMDS_CRON_HOOK ] = 12345;
-wmds_ensure_schedule();
+WMDS_Plugin::ensure_schedule();
 wmds_assert( 'an event that is there is left alone', 12345, $GLOBALS['wmds_admin_schedule'][ WMDS_CRON_HOOK ] );
 
 wmds_result();

@@ -608,3 +608,91 @@
 		padding: 12px 14px;
 	}
 }
+
+/* --- Overview --- */
+
+.wmds-columns {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+	gap: 0 16px;
+	max-width: 942px;
+}
+
+.wmds-columns .wmds-card {
+	max-width: none;
+}
+
+.wmds-recent {
+	margin: 0 0 12px;
+}
+
+.wmds-recent li {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	gap: 4px 12px;
+	margin: 0;
+	padding: 8px 0;
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.wmds-recent-meta {
+	color: #646970;
+	font-size: 12px;
+	white-space: nowrap;
+}
+
+.wmds-recent-new a {
+	font-weight: 600;
+}
+
+.wmds-recent-problem span:first-child {
+	color: #b32d2e;
+}
+
+.wmds-pill-count,
+.wmds-tab-count {
+	display: inline-block;
+	min-width: 18px;
+	padding: 0 6px;
+	border-radius: 9px;
+	background: #d63638;
+	color: #fff;
+	font-size: 11px;
+	font-weight: 600;
+	line-height: 18px;
+	text-align: center;
+}
+
+.wmds-tab-count {
+	margin-left: 4px;
+	vertical-align: 1px;
+}
+
+/* --- Enquiries --- */
+
+.wmds-lead-status {
+	display: inline-block;
+	padding: 2px 8px;
+	border-radius: 3px;
+	font-size: 12px;
+	font-weight: 600;
+}
+
+.wmds-lead-status-new {
+	background: #fcf0f1;
+	color: #b32d2e;
+}
+
+.wmds-lead-status-answered {
+	background: #edfaef;
+	color: #00731a;
+}
+
+.wmds-lead-actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+	margin-top: 16px;
+}
