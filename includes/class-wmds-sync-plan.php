@@ -67,7 +67,7 @@ class WMDS_Sync_Plan {
 		);
 
 		if ( ! $is_full ) {
-			$result['abort'] = 'Partial listing - removal happens only once a full one has been read.';
+			$result['abort'] = __( 'Partial listing - removal happens only once a full one has been read.', 'wp-mobile-de-sync' );
 			return $result;
 		}
 
@@ -76,7 +76,7 @@ class WMDS_Sync_Plan {
 		}
 
 		if ( ! $seen ) {
-			$result['abort'] = 'The run did not see a single vehicle.';
+			$result['abort'] = __( 'The run did not see a single vehicle, so nothing was removed.', 'wp-mobile-de-sync' );
 			return $result;
 		}
 
@@ -98,8 +98,8 @@ class WMDS_Sync_Plan {
 
 		if ( count( $candidates ) > $limit ) {
 			$result['abort'] = sprintf(
-				'Safety guard: %d of %d vehicles would be removed (limit %d). '
-				. 'Nothing deleted - check the feed and start the run again afterwards.',
+				/* translators: 1: vehicles that would be removed, 2: vehicles on the site, 3: the limit. */
+				__( 'Safety guard: %1$d of %2$d vehicles would be removed (limit %3$d). Nothing was deleted; please check the inventory on mobile.de and start the run again.', 'wp-mobile-de-sync' ),
 				count( $candidates ),
 				count( $known ),
 				$limit
