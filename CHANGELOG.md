@@ -3,6 +3,16 @@
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
+## [2.5.1] – 2026-11-20
+
+### Fixed
+- **Make logos stay centred in their circle inside page-builder columns.**
+  Themes such as Salient give every image in a WPBakery column an automatic
+  width, an automatic height and a bottom margin of 15px. Those rules
+  outranked the plugin's, so in a `[vehicles]` list placed in such a column
+  the logo filled the whole circle and sat 7.5px too high. The vehicle
+  overview and the vehicle page were not affected.
+
 ## [2.5.0] – 2026-11-18
 
 ### Added

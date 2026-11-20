@@ -985,11 +985,22 @@
 	background: #fff;
 }
 
-.wmds-scope .wmds-card__logo img {
+.wmds-scope .wmds-card__logo img,
+.wmds-scope .wmds-single__logo img {
+	/* !important, as for the card image: page-builder themes reach into
+	   columns with rules like `.row .col img:not([srcset]) { width: auto }`
+	   and `.row .col img { margin-bottom: 15px; height: auto }`, which
+	   outrank these and push the logo out of its circle. */
 	display: block;
-	width: 28px;
-	height: 28px;
+	max-width: none !important;
+	margin: 0 !important;
+	padding: 0 !important;
 	object-fit: contain;
+}
+
+.wmds-scope .wmds-card__logo img {
+	width: 28px !important;
+	height: 28px !important;
 }
 
 .wmds-scope .wmds-card__titles {
@@ -1215,10 +1226,8 @@
 }
 
 .wmds-scope .wmds-single__logo img {
-	display: block;
-	width: 44px;
-	height: 44px;
-	object-fit: contain;
+	width: 44px !important;
+	height: 44px !important;
 }
 
 .wmds-scope .wmds-single__titles {
@@ -1771,8 +1780,8 @@
 	}
 
 	.wmds-scope .wmds-single__logo img {
-		width: 30px;
-		height: 30px;
+		width: 30px !important;
+		height: 30px !important;
 	}
 
 	.wmds-scope .wmds-single__title {
