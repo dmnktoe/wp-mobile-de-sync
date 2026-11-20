@@ -1,10 +1,4 @@
 <?php
-/**
- * The home page, assembled from the README and the changelog.
- *
- * @package wp-mobile-de-sync
- */
-
 $wmds_latest = $releases ? $releases[0] : null;
 ?>
 <section class="hero">
@@ -12,8 +6,8 @@ $wmds_latest = $releases ? $releases[0] : null;
 		<div class="hero__text">
 			<?php if ( $wmds_latest ) : ?>
 				<a class="hero__release" href="changelog.html#v<?php echo $site->e( $wmds_latest['version'] ); ?>">
-					<span class="pill">v<span data-latest-version><?php echo $site->e( $wmds_latest['version'] ); ?></span></span>
-					<span>Released <time datetime="<?php echo $site->e( $wmds_latest['date'] ); ?>" data-latest-date><?php echo $site->e( $site->date( $wmds_latest['date'] ) ); ?></time></span>
+					<span class="pill">v<?php echo $site->e( $wmds_latest['version'] ); ?></span>
+					<span>Released <time datetime="<?php echo $site->e( $wmds_latest['date'] ); ?>"><?php echo $site->e( $site->date( $wmds_latest['date'] ) ); ?></time></span>
 					<span aria-hidden="true">→</span>
 				</a>
 			<?php endif; ?>
@@ -24,7 +18,7 @@ $wmds_latest = $releases ? $releases[0] : null;
 			<div class="actions">
 				<a class="btn btn--primary" href="<?php echo $site->e( $site->download_url() ); ?>">
 					<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 3v12m0 0-5-5m5 5 5-5M4 19h16"/></svg>
-					<span>Download v<span data-latest-version><?php echo $site->e( $meta['version'] ); ?></span></span>
+					<span>Download v<?php echo $site->e( $meta['version'] ); ?></span>
 				</a>
 				<a class="btn btn--ghost" href="<?php echo $site->e( $docs[0]['slug'] ); ?>.html">Read the docs</a>
 			</div>
@@ -39,8 +33,7 @@ $wmds_latest = $releases ? $releases[0] : null;
 		<?php if ( $hero_image ) : ?>
 			<figure class="hero__shot">
 				<div class="frame">
-					<div class="frame__bar" aria-hidden="true"><i></i><i></i><i></i></div>
-					<img src="<?php echo $site->e( $hero_image['src'] ); ?>" alt="<?php echo $site->e( $hero_image['alt'] ); ?>" width="1600" height="952" fetchpriority="high">
+					<img src="<?php echo $site->e( $hero_image['src'] ); ?>" alt="<?php echo $site->e( $hero_image['alt'] ); ?>" width="<?php echo (int) $hero_image['width']; ?>" height="<?php echo (int) $hero_image['height']; ?>" fetchpriority="high">
 				</div>
 			</figure>
 		<?php endif; ?>
@@ -72,7 +65,7 @@ $wmds_latest = $releases ? $releases[0] : null;
 					<?php foreach ( $screenshots as $wmds_shot ) : ?>
 						<figure class="shot">
 							<a class="frame" href="<?php echo $site->e( $wmds_shot['src'] ); ?>">
-								<img src="<?php echo $site->e( $wmds_shot['src'] ); ?>" alt="<?php echo $site->e( $wmds_shot['alt'] ); ?>" loading="lazy" decoding="async">
+								<img src="<?php echo $site->e( $wmds_shot['src'] ); ?>" alt="<?php echo $site->e( $wmds_shot['alt'] ); ?>" width="<?php echo (int) $wmds_shot['width']; ?>" height="<?php echo (int) $wmds_shot['height']; ?>" loading="lazy" decoding="async">
 							</a>
 							<figcaption><?php echo $site->e( $wmds_shot['alt'] ); ?></figcaption>
 						</figure>
@@ -146,15 +139,3 @@ $wmds_latest = $releases ? $releases[0] : null;
 	</section>
 <?php endforeach; ?>
 
-<section class="section section--cta">
-	<div class="wrap cta">
-		<div>
-			<h2>Get started</h2>
-			<p>Upload the ZIP under <em>Plugins → Add New → Upload Plugin</em>. Updates then arrive like any other plugin update.</p>
-		</div>
-		<div class="actions">
-			<a class="btn btn--primary" href="<?php echo $site->e( $site->download_url() ); ?>"><span>Download v<span data-latest-version><?php echo $site->e( $meta['version'] ); ?></span></span></a>
-			<a class="btn btn--ghost" href="<?php echo $site->e( $site->repo_url() ); ?>">View on GitHub</a>
-		</div>
-	</div>
-</section>

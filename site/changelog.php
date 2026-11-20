@@ -1,10 +1,4 @@
 <?php
-/**
- * The changelog, one section per release.
- *
- * @package wp-mobile-de-sync
- */
-
 $wmds_active = 'changelog';
 require __DIR__ . '/parts/docs-nav.php';
 ?>
@@ -13,7 +7,6 @@ require __DIR__ . '/parts/docs-nav.php';
 
 	<article class="doc">
 		<header class="doc__head">
-			<p class="eyebrow">Project</p>
 			<h1>Changelog</h1>
 			<div class="doc__lede"><?php echo $intro; ?></div>
 		</header>

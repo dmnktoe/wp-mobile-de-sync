@@ -1,11 +1,4 @@
 <?php
-/**
- * The navigation beside the documentation and the changelog. Sets
- * $wmds_docs_nav; expects $wmds_active to name the current page.
- *
- * @package wp-mobile-de-sync
- */
-
 ob_start();
 ?>
 <nav class="docs-nav" aria-label="Documentation">

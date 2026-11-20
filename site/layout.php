@@ -1,15 +1,6 @@
 <?php
-/**
- * The shell around every page of the project site.
- *
- * Rendered by bin/build-site.php with $site (the builder), $meta (plugin
- * header), $docs (documentation pages) and $page.
- *
- * @package wp-mobile-de-sync
- */
-
 $wmds_title = $page['title'];
-$wmds_image = $site->site_url() . 'screenshots/archive.jpg';
+$wmds_image = $site->image();
 $wmds_docs  = array();
 
 foreach ( $docs as $wmds_doc ) {
@@ -18,7 +9,7 @@ foreach ( $docs as $wmds_doc ) {
 
 $wmds_in_docs = in_array( $page['active'], $wmds_docs, true );
 ?><!doctype html>
-<html lang="en" data-version="<?php echo $site->e( $meta['version'] ); ?>" data-repo="<?php echo $site->e( preg_replace( '#^https://github\.com/#', '', $site->repo_url() ) ); ?>">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -42,10 +33,12 @@ $wmds_in_docs = in_array( $page['active'], $wmds_docs, true );
 <meta property="og:title" content="<?php echo $site->e( $wmds_title ); ?>">
 <meta property="og:description" content="<?php echo $site->e( $page['description'] ); ?>">
 <meta property="og:url" content="<?php echo $site->e( $page['url'] ); ?>">
-<meta property="og:image" content="<?php echo $site->e( $wmds_image ); ?>">
-<meta property="og:image:width" content="1600">
-<meta property="og:image:height" content="952">
-<meta property="og:image:alt" content="The vehicle overview of mobile.de Sync with its filter bar">
+<?php if ( $wmds_image ) : ?>
+<meta property="og:image" content="<?php echo $site->e( $site->site_url() . $wmds_image['src'] ); ?>">
+<meta property="og:image:width" content="<?php echo (int) $wmds_image['width']; ?>">
+<meta property="og:image:height" content="<?php echo (int) $wmds_image['height']; ?>">
+<meta property="og:image:alt" content="<?php echo $site->e( $wmds_image['alt'] ); ?>">
+<?php endif; ?>
 <meta name="twitter:card" content="summary_large_image">
 
 <script>
@@ -101,7 +94,7 @@ $wmds_in_docs = in_array( $page['active'], $wmds_docs, true );
 				<span>mobile.de <b>Sync</b></span>
 			</a>
 			<p>
-				Version <span data-latest-version><?php echo $site->e( $meta['version'] ); ?></span> ·
+				Version <?php echo $site->e( $meta['version'] ); ?> ·
 				<?php echo $site->e( $meta['license'] ); ?> ·
 				made by <a href="<?php echo $site->e( $meta['author_url'] ); ?>"><?php echo $site->e( $meta['author'] ); ?></a>
 			</p>

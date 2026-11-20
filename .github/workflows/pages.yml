@@ -1,10 +1,8 @@
 name: Project site
 
-# The site is built from README.md, docs/, CHANGELOG.md, the plugin header and
-# readme.txt, so it states whatever main states. It deploys after the release
-# workflow, so the version it names has been published by then.
-#
-# Requires Settings → Pages → Build and deployment → Source: GitHub Actions.
+# Built from README.md, docs/, CHANGELOG.md, the plugin header and readme.txt.
+# Deploys after the release workflow, so the version it names is published.
+# Needs Settings → Pages → Source: GitHub Actions.
 
 on:
   workflow_run:
@@ -31,8 +29,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           ref: ${{ github.event.workflow_run.head_sha || github.sha }}
-          # The sitemap dates each page by the last commit that touched it.
-          fetch-depth: 0
+          fetch-depth: 0  # the sitemap dates each page by its last commit
 
       - uses: shivammathur/setup-php@v2
         with:

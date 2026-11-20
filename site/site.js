@@ -1,9 +1,3 @@
-/*
- * Project site of mobile.de Sync: colour theme, copy buttons, the section
- * highlight in "On this page", Mermaid diagrams, and a check for a release
- * newer than the one the page was built with. Everything here is an
- * enhancement - the pages read and work without it.
- */
 ( function () {
 	'use strict';
 
@@ -27,7 +21,6 @@
 		return window.matchMedia( '(prefers-color-scheme: dark)' ).matches;
 	}
 
-	/* Theme ------------------------------------------------------------ */
 
 	var toggle = document.querySelector( '.theme-toggle' );
 	if ( toggle ) {
@@ -39,7 +32,6 @@
 		} );
 	}
 
-	/* Copy buttons ------------------------------------------------------ */
 
 	if ( navigator.clipboard ) {
 		document.querySelectorAll( '.prose pre > code' ).forEach( function ( code ) {
@@ -67,7 +59,6 @@
 		} );
 	}
 
-	/* On this page ------------------------------------------------------ */
 
 	var tocLinks = document.querySelectorAll( '.toc a[href^="#"]' );
 	if ( tocLinks.length && 'IntersectionObserver' in window ) {
@@ -109,15 +100,12 @@
 		} );
 	}
 
-	/* Mermaid diagrams ---------------------------------------------------- */
 
 	var diagrams = [];
 
 	document.querySelectorAll( 'pre > code.language-mermaid' ).forEach( function ( code ) {
 		var holder = document.createElement( 'div' );
 		holder.className = 'mermaid';
-		holder.setAttribute( 'role', 'img' );
-		holder.setAttribute( 'aria-label', 'Diagram' );
 		holder.textContent = code.textContent;
 
 		diagrams.push( { holder: holder, source: code.textContent, pre: code.parentNode } );
@@ -145,7 +133,7 @@
 				startOnLoad: false,
 				securityLevel: 'strict',
 				theme: 'base',
-				fontFamily: styles.getPropertyValue( '--font' ),
+				fontFamily: styles.getPropertyValue( '--font' ).trim(),
 				themeVariables: {
 					darkMode: dark,
 					background: styles.getPropertyValue( '--surface' ).trim(),
@@ -166,74 +154,8 @@
 					}
 				} );
 			} );
-		} ).catch( function () {
-			// The source stays on the page as a code block.
-		} );
+		} ).catch( function () {} );
 	}
 
 	renderDiagrams();
-
-	/* Newer release ------------------------------------------------------- */
-
-	// The site is rebuilt with every release, so this only matters in the
-	// minutes between a release and the deployment that follows it.
-	var built = root.getAttribute( 'data-version' );
-	var repo = root.getAttribute( 'data-repo' );
-
-	function newer( a, b ) {
-		var x = String( a ).split( '.' ).map( Number );
-		var y = String( b ).split( '.' ).map( Number );
-		for ( var i = 0; i < Math.max( x.length, y.length ); i++ ) {
-			if ( ( x[ i ] || 0 ) !== ( y[ i ] || 0 ) ) {
-				return ( x[ i ] || 0 ) > ( y[ i ] || 0 );
-			}
-		}
-		return false;
-	}
-
-	function apply( release ) {
-		var version = String( release.tag_name || '' ).replace( /^v/, '' );
-		if ( ! version || ! newer( version, built ) ) {
-			return;
-		}
-
-		document.querySelectorAll( '[data-latest-version]' ).forEach( function ( node ) {
-			node.textContent = version;
-		} );
-
-		if ( release.published_at ) {
-			var date = new Date( release.published_at );
-			document.querySelectorAll( '[data-latest-date]' ).forEach( function ( node ) {
-				node.setAttribute( 'datetime', release.published_at.slice( 0, 10 ) );
-				node.textContent = date.toLocaleDateString( 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' } );
-			} );
-		}
-	}
-
-	if ( repo && built && window.fetch && document.querySelector( '[data-latest-version]' ) ) {
-		var cached = null;
-		try {
-			cached = JSON.parse( window.sessionStorage.getItem( 'wmds-release' ) || 'null' );
-		} catch ( e ) {}
-
-		if ( cached && Date.now() - cached.at < 3600000 ) {
-			apply( cached.release );
-		} else {
-			fetch( 'https://api.github.com/repos/' + repo + '/releases/latest', { headers: { Accept: 'application/vnd.github+json' } } )
-				.then( function ( response ) {
-					return response.ok ? response.json() : null;
-				} )
-				.then( function ( release ) {
-					if ( ! release ) {
-						return;
-					}
-					var slim = { tag_name: release.tag_name, published_at: release.published_at };
-					try {
-						window.sessionStorage.setItem( 'wmds-release', JSON.stringify( { at: Date.now(), release: slim } ) );
-					} catch ( e ) {}
-					apply( slim );
-				} )
-				.catch( function () {} );
-		}
-	}
 }() );

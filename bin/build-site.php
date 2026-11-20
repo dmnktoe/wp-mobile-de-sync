@@ -1,18 +1,13 @@
 <?php
 /**
- * Builds the project site from the files the repository already keeps up to
- * date: README.md, docs/*.md, CHANGELOG.md, the plugin header and readme.txt.
+ * Builds the project site from README.md, docs/*.md, CHANGELOG.md, the plugin
+ * header and readme.txt.
  *
- * Usage, after composer install:
+ * Usage: php bin/build-site.php [output directory, default build/site]
  *
- *   php bin/build-site.php [output directory, default build/site]
- *
- * SITE_URL sets the absolute address the site is served from, for canonical
- * links, the sitemap and social previews. GITHUB_REPOSITORY names the
- * repository the links point at. Both default to the public project.
- *
- * The build fails on a link to a page, a section or a file that does not
- * exist, so a renamed heading or a moved document cannot leave a dead link.
+ * SITE_URL is the address the site is served from; GITHUB_REPOSITORY the
+ * repository its links point at. A link to a file, page or section that does
+ * not exist fails the build.
  */
 
 use League\CommonMark\Environment\Environment;
@@ -28,9 +23,6 @@ if ( 'cli' !== PHP_SAPI ) {
 	exit( 1 );
 }
 
-/**
- * Reads the sources, renders every page and writes the site.
- */
 class WMDS_Site_Builder {
 
 	const ZIP = 'wp-mobile-de-sync.zip';
@@ -50,25 +42,25 @@ class WMDS_Site_Builder {
 	/** @var MarkdownConverter */
 	private $converter;
 
-	/** @var array<string,int> Heading ids handed out in the current document. */
+	/** @var array<string,int> */
 	private $ids = array();
 
-	/** @var string Prefix for heading ids, where one page holds several documents. */
+	/** @var string */
 	private $id_prefix = '';
 
 	/** @var array<int,array{level:int,id:string,text:string}> */
 	private $toc = array();
 
-	/** @var array<string,string> Output page => HTML, kept for the link check. */
+	/** @var array<string,string> Output file => HTML. */
 	private $pages = array();
 
-	/** @var array<int,array{from:string,page:string,fragment:string,source:string}> */
+	/** @var array<int,array{page:string,fragment:string,source:string}> */
 	private $links = array();
 
 	/** @var array<int,string> */
 	private $errors = array();
 
-	/** @var array<string,mixed> */
+	/** @var array<string,string> */
 	private $meta = array();
 
 	/** @var array<int,array{slug:string,source:string,title:string,summary:string}> */
@@ -76,6 +68,9 @@ class WMDS_Site_Builder {
 
 	/** @var array<int,array{version:string,date:string,body:string}> */
 	private $releases = array();
+
+	/** @var array{src:string,alt:string,width:int,height:int}|null */
+	private $image;
 
 	/**
 	 * @param string $root Repository root.
@@ -120,7 +115,12 @@ class WMDS_Site_Builder {
 			);
 		}
 
-		$this->build_home();
+		$readme      = $this->read( 'README.md' );
+		$intro       = substr( $readme, 0, (int) strpos( $readme, "\n## " ) );
+		$images      = $this->images( $intro, 'README.md' );
+		$this->image = $images ? $images[0] : null;
+
+		$this->build_home( $readme );
 
 		foreach ( $this->docs as $doc ) {
 			$this->build_doc( $doc );
@@ -141,16 +141,15 @@ class WMDS_Site_Builder {
 		return 0;
 	}
 
-
 	/**
-	 * @return array<string,mixed>
+	 * @return array<string,string>
 	 */
 	private function read_meta() {
 		$plugin = $this->read( 'wp-mobile-de-sync.php' );
 		$readme = $this->read( 'readme.txt' );
 
 		$header = function ( $text, $name ) {
-			if ( preg_match( '/^[ \t\/*#@]*' . preg_quote( $name, '/' ) . ':\s*(.+)$/mi', $text, $match ) ) {
+			if ( preg_match( '/^[ \t\/*#]*' . preg_quote( $name, '/' ) . ':\s*(.+)$/mi', $text, $match ) ) {
 				return trim( $match[1] );
 			}
 			return '';
@@ -163,6 +162,7 @@ class WMDS_Site_Builder {
 			'author'       => $header( $plugin, 'Author' ),
 			'author_url'   => $header( $plugin, 'Author URI' ),
 			'license'      => $header( $plugin, 'License' ),
+			'license_url'  => $header( $readme, 'License URI' ),
 			'requires_wp'  => $header( $plugin, 'Requires at least' ),
 			'tested_wp'    => $header( $readme, 'Tested up to' ),
 			'requires_php' => $header( $plugin, 'Requires PHP' ),
@@ -197,9 +197,8 @@ class WMDS_Site_Builder {
 	}
 
 	/**
-	 * The documentation pages, in the order and with the summaries of the
-	 * table in the README. A file in docs/ the table does not list is still
-	 * published, after the others.
+	 * In the order of the README's documentation table, then any file in
+	 * docs/ the table leaves out.
 	 *
 	 * @return array<int,array{slug:string,source:string,title:string,summary:string}>
 	 */
@@ -229,13 +228,15 @@ class WMDS_Site_Builder {
 				continue;
 			}
 
-			$markdown = $this->read( $source );
-			$title    = preg_match( '/^# (.+)$/m', $markdown, $match ) ? trim( $match[1] ) : $row[0];
+			$title = $row[0];
+			if ( '' === $title && preg_match( '/^# (.+)$/m', $this->read( $source ), $match ) ) {
+				$title = trim( $match[1] );
+			}
 
 			$docs[] = array(
 				'slug'    => basename( $source, '.md' ),
 				'source'  => $source,
-				'title'   => '' !== $row[0] ? $row[0] : $title,
+				'title'   => '' !== $title ? $title : basename( $source, '.md' ),
 				'summary' => $row[1],
 			);
 		}
@@ -243,21 +244,21 @@ class WMDS_Site_Builder {
 		return $docs;
 	}
 
-
-	private function build_home() {
-		$readme   = $this->read( 'README.md' );
-		$parts    = preg_split( '/^## (.+)$/m', $readme, -1, PREG_SPLIT_DELIM_CAPTURE );
-		$intro    = array_shift( $parts );
-		$sections = array();
+	/**
+	 * @param string $readme
+	 */
+	private function build_home( $readme ) {
+		$parts       = preg_split( '/^## (.+)$/m', $readme, -1, PREG_SPLIT_DELIM_CAPTURE );
+		$intro       = array_shift( $parts );
+		$sections    = array();
+		$highlights  = array();
+		$screenshots = array();
 
 		$tagline = preg_match( '/^\*\*(.+)\*\*\s*$/m', $intro, $match ) ? $match[1] : $this->meta['description'];
 
-		// The intro is centred markup with badges and the screenshot; the prose follows it.
-		$lead = trim( substr( $intro, (int) strrpos( $intro, '</div>' ) + 6 ) );
-		$lead = trim( preg_replace( '/^<br>\s*/', '', $lead ) );
-
-		$highlights  = array();
-		$screenshots = array();
+		$close = strrpos( $intro, '</div>' );
+		$lead  = false === $close ? '' : substr( $intro, $close + 6 );
+		$lead  = trim( preg_replace( '/^\s*<br>/', '', $lead ) );
 
 		$total = count( $parts );
 
@@ -270,7 +271,8 @@ class WMDS_Site_Builder {
 			}
 
 			if ( 'Highlights' === $title ) {
-				list( $highlights, $screenshots ) = $this->split_highlights( $body );
+				$screenshots = $this->images( $body, 'README.md' );
+				$highlights  = $this->split_highlights( $body );
 				continue;
 			}
 
@@ -282,19 +284,12 @@ class WMDS_Site_Builder {
 			);
 		}
 
-		$hero_image = preg_match( '/<img src="([^"]+\.(?:jpe?g|png|webp))" alt="([^"]*)"/', $intro, $match )
-			? array(
-				'src' => $this->link( $match[1], 'README.md', 'index.html' ),
-				'alt' => $match[2],
-			)
-			: null;
-
 		$body = $this->template(
 			'home',
 			array(
 				'tagline'     => $tagline,
 				'lead'        => $this->markdown( $lead, 'README.md', 'index.html' ),
-				'hero_image'  => $hero_image,
+				'hero_image'  => $this->image,
 				'highlights'  => $highlights,
 				'screenshots' => $screenshots,
 				'releases'    => $this->recent_releases( 3 ),
@@ -315,24 +310,12 @@ class WMDS_Site_Builder {
 	}
 
 	/**
-	 * The README's highlights are bold group titles, each followed by a list,
-	 * with screenshots in between.
+	 * Bold group titles, each followed by a list.
 	 *
 	 * @param string $markdown
-	 * @return array{0:array<int,array{title:string,html:string}>,1:array<int,array{src:string,alt:string}>}
+	 * @return array<int,array{title:string,html:string}>
 	 */
 	private function split_highlights( $markdown ) {
-		$screenshots = array();
-
-		if ( preg_match_all( '/<img src="([^"]+)" alt="([^"]*)"[^>]*>/', $markdown, $images, PREG_SET_ORDER ) ) {
-			foreach ( $images as $image ) {
-				$screenshots[] = array(
-					'src' => $this->link( $image[1], 'README.md', 'index.html' ),
-					'alt' => $image[2],
-				);
-			}
-		}
-
 		$markdown = preg_replace( '/^<p[^>]*>.*<\/p>\s*$/m', '', $markdown );
 		$parts    = preg_split( '/^\*\*(.+)\*\*\s*$/m', $markdown, -1, PREG_SPLIT_DELIM_CAPTURE );
 		$groups   = array();
@@ -347,11 +330,40 @@ class WMDS_Site_Builder {
 			);
 		}
 
-		return array( $groups, $screenshots );
+		return $groups;
 	}
 
 	/**
-	 * The newest releases with the lead of each entry, for the home page.
+	 * The <img> tags in a piece of Markdown, with their published address
+	 * and size.
+	 *
+	 * @param string $markdown
+	 * @param string $source
+	 * @return array<int,array{src:string,alt:string,width:int,height:int}>
+	 */
+	private function images( $markdown, $source ) {
+		$images = array();
+
+		if ( ! preg_match_all( '/<img src="([^"]+\.(?:jpe?g|png|webp|gif))" alt="([^"]*)"/', $markdown, $tags, PREG_SET_ORDER ) ) {
+			return $images;
+		}
+
+		foreach ( $tags as $tag ) {
+			$size = @getimagesize( $this->root . '/' . $this->resolve( dirname( $source ), $tag[1] ) ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- a missing file is reported by link().
+
+			$images[] = array(
+				'src'    => $this->link( $tag[1], $source, 'index.html' ),
+				'alt'    => $tag[2],
+				'width'  => $size ? $size[0] : 0,
+				'height' => $size ? $size[1] : 0,
+			);
+		}
+
+		return $images;
+	}
+
+	/**
+	 * The bold lead of each changelog entry, or its first sentence.
 	 *
 	 * @param int $count
 	 * @return array<int,array{version:string,date:string,items:array<int,string>,more:int}>
@@ -369,7 +381,7 @@ class WMDS_Site_Builder {
 						? $match[1]
 						: preg_replace( '/^(.+?[.:])\s.*$/', '$1', $entry );
 
-					$items[] = $this->inline( rtrim( $lead, '.:' ) );
+					$items[] = $this->md( rtrim( $lead, '.:' ), 'CHANGELOG.md' );
 				}
 			}
 
@@ -391,15 +403,13 @@ class WMDS_Site_Builder {
 		$file     = $doc['slug'] . '.html';
 		$markdown = $this->read( $doc['source'] );
 
-		// The title goes into the page header, the back link and the list of
-		// sections into the navigation around the page.
+		// Title, back link and list of sections are part of the page around it.
 		$markdown = preg_replace( '/^# .+\n+/m', '', $markdown, 1 );
 		$markdown = preg_replace( '/^\[←[^\]]*\]\([^)]*\)\s*\n+/m', '', $markdown, 1 );
 		$markdown = preg_replace( '/^(- \[[^\]]+\]\(#[^)]+\)\n)+\n*/', '', ltrim( $markdown ), 1 );
 
-		$html = $this->markdown( $markdown, $doc['source'], $file );
-		$toc  = $this->toc;
-
+		$html    = $this->markdown( $markdown, $doc['source'], $file );
+		$toc     = $this->toc;
 		$summary = '' !== $doc['summary'] ? ucfirst( $doc['summary'] ) . '.' : '';
 
 		$body = $this->template(
@@ -420,7 +430,6 @@ class WMDS_Site_Builder {
 				'description' => '' !== $summary ? $doc['title'] . ': ' . $doc['summary'] . '.' : $doc['title'],
 				'active'      => $doc['slug'],
 				'body'        => $body,
-				'source'      => $doc['source'],
 			)
 		);
 	}
@@ -453,10 +462,9 @@ class WMDS_Site_Builder {
 			'changelog.html',
 			array(
 				'title'       => 'Changelog — ' . $this->meta['name'],
-				'description' => 'Every release of ' . $this->meta['name'] . ', newest first: what was added, changed and fixed.',
+				'description' => 'Every release of ' . $this->meta['name'] . ', newest first.',
 				'active'      => 'changelog',
 				'body'        => $body,
-				'source'      => 'CHANGELOG.md',
 			)
 		);
 	}
@@ -466,7 +474,7 @@ class WMDS_Site_Builder {
 			'404.html',
 			array(
 				'title'       => 'Page not found — ' . $this->meta['name'],
-				'description' => 'This page does not exist.',
+				'description' => 'There is no page at this address.',
 				'active'      => '',
 				'body'        => $this->template( 'not-found', array() ),
 				'noindex'     => true,
@@ -485,7 +493,6 @@ class WMDS_Site_Builder {
 				'url'     => $this->site_url . ( 'index.html' === $file ? '' : $file ),
 				'jsonld'  => null,
 				'noindex' => false,
-				'source'  => '',
 			),
 			$page
 		);
@@ -504,13 +511,13 @@ class WMDS_Site_Builder {
 			'description'          => $this->strip( $this->meta['description'] ),
 			'applicationCategory'  => 'BusinessApplication',
 			'operatingSystem'      => 'WordPress ' . $this->meta['requires_wp'] . '+',
-			'softwareVersion'      => $this->meta['version'],
-			'dateModified'         => $this->releases ? $this->releases[0]['date'] : null,
-			'downloadUrl'          => $this->download_url(),
-			'license'              => 'https://www.gnu.org/licenses/gpl-2.0.html',
-			'url'                  => $this->site_url,
-			'image'                => $this->site_url . 'screenshots/archive.jpg',
 			'softwareRequirements' => 'PHP ' . $this->meta['requires_php'] . '+',
+			'softwareVersion'      => $this->meta['version'],
+			'dateModified'         => $this->releases ? $this->releases[0]['date'] : '',
+			'downloadUrl'          => $this->download_url(),
+			'license'              => $this->meta['license_url'],
+			'url'                  => $this->site_url,
+			'image'                => $this->image ? $this->site_url . $this->image['src'] : '',
 			'author'               => array(
 				'@type' => 'Person',
 				'name'  => $this->meta['author'],
@@ -524,12 +531,11 @@ class WMDS_Site_Builder {
 		);
 	}
 
-
 	/**
 	 * @param string $markdown
-	 * @param string $source    Repository path the Markdown was read from.
-	 * @param string $page      Output page it is rendered into.
-	 * @param string $id_prefix Prefix for heading ids, where one page holds several documents.
+	 * @param string $source    Repository path the Markdown comes from.
+	 * @param string $page      Output file it ends up in.
+	 * @param string $id_prefix For a page that holds several documents.
 	 * @return string
 	 */
 	private function markdown( $markdown, $source, $page, $id_prefix = '' ) {
@@ -539,37 +545,29 @@ class WMDS_Site_Builder {
 
 		$html = (string) $this->converter->convert( $markdown );
 
-		$html = preg_replace_callback(
+		$html = preg_replace(
 			'/<h([2-4]) id="([^"]+)">(.*?)<\/h\1>/s',
-			function ( $match ) {
-				return sprintf(
-					'<h%1$s id="%2$s">%3$s<a class="anchor" href="#%2$s" aria-label="Link to this section"></a></h%1$s>',
-					$match[1],
-					$match[2],
-					$match[3]
-				);
-			},
+			'<h$1 id="$2">$3<a class="anchor" href="#$2" aria-label="Link to this section"></a></h$1>',
 			$html
 		);
 
 		$html = preg_replace_callback(
 			'/\s(href|src)="([^"]*)"/',
 			function ( $match ) use ( $source, $page ) {
-				return ' ' . $match[1] . '="' . $this->link( html_entity_decode( $match[2], ENT_QUOTES ), $source, $page, true ) . '"';
+				$url = $this->link( html_entity_decode( $match[2], ENT_QUOTES ), $source, $page );
+				return ' ' . $match[1] . '="' . htmlspecialchars( $url, ENT_QUOTES ) . '"';
 			},
 			$html
 		);
 
 		$html = str_replace( array( '<table>', '</table>' ), array( '<div class="table"><table>', '</table></div>' ), $html );
 		$html = preg_replace( '/<img (?![^>]*loading=)/', '<img loading="lazy" decoding="async" ', $html );
-		$html = preg_replace( '/\salign="center"/', ' class="center"', $html );
-
-		return $html;
+		return preg_replace( '/\salign="center"/', ' class="center"', $html );
 	}
 
 	/**
-	 * Gives every heading the id GitHub would give it, so a link to a
-	 * section works on github.com and on the site alike.
+	 * Gives each heading the id GitHub gives it, so an anchor link works on
+	 * github.com and on the site alike.
 	 *
 	 * @param DocumentParsedEvent $event
 	 */
@@ -613,17 +611,6 @@ class WMDS_Site_Builder {
 	}
 
 	/**
-	 * @param string $markdown One line of inline Markdown.
-	 * @return string
-	 */
-	private function inline( $markdown ) {
-		$html = trim( (string) $this->converter->convert( $markdown ) );
-		return preg_replace( '/^<p>(.*)<\/p>$/s', '$1', $html );
-	}
-
-	/**
-	 * The anchor GitHub generates for a heading.
-	 *
 	 * @param string $text
 	 * @return string
 	 */
@@ -633,23 +620,19 @@ class WMDS_Site_Builder {
 		return preg_replace( '/\s/u', '-', $slug );
 	}
 
-
 	/**
-	 * Turns a link as written in the repository into one that works on the
-	 * site: documents become pages, pictures in docs/ are published beside
-	 * them, and everything else points at the file on GitHub.
+	 * A link as written in the repository, as it works on the site:
+	 * documents become pages, pictures in docs/ are published beside them,
+	 * anything else points at the file on GitHub.
 	 *
 	 * @param string $target
 	 * @param string $source Repository path of the document the link is in.
-	 * @param string $page   Output page the link ends up on.
-	 * @param bool   $escape Whether the result goes into an attribute.
+	 * @param string $page   Output file the link ends up in.
 	 * @return string
 	 */
-	private function link( $target, $source, $page, $escape = false ) {
-		$result = $target;
-
-		if ( '' === $target || preg_match( '/^(?:[a-z][a-z0-9+.\-]*:|\/\/|\/)/i', $target ) ) {
-			return $escape ? htmlspecialchars( $result, ENT_QUOTES ) : $result;
+	private function link( $target, $source, $page ) {
+		if ( '' === $target || preg_match( '/^(?:[a-z][a-z0-9+.\-]*:|\/)/i', $target ) ) {
+			return $target;
 		}
 
 		$fragment = '';
@@ -662,12 +645,11 @@ class WMDS_Site_Builder {
 
 		if ( '' === $target ) {
 			$this->links[] = array(
-				'from'     => $page,
 				'page'     => $page,
 				'fragment' => $fragment,
 				'source'   => $source,
 			);
-			return $escape ? htmlspecialchars( '#' . $fragment, ENT_QUOTES ) : '#' . $fragment;
+			return '#' . $fragment;
 		}
 
 		$path = $this->resolve( dirname( $source ), $target );
@@ -676,39 +658,28 @@ class WMDS_Site_Builder {
 			$this->errors[] = "{$source}: the link to {$target} points at nothing.";
 		}
 
-		$published = $this->published( $path );
+		$result = $this->published( $path );
 
-		if ( null !== $published ) {
-			$result = $published;
-
-			if ( '.html' === substr( $published, -5 ) ) {
-				$this->links[] = array(
-					'from'     => $page,
-					'page'     => $published,
-					'fragment' => $fragment,
-					'source'   => $source,
-				);
-
-				if ( 'index.html' === $published ) {
-					$result = './';
-				}
-			}
-		} else {
+		if ( null === $result ) {
 			$result = $this->github( is_dir( $this->root . '/' . $path ) ? 'tree' : 'blob', $path );
+		} elseif ( '.html' === substr( $result, -5 ) ) {
+			$this->links[] = array(
+				'page'     => $result,
+				'fragment' => $fragment,
+				'source'   => $source,
+			);
+
+			if ( 'index.html' === $result ) {
+				$result = './';
+			}
 		}
 
-		if ( '' !== $fragment ) {
-			$result .= '#' . $fragment;
-		}
-
-		return $escape ? htmlspecialchars( $result, ENT_QUOTES ) : $result;
+		return '' !== $fragment ? $result . '#' . $fragment : $result;
 	}
 
 	/**
-	 * Where a repository file is published on the site, if it is.
-	 *
-	 * @param string $path
-	 * @return string|null
+	 * @param string $path Repository path.
+	 * @return string|null Where the file is published on the site.
 	 */
 	private function published( $path ) {
 		if ( 'README.md' === $path ) {
@@ -760,13 +731,6 @@ class WMDS_Site_Builder {
 		return 'https://github.com/' . $this->repo . '/' . $kind . '/main/' . str_replace( '%2F', '/', rawurlencode( $path ) );
 	}
 
-	/**
-	 * @return string
-	 */
-	public function download_url() {
-		return 'https://github.com/' . $this->repo . '/releases/latest/download/' . self::ZIP;
-	}
-
 	private function check_links() {
 		$ids = array();
 
@@ -784,46 +748,47 @@ class WMDS_Site_Builder {
 		}
 	}
 
-
 	private function write_files() {
-		$this->mkdir( $this->out );
 		$this->mkdir( $this->out . '/assets' );
 		$this->mkdir( $this->out . '/screenshots' );
 
-		foreach ( $this->pages as $file => $html ) {
-			file_put_contents( $this->out . '/' . $file, $html );
-		}
-
-		copy( $this->root . '/site/style.css', $this->out . '/assets/style.css' );
-		copy( $this->root . '/site/site.js', $this->out . '/assets/site.js' );
-		copy( $this->root . '/docs/icon.svg', $this->out . '/icon.svg' );
+		$copies = array(
+			'site/style.css' => 'assets/style.css',
+			'site/site.js'   => 'assets/site.js',
+			'docs/icon.svg'  => 'icon.svg',
+		);
 
 		foreach ( glob( $this->root . '/docs/screenshots/*' ) as $image ) {
-			copy( $image, $this->out . '/screenshots/' . basename( $image ) );
+			$copies[ 'docs/screenshots/' . basename( $image ) ] = 'screenshots/' . basename( $image );
 		}
 
-		$urls = '';
-		foreach ( array_keys( $this->pages ) as $file ) {
-			if ( '404.html' === $file ) {
-				continue;
+		$sitemap = '';
+
+		foreach ( $this->pages as $file => $html ) {
+			$this->write( $file, $html );
+
+			if ( '404.html' !== $file ) {
+				$sitemap .= sprintf(
+					"\t<url><loc>%s</loc><lastmod>%s</lastmod></url>\n",
+					htmlspecialchars( $this->site_url . ( 'index.html' === $file ? '' : $file ), ENT_XML1 ),
+					$this->modified( $this->source_of( $file ) )
+				);
 			}
-
-			$urls .= sprintf(
-				"\t<url><loc>%s</loc><lastmod>%s</lastmod></url>\n",
-				htmlspecialchars( $this->site_url . ( 'index.html' === $file ? '' : $file ), ENT_XML1 ),
-				$this->modified( $this->source_of( $file ) )
-			);
 		}
 
-		file_put_contents(
-			$this->out . '/sitemap.xml',
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n{$urls}</urlset>\n"
-		);
-		file_put_contents( $this->out . '/robots.txt', "User-agent: *\nAllow: /\n\nSitemap: {$this->site_url}sitemap.xml\n" );
+		foreach ( $copies as $from => $to ) {
+			if ( ! copy( $this->root . '/' . $from, $this->out . '/' . $to ) ) {
+				fwrite( STDERR, "Cannot copy {$from}\n" );
+				exit( 1 );
+			}
+		}
+
+		$this->write( 'sitemap.xml', "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n{$sitemap}</urlset>\n" );
+		$this->write( 'robots.txt', "User-agent: *\nAllow: /\n\nSitemap: {$this->site_url}sitemap.xml\n" );
 	}
 
 	/**
-	 * @param string $file Output page.
+	 * @param string $file Output file.
 	 * @return string Repository path it was built from.
 	 */
 	private function source_of( $file ) {
@@ -837,17 +802,13 @@ class WMDS_Site_Builder {
 	}
 
 	/**
-	 * The date of the last commit that touched a file, or today outside a
-	 * Git checkout.
-	 *
-	 * @param string $path
-	 * @return string
+	 * @param string $path Repository path.
+	 * @return string Date of the last commit that touched it, or today.
 	 */
 	private function modified( $path ) {
 		$date = trim( (string) shell_exec( 'git -C ' . escapeshellarg( $this->root ) . ' log -1 --format=%cs -- ' . escapeshellarg( $path ) . ' 2>/dev/null' ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.system_calls_shell_exec -- a build tool asking Git for a date, with escaped arguments.
 		return preg_match( '/^\d{4}-\d{2}-\d{2}$/', $date ) ? $date : gmdate( 'Y-m-d' );
 	}
-
 
 	/**
 	 * @param string              $name Template under site/, without .php.
@@ -867,8 +828,6 @@ class WMDS_Site_Builder {
 	}
 
 	/**
-	 * Escapes text for HTML. Used by the templates.
-	 *
 	 * @param string $text
 	 * @return string
 	 */
@@ -877,23 +836,35 @@ class WMDS_Site_Builder {
 	}
 
 	/**
-	 * Inline Markdown to HTML. Used by the templates.
-	 *
-	 * @param string $markdown
+	 * @param string $markdown One line.
+	 * @param string $source   Repository path it comes from.
 	 * @return string
 	 */
-	public function md( $markdown ) {
-		return $this->inline( $markdown );
+	public function md( $markdown, $source = 'README.md' ) {
+		$html = trim( $this->markdown( $markdown, $source, 'index.html' ) );
+		return preg_replace( '/^<p>(.*)<\/p>$/s', '$1', $html );
 	}
 
 	/**
-	 * A cache-busting address for a file under site/. Used by the templates.
-	 *
-	 * @param string $file
+	 * @param string $file Under site/.
 	 * @return string
 	 */
 	public function asset( $file ) {
 		return 'assets/' . $file . '?v=' . substr( md5_file( $this->root . '/site/' . $file ), 0, 10 );
+	}
+
+	/**
+	 * @return array{src:string,alt:string,width:int,height:int}|null
+	 */
+	public function image() {
+		return $this->image;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function download_url() {
+		return 'https://github.com/' . $this->repo . '/releases/latest/download/' . self::ZIP;
 	}
 
 	/**
@@ -911,10 +882,8 @@ class WMDS_Site_Builder {
 	}
 
 	/**
-	 * A date as "20 November 2026".
-	 *
 	 * @param string $date Y-m-d.
-	 * @return string
+	 * @return string As "20 November 2026".
 	 */
 	public function date( $date ) {
 		$time = strtotime( $date . ' 12:00 UTC' );
@@ -923,14 +892,14 @@ class WMDS_Site_Builder {
 
 	/**
 	 * @param string $markdown
-	 * @return string Plain text.
+	 * @return string
 	 */
 	private function strip( $markdown ) {
 		return trim( preg_replace( '/[*_`]/', '', $markdown ) );
 	}
 
 	/**
-	 * @param string $path Relative to the repository root.
+	 * @param string $path Repository path.
 	 * @return string
 	 */
 	private function read( $path ) {
@@ -942,6 +911,17 @@ class WMDS_Site_Builder {
 		}
 
 		return str_replace( "\r\n", "\n", $text );
+	}
+
+	/**
+	 * @param string $file    Output file.
+	 * @param string $content
+	 */
+	private function write( $file, $content ) {
+		if ( false === file_put_contents( $this->out . '/' . $file, $content ) ) {
+			fwrite( STDERR, "Cannot write {$file}\n" );
+			exit( 1 );
+		}
 	}
 
 	/**

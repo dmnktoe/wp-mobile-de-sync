@@ -1,10 +1,4 @@
 <?php
-/**
- * One documentation page from docs/.
- *
- * @package wp-mobile-de-sync
- */
-
 $wmds_prev = null;
 $wmds_next = null;
 
@@ -23,7 +17,6 @@ require __DIR__ . '/parts/docs-nav.php';
 
 	<article class="doc">
 		<header class="doc__head">
-			<p class="eyebrow">Documentation</p>
 			<h1><?php echo $site->e( $doc['title'] ); ?></h1>
 			<?php if ( '' !== $summary ) : ?>
 				<p class="doc__lede"><?php echo $site->e( $summary ); ?></p>

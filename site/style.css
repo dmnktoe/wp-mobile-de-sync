@@ -1,8 +1,3 @@
-/*
- * Project site of mobile.de Sync. Built by bin/build-site.php.
- * Brand colours come from the plugin icon: plum and flame.
- */
-
 :root {
 	--bg: #ffffff;
 	--bg-alt: #f8f6fa;
@@ -119,20 +114,6 @@ h1, h2, h3, h4 { line-height: 1.25; letter-spacing: -.01em; }
 }
 .skip:focus { top: .75rem; }
 
-.eyebrow {
-	margin: 0 0 .5rem;
-	color: var(--flame-strong);
-	font-size: .8rem;
-	font-weight: 700;
-	letter-spacing: .08em;
-	text-transform: uppercase;
-}
-
-:root[data-theme="dark"] .eyebrow { color: #ff7a4d; }
-@media (prefers-color-scheme: dark) {
-	:root:not([data-theme="light"]) .eyebrow { color: #ff7a4d; }
-}
-
 /* --- Top bar ---------------------------------------------------------- */
 
 .topbar {
@@ -231,10 +212,7 @@ h1, h2, h3, h4 { line-height: 1.25; letter-spacing: -.01em; }
 	font-size: 1rem;
 	line-height: 1.2;
 	text-decoration: none;
-	transition: background-color .15s, border-color .15s, transform .15s;
 }
-.btn:hover { transform: translateY(-1px); }
-.btn:active { transform: none; }
 
 .btn--primary { background: var(--flame-strong); color: #fff; }
 .btn--primary:hover { background: #b52b00; }
@@ -242,20 +220,14 @@ h1, h2, h3, h4 { line-height: 1.25; letter-spacing: -.01em; }
 .btn--ghost { border-color: var(--line-strong); color: var(--text); background: var(--surface); }
 .btn--ghost:hover { border-color: var(--text); }
 
-.hero .btn--ghost,
-.section--cta .btn--ghost { border-color: rgba(255, 255, 255, .4); color: #fff; background: transparent; }
-.hero .btn--ghost:hover,
-.section--cta .btn--ghost:hover { border-color: #fff; background: rgba(255, 255, 255, .08); }
+.hero .btn--ghost { border-color: rgba(255, 255, 255, .4); color: #fff; background: transparent; }
+.hero .btn--ghost:hover { border-color: #fff; }
 
 /* --- Hero ------------------------------------------------------------- */
 
 .hero {
-	position: relative;
-	overflow: hidden;
 	padding: 3.5rem 0 4rem;
-	background:
-		radial-gradient(60rem 30rem at 85% -10%, rgba(250, 60, 0, .28), transparent 60%),
-		linear-gradient(160deg, var(--brand) 0%, var(--brand-deep) 100%);
+	background: linear-gradient(160deg, var(--brand) 0%, var(--brand-deep) 100%);
 	color: #fff;
 }
 
@@ -339,23 +311,8 @@ h1, h2, h3, h4 { line-height: 1.25; letter-spacing: -.01em; }
 	background: var(--surface);
 	box-shadow: var(--shadow);
 }
-.hero .frame {
-	border-color: rgba(255, 255, 255, .14);
-	box-shadow: 0 30px 60px -20px rgba(0, 0, 0, .55), 0 0 0 1px rgba(255, 255, 255, .04);
-}
+.hero .frame { border-color: rgba(255, 255, 255, .14); }
 .frame img { display: block; width: 100%; }
-
-.frame__bar {
-	display: flex;
-	gap: .4rem;
-	padding: .65rem .8rem;
-	background: #2b1236;
-	border-bottom: 1px solid rgba(255, 255, 255, .08);
-}
-.frame__bar i { width: .65rem; height: .65rem; border-radius: 50%; background: rgba(255, 255, 255, .25); }
-.frame__bar i:first-child { background: #ff5f57; }
-.frame__bar i:nth-child(2) { background: #febc2e; }
-.frame__bar i:nth-child(3) { background: #28c840; }
 
 /* --- Sections --------------------------------------------------------- */
 
@@ -398,21 +355,10 @@ h1, h2, h3, h4 { line-height: 1.25; letter-spacing: -.01em; }
 }
 
 .card {
-	position: relative;
 	padding: 1.5rem 1.4rem 1.25rem;
 	border: 1px solid var(--line);
 	border-radius: var(--radius);
 	background: var(--surface);
-}
-.card::before {
-	content: "";
-	position: absolute;
-	top: 1.6rem;
-	left: 0;
-	width: 3px;
-	height: 1.4rem;
-	border-radius: 0 3px 3px 0;
-	background: var(--flame);
 }
 .card h3 { margin: 0 0 .75rem; font-size: 1.1rem; }
 
@@ -483,23 +429,10 @@ h1, h2, h3, h4 { line-height: 1.25; letter-spacing: -.01em; }
 	color: var(--muted);
 	font-size: .95rem;
 	text-decoration: none;
-	transition: border-color .15s, transform .15s, box-shadow .15s;
 }
 .doc-card strong { color: var(--text); font-size: 1.1rem; }
-.doc-card strong span { color: var(--flame); transition: margin .15s; }
-.doc-card:hover { border-color: var(--line-strong); box-shadow: var(--shadow); transform: translateY(-2px); }
-.doc-card:hover strong span { margin-left: .2rem; }
-
-.section--cta {
-	background: linear-gradient(160deg, var(--brand) 0%, var(--brand-deep) 100%);
-	color: #fff;
-}
-.cta { display: grid; gap: 1.5rem; align-items: center; }
-.cta h2 { margin: 0 0 .5rem; font-size: clamp(1.6rem, 3.5vw, 2.1rem); }
-.cta p { margin: 0; color: rgba(255, 255, 255, .8); }
-@media (min-width: 860px) {
-	.cta { grid-template-columns: 1fr auto; gap: 3rem; }
-}
+.doc-card strong span { color: var(--flame); }
+.doc-card:hover { border-color: var(--line-strong); }
 
 /* --- Prose (rendered Markdown) ------------------------------------------ */
 
@@ -591,12 +524,7 @@ h1, h2, h3, h4 { line-height: 1.25; letter-spacing: -.01em; }
 .table td { padding: .6rem .9rem; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
 .table th { background: var(--bg-alt); font-weight: 650; white-space: nowrap; }
 .table tr:last-child td { border-bottom: 0; }
-.table thead th:empty { display: none; }
-.table thead:has(th:empty) { display: none; }
-.table td:first-child { white-space: nowrap; }
-@media (max-width: 640px) {
-	.table td:first-child { white-space: normal; }
-}
+.table thead:not(:has(th:not(:empty))) { display: none; }
 
 .anchor {
 	margin-left: .4rem;
