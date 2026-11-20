@@ -72,6 +72,8 @@ jobs:
           bin/
           build/
           docs/
+          site/
+          _site/
           tests/
           vendor/
           node_modules/
