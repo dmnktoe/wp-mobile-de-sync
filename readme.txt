@@ -115,6 +115,16 @@ than a translation of the English source.
 
 == Changelog ==
 
+= Unreleased =
+* Added: proof of work on the enquiry form, in the format of ALTCHA - no
+  external service, no cookie, nothing to click; can be switched off.
+* Added: spam status for enquiries. Spam words, three or more links or a
+  blocked sender keep an enquiry out of the mail; spam is deleted after 30 days.
+* Added: "Mark as spam" / "Not spam", also as bulk actions; marking teaches the
+  blocklist, which can be edited on the Enquiries tab.
+* Added: a notice for enquiries whose mail did not go out, and a list view for them.
+* Added: filters `wmds_spam_words` and `wmds_enquiry_spam`.
+
 = 2.5.1 =
 * Fixed: make logos on vehicle cards sat too high and too large when the list
   was placed inside a page-builder column.

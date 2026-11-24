@@ -23,6 +23,8 @@ Every filter and action the plugin offers. All names start with `wmds_`.
 | `wmds_enquiry_recipients` | `string[] $to` | decide where an enquiry is sent |
 | `wmds_alert_recipients` | `string[] $to` | decide who is told when the sync stops |
 | `wmds_client_ip` | `string $ip` | read the visitor's address from a proxy header, for the enquiry rate limit |
+| `wmds_spam_words` | `string[] $words` | the words that mark an enquiry as spam |
+| `wmds_enquiry_spam` | `string $reason, array $data` | decide whether an enquiry is spam: a reason for yes, `''` for no |
 | `wmds_force_update_check` | `bool $forced` | make the next update check skip its cache |
 
 ## Actions

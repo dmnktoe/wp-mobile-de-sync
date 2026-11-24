@@ -13,6 +13,7 @@ delete_option( 'wmds_dashboard' );
 delete_option( 'wmds_last_alert' );
 delete_option( 'wmds_mail_failure' );
 delete_option( 'wmds_facet_version' );
+delete_option( 'wmds_challenge_key' );
 
 wp_clear_scheduled_hook( 'wmds_import_event' );
 wp_clear_scheduled_hook( 'wmds_import_followup' );
@@ -36,6 +37,8 @@ foreach ( array(
 	'_transient_timeout_wmds_facet_',
 	'_transient_wmds_lead_',
 	'_transient_timeout_wmds_lead_',
+	'_transient_wmds_pow_used_',
+	'_transient_timeout_wmds_pow_used_',
 ) as $prefix ) {
 	$wpdb->query(
 		$wpdb->prepare(

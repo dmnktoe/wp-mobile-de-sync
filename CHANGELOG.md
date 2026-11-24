@@ -3,6 +3,28 @@
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+- **Proof of work on the enquiry form**, in the format of ALTCHA: the
+  visitor's browser solves a small puzzle while they type, and a submission
+  without the answer is refused. No external service, no cookie, nothing to
+  click. Scripts that post the form directly no longer get through. Can be
+  switched off on the Enquiries tab; the form then works without JavaScript
+  again.
+- **Spam status for enquiries.** An enquiry containing a spam word
+  (`unsubscribe`, `seo`, … plus the dealer's own), three or more links, or
+  from a blocked sender is stored as spam and mailed to nobody. Spam has its
+  own view in the list and is deleted after 30 days.
+- **Mark as spam / Not spam**, per enquiry and as bulk actions. Marking as
+  spam puts the sender on the blocklist — the domain for a company, the
+  address for gmail.com, web.de and the like — and "Not spam" takes them off.
+  The blocklist can be edited on the Enquiries tab.
+- **Enquiries that were not mailed** are counted in a notice on the
+  dashboard, the plugin screen and the enquiry list, which has a view of its
+  own for them.
+- Filters `wmds_spam_words` and `wmds_enquiry_spam`.
+
 ## [2.5.1] – 2026-11-20
 
 ### Fixed

@@ -685,6 +685,21 @@
 	color: #00731a;
 }
 
+.wmds-lead-status-spam {
+	background: #f0f0f1;
+	color: #50575e;
+}
+
+.wmds-lead-undelivered {
+	color: #b32d2e;
+	font-weight: 600;
+}
+
+.wmds-button-spam.button {
+	color: #b32d2e;
+	border-color: #b32d2e;
+}
+
 .wmds-lead-actions {
 	display: flex;
 	flex-wrap: wrap;

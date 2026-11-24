@@ -2521,3 +2521,90 @@ msgid "%d picture of a vehicle that is no longer on the site is still in the med
 msgid_plural "%d pictures of vehicles that are no longer on the site are still in the media library. Pictures uploaded by hand are never touched."
 msgstr[0] "%d Bild eines Fahrzeugs, das nicht mehr auf der Website ist, liegt noch in der Mediathek. Von Hand hochgeladene Bilder werden nie angetastet."
 msgstr[1] "%d Bilder von Fahrzeugen, die nicht mehr auf der Website sind, liegen noch in der Mediathek. Von Hand hochgeladene Bilder werden nie angetastet."
+
+msgid "Sender is on the blocklist (%s)"
+msgstr "Absender steht auf der Sperrliste (%s)"
+
+msgid "Contains \"%s\""
+msgstr "Enthält „%s“"
+
+msgid "Contains %d link"
+msgid_plural "Contains %d links"
+msgstr[0] "Enthält %d Link"
+msgstr[1] "Enthält %d Links"
+
+msgid "Spam"
+msgstr "Spam"
+
+msgid "Not spam"
+msgstr "Kein Spam"
+
+msgid "Mark as spam"
+msgstr "Als Spam markieren"
+
+msgid "Not delivered"
+msgstr "Nicht zugestellt"
+
+msgid "Enquiries:"
+msgstr "Anfragen:"
+
+msgid "%d enquiry could not be sent by e-mail and is only stored here."
+msgid_plural "%d enquiries could not be sent by e-mail and are only stored here."
+msgstr[0] "%d Anfrage konnte nicht per E-Mail versendet werden und liegt nur hier vor."
+msgstr[1] "%d Anfragen konnten nicht per E-Mail versendet werden und liegen nur hier vor."
+
+msgid "Show them"
+msgstr "Anzeigen"
+
+msgid "Not delivered by e-mail"
+msgstr "Nicht per E-Mail zugestellt"
+
+msgid "No e-mail was sent for this enquiry. \"Not spam\" moves it back to the enquiries and takes the sender off the blocklist; it is not sent afterwards."
+msgstr "Für diese Anfrage wurde keine E-Mail versendet. „Kein Spam“ verschiebt sie zurück zu den Anfragen und nimmt den Absender von der Sperrliste; nachträglich versendet wird sie nicht."
+
+msgid "\"Mark as spam\" also puts the sender on the blocklist: their next enquiries are sorted out straight away."
+msgstr "„Als Spam markieren“ setzt den Absender zusätzlich auf die Sperrliste: Seine nächsten Anfragen werden sofort aussortiert."
+
+msgid "Not sent: recognised as spam"
+msgstr "Nicht versendet: als Spam erkannt"
+
+msgid "The security check did not succeed. Please send the enquiry again; JavaScript has to be enabled for it. Alternatively, call us."
+msgstr "Die Sicherheitsprüfung ist fehlgeschlagen. Bitte senden Sie die Anfrage erneut, dafür muss JavaScript aktiviert sein. Oder rufen Sie uns einfach an."
+
+msgid "Spam protection"
+msgstr "Spamschutz"
+
+msgid "Every form has a hidden field that only robots fill in and refuses messages sent within seconds of opening the page. What a person types in passes those checks; the lists below catch it. An enquiry recognised as spam is not mailed to anyone, is stored under Vehicles → Enquiries → Spam and deleted after 30 days."
+msgstr "Jedes Formular hat ein verstecktes Feld, das nur Bots ausfüllen, und lehnt Nachrichten ab, die Sekunden nach dem Öffnen der Seite abgeschickt werden. Was ein Mensch eintippt, kommt daran vorbei; dafür sind die Listen unten da. Eine als Spam erkannte Anfrage wird an niemanden gemailt, unter Fahrzeuge → Anfragen → Spam abgelegt und nach 30 Tagen gelöscht."
+
+msgid "Proof of work"
+msgstr "Proof of Work"
+
+msgid "The visitor's browser solves a small computing task before the form is sent"
+msgstr "Der Browser des Besuchers löst vor dem Absenden eine kleine Rechenaufgabe"
+
+msgid "Works like ALTCHA, without a puzzle to click and without an external service: nothing leaves the site, no cookie is set. Visitors notice nothing, but the form can then only be sent with JavaScript enabled. Scripts that post the form directly no longer get through."
+msgstr "Funktioniert wie ALTCHA, ohne Rätsel zum Anklicken und ohne externen Dienst: Nichts verlässt die Website, es wird kein Cookie gesetzt. Besucher merken davon nichts, das Formular lässt sich dann aber nur mit aktiviertem JavaScript absenden. Skripte, die das Formular direkt abschicken, kommen nicht mehr durch."
+
+msgid "Spam words"
+msgstr "Spam-Wörter"
+
+msgid "One word or phrase per line; an enquiry whose name or message contains one is spam. Always checked: %s. A message with three or more links is spam too."
+msgstr "Ein Wort oder eine Wendung pro Zeile; eine Anfrage, deren Name oder Nachricht eines davon enthält, gilt als Spam. Immer geprüft: %s. Eine Nachricht mit drei oder mehr Links gilt ebenfalls als Spam."
+
+msgid "Blocked senders"
+msgstr "Gesperrte Absender"
+
+msgid "One e-mail address or domain (@example.com) per line. \"Mark as spam\" adds the sender here: the whole domain for a company address, only the address for providers such as gmail.com or web.de. \"Not spam\" removes it again."
+msgstr "Eine E-Mail-Adresse oder Domain (@example.com) pro Zeile. „Als Spam markieren“ trägt den Absender hier ein: bei Firmenadressen die ganze Domain, bei Anbietern wie gmail.com oder web.de nur die Adresse. „Kein Spam“ entfernt den Eintrag wieder."
+
+msgid "Not sent by e-mail: %d"
+msgstr "Nicht per E-Mail versendet: %d"
+
+msgid "%d enquiry is kept as spam."
+msgid_plural "%d enquiries are kept as spam."
+msgstr[0] "%d Anfrage liegt im Spam."
+msgstr[1] "%d Anfragen liegen im Spam."
+
+msgid "The form needs JavaScript to be sent. Alternatively, please call us."
+msgstr "Zum Absenden des Formulars wird JavaScript benötigt. Alternativ rufen Sie uns bitte an."

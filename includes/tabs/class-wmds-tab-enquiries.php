@@ -13,6 +13,9 @@ class WMDS_Tab_Enquiries {
 			'enquiry_autoreply',
 			'enquiry_store',
 			'enquiry_consent',
+			'enquiry_challenge',
+			'enquiry_spam_words',
+			'enquiry_blocklist',
 		);
 	}
 
@@ -107,6 +110,8 @@ class WMDS_Tab_Enquiries {
 			</table>
 		</div>
 
+		<?php self::spam(); ?>
+
 		<?php submit_button( __( 'Save', 'wp-mobile-de-sync' ) ); ?>
 		</form>
 
@@ -114,8 +119,65 @@ class WMDS_Tab_Enquiries {
 		self::mail();
 	}
 
+	private static function spam() {
+		?>
+		<div class="wmds-card">
+			<h2><?php esc_html_e( 'Spam protection', 'wp-mobile-de-sync' ); ?></h2>
+			<p class="description">
+				<?php esc_html_e( 'Every form has a hidden field that only robots fill in and refuses messages sent within seconds of opening the page. What a person types in passes those checks; the lists below catch it. An enquiry recognised as spam is not mailed to anyone, is stored under Vehicles → Enquiries → Spam and deleted after 30 days.', 'wp-mobile-de-sync' ); ?>
+			</p>
+
+			<table class="form-table" role="presentation">
+				<tr>
+					<th scope="row"><?php esc_html_e( 'Proof of work', 'wp-mobile-de-sync' ); ?></th>
+					<td>
+						<label>
+							<input type="checkbox" name="wmds_enquiry_challenge" value="yes"
+								<?php checked( WMDS_Settings::flag( 'enquiry_challenge' ) ); ?>>
+							<?php esc_html_e( 'The visitor\'s browser solves a small computing task before the form is sent', 'wp-mobile-de-sync' ); ?>
+						</label>
+						<p class="description">
+							<?php esc_html_e( 'Works like ALTCHA, without a puzzle to click and without an external service: nothing leaves the site, no cookie is set. Visitors notice nothing, but the form can then only be sent with JavaScript enabled. Scripts that post the form directly no longer get through.', 'wp-mobile-de-sync' ); ?>
+						</p>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row">
+						<label for="wmds_enquiry_spam_words"><?php esc_html_e( 'Spam words', 'wp-mobile-de-sync' ); ?></label>
+					</th>
+					<td>
+						<textarea name="wmds_enquiry_spam_words" id="wmds_enquiry_spam_words" rows="4" class="large-text code"><?php echo esc_textarea( (string) WMDS_Settings::get( 'enquiry_spam_words' ) ); ?></textarea>
+						<p class="description">
+							<?php
+							printf(
+								/* translators: %s: the words that are always checked. */
+								esc_html__( 'One word or phrase per line; an enquiry whose name or message contains one is spam. Always checked: %s. A message with three or more links is spam too.', 'wp-mobile-de-sync' ),
+								'<code>' . esc_html( implode( ', ', WMDS_Spam::builtin_words() ) ) . '</code>'
+							);
+							?>
+						</p>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row">
+						<label for="wmds_enquiry_blocklist"><?php esc_html_e( 'Blocked senders', 'wp-mobile-de-sync' ); ?></label>
+					</th>
+					<td>
+						<textarea name="wmds_enquiry_blocklist" id="wmds_enquiry_blocklist" rows="4" class="large-text code" placeholder="@example.com"><?php echo esc_textarea( (string) WMDS_Settings::get( 'enquiry_blocklist' ) ); ?></textarea>
+						<p class="description">
+							<?php esc_html_e( 'One e-mail address or domain (@example.com) per line. "Mark as spam" adds the sender here: the whole domain for a company address, only the address for providers such as gmail.com or web.de. "Not spam" removes it again.', 'wp-mobile-de-sync' ); ?>
+						</p>
+					</td>
+				</tr>
+			</table>
+		</div>
+		<?php
+	}
+
 	private static function received() {
-		$new = WMDS_Leads::count_new();
+		$new         = WMDS_Leads::count_new();
+		$spam        = WMDS_Leads::count_spam();
+		$undelivered = WMDS_Leads::count_undelivered();
 		?>
 		<div class="wmds-card">
 			<h2><?php esc_html_e( 'Received enquiries', 'wp-mobile-de-sync' ); ?></h2>
@@ -129,10 +191,36 @@ class WMDS_Tab_Enquiries {
 				);
 				?>
 			</p>
+			<?php if ( $undelivered ) : ?>
+				<p class="wmds-lead-undelivered">
+					<?php
+					/* translators: %d: number of unanswered enquiries whose e-mail did not go out. */
+					echo esc_html( sprintf( __( 'Not sent by e-mail: %d', 'wp-mobile-de-sync' ), $undelivered ) );
+					?>
+				</p>
+			<?php endif; ?>
+			<?php if ( $spam ) : ?>
+				<p class="description">
+					<?php
+					/* translators: %d: number of enquiries kept as spam. */
+					echo esc_html( sprintf( _n( '%d enquiry is kept as spam.', '%d enquiries are kept as spam.', $spam, 'wp-mobile-de-sync' ), $spam ) );
+					?>
+				</p>
+			<?php endif; ?>
 			<p>
 				<a class="button" href="<?php echo esc_url( admin_url( 'edit.php?post_type=' . WMDS_Leads::CPT ) ); ?>">
 					<?php esc_html_e( 'Open the enquiries', 'wp-mobile-de-sync' ); ?>
 				</a>
+				<?php if ( $undelivered ) : ?>
+					<a class="button" href="<?php echo esc_url( WMDS_Leads::view_url( WMDS_Leads::VIEW_UNDELIVERED ) ); ?>">
+						<?php esc_html_e( 'Not delivered', 'wp-mobile-de-sync' ); ?>
+					</a>
+				<?php endif; ?>
+				<?php if ( $spam ) : ?>
+					<a class="button" href="<?php echo esc_url( WMDS_Leads::view_url( WMDS_Leads::VIEW_SPAM ) ); ?>">
+						<?php esc_html_e( 'Spam', 'wp-mobile-de-sync' ); ?>
+					</a>
+				<?php endif; ?>
 			</p>
 		</div>
 		<?php

@@ -84,6 +84,18 @@ class WMDS_Settings {
 				'type'    => 'html',
 				'default' => '',
 			),
+			'enquiry_challenge'   => array(
+				'type'    => 'bool',
+				'default' => 'yes',
+			),
+			'enquiry_spam_words'  => array(
+				'type'    => 'lines',
+				'default' => '',
+			),
+			'enquiry_blocklist'   => array(
+				'type'    => 'lines',
+				'default' => '',
+			),
 			'similar_enabled'     => array(
 				'type'    => 'bool',
 				'default' => 'yes',
@@ -174,6 +186,10 @@ class WMDS_Settings {
 
 				case 'slug':
 					$values[ $key ] = sanitize_title( (string) $raw );
+					break;
+
+				case 'lines':
+					$values[ $key ] = implode( "\n", array_filter( array_map( 'sanitize_text_field', WMDS_Spam::lines( (string) $raw ) ), 'strlen' ) );
 					break;
 
 				case 'choice':
