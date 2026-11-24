@@ -111,6 +111,21 @@ jobs:
       - name: phpcs
         run: vendor/bin/phpcs
 
+  site:
+    name: Project site builds, no dead links
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+          tools: composer
+      - name: Install tooling
+        run: composer install --no-interaction --prefer-dist --no-progress
+      - name: Build
+        run: php bin/build-site.php build/site
+
   secrets:
     name: No credentials or customer data in the tree
     runs-on: ubuntu-latest

@@ -7,14 +7,16 @@
 - [Tests](#tests)
 - [Translations](#translations)
 - [Releasing](#releasing)
+- [Project site](#project-site)
 
 ## Commands
 
 ```sh
 sh tests/run.sh                 # all tests, no PHPUnit and no Composer
 sh tests/integration/run.sh     # end to end: real WordPress, real database, mock API
-composer install                # tooling for the coding standards
+composer install                # tooling: coding standards, site build (PHP 8.2+)
 composer lint                   # phpcs (WordPress standards + PHP compatibility)
+php bin/build-site.php          # the project site into build/site, failing on dead links
 sh bin/bump.sh 2.5.1            # set the version everywhere it is stated
 php bin/po2mo.php languages/wp-mobile-de-sync-de_DE.po   # rebuild a catalogue
 ```
@@ -139,3 +141,33 @@ up through the built-in updater.
 `tests/test-version.php` holds the three places that state the version to the
 same answer and insists on a changelog entry for it, so a half-finished bump
 fails before it reaches `main`.
+
+## Project site
+
+The [project site](https://dmnktoe.github.io/wp-mobile-de-sync/) is built
+from the files this repository keeps current anyway, so it cannot fall behind
+them:
+
+| Source | Becomes |
+|---|---|
+| `README.md` | the home page, section by section |
+| `docs/*.md` | one page each, in the order of the README's documentation table |
+| `CHANGELOG.md` | the changelog page and the recent releases on the home page |
+| plugin header, `readme.txt` | version, requirements, the download button |
+
+`bin/build-site.php` renders them with `league/commonmark` into the templates
+under `site/`. Links between documents become links between pages, headings get
+the anchors GitHub gives them, and a link to a file, page or section that does
+not exist fails the build. CI builds the site on every push.
+
+`.github/workflows/pages.yml` deploys it to GitHub Pages after every successful
+run of the release workflow on `main`, so the version it names is already
+published. It needs *Settings → Pages → Source: GitHub Actions*.
+
+To look at it locally:
+
+```sh
+composer install
+php bin/build-site.php
+php -S localhost:8000 -t build/site
+```
