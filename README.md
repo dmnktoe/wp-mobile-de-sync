@@ -154,7 +154,8 @@ sh tests/integration/run.sh   # end to end against a real WordPress and a mock A
 composer install && composer lint
 ```
 
-See **[docs/development.md](docs/development.md)** for how the code is put together.
+See **[docs/development.md](docs/development.md)** for how the code is put together,
+and **[AGENTS.md](AGENTS.md)** for the rules every change follows.
 
 ## License
 

@@ -81,6 +81,9 @@ jobs:
           composer.lock
           phpcs.xml
           .gitignore
+          AGENTS.md
+          CLAUDE.md
+          renovate.json
           EOF
           cd build && zip -rq $SLUG.zip $SLUG
           unzip -l $SLUG.zip | head -20
