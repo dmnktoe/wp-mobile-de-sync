@@ -29,8 +29,6 @@ class WMDS_Admin_Ajax {
 			wp_send_json_error(
 				array(
 					'message' => $stats->get_error_message(),
-					// The scheduled run got in between two steps. That is not
-					// a failure; the browser waits and asks again.
 					'busy'    => 'wmds_locked' === $stats->get_error_code() && $step > 1,
 				)
 			);

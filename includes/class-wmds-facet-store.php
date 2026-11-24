@@ -3,14 +3,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * The database side: how many vehicles are behind each option, what the
- * bounds of a range are, and the cache that keeps both cheap.
- */
 class WMDS_Facet_Store {
 	/**
-	 * Whether the cache has already been dropped in this request.
-	 *
 	 * @var bool
 	 */
 	const OPT_VERSION = 'wmds_facet_version';
@@ -18,14 +12,9 @@ class WMDS_Facet_Store {
 	private static $flushed = false;
 
 	/**
-	 * Distinct values of a facet with the number of vehicles behind each.
-	 *
-	 * Counted against the rest of the selection, so an option that would
-	 * leave nothing says so rather than promising a result it cannot keep.
-	 *
 	 * @param string $key
 	 * @param array  $selection
-	 * @return array<string, int> Value => count, ordered by value.
+	 * @return array<string, int>
 	 */
 	public static function choices( $key, array $selection = array() ) {
 		$facets = WMDS_Facets::definitions();
@@ -78,7 +67,7 @@ class WMDS_Facet_Store {
 	/**
 	 * @param string $key
 	 * @param array  $selection
-	 * @return array{min:float,max:float}|array Empty when the facet holds no numbers.
+	 * @return array{min:float,max:float}|array
 	 */
 	public static function bounds( $key, array $selection = array() ) {
 		$facets = WMDS_Facets::definitions();
@@ -118,10 +107,6 @@ class WMDS_Facet_Store {
 
 		$out = array();
 		if ( $row && null !== $row->low && null !== $row->high && (float) $row->high > 0 ) {
-			// Snapped outwards to the step. A slider and a number field only
-			// accept min + n * step: with the bounds as stored, the top of the
-			// slider stops short of the dearest vehicle and a typed round
-			// figure is refused as invalid.
 			$step = isset( $facets[ $key ]['step'] ) ? (float) $facets[ $key ]['step'] : 1;
 			$step = $step > 0 ? $step : 1;
 
@@ -138,8 +123,8 @@ class WMDS_Facet_Store {
 
 	/**
 	 * @param array  $selection
-	 * @param string $except Facet to leave out, so its own choice does not hide the others.
-	 * @return int[]|null Post IDs the rest of the selection allows, null when it allows everything.
+	 * @param string $except
+	 * @return int[]|null
 	 */
 	public static function constraint( array $selection, $except ) {
 		$meta = WMDS_Facet_Query::meta_query( $selection, array( $except ) );
@@ -174,13 +159,6 @@ class WMDS_Facet_Store {
 	}
 
 	/**
-	 * What the cache keys are salted with.
-	 *
-	 * Deleting transients by name pattern only reaches the options table: on
-	 * a site with an object cache they are not there, and the counts stayed
-	 * stale until they expired. A key nobody asks for again needs no
-	 * deleting.
-	 *
 	 * @return string
 	 */
 	private static function version() {
@@ -188,15 +166,8 @@ class WMDS_Facet_Store {
 	}
 
 	/**
-	 * Drops the cached counts and bounds.
-	 *
-	 * A full sync saves two thousand vehicles in one request; the cache is
-	 * stale after the first of them, so a run flushes once while it writes
-	 * and the importer asks once more when it is done — a visitor who came
-	 * by in between has cached a half-written inventory.
-	 *
 	 * @param int  $post_id
-	 * @param bool $again Flush even if this request already has.
+	 * @param bool $again
 	 */
 	public static function flush( $post_id = 0, $again = false ) {
 		if ( self::$flushed && ! $again ) {
@@ -213,7 +184,6 @@ class WMDS_Facet_Store {
 
 		global $wpdb;
 
-		// Housekeeping only: the keys are unreachable already.
 		$wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- deleting the cache is the point.
 			$wpdb->prepare(
 				"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
@@ -223,7 +193,6 @@ class WMDS_Facet_Store {
 		);
 	}
 
-	/** The run is over: whatever was cached while it wrote is stale. */
 	public static function flush_after_run() {
 		self::flush( 0, true );
 	}

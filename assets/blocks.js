@@ -13,8 +13,6 @@
 	var ServerSideRender = wp.serverSideRender;
 	var __ = wp.i18n.__;
 
-	// Disabled: the preview is the real markup, forms and links included, and
-	// a click on "Show vehicles" would navigate the editor away.
 	function preview( name, attributes ) {
 		return el(
 			wp.components.Disabled,

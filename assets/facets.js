@@ -1,12 +1,3 @@
-/*
- * Progressive enhancement for the filter bar.
- *
- * Without this file the bar is a plain GET form: number inputs for the
- * ranges, a submit button, links to remove a filter. Everything here only
- * makes that nicer - the two-handle sliders that mirror into the number
- * inputs, the readout above them, and a sort control that submits on its
- * own because picking a sort order is a decision in itself.
- */
 ( function () {
 	'use strict';
 
@@ -99,9 +90,6 @@
 
 		var sort = form.querySelector( 'select[name$="_sort"]' );
 
-		// Only what was chosen goes into the address. A form sends every
-		// field it has, so each search read ?wmds_q=&wmds_model=&… and the
-		// same result had as many addresses as there are empty fields.
 		function prune() {
 			var fields = form.querySelectorAll( 'input[name], select[name]' );
 			var field;
@@ -122,8 +110,6 @@
 				}
 			}
 
-			// Back from the result with the browser's button, the form is
-			// restored as it was left: switched off.
 			window.setTimeout( function () {
 				for ( index = 0; index < fields.length; index++ ) {
 					fields[ index ].disabled = false;
@@ -134,8 +120,6 @@
 		form.addEventListener( 'submit', prune );
 
 		function submitSort() {
-			// requestSubmit() runs validation and the handler above;
-			// submit() does neither.
 			if ( form.requestSubmit ) {
 				form.requestSubmit();
 			} else {
@@ -145,9 +129,6 @@
 		}
 
 		if ( sort ) {
-			// Themes that dress selects up with select2 (Salient, WooCommerce
-			// shops) announce the change through jQuery only, which a native
-			// listener never hears. jQuery's own .on() hears both.
 			if ( window.jQuery ) {
 				window.jQuery( sort ).on( 'change', submitSort );
 			} else {

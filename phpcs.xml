@@ -45,10 +45,9 @@
 		<!--
 			Documentation ceremony, excluded project-wide.
 
-			Every parameter here is typed and named in the signature, and each
-			file opens with a class-level docblock explaining what it does and
-			why. These sniffs demand a second, file-level block saying the
-			same thing, and a prose sentence after every @param - including
+			Every parameter here is typed and named in the signature. These
+			sniffs demand a file-level block and a prose sentence after every
+			@param - including
 			for parameters called $key or $post_id. That produces text like
 			"@param string $key The key." which makes the code harder to read,
 			not easier. Substantive documentation is enforced by review.

@@ -1,11 +1,3 @@
-/*
- * Behaviour for the bundled templates.
- *
- * The gallery works without this file: every thumbnail is a link to the
- * full image, which is what a browser without JavaScript should get. Here
- * the click swaps the main image instead of leaving the page, and the main
- * image gets arrows, a counter and the arrow keys.
- */
 ( function () {
 	'use strict';
 

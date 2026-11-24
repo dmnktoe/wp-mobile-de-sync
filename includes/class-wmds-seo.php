@@ -16,12 +16,6 @@ class WMDS_Seo {
 	}
 
 	/**
-	 * Keeps filtered and sorted views of the archive out of the index.
-	 *
-	 * Every combination of filters is an address of its own, and a crawler
-	 * that follows them finds the same vehicles a few thousand times over.
-	 * The links are still followed, so the vehicles themselves are reached.
-	 *
 	 * @param array $robots
 	 * @return array
 	 */
@@ -49,11 +43,6 @@ class WMDS_Seo {
 	}
 
 	/**
-	 * Whether another plugin already owns the Open Graph tags.
-	 *
-	 * Two sets of og: tags on one page is worse than none: which one a
-	 * scraper reads is not defined, and the answer differs per scraper.
-	 *
 	 * @return bool
 	 */
 	public static function seo_plugin_active() {
@@ -69,14 +58,14 @@ class WMDS_Seo {
 	}
 
 	/**
-	 * @param string $what Either jsonld or social.
+	 * @param string $what
 	 * @return bool
 	 */
 	public static function wanted( $what ) {
 		$default = ( 'social' === $what ) ? ! self::seo_plugin_active() : true;
 
 		/**
-		 * @param bool   $default
+		 * @param bool $default
 		 * @param string $what
 		 */
 		return (bool) apply_filters( 'wmds_seo_output', $default, $what );
@@ -138,8 +127,6 @@ class WMDS_Seo {
 	}
 
 	/**
-	 * Everything the markup needs, read once out of the post.
-	 *
 	 * @param WMDS_Vehicle $vehicle
 	 * @param int          $post_id
 	 * @return array<string, mixed>
@@ -182,7 +169,7 @@ class WMDS_Seo {
 
 	/**
 	 * @param array $data
-	 * @return array The Car node, ready to be encoded.
+	 * @return array
 	 */
 	public static function vehicle_schema( array $data ) {
 		$schema = array(
@@ -270,7 +257,7 @@ class WMDS_Seo {
 
 	/**
 	 * @param array $data
-	 * @return array Empty when there is no price to state.
+	 * @return array
 	 */
 	private static function offer( array $data ) {
 		$price = self::number( $data, 'price' );
@@ -298,12 +285,6 @@ class WMDS_Seo {
 	}
 
 	/**
-	 * New or used, decided from the key rather than the label.
-	 *
-	 * The feed states the condition as a localised label, with the key behind
-	 * it stored alongside. Without either, a vehicle that has been driven is
-	 * used and one that has not is new.
-	 *
 	 * @param array $data
 	 * @return string
 	 */
@@ -323,7 +304,7 @@ class WMDS_Seo {
 	}
 
 	/**
-	 * @param array  $items Vehicle data arrays.
+	 * @param array  $items
 	 * @param string $url
 	 * @return array
 	 */
@@ -354,7 +335,7 @@ class WMDS_Seo {
 
 	/**
 	 * @param array $data
-	 * @return array<string, string> Attribute name => content.
+	 * @return array<string, string>
 	 */
 	public static function social_meta( array $data ) {
 		$meta = array(
@@ -447,7 +428,7 @@ class WMDS_Seo {
 
 	/**
 	 * @param int|float $value
-	 * @param string    $unit UN/CEFACT code.
+	 * @param string    $unit
 	 * @return array
 	 */
 	private static function quantity( $value, $unit ) {
@@ -466,8 +447,6 @@ class WMDS_Seo {
 			return;
 		}
 
-		// The slashes stay escaped on purpose: a description containing
-		// "</script>" would otherwise end the block it is printed inside.
 		printf(
 			"<script type=\"application/ld+json\">%s</script>\n",
 			wp_json_encode( $schema, JSON_UNESCAPED_UNICODE ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_json_encode is the escaping; see above.

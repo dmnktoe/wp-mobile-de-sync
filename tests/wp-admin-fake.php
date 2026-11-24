@@ -1,15 +1,4 @@
 <?php
-/**
- * The admin half of WordPress, in process memory.
- *
- * tests/wp-fake.php stands in for the post and media functions the importer
- * needs. This file stands in for what an admin screen touches: options, the
- * schedule, nonces, the escaping helpers and the two ways a request ends.
- *
- * A redirect and wp_die() throw rather than exit, so a test can drive
- * WMDS_Admin::handle() through its real entry point and then look at where
- * it wanted to go.
- */
 class WMDS_Test_Redirect extends Exception {
 	/** @var string */
 	public $url;
@@ -555,10 +544,6 @@ if ( ! function_exists( 'wp_get_schedules' ) ) {
 }
 
 if ( ! isset( $GLOBALS['wpdb'] ) ) {
-	/**
-	 * Enough of $wpdb for the counts the screens show: nothing is stored, so
-	 * every count is the one the test put in $GLOBALS['wmds_admin_db'].
-	 */
 	class WMDS_Admin_Fake_WPDB {
 		public $posts    = 'wp_posts';
 		public $postmeta = 'wp_postmeta';

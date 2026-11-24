@@ -82,9 +82,9 @@ function wmds_detail( $id ) {
 }
 
 /**
- * @param array $ads       Ads of the search result.
- * @param array $overrides Further properties for the client.
- * @return array array( WMDS_Importer, WMDS_Fake_Client )
+ * @param array $ads
+ * @param array $overrides
+ * @return array
  */
 function wmds_setup( array $ads, array $overrides = array() ) {
 	$client        = new WMDS_Fake_Client();
@@ -613,7 +613,6 @@ foreach ( array( '1', '2', '3' ) as $seed ) {
 }
 update_option( WMDS_Importer::OPT_WATERMARK, '2026-07-28T18:00:00+02:00' );
 
-// The changes-only listing names nothing; the full one names 1 and 2.
 list( $importer, $client ) = wmds_setup( array( wmds_ad( '1' ), wmds_ad( '2' ) ), array( 'total' => 2 ) );
 $gone                      = wmds_post_for( '3' );
 $stats                     = $importer->run();
@@ -876,7 +875,6 @@ wmds_assert( 'the first pass does its batch', 2, $stats['created'] );
 wmds_assert( 'and says what is left', 3, $stats['pending'] );
 wmds_assert( 'the watermark is gone, not merely ignored', '', (string) get_option( WMDS_Importer::OPT_WATERMARK, '' ) );
 
-// The follow-up arrives without any argument, as cron starts it.
 list( $importer, $client ) = wmds_setup( $five );
 $stats                     = $importer->run( array( 'batch' => 2 ) );
 

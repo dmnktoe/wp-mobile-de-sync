@@ -1,14 +1,4 @@
 <?php
-/**
- * The three plugins the sync meets on a dealer site: Contact Form 7 for the
- * forms, an SMTP plugin for what happens to the mail, FacetWP for filtering
- * that predates our own.
- *
- * What is tested here is the part that runs without any of them installed:
- * reading a submission, naming a mail tag, describing a mailer, building
- * facet sources. The hooks around it are three lines each.
- */
-
 require_once __DIR__ . '/bootstrap.php';
 
 define( 'WMDS_CPT', 'fahrzeuge' );

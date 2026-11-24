@@ -49,7 +49,6 @@ class WMDS_CLI {
 			}
 
 			++$runs;
-			// Both are stored by the first pass; repeating them would start over.
 			$options['full']  = false;
 			$options['force'] = false;
 		} while ( isset( $assoc['all'] ) && $stats['pending'] > 0 && $runs < 200 );

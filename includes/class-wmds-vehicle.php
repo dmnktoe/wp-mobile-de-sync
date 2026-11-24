@@ -11,7 +11,7 @@ class WMDS_Vehicle {
 	private $meta;
 
 	/**
-	 * @param int|null $post_id Defaults to the post in the current loop.
+	 * @param int|null $post_id
 	 */
 	public function __construct( $post_id = null ) {
 		$this->post_id = $post_id ? (int) $post_id : (int) get_the_ID();
@@ -40,12 +40,12 @@ class WMDS_Vehicle {
 		return '' !== $this->get( $key );
 	}
 
-	/** @return int The post ID this model reads from. */
+	/** @return int */
 	public function id() {
 		return $this->post_id;
 	}
 
-	/** @return string e.g. "42,999 €" */
+	/** @return string */
 	public function price() {
 		$price = $this->get( 'price' );
 		if ( '' === $price ) {
@@ -74,8 +74,8 @@ class WMDS_Vehicle {
 	}
 
 	/**
-	 * @param string $rate As the feed sends it: 19, 19.00 or 19,00.
-	 * @return string Without trailing decimal zeros — and with the zero of 20.
+	 * @param string $rate
+	 * @return string
 	 */
 	private static function plain_rate( $rate ) {
 		$rate = (string) $rate;
@@ -87,7 +87,7 @@ class WMDS_Vehicle {
 		return rtrim( rtrim( $rate, '0' ), '.,' );
 	}
 
-	/** @return string e.g. "129,000 km" */
+	/** @return string */
 	public function mileage() {
 		if ( ! $this->has( 'mileage' ) ) {
 			return '';
@@ -97,7 +97,7 @@ class WMDS_Vehicle {
 		return sprintf( __( '%s km', 'wp-mobile-de-sync' ), $this->get( 'mileage' ) );
 	}
 
-	/** @return string e.g. "108 kW (147 hp)" */
+	/** @return string */
 	public function power() {
 		$kw = (int) $this->get( 'power' );
 		if ( ! $kw ) {
@@ -116,7 +116,7 @@ class WMDS_Vehicle {
 	}
 
 	/**
-	 * @return string Empty when the vehicle carries no sticker.
+	 * @return string
 	 */
 	public function emission_sticker_url() {
 		return WMDS_Stickers::url( $this->sticker_key() );
@@ -185,9 +185,6 @@ class WMDS_Vehicle {
 	}
 
 	/**
-	 * The key figures, keyed by what they are, so a template can put an
-	 * icon to each. Figures the vehicle does not have are left out.
-	 *
 	 * @return array<string, array{label:string,value:string}>
 	 */
 	public function facts() {
@@ -314,7 +311,7 @@ class WMDS_Vehicle {
 		return $this->get( 'seller_email' );
 	}
 
-	/** @return string Empty unless a complete number is on file. */
+	/** @return string */
 	public function seller_phone() {
 		$number = $this->get( 'seller_phone_number' );
 		if ( '' === $number ) {

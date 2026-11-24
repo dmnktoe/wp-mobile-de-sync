@@ -151,15 +151,14 @@ class WMDS_Json_Mapper {
 	private $refdata;
 
 	/**
-	 * @param WMDS_Refdata|null $refdata Label resolver; without it the raw
-	 *                                   keys survive unchanged.
+	 * @param WMDS_Refdata|null $refdata
 	 */
 	public function __construct( $refdata = null ) {
 		$this->refdata = $refdata;
 	}
 
 	/**
-	 * @param array $ad Ad array, ideally including the single-ad fields.
+	 * @param array $ad
 	 * @return array{ad_id:string,title:string,description:string,modified:string,images:array,meta:array}
 	 */
 	public function map( array $ad ) {
@@ -228,9 +227,6 @@ class WMDS_Json_Mapper {
 
 		$meta['damageUnrepaired'] = ! empty( $ad['damageUnrepaired'] ) ? 'true' : 'false';
 
-		// Only when the ad says so. A field mobile.de left out is not a
-		// vehicle that cannot be driven, and "Not roadworthy" on the card of
-		// a sound one costs the sale.
 		$meta['roadWorthy'] = array_key_exists( 'roadworthy', $ad )
 			? ( $ad['roadworthy'] ? 'true' : 'false' )
 			: '';

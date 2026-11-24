@@ -111,8 +111,19 @@ fetches the archive, a filtered archive, a vehicle and a page of shortcodes and
 blocks — under a block theme and a classic one — and fails on any PHP notice.
 
 It needs PHP with `mysqli` and `gd`, WP-CLI on the `PATH` and a MySQL to talk
-to; the variables are documented at the top of the script. CI runs it on every
-push. `"generate": 40` in the mock's state file adds forty vehicles derived
+to. CI runs it on every push. These variables change its defaults:
+
+| Variable | Default | |
+|---|---|---|
+| `WMDS_IT_WORKDIR` | `/tmp/wmds-integration` | scratch directory |
+| `WMDS_IT_PORT` | `8089` | port of the mock server |
+| `WMDS_IT_WP` | `latest` | WordPress version |
+| `WMDS_IT_DB_NAME` | `wmds_integration` | database name |
+| `WMDS_IT_DB_USER` | `root` | database user |
+| `WMDS_IT_DB_PASS` | `wordpress` | database secret |
+| `WMDS_IT_DB_HOST` | `127.0.0.1` | database host |
+
+`"generate": 40` in the mock's state file adds forty vehicles derived
 from the fixture, enough to see pagination, facet counts and sliders work.
 
 ## Translations

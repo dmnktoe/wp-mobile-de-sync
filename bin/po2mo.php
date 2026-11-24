@@ -5,7 +5,7 @@ if ( 'cli' !== PHP_SAPI ) {
 }
 
 /**
- * @param string $line A line that contains one quoted chunk.
+ * @param string $line
  * @return string
  */
 function wmds_po_chunk( $line ) {
@@ -27,7 +27,7 @@ function wmds_po_chunk( $line ) {
 
 /**
  * @param string $path
- * @return array<string,string> msgid (NUL-joined for plurals) => msgstr.
+ * @return array<string,string>
  */
 function wmds_po_parse( $path ) {
 	$lines = file( $path, FILE_IGNORE_NEW_LINES );
@@ -136,7 +136,7 @@ function wmds_po_parse( $path ) {
 
 /**
  * @param array<string,string> $entries
- * @return string The binary .mo payload.
+ * @return string
  */
 function wmds_mo_build( array $entries ) {
 	ksort( $entries );
@@ -162,10 +162,6 @@ function wmds_mo_build( array $entries ) {
 		$cursor  += strlen( $str ) + 1;
 	}
 
-	// The hash table is empty, but its address still has to sit right behind
-	// the translation table: WordPress derives that table's length from
-	// hash_addr - translations_addr and refuses the file when the two do not
-	// come out at total * 8.
 	$header = pack(
 		'VVVVVVV',
 		0x950412de,

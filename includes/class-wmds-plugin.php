@@ -3,19 +3,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * Wires the plugin into WordPress.
- *
- * Everything the plugin file used to do in loose functions: the post type,
- * the cron events and their schedules, activation and deactivation. The
- * plugin file itself only defines the constants and calls boot().
- */
 class WMDS_Plugin {
-	/** @var string Absolute path of the main plugin file. */
+	/** @var string */
 	private static $file = '';
 
 	/**
-	 * @param string $file Absolute path of the main plugin file.
+	 * @param string $file
 	 */
 	public static function boot( $file ) {
 		self::$file = $file;
@@ -25,8 +18,6 @@ class WMDS_Plugin {
 
 		WMDS_Updater::init();
 
-		// The admin bar reads the status on the front end too, where the
-		// admin screens are never loaded.
 		add_action( 'init', array( 'WMDS_Adminbar', 'init' ) );
 		WMDS_Alerts::init();
 
@@ -40,9 +31,6 @@ class WMDS_Plugin {
 		add_action( 'init', array( __CLASS__, 'register_post_type' ) );
 		add_action( 'init', array( __CLASS__, 'maybe_ensure_schedule' ), 20 );
 
-		// A vehicle is written by the importer, not by hand. The classic
-		// screen shows its fields and the warning that says so; the block
-		// editor hides both.
 		add_filter( 'use_block_editor_for_post_type', array( __CLASS__, 'classic_editor' ), 10, 2 );
 
 		add_filter( 'cron_schedules', array( __CLASS__, 'cron_schedules' ) );
@@ -60,7 +48,6 @@ class WMDS_Plugin {
 		WMDS_Seo::init();
 		WMDS_Smtp::init();
 
-		// The two that read another plugin have to wait until it has loaded.
 		add_action( 'plugins_loaded', array( 'WMDS_Cf7', 'init' ) );
 		add_action( 'plugins_loaded', array( 'WMDS_Facetwp', 'init' ) );
 
@@ -166,15 +153,6 @@ class WMDS_Plugin {
 		flush_rewrite_rules();
 	}
 
-	/**
-	 * Puts back every event the plugin runs on that is missing.
-	 *
-	 * WordPress drops a recurring event for good when it comes due in a
-	 * request that does not know its interval - one in which the plugin is
-	 * not loaded, during an update for instance. Scheduling only on
-	 * activation left a site without a sync from then on, until someone saved
-	 * the schedule by hand.
-	 */
 	public static function ensure_schedule() {
 		if ( ! wp_next_scheduled( WMDS_CRON_HOOK ) ) {
 			wp_schedule_event( time() + 60, WMDS_Settings::interval(), WMDS_CRON_HOOK );
@@ -186,19 +164,12 @@ class WMDS_Plugin {
 		WMDS_Alerts::schedule();
 	}
 
-	/**
-	 * Checked where it costs nobody anything: in wp-admin, and in the cron
-	 * requests WordPress makes for its own events several times a day.
-	 */
 	public static function maybe_ensure_schedule() {
 		if ( is_admin() || wp_doing_cron() || ( defined( 'WP_CLI' ) && WP_CLI ) ) {
 			self::ensure_schedule();
 		}
 	}
 
-	/**
-	 * Moves the sync event to the interval the settings ask for.
-	 */
 	public static function resync_schedule() {
 		$wanted = WMDS_Settings::interval();
 

@@ -1,15 +1,4 @@
 <?php
-/**
- * Builds the project site from README.md, docs/*.md, CHANGELOG.md, the plugin
- * header and readme.txt.
- *
- * Usage: php bin/build-site.php [output directory, default build/site]
- *
- * SITE_URL is the address the site is served from; GITHUB_REPOSITORY the
- * repository its links point at. A link to a file, page or section that does
- * not exist fails the build.
- */
-
 use League\CommonMark\Environment\Environment;
 use League\CommonMark\Event\DocumentParsedEvent;
 use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
@@ -51,7 +40,7 @@ class WMDS_Site_Builder {
 	/** @var array<int,array{level:int,id:string,text:string}> */
 	private $toc = array();
 
-	/** @var array<string,string> Output file => HTML. */
+	/** @var array<string,string> */
 	private $pages = array();
 
 	/** @var array<int,array{page:string,fragment:string,source:string}> */
@@ -73,8 +62,8 @@ class WMDS_Site_Builder {
 	private $image;
 
 	/**
-	 * @param string $root Repository root.
-	 * @param string $out  Output directory.
+	 * @param string $root
+	 * @param string $out
 	 */
 	public function __construct( $root, $out ) {
 		$this->root = rtrim( $root, '/' );
@@ -100,7 +89,7 @@ class WMDS_Site_Builder {
 	}
 
 	/**
-	 * @return int Exit code.
+	 * @return int
 	 */
 	public function run() {
 		$this->meta     = $this->read_meta();
@@ -197,9 +186,6 @@ class WMDS_Site_Builder {
 	}
 
 	/**
-	 * In the order of the README's documentation table, then any file in
-	 * docs/ the table leaves out.
-	 *
 	 * @return array<int,array{slug:string,source:string,title:string,summary:string}>
 	 */
 	private function read_docs() {
@@ -310,8 +296,6 @@ class WMDS_Site_Builder {
 	}
 
 	/**
-	 * Bold group titles, each followed by a list.
-	 *
 	 * @param string $markdown
 	 * @return array<int,array{title:string,html:string}>
 	 */
@@ -334,9 +318,6 @@ class WMDS_Site_Builder {
 	}
 
 	/**
-	 * The <img> tags in a piece of Markdown, with their published address
-	 * and size.
-	 *
 	 * @param string $markdown
 	 * @param string $source
 	 * @return array<int,array{src:string,alt:string,width:int,height:int}>
@@ -363,8 +344,6 @@ class WMDS_Site_Builder {
 	}
 
 	/**
-	 * The bold lead of each changelog entry, or its first sentence.
-	 *
 	 * @param int $count
 	 * @return array<int,array{version:string,date:string,items:array<int,string>,more:int}>
 	 */
@@ -403,7 +382,6 @@ class WMDS_Site_Builder {
 		$file     = $doc['slug'] . '.html';
 		$markdown = $this->read( $doc['source'] );
 
-		// Title, back link and list of sections are part of the page around it.
 		$markdown = preg_replace( '/^# .+\n+/m', '', $markdown, 1 );
 		$markdown = preg_replace( '/^\[←[^\]]*\]\([^)]*\)\s*\n+/m', '', $markdown, 1 );
 		$markdown = preg_replace( '/^(- \[[^\]]+\]\(#[^)]+\)\n)+\n*/', '', ltrim( $markdown ), 1 );
@@ -533,9 +511,9 @@ class WMDS_Site_Builder {
 
 	/**
 	 * @param string $markdown
-	 * @param string $source    Repository path the Markdown comes from.
-	 * @param string $page      Output file it ends up in.
-	 * @param string $id_prefix For a page that holds several documents.
+	 * @param string $source
+	 * @param string $page
+	 * @param string $id_prefix
 	 * @return string
 	 */
 	private function markdown( $markdown, $source, $page, $id_prefix = '' ) {
@@ -566,9 +544,6 @@ class WMDS_Site_Builder {
 	}
 
 	/**
-	 * Gives each heading the id GitHub gives it, so an anchor link works on
-	 * github.com and on the site alike.
-	 *
 	 * @param DocumentParsedEvent $event
 	 */
 	public function on_parsed( DocumentParsedEvent $event ) {
@@ -621,13 +596,9 @@ class WMDS_Site_Builder {
 	}
 
 	/**
-	 * A link as written in the repository, as it works on the site:
-	 * documents become pages, pictures in docs/ are published beside them,
-	 * anything else points at the file on GitHub.
-	 *
 	 * @param string $target
-	 * @param string $source Repository path of the document the link is in.
-	 * @param string $page   Output file the link ends up in.
+	 * @param string $source
+	 * @param string $page
 	 * @return string
 	 */
 	private function link( $target, $source, $page ) {
@@ -678,8 +649,8 @@ class WMDS_Site_Builder {
 	}
 
 	/**
-	 * @param string $path Repository path.
-	 * @return string|null Where the file is published on the site.
+	 * @param string $path
+	 * @return string|null
 	 */
 	private function published( $path ) {
 		if ( 'README.md' === $path ) {
@@ -704,8 +675,8 @@ class WMDS_Site_Builder {
 	}
 
 	/**
-	 * @param string $base Directory, relative to the repository root.
-	 * @param string $path Relative path.
+	 * @param string $base
+	 * @param string $path
 	 * @return string
 	 */
 	private function resolve( $base, $path ) {
@@ -723,7 +694,7 @@ class WMDS_Site_Builder {
 	}
 
 	/**
-	 * @param string $kind blob, tree or edit.
+	 * @param string $kind
 	 * @param string $path
 	 * @return string
 	 */
@@ -788,8 +759,8 @@ class WMDS_Site_Builder {
 	}
 
 	/**
-	 * @param string $file Output file.
-	 * @return string Repository path it was built from.
+	 * @param string $file
+	 * @return string
 	 */
 	private function source_of( $file ) {
 		foreach ( $this->docs as $doc ) {
@@ -802,8 +773,8 @@ class WMDS_Site_Builder {
 	}
 
 	/**
-	 * @param string $path Repository path.
-	 * @return string Date of the last commit that touched it, or today.
+	 * @param string $path
+	 * @return string
 	 */
 	private function modified( $path ) {
 		$date = trim( (string) shell_exec( 'git -C ' . escapeshellarg( $this->root ) . ' log -1 --format=%cs -- ' . escapeshellarg( $path ) . ' 2>/dev/null' ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.system_calls_shell_exec -- a build tool asking Git for a date, with escaped arguments.
@@ -811,7 +782,7 @@ class WMDS_Site_Builder {
 	}
 
 	/**
-	 * @param string              $name Template under site/, without .php.
+	 * @param string              $name
 	 * @param array<string,mixed> $vars
 	 * @return string
 	 */
@@ -836,8 +807,8 @@ class WMDS_Site_Builder {
 	}
 
 	/**
-	 * @param string $markdown One line.
-	 * @param string $source   Repository path it comes from.
+	 * @param string $markdown
+	 * @param string $source
 	 * @return string
 	 */
 	public function md( $markdown, $source = 'README.md' ) {
@@ -846,7 +817,7 @@ class WMDS_Site_Builder {
 	}
 
 	/**
-	 * @param string $file Under site/.
+	 * @param string $file
 	 * @return string
 	 */
 	public function asset( $file ) {
@@ -882,8 +853,8 @@ class WMDS_Site_Builder {
 	}
 
 	/**
-	 * @param string $date Y-m-d.
-	 * @return string As "20 November 2026".
+	 * @param string $date
+	 * @return string
 	 */
 	public function date( $date ) {
 		$time = strtotime( $date . ' 12:00 UTC' );
@@ -899,7 +870,7 @@ class WMDS_Site_Builder {
 	}
 
 	/**
-	 * @param string $path Repository path.
+	 * @param string $path
 	 * @return string
 	 */
 	private function read( $path ) {
@@ -914,7 +885,7 @@ class WMDS_Site_Builder {
 	}
 
 	/**
-	 * @param string $file    Output file.
+	 * @param string $file
 	 * @param string $content
 	 */
 	private function write( $file, $content ) {

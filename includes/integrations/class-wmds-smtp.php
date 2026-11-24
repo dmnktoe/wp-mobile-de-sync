@@ -3,21 +3,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * What happens to a mail once wp_mail() has been called.
- *
- * Two of the plugin's messages matter to somebody: an enquiry a visitor is
- * waiting for an answer to, and an alert that says the sync has stopped. Both
- * go through wp_mail(), and on a stock WordPress that means PHP's mail() —
- * unauthenticated, without SPF or DKIM, and with no record of what became of
- * the message. It is handed to the local sendmail, which reports success, and
- * the mail is dropped by the receiving side hours later.
- *
- * This class sends nothing. It knows which mailer plugin is installed,
- * whether that plugin is actually sending through it, and what the last
- * delivery failure on this site was, so the answer to "the enquiry never
- * arrived" is on a screen rather than in a support ticket.
- */
 class WMDS_Smtp {
 	const OPT_FAILURE = 'wmds_mail_failure';
 
@@ -29,13 +14,6 @@ class WMDS_Smtp {
 	}
 
 	/**
-	 * The mailer plugins worth recognising, newest-first by how often they
-	 * turn up on a dealer site.
-	 *
-	 * A plugin is recognised by a constant it defines or a class it declares,
-	 * never by a file path: a plugin that was renamed or installed from a zip
-	 * still defines its constant.
-	 *
 	 * @return array<int, array{key:string,name:string,constants:string[],classes:string[]}>
 	 */
 	public static function plugins() {
@@ -86,8 +64,7 @@ class WMDS_Smtp {
 	}
 
 	/**
-	 * @return array{key:string,name:string,version:string} Empty when the site
-	 *         has no mailer plugin at all.
+	 * @return array{key:string,name:string,version:string}
 	 */
 	public static function detect() {
 		foreach ( self::plugins() as $plugin ) {
@@ -116,13 +93,8 @@ class WMDS_Smtp {
 	}
 
 	/**
-	 * How the detected plugin has been told to send.
-	 *
-	 * Only read for the plugins that keep it somewhere stable. An empty string
-	 * means "installed, and we cannot tell" — which is not a complaint.
-	 *
-	 * @param string $key As returned by detect().
-	 * @return string e.g. smtp, gmail, sendinblue, or "mail" for PHP's own.
+	 * @param string $key
+	 * @return string
 	 */
 	public static function transport( $key ) {
 		if ( 'wp-mail-smtp' === $key ) {
@@ -145,10 +117,8 @@ class WMDS_Smtp {
 	}
 
 	/**
-	 * Whether mail leaves this site by a route worth trusting.
-	 *
-	 * @param array  $found     As returned by detect().
-	 * @param string $transport As returned by transport().
+	 * @param array  $found
+	 * @param string $transport
 	 * @return bool
 	 */
 	public static function is_authenticated( array $found, $transport ) {
@@ -162,7 +132,7 @@ class WMDS_Smtp {
 	/**
 	 * @param array  $found
 	 * @param string $transport
-	 * @return string What to print as the value of the check.
+	 * @return string
 	 */
 	public static function describe( array $found, $transport ) {
 		if ( ! $found ) {
@@ -189,8 +159,6 @@ class WMDS_Smtp {
 	}
 
 	/**
-	 * The rows the System tab shows under "E-mail".
-	 *
 	 * @return array<int, array{key:string,group:string,label:string,value:string,status:string,hint:string}>
 	 */
 	public static function checks() {
@@ -230,12 +198,6 @@ class WMDS_Smtp {
 	}
 
 	/**
-	 * Keeps the last delivery failure, whoever caused it.
-	 *
-	 * Every mail on the site is watched, not only ours: a contact form that
-	 * cannot be delivered says just as much about whether an enquiry will
-	 * arrive, and it usually fails first.
-	 *
 	 * @param WP_Error|mixed $error
 	 */
 	public static function record( $error ) {
@@ -252,15 +214,13 @@ class WMDS_Smtp {
 			self::OPT_FAILURE,
 			array(
 				'time'    => time(),
-				// one_line() first: a PHPMailer error is several lines, and
-				// scrub() would drop the breaks rather than close the words up.
 				'message' => WMDS_Str::scrub( WMDS_Str::one_line( $message ), self::MAX_MESSAGE ),
 			),
 			false
 		);
 	}
 
-	/** @return array{time:int,message:string} Empty when nothing has failed. */
+	/** @return array{time:int,message:string} */
 	public static function failure() {
 		$stored = get_option( self::OPT_FAILURE, array() );
 
@@ -274,7 +234,6 @@ class WMDS_Smtp {
 		);
 	}
 
-	/** Forgets the last failure, because a mail has just gone out. */
 	public static function clear() {
 		if ( self::failure() ) {
 			delete_option( self::OPT_FAILURE );

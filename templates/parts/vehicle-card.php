@@ -40,7 +40,6 @@ if ( $wmds_show_warnings ) {
 $wmds_logo  = $vehicle->logo_url();
 $wmds_facts = $vehicle->facts();
 
-// The registration is in the line under the title already.
 unset( $wmds_facts['registration'] );
 
 $wmds_meta = trim( $vehicle->get( 'category' ) . ' · ' . $vehicle->first_registration(), ' ·' );

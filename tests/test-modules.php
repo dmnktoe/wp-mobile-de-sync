@@ -1,10 +1,4 @@
 <?php
-/**
- * The pieces 2.5.0 took out of larger classes or added: the log, the settings
- * table, the address of a removed vehicle, similar vehicles and the status of
- * an enquiry.
- */
-
 $GLOBALS['wmds_mod_options']   = array();
 $GLOBALS['wmds_mod_meta']      = array();
 $GLOBALS['wmds_mod_posts']     = array();

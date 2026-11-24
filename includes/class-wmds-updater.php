@@ -12,10 +12,10 @@ class WMDS_Updater {
 	const TTL_OK    = 3600;
 	const TTL_ERROR = 900;
 
-	/** @var string plugin_basename of the main file */
+	/** @var string */
 	private static $basename = '';
 
-	/** @var string Directory name, which is also the slug */
+	/** @var string */
 	private static $slug = '';
 
 	public static function init() {
@@ -30,9 +30,9 @@ class WMDS_Updater {
 	}
 
 	/**
-	 * @param array|false $update      Result of earlier filters.
-	 * @param array       $plugin_data The plugin's header values.
-	 * @param string      $plugin_file Path relative to the plugins directory.
+	 * @param array|false $update
+	 * @param array       $plugin_data
+	 * @param string      $plugin_file
 	 * @return array|false
 	 */
 	public static function check( $update, $plugin_data, $plugin_file ) {
@@ -50,7 +50,7 @@ class WMDS_Updater {
 
 	/**
 	 * @param array $release
-	 * @return array The shape WordPress stores in the update transient.
+	 * @return array
 	 */
 	private static function item( array $release ) {
 		return array(
@@ -69,7 +69,7 @@ class WMDS_Updater {
 	}
 
 	/**
-	 * @param mixed $value The cached transient.
+	 * @param mixed $value
 	 * @return mixed
 	 */
 	public static function inject( $value ) {
@@ -107,8 +107,7 @@ class WMDS_Updater {
 	}
 
 	/**
-	 * @return bool Whether the current request is one that may spend an HTTP
-	 *              call on looking up a release.
+	 * @return bool
 	 */
 	private static function checking() {
 		if ( self::forced() || wp_doing_cron() ) {
@@ -121,7 +120,7 @@ class WMDS_Updater {
 	}
 
 	/**
-	 * @return array<string,string> Icon URLs, keyed as WordPress asks for them.
+	 * @return array<string,string>
 	 */
 	private static function icons() {
 		$url = WMDS_URL . 'assets/icon.svg';
@@ -195,7 +194,7 @@ class WMDS_Updater {
 	}
 
 	/**
-	 * @return array{version:string,error:string,checked:int} What the last lookup found.
+	 * @return array{version:string,error:string,checked:int}
 	 */
 	public static function state() {
 		$cached = get_transient( self::CACHE );
@@ -216,7 +215,7 @@ class WMDS_Updater {
 	}
 
 	/**
-	 * @return bool Whether the cached lookup has to be bypassed.
+	 * @return bool
 	 */
 	public static function forced() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- reads a flag out of a WordPress-built URL; nothing here changes state.
@@ -234,7 +233,7 @@ class WMDS_Updater {
 
 	/**
 	 * @param mixed $cached
-	 * @return bool Whether the cached lookup may be used as it stands.
+	 * @return bool
 	 */
 	private static function usable( $cached ) {
 		if ( ! is_array( $cached ) || ! array_key_exists( 'release', $cached ) ) {
@@ -248,7 +247,7 @@ class WMDS_Updater {
 		return ! self::forced();
 	}
 
-	/** @var bool Whether this request has already asked GitHub. */
+	/** @var bool */
 	private static $asked = false;
 
 	/**
@@ -257,9 +256,6 @@ class WMDS_Updater {
 	private static function release() {
 		$cached = get_transient( self::CACHE );
 
-		// Forced means "ask again", not "ask every time". WordPress reads the
-		// update transient once per plugin row, and under WP-CLI every read
-		// is forced: one `wp plugin list` was dozens of calls to GitHub.
 		if ( self::usable( $cached ) || ( self::$asked && is_array( $cached ) && array_key_exists( 'release', $cached ) && isset( $cached['installed'] ) && WMDS_VERSION === $cached['installed'] ) ) {
 			return is_array( $cached['release'] ) ? $cached['release'] : false;
 		}
@@ -298,10 +294,10 @@ class WMDS_Updater {
 	}
 
 	/**
-	 * @param int    $code      HTTP status, 0 when the request never got through.
-	 * @param string $body      Response body.
-	 * @param string $transport Error message of a failed request.
-	 * @return string Why the lookup came back empty.
+	 * @param int    $code
+	 * @param string $body
+	 * @param string $transport
+	 * @return string
 	 */
 	public static function reason( $code, $body, $transport = '' ) {
 		if ( '' !== $transport ) {
@@ -477,7 +473,7 @@ class WMDS_Updater {
 	}
 
 	/**
-	 * @param string[] $list Emptied in place.
+	 * @param string[] $list
 	 * @return string
 	 */
 	private static function flush_list( array &$list ) {

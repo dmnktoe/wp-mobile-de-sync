@@ -1,8 +1,4 @@
 #!/usr/bin/env sh
-# Sets the version in the plugin header, in WMDS_VERSION and in readme.txt.
-#
-#   sh bin/bump.sh 2.0.2
-
 set -eu
 cd "$(dirname "$0")/.."
 

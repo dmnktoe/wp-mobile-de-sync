@@ -6,7 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class WMDS_Str {
 	/**
 	 * @param mixed $value
-	 * @return int Characters, not bytes, wherever mbstring is available.
+	 * @return int
 	 */
 	public static function length( $value ) {
 		$value = self::text( $value );
@@ -17,7 +17,7 @@ class WMDS_Str {
 	/**
 	 * @param mixed $value
 	 * @param int   $limit
-	 * @return string The first $limit characters, cut wherever they end.
+	 * @return string
 	 */
 	public static function cut( $value, $limit ) {
 		$value = self::text( $value );
@@ -32,13 +32,11 @@ class WMDS_Str {
 
 	/**
 	 * @param mixed $value
-	 * @return string One line, single spaces, no leading or trailing space.
+	 * @return string
 	 */
 	public static function collapse( $value ) {
 		$text = self::text( $value );
 
-		// With /u, preg_replace() answers invalid UTF-8 with null. Bytes are
-		// better than nothing, and better than a deprecation from trim().
 		$one = preg_replace( '/\s+/u', ' ', $text );
 		if ( null === $one ) {
 			$one = (string) preg_replace( '/\s+/', ' ', $text );
@@ -48,16 +46,9 @@ class WMDS_Str {
 	}
 
 	/**
-	 * Makes a value from outside safe to keep.
-	 *
-	 * Control characters and angle brackets come out, whitespace collapses,
-	 * and the result is cut to a length nobody can use as a payload. This is
-	 * not an escaping function: what it returns still has to be escaped at
-	 * the point it is printed.
-	 *
 	 * @param mixed $value
-	 * @param int   $limit 0 for no limit.
-	 * @return string Empty for anything that was not a scalar.
+	 * @param int   $limit
+	 * @return string
 	 */
 	public static function scrub( $value, $limit = 0 ) {
 		if ( is_array( $value ) || is_object( $value ) || null === $value ) {
@@ -73,8 +64,7 @@ class WMDS_Str {
 	 * @param mixed  $value
 	 * @param int    $limit
 	 * @param string $ellipsis
-	 * @return string Cut at a word where one is near enough, with the
-	 *                trailing punctuation removed.
+	 * @return string
 	 */
 	public static function shorten( $value, $limit, $ellipsis = '…' ) {
 		$value = trim( self::text( $value ) );
@@ -96,8 +86,7 @@ class WMDS_Str {
 
 	/**
 	 * @param mixed $value
-	 * @return string Safe to put in a mail header, which cannot carry a line
-	 *                break whatever was typed into the field.
+	 * @return string
 	 */
 	public static function one_line( $value ) {
 		return self::collapse( preg_replace( '/[\r\n<>]+/', ' ', self::text( $value ) ) );

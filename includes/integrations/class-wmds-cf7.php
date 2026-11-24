@@ -3,22 +3,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * Contact Form 7, on a vehicle page.
- *
- * A dealer who already has a contact form does not want a second one, and the
- * bundled enquiry form can be switched off on the Enquiries tab. What that
- * form did and Contact Form 7 cannot is know which vehicle the visitor is
- * looking at: a mail saying "I am interested, when can I come by" is worth
- * nothing without it.
- *
- * So the vehicle is handed to Contact Form 7 three ways. As mail tags, which
- * go straight into the mail template and need no field in the form. As a form
- * tag, for a value that should travel with the submission and be shown in the
- * admin. And as a record: a submission sent from a vehicle page is filed
- * under Vehicles → Enquiries like any other, so a mail that is never
- * delivered is not simply gone.
- */
 class WMDS_Cf7 {
 	const TAG = '_wmds_vehicle_';
 
@@ -33,7 +17,6 @@ class WMDS_Cf7 {
 		add_filter( 'wpcf7_special_mail_tags', array( __CLASS__, 'mail_tag' ), 10, 4 );
 		add_filter( 'wpcf7_mail_components', array( __CLASS__, 'mail_components' ), 10, 3 );
 		add_action( 'wpcf7_mail_sent', array( __CLASS__, 'record' ) );
-		// And when it was not sent: that is the enquiry most worth keeping.
 		add_action( 'wpcf7_mail_failed', array( __CLASS__, 'record' ) );
 	}
 
@@ -47,23 +30,17 @@ class WMDS_Cf7 {
 		return defined( 'WPCF7_VERSION' ) ? (string) WPCF7_VERSION : '';
 	}
 
-	/** @return bool Whether a submission from a vehicle page is filed. */
+	/** @return bool */
 	public static function stores() {
 		return WMDS_Settings::flag( 'cf7_store' );
 	}
 
-	/** @return bool Whether the address the feed carries is added as a recipient. */
+	/** @return bool */
 	public static function copies_seller() {
 		return WMDS_Settings::flag( 'cf7_copy_seller' );
 	}
 
 	/**
-	 * What a form can ask about the vehicle, and what to call it on screen.
-	 *
-	 * The key is the suffix of the mail tag and the value of the form tag's
-	 * field option, so [_wmds_vehicle_price] and [wmds_vehicle car field:price]
-	 * are the same property twice.
-	 *
 	 * @return array<string, string>
 	 */
 	public static function properties() {
@@ -86,8 +63,8 @@ class WMDS_Cf7 {
 	}
 
 	/**
-	 * @param string $name A mail tag name, as Contact Form 7 passes it.
-	 * @return string The property it asks for, empty when it is not ours.
+	 * @param string $name
+	 * @return string
 	 */
 	public static function property( $name ) {
 		$name = (string) $name;
@@ -103,7 +80,7 @@ class WMDS_Cf7 {
 
 	/**
 	 * @param string $property
-	 * @param array  $context As context() returns it.
+	 * @param array  $context
 	 * @return string
 	 */
 	public static function value( $property, array $context ) {
@@ -111,10 +88,8 @@ class WMDS_Cf7 {
 	}
 
 	/**
-	 * Everything a form may ask about one vehicle.
-	 *
 	 * @param int $post_id
-	 * @return array<string, string> Every property, empty where nothing is known.
+	 * @return array<string, string>
 	 */
 	public static function context( $post_id ) {
 		$post_id = (int) $post_id;
@@ -148,9 +123,7 @@ class WMDS_Cf7 {
 	}
 
 	/**
-	 * The vehicle a submission is about: the page the form sits on.
-	 *
-	 * @return int 0 when the form was submitted from anywhere else.
+	 * @return int
 	 */
 	public static function vehicle_id() {
 		$post_id = 0;
@@ -174,7 +147,7 @@ class WMDS_Cf7 {
 	 * @param string $output
 	 * @param string $name
 	 * @param bool   $html
-	 * @param mixed  $mail_tag Unused; Contact Form 7 added it in 5.2.
+	 * @param mixed  $mail_tag
 	 * @return string
 	 */
 	public static function mail_tag( $output, $name = '', $html = false, $mail_tag = null ) {
@@ -204,9 +177,7 @@ class WMDS_Cf7 {
 	}
 
 	/**
-	 * Renders [wmds_vehicle field-name field:price] as a hidden input.
-	 *
-	 * @param mixed $tag A WPCF7_FormTag.
+	 * @param mixed $tag
 	 * @return string
 	 */
 	public static function form_tag( $tag ) {
@@ -230,14 +201,9 @@ class WMDS_Cf7 {
 	}
 
 	/**
-	 * Adds the seller to the recipients of the mail to the dealer.
-	 *
-	 * Never to the second mail: that one goes to the visitor, and the seller's
-	 * address has no business in it.
-	 *
 	 * @param array $components
 	 * @param mixed $contact_form
-	 * @param mixed $mail A WPCF7_Mail, from Contact Form 7 5.0 on.
+	 * @param mixed $mail
 	 * @return array
 	 */
 	public static function mail_components( $components, $contact_form = null, $mail = null ) {
@@ -277,9 +243,7 @@ class WMDS_Cf7 {
 	}
 
 	/**
-	 * Files a submission sent from a vehicle page.
-	 *
-	 * @param mixed $contact_form A WPCF7_ContactForm.
+	 * @param mixed $contact_form
 	 */
 	public static function record( $contact_form = null ) {
 		if ( ! self::stores() || ! class_exists( 'WPCF7_Submission' ) ) {
@@ -328,15 +292,7 @@ class WMDS_Cf7 {
 	}
 
 	/**
-	 * Reads a submission into the four fields an enquiry is made of.
-	 *
-	 * Contact Form 7 names nothing for us: the fields are whatever the form
-	 * was built with. The conventional names come first, then a substring
-	 * match, and for the address a last resort that simply looks for a value
-	 * that is one — a form whose field is called "kontaktadresse" still ends
-	 * up with an answerable enquiry rather than an anonymous one.
-	 *
-	 * @param array $posted Posted data, as Contact Form 7 hands it over.
+	 * @param array $posted
 	 * @return array{name:string,email:string,phone:string,message:string,consent:string}
 	 */
 	public static function fields( array $posted ) {
@@ -369,7 +325,7 @@ class WMDS_Cf7 {
 
 	/**
 	 * @param array $posted
-	 * @return array<string, string> One string per field, internals dropped.
+	 * @return array<string, string>
 	 */
 	private static function flatten( array $posted ) {
 		$flat = array();
@@ -401,10 +357,10 @@ class WMDS_Cf7 {
 
 	/**
 	 * @param array    $flat
-	 * @param string[] $names     Field names, in the order they are preferred.
-	 * @param string[] $needles   Substrings, when none of the names is there.
+	 * @param string[] $names
+	 * @param string[] $needles
 	 * @param int      $limit
-	 * @param bool     $multiline Whether the value is allowed to keep its lines.
+	 * @param bool     $multiline
 	 * @return string
 	 */
 	private static function pick( array $flat, array $names, array $needles, $limit, $multiline = false ) {
@@ -436,7 +392,6 @@ class WMDS_Cf7 {
 			return WMDS_Str::scrub( $value, $limit );
 		}
 
-		// Everything scrub() removes except the line breaks a message is written with.
 		$value = preg_replace( '/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F<>]/u', '', (string) $value );
 
 		return WMDS_Str::cut( trim( $value ), $limit );

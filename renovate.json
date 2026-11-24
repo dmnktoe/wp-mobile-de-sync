@@ -1,6 +1,60 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "The plugin ships no dependencies. What is kept current here is CI (GitHub Actions, the MySQL service) and the Composer dev tooling (coding standards, site build).",
   "extends": [
-    "config:recommended"
+    "config:recommended",
+    "helpers:pinGitHubActionDigestsToSemver",
+    ":maintainLockFilesMonthly"
+  ],
+  "dependencyDashboard": { "enabled": false },
+  "enabledManagers": ["composer", "github-actions"],
+  "timezone": "Europe/Berlin",
+  "schedule": ["before 6am on monday"],
+  "labels": ["dependencies"],
+  "minimumReleaseAge": "3 days",
+  "osvVulnerabilityAlerts": true,
+  "vulnerabilityAlerts": {
+    "labels": ["dependencies", "security"],
+    "schedule": ["at any time"],
+    "minimumReleaseAge": null
+  },
+  "packageRules": [
+    {
+      "description": "PHP_CodeSniffer, WPCS and PHPCompatibility move together; apart, each PR fails until its siblings land.",
+      "matchManagers": ["composer"],
+      "matchPackageNames": [
+        "squizlabs/php_codesniffer",
+        "wp-coding-standards/wpcs",
+        "dealerdirect/phpcodesniffer-composer-installer",
+        "phpcompatibility/**",
+        "phpcsstandards/**"
+      ],
+      "groupName": "coding standards"
+    },
+    {
+      "description": "WPCS 3 requires PHP_CodeSniffer 3.",
+      "matchManagers": ["composer"],
+      "matchPackageNames": ["squizlabs/php_codesniffer"],
+      "allowedVersions": "<4"
+    },
+    {
+      "description": "One PR for the actions in the workflows.",
+      "matchManagers": ["github-actions"],
+      "matchDatasources": ["github-tags"],
+      "groupName": "GitHub Actions"
+    },
+    {
+      "description": "The integration test runs on the MySQL LTS line hosts use. Moving to another line is a decision, not an update.",
+      "matchManagers": ["github-actions"],
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["mysql"],
+      "matchUpdateTypes": ["major", "minor"],
+      "enabled": false
+    },
+    {
+      "description": "Anything short of a major merges itself once CI passes; majors wait for review.",
+      "matchUpdateTypes": ["minor", "patch", "pin", "pinDigest", "digest", "lockFileMaintenance"],
+      "automerge": true
+    }
   ]
 }

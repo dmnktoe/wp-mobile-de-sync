@@ -7,8 +7,8 @@ class WMDS_Creole {
 	const NL = "\n";
 
 	/**
-	 * @param string $text Raw value of the "description" field.
-	 * @return string HTML, or an empty string for empty input.
+	 * @param string $text
+	 * @return string
 	 */
 	public static function to_html( $text ) {
 		$text = (string) $text;
@@ -65,7 +65,7 @@ class WMDS_Creole {
 	}
 
 	/**
-	 * @param string[] $paragraph Emptied in place.
+	 * @param string[] $paragraph
 	 * @return string
 	 */
 	private static function flush_paragraph( array &$paragraph ) {
@@ -78,7 +78,7 @@ class WMDS_Creole {
 	}
 
 	/**
-	 * @param string[] $list Emptied in place.
+	 * @param string[] $list
 	 * @return string
 	 */
 	private static function flush_list( array &$list ) {

@@ -17,8 +17,6 @@ if ( $wmds_only ) {
 	$wmds_facets = array_intersect_key( $wmds_facets, array_flip( $wmds_only ) );
 }
 
-// Search and dropdowns are what most visitors start with; they stay in
-// view. Everything else folds away behind "More filters" in the bar.
 $wmds_primary   = array();
 $wmds_secondary = array();
 foreach ( $wmds_facets as $wmds_key => $wmds_facet ) {
@@ -40,12 +38,10 @@ foreach ( array_keys( $wmds_secondary ) as $wmds_key ) {
 $wmds_chips = WMDS_Facets::chips( $wmds_selection );
 
 /**
- * Prints one facet.
- *
  * @param string $key
- * @param array  $facet
- * @param array  $selection
- * @param bool   $counts
+ * @param array $facet
+ * @param array $selection
+ * @param bool $counts
  */
 $wmds_render_facet = static function ( $key, array $facet, array $selection, $counts ) {
 	$type  = isset( $facet['type'] ) ? $facet['type'] : 'select';
@@ -207,9 +203,6 @@ $wmds_render_facet = static function ( $key, array $facet, array $selection, $co
 	action="<?php echo esc_url( WMDS_Facets::base_url() ); ?>" data-wmds-facets>
 
 	<?php
-	// A GET form replaces the query string of its action. With plain
-	// permalinks the list lives at ?post_type=fahrzeuge or ?page_id=5, and
-	// without these the visitor lands on the front page.
 	$wmds_base_args = array();
 	wp_parse_str( (string) wp_parse_url( WMDS_Facets::base_url(), PHP_URL_QUERY ), $wmds_base_args );
 	foreach ( $wmds_base_args as $wmds_arg => $wmds_arg_value ) :

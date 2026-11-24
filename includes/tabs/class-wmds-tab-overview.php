@@ -3,10 +3,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * The start page: how the sync is doing, the button that runs it, and what
- * came in recently.
- */
 class WMDS_Tab_Overview {
 	const RECENT = 5;
 

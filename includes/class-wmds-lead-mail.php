@@ -3,14 +3,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * The mails an enquiry sends: to the dealer, and the copy for the enquirer.
- */
 class WMDS_Lead_Mail {
 
 	/**
 	 * @param WMDS_Vehicle|null $vehicle
-	 * @return string[] Where a new enquiry is sent.
+	 * @return string[]
 	 */
 	public static function recipients( WMDS_Vehicle $vehicle = null ) {
 		$extra = array();
@@ -28,17 +25,10 @@ class WMDS_Lead_Mail {
 	}
 
 	/**
-	 * What became of the mail, for the record of the enquiry.
-	 *
-	 * "Handed over" and no more: wp_mail() knows that the mailer took the
-	 * message, not that it arrived. That is still the first question when an
-	 * enquiry is on the screen but not in the inbox: was it sent at all, and
-	 * to whom.
-	 *
-	 * @param bool     $mailed  What wp_mail() returned.
-	 * @param string[] $to      The recipients it was sent to.
-	 * @param array    $failure As WMDS_Smtp::failure() returns it.
-	 * @param int      $tried   When the attempt started; an older failure is someone else's.
+	 * @param bool     $mailed
+	 * @param string[] $to
+	 * @param array    $failure
+	 * @param int      $tried
 	 * @return string
 	 */
 	public static function delivery_note( $mailed, array $to, array $failure, $tried ) {
@@ -56,9 +46,9 @@ class WMDS_Lead_Mail {
 	}
 
 	/**
-	 * @param array  $data    Cleaned field values.
-	 * @param array  $vehicle title, url, ad_id, price - whatever is known.
-	 * @param string $site   Site name.
+	 * @param array  $data
+	 * @param array  $vehicle
+	 * @param string $site
 	 * @return array{subject:string,body:string}
 	 */
 	public static function compose( array $data, array $vehicle, $site ) {
@@ -133,9 +123,6 @@ class WMDS_Lead_Mail {
 			$lines[] = $vehicle['url'];
 		}
 
-		// The message is not sent back. The address it would go to is
-		// whatever was typed into the form, and a confirmation that quotes
-		// the text is a way to have this site mail anything to anybody.
 		$lines[] = '';
 		$lines[] = $site;
 

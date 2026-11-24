@@ -39,10 +39,6 @@
 					payload = null;
 				}
 
-				// WordPress was reached and answered with something that is
-				// not ours: an expired session, a fatal error, a gateway
-				// timeout. Saying "could not reach WordPress" would send
-				// people looking in the wrong place.
 				if ( ! payload || typeof payload !== 'object' ) {
 					done( false, { message: format( text.unexpected, [ response.status ] ) } );
 					return;

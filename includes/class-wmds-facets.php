@@ -3,13 +3,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * The facets, as everything else addresses them.
- *
- * The definitions and the two filters live here; the work is done by
- * WMDS_Facet_Request, WMDS_Facet_Query and WMDS_Facet_Store. Templates and
- * themes only ever need this class.
- */
 class WMDS_Facets {
 	const PREFIX = 'wmds_';
 
@@ -29,8 +22,6 @@ class WMDS_Facets {
 		add_action( 'pre_get_posts', array( __CLASS__, 'apply_to_archive' ) );
 
 		add_action( 'save_post_' . WMDS_CPT, array( __CLASS__, 'flush' ) );
-		// before_delete_post, not deleted_post: afterwards the post is gone
-		// and nothing can tell whether it was a vehicle.
 		add_action( 'before_delete_post', array( __CLASS__, 'flush' ) );
 		add_action( 'trashed_post', array( __CLASS__, 'flush' ) );
 		add_action( 'untrashed_post', array( __CLASS__, 'flush' ) );
@@ -38,8 +29,6 @@ class WMDS_Facets {
 	}
 
 	/**
-	 * The facets, in the order they are rendered.
-	 *
 	 * @return array<string, array>
 	 */
 	public static function definitions() {
@@ -115,7 +104,7 @@ class WMDS_Facets {
 		);
 
 		/**
-		 * @param array $facets Facet key => definition.
+		 * @param array $facets
 		 */
 		$facets = apply_filters( 'wmds_facets', $facets );
 
@@ -178,7 +167,7 @@ class WMDS_Facets {
 		);
 
 		/**
-		 * @param array $sorts Sort key => definition.
+		 * @param array $sorts
 		 */
 		$sorts = apply_filters( 'wmds_facet_sorts', $sorts );
 
@@ -257,10 +246,8 @@ class WMDS_Facets {
 		wp_enqueue_script( self::HANDLE );
 	}
 
-	// The rest of the class is where it was; the work moved, the names did not.
-
 	/**
-	 * @param array $request Raw request values, already unslashed.
+	 * @param array $request
 	 * @return array<string, mixed>
 	 */
 	public static function parse( array $request ) {
@@ -328,7 +315,7 @@ class WMDS_Facets {
 	/**
 	 * @param array  $selection
 	 * @param string $key
-	 * @param string $value Only that value, for a facet that holds several.
+	 * @param string $value
 	 * @return string
 	 */
 	public static function url_without( array $selection, $key, $value = '' ) {
@@ -344,7 +331,7 @@ class WMDS_Facets {
 
 	/**
 	 * @param array $selection
-	 * @param array $exclude Facet keys to leave out.
+	 * @param array $exclude
 	 * @return array
 	 */
 	public static function meta_query( array $selection, array $exclude = array() ) {
@@ -361,7 +348,7 @@ class WMDS_Facets {
 
 	/**
 	 * @param array $selection
-	 * @param array $base Arguments the caller has already decided on.
+	 * @param array $base
 	 * @return array
 	 */
 	public static function query_args( array $selection, array $base = array() ) {

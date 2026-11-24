@@ -11,21 +11,12 @@ class WMDS_Importer {
 	const META_KEYS     = '_wmds_keys';
 	const META_RETRIES  = '_wmds_image_retries';
 
-
-	/** Passes a vehicle is retried for a picture that will not download. */
 	const IMAGE_RETRIES = 3;
 
 	const LOCK          = 'wmds_import_lock';
 	const OPT_LAST_RUN  = 'wmds_last_run';
 	const OPT_WATERMARK = 'wmds_watermark';
 
-	/**
-	 * The event a pass books when it leaves vehicles for the next one. It is
-	 * not the regular event: WordPress refuses a single event within ten
-	 * minutes of an identical one, so a follow-up booked on the regular hook
-	 * was swallowed whenever the next regular run was close, and a backlog
-	 * moved forward one batch every fifteen minutes.
-	 */
 	const FOLLOWUP_HOOK = 'wmds_import_followup';
 
 	const BATCH = 20;
@@ -41,12 +32,12 @@ class WMDS_Importer {
 	/** @var WMDS_Json_Mapper */
 	private $mapper;
 
-	/** @var bool Whether this request holds the lock right now. */
+	/** @var bool */
 	private static $held = false;
 
 	/**
-	 * @param WMDS_Client|null      $client Injectable for tests.
-	 * @param WMDS_Json_Mapper|null $mapper Injectable for tests.
+	 * @param WMDS_Client|null      $client
+	 * @param WMDS_Json_Mapper|null $mapper
 	 */
 	public function __construct( $client = null, $mapper = null ) {
 		$this->client = $client ? $client : WMDS_Settings::client();
@@ -54,15 +45,8 @@ class WMDS_Importer {
 	}
 
 	/**
-	 * @param array $args full       Full reconciliation instead of incremental.
-	 *                    force      Re-read unchanged vehicles as well.
-	 *                    batch      Override the batch size for this pass.
-	 *                    budget     Seconds the vehicle loop may spend,
-	 *                               overriding what the execution limit
-	 *                               allows. 0 stops after the first vehicle.
-	 *                    reschedule False when the caller drives the
-	 *                               follow-up passes itself.
-	 * @return array|WP_Error Statistics, or an error.
+	 * @param array $args
+	 * @return array|WP_Error
 	 */
 	public function run( array $args = array() ) {
 		if ( ! $this->client->has_credentials() ) {
@@ -78,11 +62,6 @@ class WMDS_Importer {
 		self::touch_lock();
 		self::guard_lock();
 
-		// Full and forced are states, not flags. A large inventory takes
-		// several passes, and the later ones are started by cron or by the
-		// next AJAX step without any argument: whatever has to survive until
-		// the last pass has to be on disk. No watermark means "full" until a
-		// pass completes; no stored modification date means "read it again".
 		if ( ! empty( $args['full'] ) || ! empty( $args['force'] ) ) {
 			delete_option( self::OPT_WATERMARK );
 		}
@@ -90,8 +69,6 @@ class WMDS_Importer {
 			delete_post_meta_by_key( self::META_MODIFIED );
 		}
 
-		// Labels and number formats end up in post meta. They have to be in
-		// the language of the site, not of whoever pressed the button.
 		$switched = function_exists( 'switch_to_locale' ) && switch_to_locale( get_locale() );
 
 		$stats = $this->execute(
@@ -105,9 +82,6 @@ class WMDS_Importer {
 		}
 
 		if ( is_wp_error( $stats ) ) {
-			// An aborted run is a run. Without a record the status keeps
-			// showing the last good one until it goes stale, and then blames
-			// the schedule for what was a revoked password.
 			$record = array(
 				'seen'    => 0,
 				'created' => 0,
@@ -130,10 +104,7 @@ class WMDS_Importer {
 		self::unlock();
 
 		/**
-		 * Fires when a run has ended and the lock is released, whether it
-		 * completed, stopped early or was aborted.
-		 *
-		 * @param array $record Statistics; `error` is set when it was aborted.
+		 * @param array $record
 		 */
 		do_action( 'wmds_run_finished', $record );
 
@@ -141,7 +112,7 @@ class WMDS_Importer {
 	}
 
 	/**
-	 * @return int Seconds this pass may spend on vehicles.
+	 * @return int
 	 */
 	private static function budget() {
 		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- disabled on many hosts, the budget below covers that case.
@@ -164,9 +135,6 @@ class WMDS_Importer {
 		if ( ! $error || ! in_array( $error['type'], array( E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR ), true ) ) {
 			return;
 		}
-		// Only the request that took the lock may give it back: the guard
-		// stays registered after the run, and by then the lock may be
-		// somebody else's.
 		if ( ! self::$held || ! self::locked_since() ) {
 			return;
 		}
@@ -190,7 +158,7 @@ class WMDS_Importer {
 	}
 
 	/**
-	 * @return int Unix time the running import started, 0 when none is held.
+	 * @return int
 	 */
 	public static function locked_since() {
 		$since = get_transient( self::LOCK );
@@ -200,8 +168,8 @@ class WMDS_Importer {
 
 	/**
 	 * @param int  $batch
-	 * @param int  $deadline   Unix time the vehicle loop has to stop by.
-	 * @param bool $reschedule Whether an unfinished pass books its own follow-up.
+	 * @param int  $deadline
+	 * @param bool $reschedule
 	 * @return array|WP_Error
 	 */
 	private function execute( $batch, $deadline = 0, $reschedule = true ) {
@@ -217,12 +185,6 @@ class WMDS_Importer {
 
 		$plan = WMDS_Sync_Plan::build( $listing['ads'], $known );
 
-		// A changes-only listing cannot see a vehicle that left mobile.de: it
-		// is not changed, it is gone. One small request for the size of the
-		// whole inventory tells whether that happened. When the site would
-		// not hold as many vehicles as mobile.de lists after this pass, the
-		// pass reads the full listing instead and removes what is missing -
-		// now, not at the next daily full sync.
 		if ( ! $is_full && $this->inventory_differs( count( $known ) + count( $plan['create'] ) ) ) {
 			$is_full = true;
 			$listing = $this->listing( '', $deadline );
@@ -292,14 +254,6 @@ class WMDS_Importer {
 
 		$complete = ( 0 === $pending ) && ! $truncated;
 
-		// Whether a vehicle is gone is settled by the listing, not by the
-		// batches: a full listing read to its last page names every ad there
-		// is, and the batches after it only rewrite text and pictures. So the
-		// missing ones go in the first pass of a full sync.
-		//
-		// What the API did not hand out is not gone. A listing cut short
-		// names only part of the inventory, and past the pagination cap it is
-		// a window on it; in both, everything outside would look sold.
 		$reconcile = $is_full && ! $truncated && ! $capped;
 		$removal   = WMDS_Sync_Plan::removals( $plan['seen'], $known, $reconcile );
 		$removed   = 0;
@@ -330,9 +284,6 @@ class WMDS_Importer {
 				update_option( self::OPT_WATERMARK, $next, false );
 			}
 		} elseif ( ! $complete && $reschedule ) {
-			// A vehicle that failed keeps the watermark where it was, so the
-			// next scheduled run lists it again; only an unfinished pass
-			// needs one sooner than that.
 			self::schedule_followup();
 		}
 
@@ -357,11 +308,7 @@ class WMDS_Importer {
 	}
 
 	/**
-	 * The log line for a pass, in the site's language: run() has switched
-	 * to it, so a German site gets German lines whatever the admin's own
-	 * profile language is.
-	 *
-	 * @param array $stats As execute() returns them.
+	 * @param array $stats
 	 * @return string
 	 */
 	public static function describe_run( array $stats ) {
@@ -395,10 +342,8 @@ class WMDS_Importer {
 	}
 
 	/**
-	 * Reads the listing, page by page.
-	 *
-	 * @param string $watermark Only ads changed since then; empty for all.
-	 * @param int    $deadline  Unix time the listing has to stop by, 0 for none.
+	 * @param string $watermark
+	 * @param int    $deadline
 	 * @return array{ads:array[],capped:bool,truncated:bool}|WP_Error
 	 */
 	private function listing( $watermark, $deadline ) {
@@ -450,10 +395,8 @@ class WMDS_Importer {
 	}
 
 	/**
-	 * @param int $expected Vehicles the site holds once this pass is through.
-	 * @return bool Whether mobile.de lists a different number. An answer that
-	 *              does not come counts as no difference: the next run asks
-	 *              again, and the daily full sync settles it in any case.
+	 * @param int $expected
+	 * @return bool
 	 */
 	private function inventory_differs( $expected ) {
 		$total = $this->client->total();
@@ -522,11 +465,10 @@ class WMDS_Importer {
 	/**
 	 * @param array      $ad
 	 * @param array      $known
-	 * @param int        $images  Counter, incremented in place.
-	 * @param array|null $detail  Pre-fetched single-ad response; fetched here
-	 *                            when null.
-	 * @param array      $trashed Vehicles in the bin, by ad ID.
-	 * @return string created|updated|error
+	 * @param int        $images
+	 * @param array|null $detail
+	 * @param array      $trashed
+	 * @return string
 	 */
 	private function process( array $ad, array $known, &$images, $detail = null, array $trashed = array() ) {
 		$ad_id = (string) $ad['mobileAdId'];
@@ -537,9 +479,6 @@ class WMDS_Importer {
 			$detail = $this->client->ad( $ad_id );
 		}
 
-		// The listing carries a fraction of the ad. Writing it on its own
-		// would empty the description and delete every field only the detail
-		// call knows, and then mark the vehicle as up to date.
 		if ( is_wp_error( $detail ) ) {
 			/* translators: 1: mobile.de ad ID, 2: the error message. */
 			WMDS_Log::problem( sprintf( __( 'Detail call failed for %1$s: %2$s', 'wp-mobile-de-sync' ), $ad_id, $detail->get_error_message() ) );
@@ -556,8 +495,6 @@ class WMDS_Importer {
 		$post_id = isset( $known[ $ad_id ]['post_id'] ) ? (int) $known[ $ad_id ]['post_id'] : 0;
 		$mode    = $post_id ? 'updated' : 'created';
 
-		// Back in the feed after it was binned: the same post, so its address
-		// and whatever links to it survive.
 		$revived = false;
 		if ( ! $post_id && isset( $trashed[ $ad_id ]['post_id'] ) && wp_untrash_post( (int) $trashed[ $ad_id ]['post_id'] ) ) {
 			$post_id = (int) $trashed[ $ad_id ]['post_id'];
@@ -571,8 +508,6 @@ class WMDS_Importer {
 			'post_content' => $mapped['description'],
 		);
 
-		// An update leaves the status alone: a vehicle somebody set to draft
-		// is not put back on the site by the next price change.
 		if ( 'created' === $mode || $revived ) {
 			$postarr['post_status'] = 'publish';
 		}
@@ -622,11 +557,6 @@ class WMDS_Importer {
 			update_post_meta( $post_id, WMDS_Images::META_LIST, $result['hashes'] );
 		}
 
-		// Last, and only once everything is in: this is the mark that makes
-		// the next run skip the vehicle. Set any earlier, a pass that dies
-		// between here and the pictures leaves half a gallery nobody retries.
-		// A picture that will not download is retried a few passes and then
-		// let go, so one dead link does not keep a vehicle in the queue.
 		$retries = $complete ? 0 : (int) get_post_meta( $post_id, self::META_RETRIES, true ) + 1;
 
 		if ( $complete || $retries >= self::IMAGE_RETRIES ) {
@@ -638,15 +568,9 @@ class WMDS_Importer {
 		}
 
 		/**
-		 * Fires once a vehicle is completely written — post, meta and images.
-		 *
-		 * Not the same moment as save_post: the post is saved first and the
-		 * meta follows, so anything that reads the meta has to wait for this
-		 * rather than for WordPress.
-		 *
-		 * @param int    $post_id
+		 * @param int $post_id
 		 * @param string $ad_id
-		 * @param string $mode   created or updated.
+		 * @param string $mode
 		 */
 		do_action( 'wmds_vehicle_stored', $post_id, $ad_id, $mode );
 
@@ -669,10 +593,6 @@ class WMDS_Importer {
 			}
 		}
 
-		// A feature the dealer took off the ad is not an empty value in the
-		// new mapping, it is simply not there. What was written last time and
-		// is missing now has to go, or the vehicle keeps its navigation
-		// system forever.
 		$before = get_post_meta( $post_id, self::META_KEYS, true );
 		foreach ( array_diff( is_array( $before ) ? $before : array(), $written ) as $gone ) {
 			delete_post_meta( $post_id, (string) $gone );
@@ -682,14 +602,7 @@ class WMDS_Importer {
 	}
 
 	/**
-	 * The vehicles WordPress holds, by ad ID, in one query.
-	 *
-	 * Those in the bin come back separately. They are not part of the
-	 * inventory: counted in, every sold vehicle would be a removal candidate
-	 * again on each full sync until the bin is emptied, and enough of them
-	 * trip the safety guard.
-	 *
-	 * @return array[] Two maps: the live vehicles, then the binned ones.
+	 * @return array[]
 	 */
 	private function known_map() {
 		global $wpdb;
@@ -732,8 +645,8 @@ class WMDS_Importer {
 	}
 
 	/**
-	 * @param string $outcome As process() returns it.
-	 * @return string The same, in words.
+	 * @param string $outcome
+	 * @return string
 	 */
 	private static function outcome_label( $outcome ) {
 		$labels = array(
@@ -744,7 +657,6 @@ class WMDS_Importer {
 		return isset( $labels[ $outcome ] ) ? $labels[ $outcome ] : (string) $outcome;
 	}
 
-	/** Books the next pass in a minute, unless one is booked already. */
 	public static function schedule_followup() {
 		if ( ! wp_next_scheduled( self::FOLLOWUP_HOOK ) ) {
 			wp_schedule_single_event( time() + 60, self::FOLLOWUP_HOOK );

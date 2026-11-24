@@ -3,13 +3,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * The sync log: the last runs and whatever went wrong in them.
- *
- * One place that writes and reads it. An entry carries its level, so the
- * screen can show problems on their own without guessing from the wording -
- * the wording is translated, and a German line has no "failed" in it.
- */
 class WMDS_Log {
 	const OPTION = 'wmds_log';
 
@@ -19,8 +12,8 @@ class WMDS_Log {
 	const PROBLEM = 'problem';
 
 	/**
-	 * @param string $message Already in the site's language.
-	 * @param string $level   INFO or PROBLEM.
+	 * @param string $message
+	 * @param string $level
 	 */
 	public static function write( $message, $level = self::INFO ) {
 		$log = self::entries();
@@ -49,8 +42,8 @@ class WMDS_Log {
 	}
 
 	/**
-	 * @param int $limit 0 for all.
-	 * @return array<int, array{time:string,message:string,level:string}> Newest first.
+	 * @param int $limit
+	 * @return array<int, array{time:string,message:string,level:string}>
 	 */
 	public static function entries( $limit = 0 ) {
 		$log = get_option( self::OPTION, array() );
@@ -69,7 +62,7 @@ class WMDS_Log {
 
 	/**
 	 * @param array $entry
-	 * @return string "time message", for mails and downloads.
+	 * @return string
 	 */
 	public static function line( array $entry ) {
 		$time    = isset( $entry['time'] ) ? (string) $entry['time'] : '';

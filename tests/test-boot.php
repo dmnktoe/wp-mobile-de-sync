@@ -1,15 +1,4 @@
 <?php
-/**
- * The plugin file, loaded the way WordPress loads it.
- *
- * Every other test requires the classes it exercises by hand, which means
- * none of them would notice if the plugin no longer wired itself up. This
- * one requires nothing but the plugin file and then asks whether the pieces
- * arrived - which is the only thing that says the autoloader is reached at
- * all, and the only thing that would catch a shortcode left unregistered
- * because its file is never mentioned by name.
- */
-
 $GLOBALS['wmds_boot_shortcodes'] = array();
 $GLOBALS['wmds_boot_actions']    = array();
 
@@ -77,7 +66,6 @@ wmds_assert( 'the post type is registered on init', true, in_array( 'init', $GLO
 wmds_assert( 'the import event has a listener', true, in_array( WMDS_CRON_HOOK, $GLOBALS['wmds_boot_actions'], true ) );
 wmds_assert( 'a lost schedule is looked for on init', true, is_callable( array( 'WMDS_Plugin', 'maybe_ensure_schedule' ) ) );
 
-
 wmds_section( 'Classes nobody required by hand are there anyway' );
 
 foreach ( array(
@@ -118,13 +106,6 @@ foreach ( array( 'Overview', 'Settings', 'Enquiries', 'Embed', 'Tools' ) as $wmd
 
 wmds_section( 'The shortcodes a lazy load would have swallowed' );
 
-/*
- * These two are registered at file level rather than from an init() method.
- * Nothing on a page that only writes [vehicle-logo] would ever mention
- * WMDS_Logos, so an autoloaded file would never run and the shortcode would
- * simply not exist. That is why the plugin file requires them outright, and
- * this is what notices if it stops.
- */
 foreach ( array( 'vehicle-logo', 'emission-sticker' ) as $wmds_tag ) {
 	wmds_assert(
 		sprintf( '[%s] is registered', $wmds_tag ),
@@ -145,8 +126,6 @@ foreach ( array( 'vehicles', 'vehicle-filter', 'vehicle-count', 'vehicle-enquiry
 
 wmds_section( 'A lost schedule comes back' );
 
-// wp-admin-fake.php keeps the schedule in $GLOBALS['wmds_admin_schedule'],
-// hook => next run, and is_admin() is true there.
 $GLOBALS['wmds_admin_schedule'] = array();
 
 WMDS_Plugin::maybe_ensure_schedule();

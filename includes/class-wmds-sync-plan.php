@@ -9,13 +9,10 @@ class WMDS_Sync_Plan {
 	const REMOVAL_FLOOR = 3;
 
 	/**
-	 * @param array $ads   Ads from the search result (raw, with mobileAdId
-	 *                     and modificationDate).
-	 * @param array $known Known inventory, as
-	 *                     [ ad_id => ['post_id'=>int, 'modified'=>string] ].
-	 * @param bool  $force Re-read everything, including unchanged ads.
+	 * @param array $ads
+	 * @param array $known
+	 * @param bool  $force
 	 * @return array{create:array,update:array,skip:array,seen:array}
-	 *         create/update hold the raw ads, skip only the ad IDs.
 	 */
 	public static function build( array $ads, array $known, $force = false ) {
 		$plan = array(
@@ -53,11 +50,10 @@ class WMDS_Sync_Plan {
 	}
 
 	/**
-	 * @param string[] $seen    Ad IDs seen during the run.
-	 * @param array    $known   Known inventory, as [ ad_id => ['post_id'=>int, ...] ].
-	 * @param bool     $is_full Whether this was a complete pass.
+	 * @param string[] $seen
+	 * @param array    $known
+	 * @param bool     $is_full
 	 * @return array{remove:int[],abort:string,candidates:int}
-	 *         abort is empty when deletion is allowed; otherwise the reason.
 	 */
 	public static function removals( array $seen, array $known, $is_full ) {
 		$result = array(
@@ -112,7 +108,7 @@ class WMDS_Sync_Plan {
 	}
 
 	/**
-	 * @param array $mapped Return value of WMDS_Json_Mapper::map().
+	 * @param array $mapped
 	 * @return string
 	 */
 	public static function content_hash( array $mapped ) {
@@ -130,8 +126,8 @@ class WMDS_Sync_Plan {
 	}
 
 	/**
-	 * @param string[] $stored Hashes imported last time, in order.
-	 * @param array    $images Return value of WMDS_Json_Mapper::map()['images'].
+	 * @param string[] $stored
+	 * @param array    $images
 	 * @return bool
 	 */
 	public static function images_changed( $stored, array $images ) {
@@ -154,8 +150,8 @@ class WMDS_Sync_Plan {
 	}
 
 	/**
-	 * @param string[] $modification_dates Every modificationDate seen this run.
-	 * @return string Empty when there was nothing usable.
+	 * @param string[] $modification_dates
+	 * @return string
 	 */
 	public static function next_watermark( array $modification_dates ) {
 		$newest = '';

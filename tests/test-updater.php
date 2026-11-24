@@ -177,8 +177,8 @@ wmds_assert_contains( 'empty notes', 'No notes', WMDS_Updater::changelog( '' ) )
 wmds_assert_contains( 'whitespace only', 'No notes', WMDS_Updater::changelog( "  \n " ) );
 
 /**
- * @param string $version   Version an earlier check found on GitHub.
- * @param string $installed Version of the plugin it ran under.
+ * @param string $version
+ * @param string $installed
  */
 function wmds_seed_lookup( $version, $installed = '1.0.0' ) {
 	set_transient(

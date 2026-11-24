@@ -3,19 +3,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * The pictures of a vehicle in the media library.
- *
- * Downloaded from mobile.de, kept as long as the ad shows them, and deleted
- * once the vehicle is sold: a sold vehicle's pictures are of no use on the
- * site, and left behind they fill the media library and the attachment
- * sitemap of every SEO plugin.
- */
 class WMDS_Images {
-	/** On a vehicle: the hashes of the pictures attached, in gallery order. */
 	const META_LIST = '_wmds_image_hashes';
 
-	/** On an attachment: the hash mobile.de gave the picture it was made from. */
 	const META_HASH = '_wmds_image_hash';
 
 	const MAX = 15;
@@ -25,18 +15,10 @@ class WMDS_Images {
 	}
 
 	/**
-	 * Brings the attached pictures in line with what the ad shows.
-	 *
-	 * A picture that is already here is kept — mobile.de names each one by a
-	 * hash, so an ad that gained one photo costs one download, not fifteen.
-	 * Whatever the ad no longer shows is deleted, and only then: nothing is
-	 * removed before its replacement is in place.
-	 *
 	 * @param int    $post_id
-	 * @param array  $images Already capped to MAX by the caller.
+	 * @param array  $images
 	 * @param string $title
-	 * @return array{hashes:string[],downloaded:int} Hashes now attached, in
-	 *               order — shorter than $images when a download failed.
+	 * @return array{hashes:string[],downloaded:int}
 	 */
 	public static function sync( $post_id, array $images, $title ) {
 		require_once ABSPATH . 'wp-admin/includes/file.php';
@@ -77,7 +59,6 @@ class WMDS_Images {
 				}
 			}
 
-			// The gallery reads the attachments by menu_order.
 			wp_update_post(
 				array(
 					'ID'         => $attachment,
@@ -90,8 +71,6 @@ class WMDS_Images {
 		}
 
 		if ( $images && ! $kept ) {
-			// Nothing came through. The pictures already there are better
-			// than none.
 			return array(
 				'hashes'     => array(),
 				'downloaded' => 0,
@@ -117,13 +96,8 @@ class WMDS_Images {
 	}
 
 	/**
-	 * Deletes the pictures of a vehicle that is no longer for sale.
-	 *
-	 * The list of hashes goes with them: a vehicle that comes back into the
-	 * feed downloads its pictures again instead of believing they are there.
-	 *
 	 * @param int $post_id
-	 * @return int Pictures deleted.
+	 * @return int
 	 */
 	public static function release( $post_id ) {
 		$post_id = (int) $post_id;
@@ -142,9 +116,6 @@ class WMDS_Images {
 	}
 
 	/**
-	 * Hooked to before_delete_post: a vehicle deleted for good takes its
-	 * pictures with it.
-	 *
 	 * @param int $post_id
 	 */
 	public static function delete_for( $post_id ) {
@@ -156,13 +127,7 @@ class WMDS_Images {
 	}
 
 	/**
-	 * Vehicle pictures nothing on the site shows any more: those of a vehicle
-	 * in the trash, and those whose vehicle is gone altogether.
-	 *
-	 * Only pictures the importer made are considered - they carry the hash
-	 * mobile.de gave them - so nothing anybody uploaded by hand is touched.
-	 *
-	 * @return int[] Attachment IDs.
+	 * @return int[]
 	 */
 	public static function orphans() {
 		global $wpdb;
@@ -184,7 +149,7 @@ class WMDS_Images {
 	}
 
 	/**
-	 * @return int Pictures deleted.
+	 * @return int
 	 */
 	public static function delete_orphans() {
 		$deleted = 0;
@@ -203,7 +168,7 @@ class WMDS_Images {
 	 * @param array  $image
 	 * @param string $title
 	 * @param int    $index
-	 * @return int Attachment ID, 0 when the picture could not be fetched.
+	 * @return int
 	 */
 	private static function sideload( $post_id, array $image, $title, $index ) {
 		$tmp = download_url( $image['url'], 30 );

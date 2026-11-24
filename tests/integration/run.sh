@@ -1,18 +1,4 @@
 #!/usr/bin/env sh
-# End-to-end test against a real WordPress. See README.md, "Integration test".
-#
-#   sh tests/integration/run.sh
-#
-# Needs PHP with mysqli and gd, WP-CLI on the PATH, and a MySQL to talk to.
-#
-#   WMDS_IT_WORKDIR   Scratch directory            (/tmp/wmds-integration)
-#   WMDS_IT_PORT      Port of the mock server      (8089)
-#   WMDS_IT_WP        WordPress version            (latest)
-#   WMDS_IT_DB_NAME   Database name                (wmds_integration)
-#   WMDS_IT_DB_USER   Database user                (root)
-#   WMDS_IT_DB_PASS   Database secret              (wordpress)
-#   WMDS_IT_DB_HOST   Database host                (127.0.0.1)
-
 set -eu
 
 root=$(cd "$(dirname "$0")/../.." && pwd)
@@ -50,7 +36,6 @@ if [ "$(id -u)" = "0" ]; then
 fi
 
 wpcli() {
-	# shellcheck disable=SC2086
 	wp --path="$wp_path" $allow_root "$@"
 }
 
@@ -142,7 +127,6 @@ wpcli option update wmds_settings --format=json "$(
 say "Mock mobile.de on port $port"
 php -S "127.0.0.1:$port" "$root/tests/integration/mock-server.php" > "$work/mock.log" 2>&1 &
 mock_pid=$!
-# shellcheck disable=SC2064
 trap "kill $mock_pid 2> /dev/null || true" EXIT HUP INT TERM
 
 ready=0
@@ -188,9 +172,6 @@ grep -q '/search-api/ad/424776053' "$state/requests.log" \
 phase full-sync
 
 say "The pages render, with the default theme and without a single notice"
-# Everything above goes through WP-CLI, which never renders a page. A template
-# that calls a method that does not exist, or a theme function a block theme
-# no longer has, passes all of it and fails for the first visitor.
 web_port=$((port + 1))
 page_id=$(wpcli post create --post_type=page --post_status=publish --post_title="Stock" \
 	--post_content='[vehicle-filter] [vehicles posts_per_page="1" pagination="yes" filters="yes"] <!-- wp:wmds/vehicles {"postsPerPage":2} /--> <!-- wp:wmds/vehicle-count /--> [vehicle-enquiry]' \
@@ -199,7 +180,6 @@ vehicle=$(wpcli post list --post_type=fahrzeuge --posts_per_page=1 --field=post_
 
 wpcli server --host=127.0.0.1 --port="$web_port" > "$work/web.log" 2>&1 &
 web_pid=$!
-# shellcheck disable=SC2064
 trap "kill $mock_pid $web_pid 2> /dev/null || true" EXIT HUP INT TERM
 
 attempt=0
@@ -212,7 +192,6 @@ done
 : > "$wp_path/wp-content/debug.log"
 
 fetch() {
-	# $1 label, $2 path and query, $3 text the page has to contain
 	status=$(curl -sS --noproxy '*' -H 'Host: wmds.test' -o "$work/page.html" -w '%{http_code}' "http://127.0.0.1:$web_port$2")
 	[ "$status" = "200" ] || fail "$1 answered with HTTP $status."
 	grep -q "$3" "$work/page.html" || fail "$1 does not contain '$3'."
@@ -233,7 +212,6 @@ fetch "the shortcodes and blocks on a page" "/?page_id=$page_id" 'wmds-facets'
 fetch "the list on that page" "/?page_id=$page_id" 'wmds-grid--shortcode'
 fetch "its second page" "/?page_id=$page_id&paged=2" 'class="wmds-card"'
 
-# The classic path: a theme that has a header.php.
 default_theme=$(wpcli theme list --status=active --field=name)
 if wpcli theme install https://downloads.wordpress.org/theme/twentytwentyone.latest-stable.zip --activate > /dev/null 2>&1; then
 	fetch "the archive in a classic theme" "/?post_type=fahrzeuge" 'class="wmds-card"'

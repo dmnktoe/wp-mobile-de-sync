@@ -3,9 +3,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * Shortcodes, blocks and the dashboard widget — one list the Usage tab reads.
- */
 class WMDS_Catalog {
 	/**
 	 * @return array<int, array{tag:string,title:string,description:string,example:string}>
