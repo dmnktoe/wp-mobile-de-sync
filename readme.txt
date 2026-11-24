@@ -4,7 +4,7 @@ Tags: mobile.de, vehicles, dealership, facetwp, contact form 7
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 2.5.1
+Stable tag: 2.6.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -115,7 +115,7 @@ than a translation of the English source.
 
 == Changelog ==
 
-= Unreleased =
+= 2.6.0 =
 * Added: proof of work on the enquiry form, in the format of ALTCHA - no
   external service, no cookie, nothing to click; can be switched off.
 * Added: spam status for enquiries. Spam words, three or more links or a
