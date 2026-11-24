@@ -3,36 +3,6 @@
 
 	var root = document.documentElement;
 
-	function store( key, value ) {
-		try {
-			if ( value === undefined ) {
-				return window.localStorage.getItem( key );
-			}
-			window.localStorage.setItem( key, value );
-		} catch ( e ) {}
-		return null;
-	}
-
-	function isDark() {
-		var chosen = root.getAttribute( 'data-theme' );
-		if ( chosen ) {
-			return chosen === 'dark';
-		}
-		return window.matchMedia( '(prefers-color-scheme: dark)' ).matches;
-	}
-
-
-	var toggle = document.querySelector( '.theme-toggle' );
-	if ( toggle ) {
-		toggle.addEventListener( 'click', function () {
-			var next = isDark() ? 'light' : 'dark';
-			root.setAttribute( 'data-theme', next );
-			store( 'wmds-theme', next );
-			renderDiagrams();
-		} );
-	}
-
-
 	if ( navigator.clipboard ) {
 		document.querySelectorAll( '.prose pre > code' ).forEach( function ( code ) {
 			if ( code.classList.contains( 'language-mermaid' ) ) {
@@ -58,7 +28,6 @@
 			code.parentNode.appendChild( button );
 		} );
 	}
-
 
 	var tocLinks = document.querySelectorAll( '.toc a[href^="#"]' );
 	if ( tocLinks.length && 'IntersectionObserver' in window ) {
@@ -100,7 +69,6 @@
 		} );
 	}
 
-
 	var diagrams = [];
 
 	document.querySelectorAll( 'pre > code.language-mermaid' ).forEach( function ( code ) {
@@ -111,51 +79,25 @@
 		diagrams.push( { holder: holder, source: code.textContent, pre: code.parentNode } );
 	} );
 
-	var mermaid = null;
+	if ( diagrams.length ) {
+		var dark = window.matchMedia( '(prefers-color-scheme: dark)' ).matches;
 
-	function renderDiagrams() {
-		if ( ! diagrams.length ) {
-			return;
-		}
+		import( 'https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs' ).then( function ( module ) {
+			var mermaid = module.default;
 
-		var load = mermaid
-			? Promise.resolve( mermaid )
-			: import( 'https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs' ).then( function ( module ) {
-				mermaid = module.default;
-				return mermaid;
-			} );
-
-		load.then( function ( m ) {
-			var styles = getComputedStyle( root );
-			var dark = isDark();
-
-			m.initialize( {
+			mermaid.initialize( {
 				startOnLoad: false,
 				securityLevel: 'strict',
-				theme: 'base',
-				fontFamily: styles.getPropertyValue( '--font' ).trim(),
-				themeVariables: {
-					darkMode: dark,
-					background: styles.getPropertyValue( '--surface' ).trim(),
-					primaryColor: dark ? '#2a2033' : '#f3ecf7',
-					primaryTextColor: styles.getPropertyValue( '--text' ).trim(),
-					primaryBorderColor: dark ? '#7a4d99' : '#380050',
-					lineColor: dark ? '#a79fb2' : '#625a6c',
-					secondaryColor: dark ? '#3a1d12' : '#fff1eb',
-					tertiaryColor: styles.getPropertyValue( '--surface' ).trim()
-				}
+				theme: dark ? 'dark' : 'neutral',
+				fontFamily: getComputedStyle( root ).getPropertyValue( '--font' ).trim()
 			} );
 
 			diagrams.forEach( function ( diagram, index ) {
-				m.render( 'wmds-diagram-' + index + '-' + Date.now(), diagram.source ).then( function ( result ) {
+				mermaid.render( 'wmds-diagram-' + index, diagram.source ).then( function ( result ) {
 					diagram.holder.innerHTML = result.svg;
-					if ( diagram.pre.parentNode ) {
-						diagram.pre.parentNode.replaceChild( diagram.holder, diagram.pre );
-					}
+					diagram.pre.parentNode.replaceChild( diagram.holder, diagram.pre );
 				} );
 			} );
 		} ).catch( function () {} );
 	}
-
-	renderDiagrams();
 }() );
