@@ -11,11 +11,28 @@ class WMDS_Leads {
 	const META_STATUS = '_wmds_status';
 	const NEW_LEAD    = 'new';
 	const ANSWERED    = 'answered';
+	const SPAM        = 'spam';
+
+	const META_SPAM = '_wmds_spam';
+
+	const META_MAILED = '_wmds_mailed';
+
+	const SPAM_DAYS = 30;
 
 	const STATUS_ACTION = 'wmds_lead_status';
 
+	const VIEW             = 'wmds_view';
+	const VIEW_SPAM        = 'spam';
+	const VIEW_UNDELIVERED = 'undelivered';
+
 	/** @var int|null */
 	private static $new = null;
+
+	/** @var int|null */
+	private static $spam = null;
+
+	/** @var int|null */
+	private static $undelivered = null;
 
 	public static function init() {
 		add_action( 'init', array( __CLASS__, 'register_cpt' ) );
@@ -33,6 +50,37 @@ class WMDS_Leads {
 		add_action( 'add_meta_boxes_' . self::CPT, array( __CLASS__, 'meta_box' ) );
 		add_action( 'admin_menu', array( __CLASS__, 'menu_count' ), 99 );
 		add_action( 'admin_post_' . self::STATUS_ACTION, array( __CLASS__, 'handle_status' ) );
+		add_filter( 'bulk_actions-edit-' . self::CPT, array( __CLASS__, 'bulk_actions' ) );
+		add_filter( 'handle_bulk_actions-edit-' . self::CPT, array( __CLASS__, 'handle_bulk' ), 10, 3 );
+		add_filter( 'views_edit-' . self::CPT, array( __CLASS__, 'views' ) );
+		add_action( 'pre_get_posts', array( __CLASS__, 'filter_list' ) );
+		add_action( 'admin_notices', array( __CLASS__, 'undelivered_notice' ) );
+	}
+
+	/**
+	 * @param int $post_id
+	 * @return string
+	 */
+	public static function status( $post_id ) {
+		$status = (string) get_post_meta( (int) $post_id, self::META_STATUS, true );
+
+		return self::normalise_status( $status );
+	}
+
+	/**
+	 * @param string $status
+	 * @return string
+	 */
+	public static function normalise_status( $status ) {
+		return in_array( $status, array( self::ANSWERED, self::SPAM ), true ) ? $status : self::NEW_LEAD;
+	}
+
+	/**
+	 * @param int $post_id
+	 * @return bool
+	 */
+	public static function is_spam( $post_id ) {
+		return self::SPAM === self::status( $post_id );
 	}
 
 	/**
@@ -40,7 +88,7 @@ class WMDS_Leads {
 	 * @return bool
 	 */
 	public static function is_new( $post_id ) {
-		return self::ANSWERED !== get_post_meta( (int) $post_id, self::META_STATUS, true );
+		return self::NEW_LEAD === self::status( $post_id );
 	}
 
 	/**
@@ -48,9 +96,13 @@ class WMDS_Leads {
 	 * @return string
 	 */
 	public static function status_label( $post_id ) {
-		return self::is_new( $post_id )
-			? __( 'New', 'wp-mobile-de-sync' )
-			: __( 'Answered', 'wp-mobile-de-sync' );
+		$labels = array(
+			self::NEW_LEAD => __( 'New', 'wp-mobile-de-sync' ),
+			self::ANSWERED => __( 'Answered', 'wp-mobile-de-sync' ),
+			self::SPAM     => __( 'Spam', 'wp-mobile-de-sync' ),
+		);
+
+		return $labels[ self::status( $post_id ) ];
 	}
 
 	/**
@@ -69,14 +121,75 @@ class WMDS_Leads {
 				 FROM {$wpdb->posts} p
 				 LEFT JOIN {$wpdb->postmeta} s ON s.post_id = p.ID AND s.meta_key = %s
 				 WHERE p.post_type = %s AND p.post_status = 'publish'
-				   AND ( s.meta_value IS NULL OR s.meta_value != %s )",
+				   AND ( s.meta_value IS NULL OR s.meta_value NOT IN ( %s, %s ) )",
 				self::META_STATUS,
 				self::CPT,
-				self::ANSWERED
+				self::ANSWERED,
+				self::SPAM
 			)
 		);
 
 		return self::$new;
+	}
+
+	/** @return int */
+	public static function count_spam() {
+		if ( null !== self::$spam ) {
+			return self::$spam;
+		}
+
+		global $wpdb;
+
+		self::$spam = (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(*)
+				 FROM {$wpdb->posts} p
+				 INNER JOIN {$wpdb->postmeta} s ON s.post_id = p.ID AND s.meta_key = %s
+				 WHERE p.post_type = %s AND p.post_status = 'publish' AND s.meta_value = %s",
+				self::META_STATUS,
+				self::CPT,
+				self::SPAM
+			)
+		);
+
+		return self::$spam;
+	}
+
+	/**
+	 * @return int
+	 */
+	public static function count_undelivered() {
+		if ( null !== self::$undelivered ) {
+			return self::$undelivered;
+		}
+
+		global $wpdb;
+
+		self::$undelivered = (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(*)
+				 FROM {$wpdb->posts} p
+				 INNER JOIN {$wpdb->postmeta} m ON m.post_id = p.ID AND m.meta_key = %s AND m.meta_value = '0'
+				 LEFT JOIN {$wpdb->postmeta} s ON s.post_id = p.ID AND s.meta_key = %s
+				 WHERE p.post_type = %s AND p.post_status = 'publish'
+				   AND ( s.meta_value IS NULL OR s.meta_value NOT IN ( %s, %s ) )",
+				self::META_MAILED,
+				self::META_STATUS,
+				self::CPT,
+				self::ANSWERED,
+				self::SPAM
+			)
+		);
+
+		return self::$undelivered;
+	}
+
+	/**
+	 * @param int $post_id
+	 * @return bool
+	 */
+	public static function is_undelivered( $post_id ) {
+		return '0' === (string) get_post_meta( (int) $post_id, self::META_MAILED, true );
 	}
 
 	/**
@@ -84,9 +197,59 @@ class WMDS_Leads {
 	 * @param string $status
 	 */
 	public static function set_status( $post_id, $status ) {
-		update_post_meta( (int) $post_id, self::META_STATUS, self::ANSWERED === $status ? self::ANSWERED : self::NEW_LEAD );
+		update_post_meta( (int) $post_id, self::META_STATUS, self::normalise_status( (string) $status ) );
 
-		self::$new = null;
+		self::$new         = null;
+		self::$spam        = null;
+		self::$undelivered = null;
+	}
+
+	/**
+	 * @param int    $post_id
+	 * @param string $status
+	 */
+	public static function mark( $post_id, $status ) {
+		$before = self::status( $post_id );
+		$after  = self::normalise_status( (string) $status );
+
+		self::set_status( $post_id, $after );
+
+		if ( $before === $after ) {
+			return;
+		}
+
+		$email = (string) get_post_meta( (int) $post_id, '_wmds_email', true );
+		if ( '' === $email ) {
+			return;
+		}
+
+		if ( self::SPAM === $after ) {
+			WMDS_Spam::save_blocklist( WMDS_Spam::learn( WMDS_Spam::blocklist(), $email ) );
+		} elseif ( self::SPAM === $before ) {
+			WMDS_Spam::save_blocklist( WMDS_Spam::forget( WMDS_Spam::blocklist(), $email ) );
+		}
+	}
+
+	public static function purge_spam() {
+		$old = get_posts(
+			array(
+				'post_type'      => self::CPT,
+				'post_status'    => 'publish',
+				'posts_per_page' => 20,
+				'fields'         => 'ids',
+				'meta_key'       => self::META_STATUS, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- a handful of rows, only when spam arrives.
+				'meta_value'     => self::SPAM, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- see above.
+				'date_query'     => array(
+					array(
+						'before' => self::SPAM_DAYS . ' days ago',
+					),
+				),
+			)
+		);
+
+		foreach ( (array) $old as $id ) {
+			wp_delete_post( (int) $id, true );
+		}
 	}
 
 	public static function menu_count() {
@@ -142,7 +305,7 @@ class WMDS_Leads {
 			wp_die( esc_html__( 'You do not have permission to do this.', 'wp-mobile-de-sync' ), '', array( 'response' => 403 ) );
 		}
 
-		self::set_status( $post_id, $status );
+		self::mark( $post_id, $status );
 
 		$back = wp_get_referer();
 		wp_safe_redirect( $back ? $back : admin_url( 'edit.php?post_type=' . self::CPT ) );
@@ -188,6 +351,12 @@ class WMDS_Leads {
 			return $actions;
 		}
 
+		if ( self::is_spam( $post->ID ) ) {
+			$actions['wmds_status'] = sprintf( '<a href="%s">%s</a>', esc_url( self::status_url( $post->ID, self::NEW_LEAD ) ), esc_html__( 'Not spam', 'wp-mobile-de-sync' ) );
+
+			return $actions;
+		}
+
 		$reply = self::reply_url( $post->ID );
 		if ( '' !== $reply ) {
 			$actions['wmds_reply'] = sprintf( '<a href="%s">%s</a>', esc_attr( $reply ), esc_html__( 'Reply', 'wp-mobile-de-sync' ) );
@@ -197,7 +366,206 @@ class WMDS_Leads {
 			? sprintf( '<a href="%s">%s</a>', esc_url( self::status_url( $post->ID, self::ANSWERED ) ), esc_html__( 'Mark as answered', 'wp-mobile-de-sync' ) )
 			: sprintf( '<a href="%s">%s</a>', esc_url( self::status_url( $post->ID, self::NEW_LEAD ) ), esc_html__( 'Mark as new', 'wp-mobile-de-sync' ) );
 
+		$actions['spam'] = sprintf( '<a href="%s">%s</a>', esc_url( self::status_url( $post->ID, self::SPAM ) ), esc_html__( 'Spam', 'wp-mobile-de-sync' ) );
+
 		return $actions;
+	}
+
+	/**
+	 * @param array $actions
+	 * @return array
+	 */
+	public static function bulk_actions( $actions ) {
+		$actions = is_array( $actions ) ? $actions : array();
+
+		$actions['wmds_answered'] = __( 'Mark as answered', 'wp-mobile-de-sync' );
+		$actions['wmds_spam']     = __( 'Mark as spam', 'wp-mobile-de-sync' );
+		$actions['wmds_not_spam'] = __( 'Not spam', 'wp-mobile-de-sync' );
+
+		return $actions;
+	}
+
+	/**
+	 * @param string $redirect
+	 * @param string $action
+	 * @param int[]  $ids
+	 * @return string
+	 */
+	public static function handle_bulk( $redirect, $action, $ids ) {
+		$statuses = array(
+			'wmds_answered' => self::ANSWERED,
+			'wmds_spam'     => self::SPAM,
+			'wmds_not_spam' => self::NEW_LEAD,
+		);
+
+		if ( ! isset( $statuses[ $action ] ) ) {
+			return $redirect;
+		}
+
+		foreach ( (array) $ids as $id ) {
+			$id = (int) $id;
+
+			if ( self::CPT !== get_post_type( $id ) || ! current_user_can( 'edit_post', $id ) ) {
+				continue;
+			}
+
+			if ( 'wmds_not_spam' === $action && ! self::is_spam( $id ) ) {
+				continue;
+			}
+
+			self::mark( $id, $statuses[ $action ] );
+		}
+
+		return $redirect;
+	}
+
+	/** @return string */
+	public static function current_view() {
+		$view = isset( $_GET[ self::VIEW ] ) ? sanitize_key( wp_unslash( $_GET[ self::VIEW ] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- which rows to show, nothing is changed.
+
+		return in_array( $view, array( self::VIEW_SPAM, self::VIEW_UNDELIVERED ), true ) ? $view : '';
+	}
+
+	/**
+	 * @param string $view
+	 * @return string
+	 */
+	public static function view_url( $view ) {
+		return add_query_arg(
+			array(
+				'post_type' => self::CPT,
+				self::VIEW  => $view,
+			),
+			admin_url( 'edit.php' )
+		);
+	}
+
+	/**
+	 * @param array $views
+	 * @return array
+	 */
+	public static function views( $views ) {
+		$views   = is_array( $views ) ? $views : array();
+		$current = self::current_view();
+		$counts  = array(
+			self::VIEW_UNDELIVERED => array( self::count_undelivered(), __( 'Not delivered', 'wp-mobile-de-sync' ) ),
+			self::VIEW_SPAM        => array( self::count_spam(), __( 'Spam', 'wp-mobile-de-sync' ) ),
+		);
+
+		if ( '' !== $current ) {
+			foreach ( $views as $key => $link ) {
+				$views[ $key ] = str_replace( array( ' class="current"', ' aria-current="page"' ), '', $link );
+			}
+		}
+
+		foreach ( $counts as $view => $count ) {
+			if ( ! $count[0] && $current !== $view ) {
+				continue;
+			}
+
+			$views[ 'wmds_' . $view ] = sprintf(
+				'<a href="%1$s"%2$s>%3$s <span class="count">(%4$s)</span></a>',
+				esc_url( self::view_url( $view ) ),
+				$current === $view ? ' class="current" aria-current="page"' : '',
+				esc_html( $count[1] ),
+				esc_html( number_format_i18n( $count[0] ) )
+			);
+		}
+
+		return $views;
+	}
+
+	/**
+	 * @param string $view
+	 * @return array
+	 */
+	public static function view_query( $view ) {
+		if ( self::VIEW_SPAM === $view ) {
+			return array(
+				array(
+					'key'   => self::META_STATUS,
+					'value' => self::SPAM,
+				),
+			);
+		}
+
+		$open = array(
+			'relation' => 'OR',
+			array(
+				'key'     => self::META_STATUS,
+				'compare' => 'NOT EXISTS',
+			),
+			array(
+				'key'     => self::META_STATUS,
+				'value'   => self::VIEW_UNDELIVERED === $view ? array( self::ANSWERED, self::SPAM ) : array( self::SPAM ),
+				'compare' => 'NOT IN',
+			),
+		);
+
+		if ( self::VIEW_UNDELIVERED !== $view ) {
+			return array( $open );
+		}
+
+		return array(
+			'relation' => 'AND',
+			$open,
+			array(
+				'key'   => self::META_MAILED,
+				'value' => '0',
+			),
+		);
+	}
+
+	/**
+	 * @param WP_Query $query
+	 */
+	public static function filter_list( $query ) {
+		if ( ! is_admin() || ! $query->is_main_query() || self::CPT !== $query->get( 'post_type' ) ) {
+			return;
+		}
+
+		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+		if ( ! $screen || 'edit-' . self::CPT !== $screen->id ) {
+			return;
+		}
+
+		$query->set( 'meta_query', self::view_query( self::current_view() ) ); // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- the list screen, a few hundred rows at most.
+	}
+
+	public static function undelivered_notice() {
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			return;
+		}
+
+		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+		$where  = $screen ? (string) $screen->id : '';
+
+		if ( ! in_array( $where, array( 'dashboard', 'edit-' . self::CPT ), true ) && ! WMDS_Admin::on_page() ) {
+			return;
+		}
+
+		if ( self::VIEW_UNDELIVERED === self::current_view() ) {
+			return;
+		}
+
+		$count = self::count_undelivered();
+		if ( ! $count ) {
+			return;
+		}
+
+		printf(
+			'<div class="notice notice-warning"><p><strong>%s</strong> %s <a href="%s">%s</a></p></div>',
+			esc_html__( 'Enquiries:', 'wp-mobile-de-sync' ),
+			esc_html(
+				sprintf(
+					/* translators: %d: number of enquiries. */
+					_n( '%d enquiry could not be sent by e-mail and is only stored here.', '%d enquiries could not be sent by e-mail and are only stored here.', $count, 'wp-mobile-de-sync' ),
+					$count
+				)
+			),
+			esc_url( self::view_url( self::VIEW_UNDELIVERED ) ),
+			esc_html__( 'Show them', 'wp-mobile-de-sync' )
+		);
 	}
 
 	/**
@@ -223,9 +591,18 @@ class WMDS_Leads {
 		if ( 'wmds_status' === $column ) {
 			printf(
 				'<span class="wmds-lead-status wmds-lead-status-%s">%s</span>',
-				self::is_new( $post_id ) ? 'new' : 'answered',
+				esc_attr( self::status( $post_id ) ),
 				esc_html( self::status_label( $post_id ) )
 			);
+
+			if ( self::is_spam( $post_id ) ) {
+				$reason = (string) get_post_meta( $post_id, self::META_SPAM, true );
+				if ( '' !== $reason ) {
+					printf( '<br><small>%s</small>', esc_html( $reason ) );
+				}
+			} elseif ( self::is_undelivered( $post_id ) ) {
+				printf( '<br><small class="wmds-lead-undelivered">%s</small>', esc_html__( 'Not delivered by e-mail', 'wp-mobile-de-sync' ) );
+			}
 
 			return;
 		}
@@ -319,6 +696,7 @@ class WMDS_Leads {
 			),
 			__( 'From', 'wp-mobile-de-sync' )             => (string) get_post_meta( $post->ID, '_wmds_ip', true ),
 			__( 'Delivery', 'wp-mobile-de-sync' )         => (string) get_post_meta( $post->ID, '_wmds_delivery', true ),
+			__( 'Spam', 'wp-mobile-de-sync' )             => self::is_spam( $post->ID ) ? (string) get_post_meta( $post->ID, self::META_SPAM, true ) : '',
 		);
 
 		echo '<table class="form-table" role="presentation">';
@@ -346,16 +724,31 @@ class WMDS_Leads {
 	private static function render_actions( $post_id ) {
 		$reply = self::reply_url( $post_id );
 		$new   = self::is_new( $post_id );
+		$spam  = self::is_spam( $post_id );
 		?>
 		<p class="wmds-lead-actions">
-			<span class="wmds-lead-status wmds-lead-status-<?php echo $new ? 'new' : 'answered'; ?>"><?php echo esc_html( self::status_label( $post_id ) ); ?></span>
-			<?php if ( '' !== $reply ) : ?>
-				<a class="button button-primary" href="<?php echo esc_attr( $reply ); ?>"><?php esc_html_e( 'Reply by e-mail', 'wp-mobile-de-sync' ); ?></a>
+			<span class="wmds-lead-status wmds-lead-status-<?php echo esc_attr( self::status( $post_id ) ); ?>"><?php echo esc_html( self::status_label( $post_id ) ); ?></span>
+			<?php if ( $spam ) : ?>
+				<a class="button" href="<?php echo esc_url( self::status_url( $post_id, self::NEW_LEAD ) ); ?>">
+					<?php esc_html_e( 'Not spam', 'wp-mobile-de-sync' ); ?>
+				</a>
+			<?php else : ?>
+				<?php if ( '' !== $reply ) : ?>
+					<a class="button button-primary" href="<?php echo esc_attr( $reply ); ?>"><?php esc_html_e( 'Reply by e-mail', 'wp-mobile-de-sync' ); ?></a>
+				<?php endif; ?>
+				<a class="button" href="<?php echo esc_url( self::status_url( $post_id, $new ? self::ANSWERED : self::NEW_LEAD ) ); ?>">
+					<?php echo esc_html( $new ? __( 'Mark as answered', 'wp-mobile-de-sync' ) : __( 'Mark as new', 'wp-mobile-de-sync' ) ); ?>
+				</a>
+				<a class="button wmds-button-spam" href="<?php echo esc_url( self::status_url( $post_id, self::SPAM ) ); ?>">
+					<?php esc_html_e( 'Mark as spam', 'wp-mobile-de-sync' ); ?>
+				</a>
 			<?php endif; ?>
-			<a class="button" href="<?php echo esc_url( self::status_url( $post_id, $new ? self::ANSWERED : self::NEW_LEAD ) ); ?>">
-				<?php echo esc_html( $new ? __( 'Mark as answered', 'wp-mobile-de-sync' ) : __( 'Mark as new', 'wp-mobile-de-sync' ) ); ?>
-			</a>
 		</p>
+		<?php if ( $spam ) : ?>
+			<p class="description"><?php esc_html_e( 'No e-mail was sent for this enquiry. "Not spam" moves it back to the enquiries and takes the sender off the blocklist; it is not sent afterwards.', 'wp-mobile-de-sync' ); ?></p>
+		<?php elseif ( $new ) : ?>
+			<p class="description"><?php esc_html_e( '"Mark as spam" also puts the sender on the blocklist: their next enquiries are sorted out straight away.', 'wp-mobile-de-sync' ); ?></p>
+		<?php endif; ?>
 		<?php
 	}
 

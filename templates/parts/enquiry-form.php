@@ -38,6 +38,10 @@ $wmds_value = function ( $field ) use ( $wmds_values ) {
 			<input type="hidden" name="action" value="<?php echo esc_attr( WMDS_Lead_Form::ACTION ); ?>">
 			<input type="hidden" name="wmds_vehicle" value="<?php echo esc_attr( $wmds_vehicle_id ); ?>">
 			<input type="hidden" name="wmds_opened" value="<?php echo esc_attr( time() ); ?>">
+			<?php if ( WMDS_Challenge::enabled() ) : ?>
+				<?php WMDS_Lead_Form::enqueue(); ?>
+				<input type="hidden" name="wmds_pow" value="">
+			<?php endif; ?>
 
 			<p class="wmds-enquiry__trap" aria-hidden="true">
 				<label for="wmds_website"><?php esc_html_e( 'Leave this field empty', 'wp-mobile-de-sync' ); ?></label>
@@ -103,6 +107,12 @@ $wmds_value = function ( $field ) use ( $wmds_values ) {
 						<span class="wmds-field__error"><?php echo esc_html( $wmds_errors['consent'] ); ?></span>
 					<?php endif; ?>
 				</p>
+			<?php endif; ?>
+
+			<?php if ( WMDS_Challenge::enabled() ) : ?>
+				<noscript>
+					<p class="wmds-warning"><?php esc_html_e( 'The form needs JavaScript to be sent. Alternatively, please call us.', 'wp-mobile-de-sync' ); ?></p>
+				</noscript>
 			<?php endif; ?>
 
 			<p class="wmds-enquiry__submit">

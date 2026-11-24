@@ -34,6 +34,8 @@ foreach ( array(
 	'leads',
 	'lead-form',
 	'lead-mail',
+	'spam',
+	'challenge',
 	'plugin',
 	'updater',
 	'posts',

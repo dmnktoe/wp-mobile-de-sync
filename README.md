@@ -51,7 +51,9 @@ shortcodes — and works with any theme, including block themes.
 **Enquiries that do not get lost**
 - A form on every vehicle page; the mail names the vehicle and replies go to the enquirer.
 - Every enquiry is also stored in WordPress, marked **new** until answered, with a count in the menu and a reply button.
-- Spam protection without captcha: honeypot, minimum fill time, rate limit.
+- Spam protection without captcha: honeypot, minimum fill time, rate limit, an
+  ALTCHA-style proof of work, spam words and a blocklist that learns from
+  "Mark as spam". Spam is kept aside, mailed to nobody and deleted after 30 days.
 - Contact Form 7 integration and a mail-delivery check with test mail.
 
 <p align="center"><img src="docs/screenshots/admin-overview.jpg" alt="The overview tab of the settings screen" width="860"></p>

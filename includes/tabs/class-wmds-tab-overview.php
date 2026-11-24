@@ -68,6 +68,7 @@ class WMDS_Tab_Overview {
 				'posts_per_page' => self::RECENT,
 				'orderby'        => 'date',
 				'order'          => 'DESC',
+				'meta_query'     => WMDS_Leads::view_query( '' ), // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- five rows, on one screen.
 			)
 		);
 		$new   = WMDS_Leads::count_new();

@@ -45,6 +45,7 @@ class WMDS_Plugin {
 		WMDS_Blocks::init();
 		WMDS_Leads::init();
 		WMDS_Lead_Form::init();
+		WMDS_Challenge::init();
 		WMDS_Seo::init();
 		WMDS_Smtp::init();
 

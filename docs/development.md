@@ -43,6 +43,7 @@ Everything else is a class in `includes/`, loaded on first use.
 | `WMDS_Similar`, `WMDS_Removed` | similar vehicles; the address of a removed vehicle |
 | `WMDS_Seo` | structured data and social previews |
 | `WMDS_Leads`, `WMDS_Lead_Form`, `WMDS_Lead_Mail` | stored enquiries; the form; the mails it sends |
+| `WMDS_Spam`, `WMDS_Challenge` | what marks an enquiry as spam; the proof of work of the form |
 | `WMDS_Admin*`, `WMDS_Tab_*` | the settings screen, one class per tab |
 | `WMDS_Updater` | updates from GitHub releases |
 

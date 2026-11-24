@@ -170,6 +170,10 @@ class WMDS_Site_Builder {
 		foreach ( $parts as $part ) {
 			list( $heading, $body ) = array_pad( explode( "\n", $part, 2 ), 2, '' );
 
+			if ( 'unreleased' === strtolower( trim( $heading, " \t[]" ) ) ) {
+				continue;
+			}
+
 			if ( ! preg_match( '/^\[?([0-9][0-9A-Za-z.\-]*)\]?\s*(?:[–—-]\s*(\d{4}-\d{2}-\d{2}))?/u', trim( $heading ), $match ) ) {
 				$this->errors[] = 'CHANGELOG.md: cannot read the heading "## ' . trim( $heading ) . '".';
 				continue;

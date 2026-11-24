@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class WMDS_Lead_Form {
 	const NONCE  = 'wmds_enquiry';
 	const ACTION = 'wmds_enquiry';
+	const SCRIPT = 'wmds-enquiry';
 
 	const STATE = 'wmds_lead_form_';
 	const RATE  = 'wmds_lead_rate_';
@@ -26,6 +27,7 @@ class WMDS_Lead_Form {
 
 		add_action( 'admin_post_' . self::ACTION, array( __CLASS__, 'handle' ) );
 		add_action( 'admin_post_nopriv_' . self::ACTION, array( __CLASS__, 'handle' ) );
+		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_on_vehicle' ) );
 	}
 
 	/**
@@ -122,6 +124,10 @@ class WMDS_Lead_Form {
 			self::refuse( $back, 'limit' );
 		}
 
+		if ( WMDS_Challenge::enabled() && ! WMDS_Challenge::accept( $posted['pow'] ) ) {
+			self::refuse( $back, 'check' );
+		}
+
 		$consent_required = ( '' !== WMDS_Leads::consent_text() );
 
 		$errors = self::validate( $posted, $consent_required );
@@ -141,12 +147,30 @@ class WMDS_Lead_Form {
 		$context = WMDS_Leads::context( $post_id, $vehicle );
 		$site    = wp_specialchars_decode( (string) get_option( 'blogname' ), ENT_QUOTES );
 
+		$spam   = WMDS_Spam::check( $posted );
 		$stored = WMDS_Leads::store( $posted, $post_id, $context );
+		$done   = add_query_arg( 'wmds_enquiry', 'sent', $context['url'] ? $context['url'] : $back ) . '#wmds-enquiry';
+
+		if ( '' !== $spam ) {
+			if ( $stored ) {
+				WMDS_Leads::set_status( $stored, WMDS_Leads::SPAM );
+				update_post_meta( $stored, WMDS_Leads::META_SPAM, wp_slash( $spam ) );
+				update_post_meta( $stored, '_wmds_delivery', __( 'Not sent: recognised as spam', 'wp-mobile-de-sync' ) );
+			}
+
+			WMDS_Leads::purge_spam();
+			set_transient( $key, $sent + 1, self::RATE_TTL );
+
+			wp_safe_redirect( $done );
+			exit;
+		}
+
 		$tried  = time();
 		$mailed = WMDS_Lead_Mail::send( $posted, $context, $site, $vehicle );
 
 		if ( $stored ) {
 			update_post_meta( $stored, '_wmds_delivery', wp_slash( WMDS_Lead_Mail::delivery_note( $mailed, WMDS_Lead_Mail::recipients( $vehicle ), WMDS_Smtp::failure(), $tried ) ) );
+			update_post_meta( $stored, WMDS_Leads::META_MAILED, $mailed ? '1' : '0' );
 		}
 
 		if ( ! $stored && ! $mailed ) {
@@ -155,8 +179,27 @@ class WMDS_Lead_Form {
 
 		set_transient( $key, $sent + 1, self::RATE_TTL );
 
-		wp_safe_redirect( add_query_arg( 'wmds_enquiry', 'sent', $context['url'] ? $context['url'] : $back ) . '#wmds-enquiry' );
+		wp_safe_redirect( $done );
 		exit;
+	}
+
+	public static function enqueue() {
+		if ( ! WMDS_Leads::enabled() || ! WMDS_Challenge::enabled() ) {
+			return;
+		}
+
+		if ( ! wp_script_is( self::SCRIPT, 'registered' ) ) {
+			wp_register_script( self::SCRIPT, WMDS_URL . 'assets/enquiry.js', array(), WMDS_VERSION, true );
+			wp_add_inline_script( self::SCRIPT, 'var wmdsEnquiry = ' . wp_json_encode( array( 'challenge' => WMDS_Challenge::url() ) ) . ';', 'before' );
+		}
+
+		wp_enqueue_script( self::SCRIPT );
+	}
+
+	public static function enqueue_on_vehicle() {
+		if ( is_singular( WMDS_CPT ) ) {
+			self::enqueue();
+		}
 	}
 
 	/** @return array<string, string> */
@@ -171,6 +214,7 @@ class WMDS_Lead_Form {
 			'website' => isset( $_POST['wmds_website'] ) ? sanitize_text_field( wp_unslash( $_POST['wmds_website'] ) ) : '',
 			'opened'  => isset( $_POST['wmds_opened'] ) ? absint( wp_unslash( $_POST['wmds_opened'] ) ) : 0,
 			'vehicle' => isset( $_POST['wmds_vehicle'] ) ? absint( wp_unslash( $_POST['wmds_vehicle'] ) ) : 0,
+			'pow'     => isset( $_POST['wmds_pow'] ) ? substr( preg_replace( '~[^A-Za-z0-9+/=]~', '', (string) wp_unslash( $_POST['wmds_pow'] ) ), 0, 2000 ) : '', // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- reduced to the base64 alphabet right here.
 		);
 		// phpcs:enable WordPress.Security.NonceVerification.Missing
 	}
@@ -181,7 +225,7 @@ class WMDS_Lead_Form {
 	 * @param array  $values
 	 */
 	private static function bounce( $url, array $errors, array $values ) {
-		unset( $values['website'], $values['opened'] );
+		unset( $values['website'], $values['opened'], $values['pow'] );
 
 		$token = strtolower( wp_generate_password( 16, false ) );
 
@@ -214,6 +258,7 @@ class WMDS_Lead_Form {
 			'off'     => __( 'Enquiries are switched off.', 'wp-mobile-de-sync' ),
 			'quick'   => __( 'The form was submitted too quickly. Please try again.', 'wp-mobile-de-sync' ),
 			'limit'   => __( 'Several enquiries have already been sent. Please try again later.', 'wp-mobile-de-sync' ),
+			'check'   => __( 'The security check did not succeed. Please send the enquiry again; JavaScript has to be enabled for it. Alternatively, call us.', 'wp-mobile-de-sync' ),
 		);
 	}
 
@@ -276,6 +321,7 @@ class WMDS_Lead_Form {
 		}
 
 		WMDS_Templates::maybe_enqueue( true );
+		self::enqueue();
 
 		ob_start();
 		WMDS_Templates::render(

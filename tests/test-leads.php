@@ -230,6 +230,26 @@ wmds_assert(
 	)
 );
 
+wmds_section( 'What an enquiry can be' );
+
+wmds_assert( 'new, by default', WMDS_Leads::NEW_LEAD, WMDS_Leads::normalise_status( '' ) );
+wmds_assert( 'answered', WMDS_Leads::ANSWERED, WMDS_Leads::normalise_status( 'answered' ) );
+wmds_assert( 'spam', WMDS_Leads::SPAM, WMDS_Leads::normalise_status( 'spam' ) );
+wmds_assert( 'and nothing else', WMDS_Leads::NEW_LEAD, WMDS_Leads::normalise_status( 'deleted' ) );
+
+wmds_section( 'Which enquiries each view of the list shows' );
+
+$wmds_usual = WMDS_Leads::view_query( '' );
+wmds_assert( 'the usual one leaves spam out', array( WMDS_Leads::SPAM ), $wmds_usual[0][1]['value'] );
+wmds_assert( 'and keeps enquiries without a status', 'NOT EXISTS', $wmds_usual[0][0]['compare'] );
+
+$wmds_spam_view = WMDS_Leads::view_query( WMDS_Leads::VIEW_SPAM );
+wmds_assert( 'spam shows spam', WMDS_Leads::SPAM, $wmds_spam_view[0]['value'] );
+
+$wmds_undelivered = WMDS_Leads::view_query( WMDS_Leads::VIEW_UNDELIVERED );
+wmds_assert( 'not delivered: only open enquiries', array( WMDS_Leads::ANSWERED, WMDS_Leads::SPAM ), $wmds_undelivered[0][1]['value'] );
+wmds_assert( 'whose mail did not go out', array( WMDS_Leads::META_MAILED, '0' ), array( $wmds_undelivered[1]['key'], $wmds_undelivered[1]['value'] ) );
+
 wmds_section( 'The confirmation the enquirer gets' );
 
 $reply = WMDS_Lead_Mail::compose_confirmation( wmds_lead_data(), $vehicle, 'Autohaus Example' );
