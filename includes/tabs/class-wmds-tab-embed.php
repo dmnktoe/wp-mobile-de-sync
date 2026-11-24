@@ -3,12 +3,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * How vehicles get onto the site - blocks, shortcodes, widgets - and the two
- * plugins a dealer site tends to run already.
- */
 class WMDS_Tab_Embed {
-	/** @return string[] The settings this tab's form holds. */
+	/** @return string[] */
 	public static function fields() {
 		return array( 'cf7_store', 'cf7_copy_seller', 'facetwp_reindex' );
 	}

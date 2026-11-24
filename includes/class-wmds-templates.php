@@ -14,8 +14,6 @@ class WMDS_Templates {
 	private static $tags = array( 'vehicles' );
 
 	/**
-	 * Shortcodes that other classes register but that still need the stylesheet.
-	 *
 	 * @var string[]
 	 */
 	private static $styled_tags = array( 'vehicle-filter', 'vehicle-count', 'vehicle-enquiry' );
@@ -30,8 +28,8 @@ class WMDS_Templates {
 	}
 
 	/**
-	 * @param string $file Path relative to templates/.
-	 * @return string Absolute path, '' when nothing exists.
+	 * @param string $file
+	 * @return string
 	 */
 	public static function locate( $file ) {
 		$file = ltrim( (string) $file, '/' );
@@ -59,8 +57,8 @@ class WMDS_Templates {
 	}
 
 	/**
-	 * @param string $file Path relative to templates/.
-	 * @param array  $args Available to the template as $args.
+	 * @param string $file
+	 * @param array  $args
 	 */
 	public static function render( $file, $args = array() ) {
 		$path = self::locate( $file );
@@ -102,14 +100,7 @@ class WMDS_Templates {
 	}
 
 	/**
-	 * The markup a classic theme puts around the content of its own pages,
-	 * opened after get_header() and closed before get_footer().
-	 *
-	 * Most themes need none. Salient does: its footer can be fixed below the
-	 * page and revealed on scroll, and only its own content container pushes
-	 * it out of the way - without one the footer covers the vehicles.
-	 *
-	 * @return array{0:string,1:string} Opening and closing markup.
+	 * @return array{0:string,1:string}
 	 */
 	public static function wrapper() {
 		$wrapper = array( '', '' );
@@ -122,31 +113,18 @@ class WMDS_Templates {
 		}
 
 		/**
-		 * The class wmds-theme-frame on the theme's container takes the
-		 * template's own side margins away, so the two do not add up.
-		 *
-		 * @param array{0:string,1:string} $wrapper Opening and closing markup.
+		 * @param array{0:string,1:string} $wrapper
 		 */
 		$wrapper = apply_filters( 'wmds_theme_wrapper', $wrapper );
 
 		return ( is_array( $wrapper ) && isset( $wrapper[0], $wrapper[1] ) ) ? array( (string) $wrapper[0], (string) $wrapper[1] ) : array( '', '' );
 	}
 
-	/** @return bool Whether the active theme is built from blocks and has no header.php. */
+	/** @return bool */
 	public static function is_block_theme() {
 		return function_exists( 'wp_is_block_theme' ) && wp_is_block_theme();
 	}
 
-	/**
-	 * Opens the page around a vehicle template.
-	 *
-	 * A classic theme has a header.php and get_header() prints it. A block
-	 * theme has none: get_header() falls back to a bare document from
-	 * theme-compat, raises a deprecation and drops the theme's own header,
-	 * its styles and its content width. For those the page is collected
-	 * instead and footer() wraps it the way the theme's own templates are
-	 * wrapped.
-	 */
 	public static function header() {
 		if ( self::is_block_theme() ) {
 			ob_start();
@@ -159,7 +137,6 @@ class WMDS_Templates {
 		echo self::wrapper()[0]; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed markup, or what a theme passes through the filter.
 	}
 
-	/** Closes what header() opened. */
 	public static function footer() {
 		if ( ! self::is_block_theme() ) {
 			echo self::wrapper()[1]; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- see header().
@@ -171,9 +148,6 @@ class WMDS_Templates {
 
 		$content = (string) ob_get_clean();
 
-		// Rendered before wp_head() runs, as the block template canvas does:
-		// the styles of every block in a template part are only known once
-		// the part has been rendered.
 		$header = self::template_part( 'header' );
 		$footer = self::template_part( 'footer' );
 		$main   = do_blocks( '<!-- wp:group {"tagName":"main","layout":{"type":"constrained"}} --><main class="wp-block-group">wmds-content-goes-here</main><!-- /wp:group -->' );
@@ -203,8 +177,8 @@ class WMDS_Templates {
 	}
 
 	/**
-	 * @param string $slug header or footer.
-	 * @return string The rendered part, empty when the theme has none.
+	 * @param string $slug
+	 * @return string
 	 */
 	private static function template_part( $slug ) {
 		$part = get_block_template( get_stylesheet() . '//' . $slug, 'wp_template_part' );
@@ -212,8 +186,6 @@ class WMDS_Templates {
 			return '';
 		}
 
-		// With the theme named: older WordPress versions render a template
-		// part only when it is.
 		return do_blocks(
 			sprintf(
 				'<!-- wp:template-part {"slug":"%1$s","theme":"%2$s","area":"%1$s","tagName":"%1$s"} /-->',
@@ -224,11 +196,8 @@ class WMDS_Templates {
 	}
 
 	/**
-	 * Line icons for the bundled templates, drawn on a 24 grid with the
-	 * text colour, so they follow the theme.
-	 *
 	 * @param string $name
-	 * @return string SVG markup, empty for a name that has none.
+	 * @return string
 	 */
 	public static function icon( $name ) {
 		$paths = array(
@@ -265,16 +234,14 @@ class WMDS_Templates {
 		echo self::icon( $name ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from a fixed table above, nothing in it comes from outside.
 	}
 
-	/** @return string Classes for the outermost element of a vehicle template. */
+	/** @return string */
 	public static function wrapper_class() {
-		// A block theme sizes the page itself; a classic one hands the
-		// template the whole viewport, so the page brings its own width.
 		return self::is_block_theme() ? ' alignwide' : ' wmds-page';
 	}
 
 	/**
-	 * @param array  $atts    Shortcode attributes, consumed by the template.
-	 * @param string $content Enclosed content, unused.
+	 * @param array  $atts
+	 * @param string $content
 	 * @return string
 	 */
 	public static function shortcode( $atts, $content = null ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter -- see above.
@@ -344,7 +311,6 @@ class WMDS_Templates {
 		wp_enqueue_script( self::HANDLE );
 	}
 
-	/** Registers the stylesheet and script without enqueueing either. */
 	public static function register() {
 		if ( ! wp_script_is( self::HANDLE, 'registered' ) ) {
 			wp_register_script( self::HANDLE, WMDS_URL . 'assets/wmds.js', array(), WMDS_VERSION, true );

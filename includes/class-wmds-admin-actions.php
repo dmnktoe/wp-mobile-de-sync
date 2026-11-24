@@ -12,9 +12,6 @@ class WMDS_Admin_Actions {
 
 		$action = isset( $_REQUEST['wmds_action'] ) ? sanitize_key( wp_unslash( $_REQUEST['wmds_action'] ) ) : '';
 
-		// A link carries the same nonce as every form. Only what is offered
-		// as a link may arrive as one: a crafted address must not be able to
-		// save an empty form or delete the credentials.
 		$method = isset( $_SERVER['REQUEST_METHOD'] ) ? strtoupper( sanitize_key( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) ) : 'GET';
 		if ( 'POST' !== $method && ! in_array( $action, array( 'sync', 'refresh', 'check-update', 'export-log' ), true ) ) {
 			wp_die( esc_html__( 'This action must be submitted from its form.', 'wp-mobile-de-sync' ), '', array( 'response' => 405 ) );
@@ -81,7 +78,6 @@ class WMDS_Admin_Actions {
 
 		$tab = isset( $tabs[ $action ] ) ? $tabs[ $action ] : '';
 
-		// A form that names the tab it was submitted from is answered there.
 		$submitted = isset( $_REQUEST['wmds_tab'] ) ? sanitize_key( wp_unslash( $_REQUEST['wmds_tab'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- verified in handle() before this runs.
 		if ( array_key_exists( $submitted, WMDS_Admin::tabs() ) ) {
 			$tab = $submitted;
@@ -90,12 +86,6 @@ class WMDS_Admin_Actions {
 		return WMDS_Status::settings_url( $tab );
 	}
 
-	/**
-	 * Saves the tab that was submitted, and only that one.
-	 *
-	 * Each tab is a form of its own and posts its own fields. Reading every
-	 * setting out of one submission emptied the ones the other tabs own.
-	 */
 	private static function do_save() {
 		// phpcs:disable WordPress.Security.NonceVerification -- verified in handle() before this runs.
 		$tab     = isset( $_POST['wmds_tab'] ) ? sanitize_key( wp_unslash( $_POST['wmds_tab'] ) ) : '';
@@ -103,9 +93,6 @@ class WMDS_Admin_Actions {
 		$request = wp_unslash( $_POST );
 		// phpcs:enable WordPress.Security.NonceVerification
 
-		// A form that does not say which tab it is saves nothing. Guessing
-		// read the fields of one tab out of a submission that had none and
-		// emptied them.
 		if ( ! isset( $forms[ $tab ] ) ) {
 			WMDS_Admin_Notices::notice( 'error', __( 'Nothing was saved: the form did not specify which settings it contains.', 'wp-mobile-de-sync' ) );
 
@@ -119,8 +106,6 @@ class WMDS_Admin_Actions {
 
 		$values = WMDS_Settings::from_request( $forms[ $tab ], is_array( $request ) ? $request : array() );
 
-		// Either the seller ID or the dealer name, never both: the radio
-		// button says which one the form means.
 		if ( isset( $values['seller_id'] ) ) {
 			$mode = isset( $request['wmds_seller_mode'] ) ? sanitize_key( (string) $request['wmds_seller_mode'] ) : 'id';
 
@@ -139,9 +124,7 @@ class WMDS_Admin_Actions {
 	}
 
 	/**
-	 * What a changed setting sets in motion.
-	 *
-	 * @param array $before The values of the submitted settings before saving.
+	 * @param array $before
 	 */
 	private static function after_save( array $before ) {
 		$changed = array();
@@ -151,7 +134,6 @@ class WMDS_Admin_Actions {
 			}
 		}
 
-		// A test passed for the credentials that were there before.
 		if ( array_intersect( array( 'username', 'password', 'seller_id', 'dealer' ), $changed ) ) {
 			delete_option( WMDS_Status::OPT_LAST_TEST );
 		}
@@ -160,17 +142,11 @@ class WMDS_Admin_Actions {
 			WMDS_Plugin::resync_schedule();
 		}
 
-		// The post type is registered with the old slug for the rest of this
-		// request. Dropping the stored rules makes the next request build
-		// them from the new one.
 		if ( in_array( 'slug', $changed, true ) ) {
 			delete_option( 'rewrite_rules' );
 		}
 
 		if ( array_key_exists( 'alerts_enabled', $before ) ) {
-			// Switched on again: the last problem reported is not news to
-			// anybody any more, and the next one should not wait for a
-			// cooldown that started back then.
 			if ( in_array( 'alerts_enabled', $changed, true ) && WMDS_Alerts::enabled() ) {
 				WMDS_Alerts::forget();
 			}
@@ -272,9 +248,8 @@ class WMDS_Admin_Actions {
 	}
 
 	/**
-	 * @param bool $full       Start over with the whole inventory.
-	 * @param bool $reschedule False when the caller asks for the next pass
-	 *                         itself, as the progress bar does.
+	 * @param bool $full
+	 * @param bool $reschedule
 	 * @return array|WP_Error
 	 */
 	public static function run_pass( $full, $reschedule = true ) {
@@ -315,13 +290,6 @@ class WMDS_Admin_Actions {
 		delete_site_transient( 'update_plugins' );
 	}
 
-	/**
-	 * One test mail for every address the plugin writes to.
-	 *
-	 * Enquiries and alerts keep addresses of their own, and one button covers
-	 * both: whether mail leaves this site is a property of the site, not of
-	 * the kind of message.
-	 */
 	private static function do_test_mail() {
 		$to   = WMDS_Mail::test_recipients();
 		$site = wp_specialchars_decode( (string) get_option( 'blogname' ), ENT_QUOTES );
@@ -414,8 +382,6 @@ class WMDS_Admin_Actions {
 		header( 'Content-Disposition: attachment; filename="mobile-de-sync-log.txt"' );
 
 		foreach ( WMDS_Log::entries() as $entry ) {
-			// Plain text in a download: escaping it for HTML would put &amp;
-			// and &#039; into the file.
 			echo WMDS_Log::line( $entry ) . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- text/plain, sent as an attachment.
 		}
 

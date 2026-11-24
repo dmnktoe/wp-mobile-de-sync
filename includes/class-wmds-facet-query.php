@@ -3,14 +3,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * A selection, as arguments WP_Query understands.
- */
 class WMDS_Facet_Query {
 	/**
 	 * @param array $selection
-	 * @param array $exclude   Facet keys to leave out.
-	 * @return array The meta_query the selection amounts to.
+	 * @param array $exclude
+	 * @return array
 	 */
 	public static function meta_query( array $selection, array $exclude = array() ) {
 		$clauses = array();
@@ -71,7 +68,7 @@ class WMDS_Facet_Query {
 
 	/**
 	 * @param string $sort
-	 * @return array Query arguments that order the result.
+	 * @return array
 	 */
 	public static function order_args( $sort ) {
 		$sorts = WMDS_Facets::sorts();
@@ -107,8 +104,8 @@ class WMDS_Facet_Query {
 
 	/**
 	 * @param array $selection
-	 * @param array $base      Arguments the caller has already decided on.
-	 * @return array WP_Query arguments.
+	 * @param array $base
+	 * @return array
 	 */
 	public static function query_args( array $selection, array $base = array() ) {
 		$args = array_merge(
@@ -144,7 +141,7 @@ class WMDS_Facet_Query {
 	/**
 	 * @param array $first
 	 * @param array $second
-	 * @return array The two clause sets, ANDed, without nesting an empty one.
+	 * @return array
 	 */
 	public static function combine( array $first, array $second ) {
 		if ( ! $first ) {
@@ -173,9 +170,6 @@ class WMDS_Facet_Query {
 		}
 
 		/**
-		 * Vehicles on one archive page. Twelve fills a row of two, three or
-		 * four; the ten WordPress would use leaves a ragged last row.
-		 *
 		 * @param int $per_page
 		 */
 		$query->set( 'posts_per_page', max( 1, (int) apply_filters( 'wmds_archive_per_page', 12 ) ) );

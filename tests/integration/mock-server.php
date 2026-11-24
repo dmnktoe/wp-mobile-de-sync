@@ -88,15 +88,7 @@ function wmds_mock_catalog( array $state ) {
 }
 
 /**
- * A larger inventory, derived from one real ad.
- *
- * Two fixtures are enough to prove the mapper; they are not enough to see
- * pagination, facet counts or a price slider do anything. `"generate": 40` in
- * the state file adds forty vehicles that differ in everything a visitor can
- * filter on. The values are a function of the index, so two runs see the same
- * inventory.
- *
- * @param array $template One catalogue entry, search and detail.
+ * @param array $template
  * @param int   $count
  * @return array
  */
@@ -144,8 +136,6 @@ function wmds_mock_generate( array $template, $count ) {
 			),
 		);
 
-		// Every third vehicle has no pictures at all, every fifth just one:
-		// the two cases a gallery is most likely to have forgotten.
 		$images = isset( $template['detail']['images'] ) ? (array) $template['detail']['images'] : array();
 		if ( 0 === $i % 3 ) {
 			$images = array();
@@ -163,8 +153,6 @@ function wmds_mock_generate( array $template, $count ) {
 			}
 		}
 
-		// The sparse ad: what the API sends when a dealer filled in the
-		// minimum. Optional fields are absent, not empty.
 		if ( 0 === $i % 7 ) {
 			foreach ( array( 'emissions', 'consumptions', 'emissionSticker', 'emissionClass', 'interiorColor', 'interiorType', 'description', 'plainTextDescription', 'power', 'cubicCapacity', 'seats', 'doors', 'priceRating', 'climatisation' ) as $optional ) {
 				unset( $entry['search'][ $optional ], $entry['detail'][ $optional ] );
@@ -301,7 +289,7 @@ function wmds_mock_refdata() {
 
 /**
  * @param string $value
- * @return int Timestamp, 0 when this is not a full ISO 8601 stamp.
+ * @return int
  */
 function wmds_mock_iso8601( $value ) {
 	$value = (string) $value;

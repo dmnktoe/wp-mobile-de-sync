@@ -364,8 +364,8 @@ class WMDS_Requirements {
 	}
 
 	/**
-	 * @param string $value A php.ini shorthand such as 256M.
-	 * @return int Bytes, or -1 when unlimited.
+	 * @param string $value
+	 * @return int
 	 */
 	public static function bytes( $value ) {
 		$value = trim( (string) $value );

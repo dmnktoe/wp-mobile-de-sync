@@ -64,7 +64,6 @@ $wmds_found     = (int) $GLOBALS['wp_query']->found_posts;
 		</ul>
 
 		<?php
-		// Empty when everything fits on one page.
 		$wmds_pages = (string) paginate_links(
 			array(
 				'prev_text' => WMDS_Templates::icon( 'chevron-left' ) . '<span class="screen-reader-text">' . esc_html__( 'Previous', 'wp-mobile-de-sync' ) . '</span>',

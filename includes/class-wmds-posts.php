@@ -21,7 +21,7 @@ class WMDS_Posts {
 		add_action( 'admin_notices', array( __CLASS__, 'edit_notice' ) );
 	}
 
-	/** @return bool Whether we are on one of the vehicle screens. */
+	/** @return bool */
 	private static function on_screen() {
 		if ( ! function_exists( 'get_current_screen' ) ) {
 			return false;
@@ -222,7 +222,7 @@ class WMDS_Posts {
 		<?php
 	}
 
-	/** @return string[] Distinct makes in the inventory. */
+	/** @return string[] */
 	private static function makes() {
 		$cached = get_transient( self::MAKES_CACHE );
 		if ( is_array( $cached ) ) {

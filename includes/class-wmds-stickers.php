@@ -25,8 +25,8 @@ class WMDS_Stickers {
 	);
 
 	/**
-	 * @param string $key e.g. "EMISSIONSSTICKER_GREEN", "green" or the group number.
-	 * @return string Empty string when the vehicle carries no sticker.
+	 * @param string $key
+	 * @return string
 	 */
 	public static function url( $key ) {
 		$colour = self::normalize( $key );
@@ -44,7 +44,7 @@ class WMDS_Stickers {
 
 	/**
 	 * @param string $key
-	 * @return string One of red, yellow, green, or '' for none.
+	 * @return string
 	 */
 	public static function normalize( $key ) {
 		$key = strtolower( trim( (string) $key ) );

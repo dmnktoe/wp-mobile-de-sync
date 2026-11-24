@@ -1,18 +1,4 @@
 <?php
-/**
- * What the settings screen does, pinned down before it is taken apart.
- *
- * The rest of the suite tests decisions: which health state applies, what a
- * request means, whether a mail is due. The admin class has none of that
- * under it - it is dispatch and markup, and a mistake there shows up as a
- * broken screen rather than a red test.
- *
- * So this file asserts the things a refactor can silently break: that every
- * tab still exists and still renders, that each one saves its own settings
- * and only its own, that every action resolves and lands on the right tab,
- * and that the screen is closed to anybody without the capability.
- */
-
 require_once __DIR__ . '/bootstrap.php';
 
 define( 'WMDS_DIR', dirname( __DIR__ ) . '/' );
@@ -86,12 +72,9 @@ function wmds_render_tab( $tab ) {
 }
 
 /**
- * Drives the real entry point and reports where it wanted to go.
- *
  * @param string $action
  * @param array  $post
- * @return string The redirect target, or the exception class when it did not
- *                get that far.
+ * @return string
  */
 function wmds_run_action( $action, array $post = array() ) {
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- this is the test setting the request up, not reading one.

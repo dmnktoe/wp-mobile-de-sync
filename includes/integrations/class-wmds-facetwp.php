@@ -3,23 +3,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * FacetWP, where a site already runs it.
- *
- * The plugin has filtered on its own since 2.2, and nothing here is needed for
- * that. This is for the sites that were built on FacetWP before and are not
- * going to be rebuilt: their facets keep working, and three things that used
- * to be manual stop being manual.
- *
- * The meta keys turn up in the facet source dropdown under their own heading
- * with readable labels, instead of having to be typed as `cf/price_raw` from
- * memory. The sort orders the filter bar offers are offered to a FacetWP
- * template too. And a vehicle is re-indexed after the import has written its
- * meta rather than while it is writing it — FacetWP indexes on save_post, the
- * importer saves the post first and fills the meta afterwards, so what
- * FacetWP indexed was the state before the update. That is the stale count
- * nobody could explain.
- */
 class WMDS_Facetwp {
 	public static function init() {
 		if ( ! self::active() ) {
@@ -41,14 +24,12 @@ class WMDS_Facetwp {
 		return defined( 'FACETWP_VERSION' ) ? (string) FACETWP_VERSION : '';
 	}
 
-	/** @return bool Whether a vehicle is re-indexed after a sync wrote it. */
+	/** @return bool */
 	public static function reindexes() {
 		return WMDS_Settings::flag( 'facetwp_reindex' );
 	}
 
 	/**
-	 * The meta keys, as facet sources.
-	 *
 	 * @param array $sources
 	 * @return array
 	 */
@@ -65,9 +46,9 @@ class WMDS_Facetwp {
 	}
 
 	/**
-	 * @param array $definitions As WMDS_Facets::definitions() returns them.
-	 * @param array $extra       Further meta key => label.
-	 * @return array<string, string> FacetWP source => label.
+	 * @param array $definitions
+	 * @param array $extra
+	 * @return array<string, string>
 	 */
 	public static function choices( array $definitions, array $extra = array() ) {
 		$choices = array();
@@ -92,8 +73,6 @@ class WMDS_Facetwp {
 	}
 
 	/**
-	 * Fields worth faceting on that the filter bar has no component for.
-	 *
 	 * @return array<string, string>
 	 */
 	public static function extra() {
@@ -125,7 +104,7 @@ class WMDS_Facetwp {
 	}
 
 	/**
-	 * @param array $sorts As WMDS_Facets::sorts() returns them.
+	 * @param array $sorts
 	 * @return array<string, array{label:string,query_args:array}>
 	 */
 	public static function sorts( array $sorts ) {
@@ -156,8 +135,6 @@ class WMDS_Facetwp {
 	}
 
 	/**
-	 * Re-indexes one vehicle, after the import has finished writing it.
-	 *
 	 * @param int $post_id
 	 */
 	public static function index_post( $post_id ) {

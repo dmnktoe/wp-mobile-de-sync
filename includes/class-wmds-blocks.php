@@ -3,12 +3,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * The shortcodes, as blocks the editor can place.
- *
- * Each block renders through the shortcode it stands for. The editor script
- * draws the sidebar; the preview comes from the server.
- */
 class WMDS_Blocks {
 	const HANDLE = 'wmds-blocks';
 
@@ -91,9 +85,6 @@ class WMDS_Blocks {
 						'html' => false,
 					),
 					'editor_script'   => self::HANDLE,
-					// The preview is the front-end markup and needs the
-					// front-end stylesheet; on the site itself the template
-					// loader enqueues it.
 					'editor_style'    => WMDS_Templates::HANDLE,
 					'render_callback' => $definition['render'],
 				)

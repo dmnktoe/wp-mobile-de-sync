@@ -62,8 +62,6 @@ h1, h2, h3, h4 { line-height: 1.3; }
 .skip { position: absolute; left: -999px; }
 .skip:focus { left: 1rem; top: .5rem; z-index: 10; padding: .25rem .5rem; background: var(--bg); }
 
-/* Header */
-
 .topbar {
 	position: sticky;
 	top: 0;
@@ -103,8 +101,6 @@ h1, h2, h3, h4 { line-height: 1.3; }
 .topnav a:hover,
 .topnav a[aria-current="page"] { color: var(--text); }
 .topnav a[aria-current="page"] { text-decoration: underline; text-underline-offset: .4em; }
-
-/* Home */
 
 .intro { max-width: var(--measure); padding: 3rem 0 2rem; }
 
@@ -187,8 +183,6 @@ h1, h2, h3, h4 { line-height: 1.3; }
 .doc-list dt { font-weight: 600; }
 .doc-list dd { margin: 0; color: var(--muted); font-size: .95rem; }
 
-/* Rendered Markdown */
-
 .prose > :first-child { margin-top: 0; }
 .prose > :last-child { margin-bottom: 0; }
 
@@ -263,8 +257,6 @@ h4:hover > .anchor,
 
 .mermaid { margin: 0 0 1.25rem; overflow-x: auto; text-align: center; }
 .mermaid svg { max-width: 100%; height: auto; }
-
-/* Documentation and changelog */
 
 .docs {
 	display: grid;
@@ -341,8 +333,6 @@ h4:hover > .anchor,
 
 .prose--changelog h3 { margin: 1.25rem 0 .35rem; font-size: 1rem; }
 .prose--changelog h3 .anchor { display: none; }
-
-/* 404 and footer */
 
 .not-found { padding: 5rem 1rem; }
 .not-found h1 { margin: 0 0 .5rem; }

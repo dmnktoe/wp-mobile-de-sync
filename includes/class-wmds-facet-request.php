@@ -3,21 +3,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * What a request means: reading it, and writing it back out as a URL.
- *
- * Everything here is pure. No database, no WordPress state beyond the two
- * calls that resolve a permalink, which is why the whole of it is testable
- * on its own.
- */
 class WMDS_Facet_Request {
 	/**
-	 * Reads a request into the normalised selection every other method takes.
-	 *
-	 * Pure: it touches no superglobal and no WordPress function, so the
-	 * decisions it makes are testable on their own.
-	 *
-	 * @param array $request Raw request values, already unslashed.
+	 * @param array $request
 	 * @return array<string, mixed>
 	 */
 	public static function parse( array $request ) {
@@ -59,11 +47,6 @@ class WMDS_Facet_Request {
 	}
 
 	/**
-	 * The selection the current request carries.
-	 *
-	 * The one method here that reads the world. Everything downstream takes
-	 * the array it returns, which is why everything downstream is pure.
-	 *
 	 * @return array<string, mixed>
 	 */
 	public static function selection() {
@@ -138,7 +121,7 @@ class WMDS_Facet_Request {
 
 	/**
 	 * @param array $selection
-	 * @return bool Whether anything narrows the inventory.
+	 * @return bool
 	 */
 	public static function is_filtered( array $selection ) {
 		foreach ( $selection as $key => $value ) {
@@ -230,8 +213,7 @@ class WMDS_Facet_Request {
 
 	/**
 	 * @param float $value
-	 * @param bool  $grouping False for figures like a year, which are never
-	 *                        written with a thousands separator.
+	 * @param bool  $grouping
 	 * @return string
 	 */
 	public static function number( $value, $grouping = true ) {
@@ -239,8 +221,6 @@ class WMDS_Facet_Request {
 	}
 
 	/**
-	 * Turns a selection back into query arguments.
-	 *
 	 * @param array $selection
 	 * @return array<string, mixed>
 	 */
@@ -277,7 +257,7 @@ class WMDS_Facet_Request {
 	/**
 	 * @param array  $selection
 	 * @param string $key
-	 * @param string $value Only that value, for a facet that holds several.
+	 * @param string $value
 	 * @return string
 	 */
 	public static function url_without( array $selection, $key, $value = '' ) {
@@ -308,11 +288,8 @@ class WMDS_Facet_Request {
 		return $base . ( ( false === strpos( $base, '?' ) ) ? '?' : '&' ) . http_build_query( $args );
 	}
 
-	/** @return string Where the filter form submits to. */
+	/** @return string */
 	public static function base_url() {
-		// The page the list is on, when there is one. A filter in a sidebar
-		// or on a vehicle page sends people to the archive instead: its own
-		// page has nothing to filter.
 		$post = is_singular() ? get_post() : null;
 
 		if ( $post instanceof WP_Post && ( has_shortcode( $post->post_content, 'vehicles' ) || has_block( 'wmds/vehicles', $post ) ) ) {

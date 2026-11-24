@@ -3,12 +3,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * The enquiry form on a vehicle page, where its mails go, and whether mail
- * leaves this site at all.
- */
 class WMDS_Tab_Enquiries {
-	/** @return string[] The settings this tab's form holds. */
+	/** @return string[] */
 	public static function fields() {
 		return array(
 			'enquiry_enabled',

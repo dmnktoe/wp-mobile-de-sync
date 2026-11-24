@@ -3,10 +3,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * What is needed now and then: the connection test, maintenance, the log,
- * the requirements of the server and where to find help.
- */
 class WMDS_Tab_Tools {
 	/**
 	 * @param array $status

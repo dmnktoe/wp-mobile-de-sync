@@ -54,15 +54,12 @@ class WMDS_Admin {
 		return $links;
 	}
 
-	/** @return bool Whether the current screen is our settings page. */
+	/** @return bool */
 	public static function on_page() {
 		return isset( $_GET['page'] ) && self::PAGE === $_GET['page']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- a screen check, not a state change.
 	}
 
 	public static function assets() {
-		// The status dot in the admin bar and the notice are only ever shown
-		// to people who may manage the plugin; nobody else needs the files or
-		// the nonce that comes with them.
 		if ( ! current_user_can( 'edit_posts' ) ) {
 			return;
 		}
@@ -103,8 +100,6 @@ class WMDS_Admin {
 	}
 
 	/**
-	 * The settings each tab's form holds, by tab.
-	 *
 	 * @return array<string, string[]>
 	 */
 	public static function forms() {

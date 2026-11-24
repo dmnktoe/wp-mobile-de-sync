@@ -40,17 +40,17 @@ class WMDS_Refdata {
 	private $lang;
 
 	/**
-	 * @param string $lang Language code for Accept-Language (cz, de, en, es, fr, it, pl, ro, ru).
+	 * @param string $lang
 	 */
 	public function __construct( $lang = 'en' ) {
 		$this->lang = $lang ? $lang : 'en';
 	}
 
 	/**
-	 * @param string $field         Field name from the ad, e.g. 'gearbox'.
-	 * @param string $key           The key, e.g. 'MANUAL_GEAR'.
-	 * @param string $vehicle_class The vehicle's vehicleClass, needed for make/category.
-	 * @return string Localised label, otherwise the key in readable form.
+	 * @param string $field
+	 * @param string $key
+	 * @param string $vehicle_class
+	 * @return string
 	 */
 	public function label( $field, $key, $vehicle_class = 'Car' ) {
 		$key = trim( (string) $key );
@@ -65,12 +65,6 @@ class WMDS_Refdata {
 	}
 
 	/**
-	 * What to show for a key the reference data has no label for.
-	 *
-	 * The API gains values before they are documented, and the reference
-	 * endpoint has bad days. MERCEDES-BENZ and AUTOMATIC_GEAR on a public
-	 * page look like a broken site; Mercedes-Benz and Automatic Gear do not.
-	 *
 	 * @param string $key
 	 * @return string
 	 */
@@ -81,7 +75,6 @@ class WMDS_Refdata {
 			return $key;
 		}
 
-		// Short all-capitals keys are names in their own right: BMW, MG, DS.
 		if ( strlen( $key ) <= 3 ) {
 			return $key;
 		}
@@ -90,7 +83,7 @@ class WMDS_Refdata {
 	}
 
 	/**
-	 * @param string $path Path below /refdata, e.g. 'gearboxes'.
+	 * @param string $path
 	 * @return array<string, string>
 	 */
 	private function table( $path ) {
@@ -116,7 +109,7 @@ class WMDS_Refdata {
 
 	/**
 	 * @param string $path
-	 * @return array<string, string> Empty array on any error.
+	 * @return array<string, string>
 	 */
 	protected function fetch( $path ) {
 		$response = wp_remote_get(

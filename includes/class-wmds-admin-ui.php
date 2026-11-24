@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class WMDS_Admin_Ui {
 	/**
-	 * @param string $tab Tab to return to after saving.
+	 * @param string $tab
 	 */
 	public static function form_open( $tab ) {
 		printf( '<form method="post" action="%s" class="wmds-form">', esc_url( admin_url( 'admin-post.php' ) ) );
@@ -19,8 +19,8 @@ class WMDS_Admin_Ui {
 	 * @param string $action
 	 * @param string $label
 	 * @param string $type
-	 * @param string $confirm Optional confirmation prompt.
-	 * @param string $tab     Tab to return to, when it is not the usual one.
+	 * @param string $confirm
+	 * @param string $tab
 	 */
 	public static function action_button( $action, $label, $type, $confirm = '', $tab = '' ) {
 		printf( '<form method="post" action="%s" class="wmds-inline-form">', esc_url( admin_url( 'admin-post.php' ) ) );
@@ -44,8 +44,8 @@ class WMDS_Admin_Ui {
 
 	/**
 	 * @param int    $timestamp
-	 * @param string $mode  'absolute' for the date, 'relative' for "5 mins ago".
-	 * @param string $title Tooltip, when the other reading is not the useful one.
+	 * @param string $mode
+	 * @param string $title
 	 */
 	public static function print_time( $timestamp, $mode = 'absolute', $title = '' ) {
 		$timestamp = (int) $timestamp;
@@ -140,10 +140,6 @@ class WMDS_Admin_Ui {
 		<?php
 	}
 
-	/**
-	 * Shown when an import holds the lock: a run cut short by a PHP time
-	 * limit leaves it behind, and until it is released nothing syncs.
-	 */
 	public static function render_lock_notice() {
 		$locked_since = WMDS_Importer::locked_since();
 		if ( ! $locked_since ) {

@@ -7,18 +7,17 @@ class WMDS_Logos {
 	const DIR      = 'assets/logos/';
 	const OVERRIDE = 'wmds-logos';
 
-	/** @var array<string,string>|null normalised name => file name */
+	/** @var array<string,string>|null */
 	private static $index = null;
 
-	/** @var array<int, string[]> Groups of normalised names that mean the same make. */
+	/** @var array<int, string[]> */
 	private static $synonyms = array(
 		array( 'vw', 'volkswagen' ),
 	);
 
 	/**
-	 * @param string $make_key e.g. "LAND ROVER". The display name
-	 *                         ("Land Rover") works just as well.
-	 * @return string Empty string when there is no logo.
+	 * @param string $make_key
+	 * @return string
 	 */
 	public static function url( $make_key ) {
 		$needle = self::normalize( $make_key );
@@ -90,7 +89,7 @@ class WMDS_Logos {
 
 	/**
 	 * @param array<string, array{file:string,source:string}> $index
-	 * @param string                                          $needle Normalised make.
+	 * @param string                                          $needle
 	 * @return array{file:string,source:string}|null
 	 */
 	private static function find( array $index, $needle ) {
@@ -129,8 +128,6 @@ class WMDS_Logos {
 			if ( ! is_dir( $dir ) ) {
 				continue;
 			}
-			// No GLOB_BRACE: the constant does not exist on musl, which is
-			// every Alpine container, and PHP 8 makes that a fatal error.
 			foreach ( (array) scandir( $dir ) as $file ) {
 				if ( ! preg_match( '/\.(png|svg|jpe?g|webp)$/i', (string) $file ) ) {
 					continue;

@@ -3,10 +3,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * The enquiry form on a vehicle page: what it shows, what it accepts and
- * what it turns away.
- */
 class WMDS_Lead_Form {
 	const NONCE  = 'wmds_enquiry';
 	const ACTION = 'wmds_enquiry';
@@ -33,11 +29,9 @@ class WMDS_Lead_Form {
 	}
 
 	/**
-	 * Everything that can be decided about a submission without a database.
-	 *
-	 * @param array $data Cleaned field values.
+	 * @param array $data
 	 * @param bool  $consent_required
-	 * @return array<string, string> Field name => what is wrong with it.
+	 * @return array<string, string>
 	 */
 	public static function validate( array $data, $consent_required = false ) {
 		$errors = array();
@@ -78,10 +72,8 @@ class WMDS_Lead_Form {
 	}
 
 	/**
-	 * The checks a person never notices and a script always fails.
-	 *
 	 * @param array $data
-	 * @param int   $now Unix time of the submission.
+	 * @param int   $now
 	 * @return bool
 	 */
 	public static function is_spam( array $data, $now ) {
@@ -99,7 +91,7 @@ class WMDS_Lead_Form {
 	}
 
 	/**
-	 * @param int $sent How many this address or IP has already sent.
+	 * @param int $sent
 	 * @return bool
 	 */
 	public static function over_limit( $sent ) {
@@ -112,10 +104,6 @@ class WMDS_Lead_Form {
 		$referer = wp_get_referer();
 		$back    = $referer ? $referer : home_url( '/' );
 
-		// Only for somebody who is logged in. A nonce for a visitor is the
-		// same for every visitor and protects nothing, and it is printed into
-		// a page that a page cache keeps for longer than the nonce lives:
-		// the first enquiry from a cached vehicle page would always bounce.
 		if ( is_user_logged_in() && ! wp_verify_nonce( isset( $_POST['_wpnonce'] ) ? sanitize_key( wp_unslash( $_POST['_wpnonce'] ) ) : '', self::NONCE ) ) {
 			self::refuse( $back, 'expired' );
 		}
@@ -144,8 +132,6 @@ class WMDS_Lead_Form {
 		$post_id = isset( $posted['vehicle'] ) ? (int) $posted['vehicle'] : 0;
 		$vehicle = null;
 
-		// Published only: the form posts an ID, and the title and address of
-		// a draft are nobody's business.
 		if ( $post_id && WMDS_CPT === get_post_type( $post_id ) && 'publish' === get_post_status( $post_id ) ) {
 			$vehicle = new WMDS_Vehicle( $post_id );
 		} else {
@@ -176,9 +162,6 @@ class WMDS_Lead_Form {
 	/** @return array<string, string> */
 	private static function read_request() {
 		// phpcs:disable WordPress.Security.NonceVerification.Missing -- the nonce is checked in handle() before anything is done with this.
-		// Cut here, before anything is kept: what comes back to the form after
-		// a validation error is stored for a quarter of an hour, and nobody
-		// is owed room for a megabyte.
 		return array(
 			'name'    => isset( $_POST['wmds_name'] ) ? WMDS_Str::cut( sanitize_text_field( wp_unslash( $_POST['wmds_name'] ) ), self::MAX_FIELD ) : '',
 			'email'   => isset( $_POST['wmds_email'] ) ? WMDS_Str::cut( sanitize_email( wp_unslash( $_POST['wmds_email'] ) ), self::MAX_FIELD ) : '',
@@ -200,8 +183,6 @@ class WMDS_Lead_Form {
 	private static function bounce( $url, array $errors, array $values ) {
 		unset( $values['website'], $values['opened'] );
 
-		// Lower case: the token comes back through sanitize_key(), and an
-		// object cache, unlike the options table, tells aB from ab.
 		$token = strtolower( wp_generate_password( 16, false ) );
 
 		set_transient(
@@ -218,15 +199,8 @@ class WMDS_Lead_Form {
 	}
 
 	/**
-	 * Sends a submission back without keeping anything of it.
-	 *
-	 * For everything that is refused before the fields are even looked at.
-	 * The reason travels as a word in the address; nothing is written, so a
-	 * script that posts rubbish all day costs a redirect each time and not a
-	 * row in the database.
-	 *
 	 * @param string $url
-	 * @param string $reason One of the keys of refusals().
+	 * @param string $reason
 	 */
 	private static function refuse( $url, $reason ) {
 		wp_safe_redirect( add_query_arg( 'wmds_enquiry', $reason, $url ) . '#wmds-enquiry' );
@@ -243,7 +217,7 @@ class WMDS_Lead_Form {
 		);
 	}
 
-	/** @return array{errors:array,values:array,sent:bool} What the form should show after a redirect. */
+	/** @return array{errors:array,values:array,sent:bool} */
 	public static function state() {
 		$empty = array(
 			'errors' => array(),
@@ -323,23 +297,11 @@ class WMDS_Lead_Form {
 		return WMDS_Str::length( $value );
 	}
 
-	/*
-	 * An enquiry is a name, an address, a phone number and an IP. WordPress
-	 * has a tool for "send me what you hold on me" and one for "delete it"
-	 * (Tools → Export / Erase Personal Data); without these two callbacks
-	 * neither of them knew the enquiries existed.
-	 */
-
 	/** @return string */
 	public static function client_ip() {
 		$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
 
 		/**
-		 * The address a visitor is counted and recorded under. Behind a
-		 * proxy that does not rewrite REMOTE_ADDR every visitor arrives from
-		 * the proxy, and five enquiries an hour is then the limit for the
-		 * whole site — this is where to read the forwarded header instead.
-		 *
 		 * @param string $ip
 		 */
 		$ip = (string) apply_filters( 'wmds_client_ip', $ip );

@@ -7,14 +7,8 @@ define( 'WMDS_DIR', dirname( __DIR__ ) . '/' );
 require_once __DIR__ . '/../includes/class-wmds-autoloader.php';
 
 /**
- * The search itself, over the directories the loader really has.
- *
- * Reading the list rather than repeating it is the point: a directory added
- * to the loader and forgotten here would leave this test passing on a tree it
- * no longer describes.
- *
  * @param string $class
- * @return string The file the autoloader would load, '' when it loads none.
+ * @return string
  */
 function wmds_autoload_target( $class ) {
 	$file = 'class-' . str_replace( '_', '-', strtolower( $class ) ) . '.php';
@@ -75,13 +69,6 @@ wmds_assert(
 
 wmds_section( 'A file that acts when it loads is loaded on purpose' );
 
-/*
- * The logo and sticker files register a shortcode at file level. Nothing would mention
- * those classes on a page that only uses the shortcode, so leaving them to
- * the autoloader would mean the shortcode is never registered. The plugin
- * header requires them outright, and this is what says so if somebody tidies
- * that away.
- */
 $header = (string) file_get_contents( WMDS_DIR . 'wp-mobile-de-sync.php' );
 
 foreach ( array( 'logos', 'stickers' ) as $eager ) {

@@ -33,10 +33,6 @@ foreach ( $wmds_atts as $wmds_key => $wmds_value ) {
 	}
 }
 
-// An attribute that names a facet is a filter the visitor starts with, not
-// one hidden from them. As a bare meta clause the filter bar knew nothing of
-// it: [vehicles make="BMW" filters="yes"] offered every make with the counts
-// of the whole inventory, and choosing any of them found nothing.
 $wmds_pinned = array();
 foreach ( WMDS_Facets::definitions() as $wmds_key => $wmds_facet ) {
 	$wmds_type = isset( $wmds_facet['type'] ) ? $wmds_facet['type'] : 'select';

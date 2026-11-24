@@ -3,34 +3,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * Loads a WMDS class from the file named after it.
- *
- * WMDS_Facet_Store lives in includes/class-wmds-facet-store.php, WMDS_Tab_Tools
- * in includes/tabs/class-wmds-tab-tools.php, WMDS_Cf7 in
- * includes/integrations/class-wmds-cf7.php. Adding a class means adding a
- * file and nothing else — there is no map here to forget to update, and no
- * list in the plugin header to keep in step.
- *
- * The two subdirectories are groups, not namespaces: tabs/ is one admin screen
- * each, integrations/ is the code that talks to another plugin and has to
- * survive that plugin not being there.
- *
- * Two files are deliberately not left to this: class-wmds-logos.php and
- * class-wmds-stickers.php each register a shortcode at file level. A file
- * that does something when it loads cannot be loaded lazily: nothing would
- * ever mention the class on a page that only uses the shortcode, so the
- * shortcode would never be registered.
- */
 class WMDS_Autoloader {
 	/**
-	 * Where a class file may sit, relative to includes/.
-	 *
 	 * @var string[]
 	 */
 	private static $dirs = array( '', 'tabs/', 'integrations/' );
 
-	/** @return string[] Where a class file may sit, relative to includes/. */
+	/** @return string[] */
 	public static function dirs() {
 		return self::$dirs;
 	}

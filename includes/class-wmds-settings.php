@@ -9,14 +9,6 @@ class WMDS_Settings {
 	const DEFAULT_SLUG = 'fahrzeuge';
 
 	/**
-	 * Every setting, with its type and default. The forms post a field
-	 * named wmds_ plus the key; from_request() reads them by this table, so
-	 * a new setting is one line here and a field in a tab.
-	 *
-	 * Types: text, password (kept when left empty), digits, emails
-	 * (comma-separated list), html, slug, bool ("yes"/"no"), choice (one of
-	 * `choices`).
-	 *
 	 * @return array<string, array{type:string,default:mixed,choices?:array}>
 	 */
 	public static function fields() {
@@ -112,9 +104,8 @@ class WMDS_Settings {
 	}
 
 	/**
-	 * @param string     $key      Setting name.
-	 * @param mixed|null $fallback Returned when the setting is unset or
-	 *                             empty; null for the default in fields().
+	 * @param string     $key
+	 * @param mixed|null $fallback
 	 * @return mixed
 	 */
 	public static function get( $key, $fallback = null ) {
@@ -133,7 +124,7 @@ class WMDS_Settings {
 	}
 
 	/**
-	 * @param string $key A bool setting.
+	 * @param string $key
 	 * @return bool
 	 */
 	public static function flag( $key ) {
@@ -141,14 +132,8 @@ class WMDS_Settings {
 	}
 
 	/**
-	 * Reads and cleans the posted value of each named setting.
-	 *
-	 * A checkbox that was not ticked is not posted at all, so a bool
-	 * missing from the request is "no". A password left empty is left out,
-	 * which keeps the stored one.
-	 *
-	 * @param string[] $keys    Settings the submitted form holds.
-	 * @param array    $request Usually $_POST, unslashed.
+	 * @param string[] $keys
+	 * @param array    $request
 	 * @return array<string, mixed>
 	 */
 	public static function from_request( array $keys, array $request ) {
@@ -209,12 +194,12 @@ class WMDS_Settings {
 		return $values;
 	}
 
-	/** @return string The mobile.de API username. */
+	/** @return string */
 	public static function username() {
 		return trim( (string) self::get( 'username' ) );
 	}
 
-	/** @return string The mobile.de API password. */
+	/** @return string */
 	public static function password() {
 		return (string) self::get( 'password' );
 	}
@@ -235,16 +220,13 @@ class WMDS_Settings {
 	}
 
 	/**
-	 * The URL base of the archive and of every vehicle: /fahrzeuge/ and
-	 * /fahrzeuge/audi-a4/ by default.
-	 *
 	 * @return string
 	 */
 	public static function slug() {
 		$slug = sanitize_title( (string) self::get( 'slug' ) );
 
 		/**
-		 * @param string $slug The slug the archive and the vehicles are served under.
+		 * @param string $slug
 		 */
 		$slug = sanitize_title( (string) apply_filters( 'wmds_slug', '' !== $slug ? $slug : self::DEFAULT_SLUG ) );
 
@@ -288,7 +270,7 @@ class WMDS_Settings {
 	}
 
 	/**
-	 * @param array $values Setting name => value.
+	 * @param array $values
 	 */
 	public static function update( array $values ) {
 		$opts = get_option( self::OPTION, array() );

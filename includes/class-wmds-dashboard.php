@@ -57,7 +57,6 @@ class WMDS_Dashboard {
 	}
 
 	public static function configure() {
-		// One option for the whole site, so only somebody who manages the site changes it.
 		if ( current_user_can( 'manage_options' ) && isset( $_POST[ self::WIDGET ] ) && is_array( $_POST[ self::WIDGET ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- wp_dashboard_setup verifies the dashboard nonce before calling the control callback.
 			$submitted = wp_unslash( $_POST[ self::WIDGET ] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- both members are sanitised below.
 

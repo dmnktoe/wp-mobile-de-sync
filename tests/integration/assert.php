@@ -31,7 +31,7 @@ function wmds_it_same( $label, $expected, $actual ) {
 
 /**
  * @param string $status
- * @return array Ad ID => WP_Post
+ * @return array
  */
 function wmds_it_posts( $status = 'publish' ) {
 	$found = array();

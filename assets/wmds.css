@@ -1,23 +1,3 @@
-/*
- * The bundled templates: archive, detail page, list, filter bar, enquiry.
- *
- * The type family and the text colour come from the theme; sizes, spacing,
- * surfaces and the controls are set here, so the pages look the same in a
- * theme that styles headings at 110px and lists with bullets as in one that
- * styles nothing. Every rule sits below .wmds-scope and names a component,
- * which outranks the element selectors themes use for content.
- *
- * Colours and radii are custom properties on .wmds-scope. A theme restyles
- * the whole thing by setting a handful of them, for example
- *
- *     .wmds-scope { --wmds-accent: #c8102e; --wmds-radius: 4px; }
- *
- * A dark set of values is switched on with the class wmds-dark on the
- * scope or any ancestor.
- */
-
-/* --- Tokens --- */
-
 .wmds-scope {
 	--wmds-accent: #14171c;
 	--wmds-on-accent: #fff;
@@ -62,8 +42,6 @@
 	--wmds-shadow: none;
 	--wmds-shadow-lg: 0 18px 40px -16px rgba(0, 0, 0, .7);
 }
-
-/* --- What themes do to content, undone inside the templates --- */
 
 .wmds-scope,
 .wmds-scope *,
@@ -163,25 +141,16 @@
 	outline-offset: 2px;
 }
 
-/* --- Page frame --- */
-
 .wmds-page {
-	/* The archive and the detail page in a classic theme, which hands a
-	   template the full width of the window and expects it to cope. */
-	/* Some themes (Salient among them) lay the page out as a flex row;
-	   without a width the template shrinks to the width of its text. */
 	width: 100%;
 	max-width: var(--wmds-page-width, 1240px);
 	margin-inline: auto;
 	padding: 32px var(--wmds-page-gutter, 20px) 64px;
 }
 
-/* Inside a theme's own content container, which brings its margins. */
 .wmds-theme-frame .wmds-page {
 	padding-inline: 0;
 }
-
-/* --- Buttons --- */
 
 .wmds-scope .wmds-button {
 	display: inline-flex;
@@ -247,8 +216,6 @@
 	width: 18px;
 	height: 18px;
 }
-
-/* --- Form controls --- */
 
 .wmds-scope .wmds-facet__label,
 .wmds-scope .wmds-field > label {
@@ -346,11 +313,6 @@
 	padding-left: 42px;
 }
 
-/*
- * Themes that replace selects with select2 (Salient does it to every one,
- * WooCommerce shops often do): the replacement gets the same face as a
- * native control. The wrapper Salient adds around it is flattened.
- */
 .wmds-scope .wmds-select .fancy-select-wrap {
 	margin: 0;
 	padding: 0;
@@ -361,8 +323,6 @@
 	width: 100% !important;
 }
 
-/* Four classes deep on purpose: Salient's own rules for these start with
-   body[data-fancy-form-rcs] and would win against anything shorter. */
 .wmds-scope .wmds-select .select2-container .select2-selection--single {
 	display: flex;
 	align-items: center;
@@ -401,8 +361,6 @@
 .wmds-scope .wmds-select .select2-container .select2-selection--single .select2-selection__arrow b {
 	display: none;
 }
-
-/* --- Filter bar --- */
 
 .wmds-scope.wmds-facets {
 	margin: 0 0 32px;
@@ -500,9 +458,6 @@
 	border-top: 1px solid var(--wmds-line);
 }
 
-/* Choices as toggles. The input stays in the page for the keyboard and
-   for screen readers; the text next to it is what the eye sees. */
-
 .wmds-scope .wmds-pills {
 	display: flex;
 	flex-wrap: wrap;
@@ -567,8 +522,6 @@
 	opacity: .6;
 }
 
-/* Two-handle range. */
-
 .wmds-scope .wmds-facet--range .wmds-facet__label {
 	display: flex;
 	align-items: baseline;
@@ -615,8 +568,6 @@
 }
 
 .wmds-scope input[type="range"].wmds-range__slider {
-	/* Spelled out this far because themes style input[type=range] and its
-	   thumb, and a class alone loses to that. */
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -704,8 +655,6 @@
 	font-size: 13px;
 }
 
-/* Sort, buttons, active filters. */
-
 .wmds-scope .wmds-facets__actions {
 	display: flex;
 	flex-wrap: wrap;
@@ -777,8 +726,6 @@
 	color: var(--wmds-muted);
 }
 
-/* In a sidebar every field takes the full width. */
-
 .wmds-facets--sidebar.wmds-scope {
 	padding: 22px;
 }
@@ -804,8 +751,6 @@
 .wmds-facets--sidebar .wmds-facets__buttons .wmds-button--primary {
 	flex: 1 1 auto;
 }
-
-/* --- Archive --- */
 
 .wmds-scope .wmds-archive__header {
 	margin: 0 0 24px;
@@ -836,8 +781,6 @@
 	color: var(--wmds-muted);
 	font-size: 15px;
 }
-
-/* --- Results --- */
 
 .wmds-scope .wmds-grid {
 	display: grid;
@@ -896,8 +839,6 @@
 }
 
 .wmds-scope .wmds-card__image img {
-	/* !important, for once: some themes size post thumbnails with an inline
-	   style, and nothing short of this gets past one. */
 	display: block;
 	width: 100% !important;
 	height: 100% !important;
@@ -987,10 +928,6 @@
 
 .wmds-scope .wmds-card__logo img,
 .wmds-scope .wmds-single__logo img {
-	/* !important, as for the card image: page-builder themes reach into
-	   columns with rules like `.row .col img:not([srcset]) { width: auto }`
-	   and `.row .col img { margin-bottom: 15px; height: auto }`, which
-	   outrank these and push the logo out of its circle. */
 	display: block;
 	max-width: none !important;
 	margin: 0 !important;
@@ -1110,7 +1047,6 @@
 }
 
 @media (min-width: 720px) {
-	/* One vehicle a row: the picture on the left, as tall as the text. */
 	.wmds-scope .wmds-grid--list .wmds-card__link {
 		display: grid;
 		grid-template-columns: minmax(0, 340px) minmax(0, 1fr);
@@ -1188,8 +1124,6 @@
 	text-align: center;
 }
 
-/* --- Detail page --- */
-
 .wmds-scope .wmds-single__back {
 	margin: 0 0 20px;
 }
@@ -1264,8 +1198,6 @@
 		grid-template-columns: minmax(0, 1fr);
 	}
 }
-
-/* Gallery */
 
 .wmds-scope .wmds-gallery {
 	min-width: 0;
@@ -1388,8 +1320,6 @@
 	object-fit: cover;
 }
 
-/* Summary */
-
 .wmds-scope .wmds-summary {
 	position: sticky;
 	top: var(--wmds-sticky-top);
@@ -1511,8 +1441,6 @@
 	text-align: center;
 }
 
-/* Sections below */
-
 .wmds-scope .wmds-section,
 .wmds-scope.wmds-enquiry,
 .wmds-scope .wmds-enquiry {
@@ -1622,8 +1550,6 @@
 	color: var(--wmds-positive);
 }
 
-/* --- Enquiry form --- */
-
 .wmds-scope .wmds-enquiry__sent {
 	padding: 14px 16px;
 	border-radius: var(--wmds-radius-md);
@@ -1694,8 +1620,6 @@
 	overflow: hidden;
 }
 
-/* --- Notices --- */
-
 .wmds-scope .wmds-warning {
 	margin: 0 0 20px;
 	padding: 12px 16px;
@@ -1729,8 +1653,6 @@
 	color: inherit;
 	text-decoration: underline;
 }
-
-/* --- Small screens --- */
 
 @media (max-width: 640px) {
 	.wmds-page {

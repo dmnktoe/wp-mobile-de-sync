@@ -6,10 +6,6 @@ $po = dirname( __DIR__ ) . '/languages/wp-mobile-de-sync-de_DE.po';
 $mo = dirname( __DIR__ ) . '/languages/wp-mobile-de-sync-de_DE.mo';
 
 /**
- * Reads a .mo the way WordPress does, including the two length checks in
- * MO::import_from_reader() that a hand-rolled writer can get wrong without
- * producing a file that looks broken to anything else.
- *
  * @param string $path
  * @return array{ok:bool,reason:string,entries:array<string,string>}
  */
@@ -38,9 +34,6 @@ function wmds_read_mo( $path ) {
 		return $fail( 'revision is not 0' );
 	}
 
-	// WordPress derives each table's length from the address of the next
-	// block. hash_addr therefore has to sit right behind the translation
-	// table even when the hash table itself is empty.
 	if ( $head['translations'] - $head['originals'] !== $head['total'] * 8 ) {
 		return $fail( 'originals table length does not match the string count' );
 	}
@@ -70,7 +63,7 @@ function wmds_read_mo( $path ) {
 
 /**
  * @param string $path
- * @return array<string,string> msgid (NUL-joined for plurals) => msgstr.
+ * @return array<string,string>
  */
 function wmds_read_po( $path ) {
 	$out     = array();

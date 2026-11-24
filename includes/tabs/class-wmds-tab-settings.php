@@ -3,15 +3,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * Everything that is set once: access to mobile.de, how often to sync, the
- * address on the site and who hears about problems.
- *
- * One form for the whole tab. A form that posts only its own checkboxes reads
- * the others as unticked and switches them off.
- */
 class WMDS_Tab_Settings {
-	/** @return string[] The settings this tab's form holds. */
+	/** @return string[] */
 	public static function fields() {
 		return array(
 			'username',

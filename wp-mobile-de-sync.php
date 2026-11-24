@@ -31,8 +31,6 @@ define( 'WMDS_CRON_FULL_HOOK', 'wmds_full_sync_event' );
 require_once WMDS_DIR . 'includes/class-wmds-autoloader.php';
 WMDS_Autoloader::register();
 
-// Not autoloadable: both register a shortcode when they load. See the
-// autoloader for why.
 require_once WMDS_DIR . 'includes/class-wmds-logos.php';
 require_once WMDS_DIR . 'includes/class-wmds-stickers.php';
 

@@ -21,10 +21,10 @@ class WMDS_Client {
 	private $dealer;
 
 	/**
-	 * @param string $user      API username.
-	 * @param string $pass      API password.
-	 * @param string $seller_id Numeric mobile.de seller ID (preferred).
-	 * @param string $dealer    Vanity name, as a fallback.
+	 * @param string $user
+	 * @param string $pass
+	 * @param string $seller_id
+	 * @param string $dealer
 	 */
 	public function __construct( $user, $pass, $seller_id = '', $dealer = '' ) {
 		$this->user      = (string) $user;
@@ -33,20 +33,20 @@ class WMDS_Client {
 		$this->dealer    = trim( (string) $dealer );
 	}
 
-	/** @return bool Whether a username and password are stored. */
+	/** @return bool */
 	public function has_credentials() {
 		return '' !== $this->user && '' !== $this->pass;
 	}
 
-	/** @return bool Whether a seller ID or a dealer name is stored. */
+	/** @return bool */
 	public function has_seller() {
 		return '' !== $this->seller_id || '' !== $this->dealer;
 	}
 
 	/**
-	 * @param int    $page           1-based.
-	 * @param int    $per_page       max. 100.
-	 * @param string $modified_since Optional, ISO-8601. Only ads changed since.
+	 * @param int    $page
+	 * @param int    $per_page
+	 * @param string $modified_since
 	 * @return string
 	 */
 	public function search_url( $page = 1, $per_page = self::MAX_PAGE_SIZE, $modified_since = '' ) {
@@ -72,7 +72,7 @@ class WMDS_Client {
 
 	/**
 	 * @param array<string,string|int> $args
-	 * @return string Query string with every value encoded.
+	 * @return string
 	 */
 	private static function query( array $args ) {
 		$pairs = array();
@@ -88,7 +88,7 @@ class WMDS_Client {
 	 * @param int    $page
 	 * @param int    $per_page
 	 * @param string $modified_since
-	 * @return array|WP_Error ['ads'=>array[], 'total'=>int, 'max_pages'=>int, 'page_size'=>int, 'capped'=>bool]
+	 * @return array|WP_Error
 	 */
 	public function search( $page = 1, $per_page = self::MAX_PAGE_SIZE, $modified_since = '' ) {
 		$data = $this->request( $this->search_url( $page, $per_page, $modified_since ) );
@@ -108,8 +108,6 @@ class WMDS_Client {
 	}
 
 	/**
-	 * The size of the whole inventory, in one request for a single ad.
-	 *
 	 * @return int|WP_Error
 	 */
 	public function total() {
@@ -119,9 +117,7 @@ class WMDS_Client {
 	}
 
 	/**
-	 * @param string $ad_id Ad ID. Deliberately a string - per the mobile.de
-	 *                      changelog the format grows to up to 16 digits
-	 *                      from 08/2026.
+	 * @param string $ad_id
 	 * @return array|WP_Error
 	 */
 	public function ad( $ad_id ) {
@@ -209,7 +205,7 @@ class WMDS_Client {
 
 	/**
 	 * @param string $body
-	 * @return string Empty string when there is nothing usable in it.
+	 * @return string
 	 */
 	public static function error_message( $body ) {
 		$body = trim( (string) $body );

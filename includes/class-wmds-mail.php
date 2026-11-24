@@ -7,15 +7,9 @@ class WMDS_Mail {
 	const PLAIN = 'Content-Type: text/plain; charset=UTF-8';
 
 	/**
-	 * Reads a settings field into a list of addresses.
-	 *
-	 * An empty or unusable field falls back to the site administrator rather
-	 * than to nobody: a notification sent nowhere is worse than one sent to
-	 * the wrong person, because nothing says it did not arrive.
-	 *
-	 * @param string   $configured Comma-separated, as stored in the settings.
-	 * @param string[] $extra      Further addresses, added once each.
-	 * @param bool     $fallback   Whether an empty list means the administrator.
+	 * @param string   $configured
+	 * @param string[] $extra
+	 * @param bool     $fallback
 	 * @return string[]
 	 */
 	public static function addresses( $configured, array $extra = array(), $fallback = true ) {
@@ -43,8 +37,6 @@ class WMDS_Mail {
 	}
 
 	/**
-	 * Every address the plugin sends to, for the test mail.
-	 *
 	 * @return string[]
 	 */
 	public static function test_recipients() {
@@ -61,7 +53,7 @@ class WMDS_Mail {
 	 * @param string|string[] $to
 	 * @param string          $subject
 	 * @param string          $body
-	 * @param string[]        $headers Added to the plain-text content type.
+	 * @param string[]        $headers
 	 * @return bool
 	 */
 	public static function send( $to, $subject, $body, array $headers = array() ) {
@@ -78,12 +70,8 @@ class WMDS_Mail {
 
 		if ( $sent ) {
 			/**
-			 * Fires after the plugin has handed a message to wp_mail() and it
-			 * was accepted. Proof that this site can send at all, which is
-			 * what clears a recorded delivery failure.
-			 *
 			 * @param string|string[] $to
-			 * @param string          $subject
+			 * @param string $subject
 			 */
 			do_action( 'wmds_mail_sent', $to, $subject );
 		}
@@ -94,8 +82,7 @@ class WMDS_Mail {
 	/**
 	 * @param string $name
 	 * @param string $email
-	 * @return string A Reply-To that cannot carry a second header, whatever
-	 *                was typed into the name field.
+	 * @return string
 	 */
 	public static function reply_to( $name, $email ) {
 		$name  = WMDS_Str::one_line( $name );
@@ -103,7 +90,6 @@ class WMDS_Mail {
 
 		return ( '' === $name )
 			? sprintf( 'Reply-To: %s', $email )
-			// Quoted: a bare "Doe, John" is two addresses to a mail parser.
 			: sprintf( 'Reply-To: "%s" <%s>', str_replace( array( '"', '\\' ), '', $name ), $email );
 	}
 }

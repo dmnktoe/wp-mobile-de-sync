@@ -21,13 +21,13 @@ class WMDS_Status {
 	const OK           = 'ok';
 
 	/**
-	 * @param bool  $configured Whether credentials and a seller are stored.
-	 * @param bool  $running    Whether the import lock is held.
-	 * @param array $last       Statistics of the last run, empty when none.
-	 * @param int   $last_ts    Unix time of the last run, 0 when none.
-	 * @param int   $now        Unix time.
-	 * @param int   $stale      Seconds after which a run counts as overdue.
-	 * @return string One of the level constants.
+	 * @param bool  $configured
+	 * @param bool  $running
+	 * @param array $last
+	 * @param int   $last_ts
+	 * @param int   $now
+	 * @param int   $stale
+	 * @return string
 	 */
 	public static function level( $configured, $running, array $last, $last_ts, $now, $stale = self::STALE_AFTER ) {
 		if ( ! $configured ) {
@@ -48,8 +48,6 @@ class WMDS_Status {
 		if ( ! empty( $last['failed'] ) ) {
 			return self::FAILED;
 		}
-		// Between two passes nothing holds the lock, but the run is not
-		// done: calling that "in sync" hid four weeks of backlog once.
 		if ( ! empty( $last['pending'] ) ) {
 			return self::CATCHING_UP;
 		}
@@ -59,7 +57,7 @@ class WMDS_Status {
 
 	/**
 	 * @param string $level
-	 * @return string ok|info|warning|error
+	 * @return string
 	 */
 	public static function severity( $level ) {
 		if ( self::UNCONFIGURED === $level || self::ABORTED === $level ) {
@@ -96,7 +94,7 @@ class WMDS_Status {
 
 	/**
 	 * @param string $level
-	 * @param int    $pending Vehicles the last pass left for the next one.
+	 * @param int    $pending
 	 * @return string
 	 */
 	public static function explanation( $level, $pending = 0 ) {
@@ -135,8 +133,7 @@ class WMDS_Status {
 	}
 
 	/**
-	 * @return int|false Unix time of the next run, a follow-up pass or the
-	 *                   regular one, whichever comes first.
+	 * @return int|false
 	 */
 	public static function next_run() {
 		$times = array_filter(
@@ -149,7 +146,7 @@ class WMDS_Status {
 		return $times ? (int) min( $times ) : false;
 	}
 
-	/** @return array Everything the UI needs, read once. */
+	/** @return array */
 	public static function get() {
 		$last = get_option( WMDS_Importer::OPT_LAST_RUN, array() );
 		$last = is_array( $last ) ? $last : array();
@@ -178,12 +175,7 @@ class WMDS_Status {
 	}
 
 	/**
-	 * How old the last run may be before it counts as overdue.
-	 *
-	 * Two intervals, and never less than six hours: a site that syncs once a
-	 * day is not overdue for eighteen hours of every twenty-four.
-	 *
-	 * @return int Seconds.
+	 * @return int
 	 */
 	public static function stale_after() {
 		$schedules = wp_get_schedules();
@@ -194,17 +186,15 @@ class WMDS_Status {
 	}
 
 	/**
-	 * @param int $next Unix time of the next scheduled run, 0 when none.
-	 * @param int $now  Unix time.
-	 * @return string When the next run is due, in words.
+	 * @param int $next
+	 * @param int $now
+	 * @return string
 	 */
 	public static function next_run_label( $next, $now ) {
 		if ( ! $next ) {
 			return __( 'not scheduled', 'wp-mobile-de-sync' );
 		}
 
-		// A next run that lies in the past is not "27 minutes ago". It is
-		// late, and on a site whose cron has stopped that is the finding.
 		if ( $next < $now - 60 ) {
 			return __( 'overdue', 'wp-mobile-de-sync' );
 		}
@@ -226,7 +216,7 @@ class WMDS_Status {
 		);
 	}
 
-	/** @return bool Whether a connection test or a sync run has succeeded. */
+	/** @return bool */
 	public static function tested() {
 		$test = get_option( self::OPT_LAST_TEST, array() );
 		if ( is_array( $test ) && ! empty( $test['ok'] ) ) {
@@ -238,7 +228,7 @@ class WMDS_Status {
 		return is_array( $last ) && ! empty( $last ) && empty( $last['error'] );
 	}
 
-	/** @return int Published vehicles. */
+	/** @return int */
 	public static function count() {
 		$counts = wp_count_posts( WMDS_CPT );
 
@@ -246,8 +236,8 @@ class WMDS_Status {
 	}
 
 	/**
-	 * @param string $mysql Local time in MySQL format, as the importer stores it.
-	 * @return int Timestamp, 0 when there is nothing usable.
+	 * @param string $mysql
+	 * @return int
 	 */
 	public static function timestamp( $mysql ) {
 		$mysql = trim( (string) $mysql );
@@ -260,7 +250,7 @@ class WMDS_Status {
 
 	/**
 	 * @param int $timestamp
-	 * @return string Date and time in the site's own formats, or an em dash.
+	 * @return string
 	 */
 	public static function local_time( $timestamp ) {
 		$timestamp = (int) $timestamp;
@@ -278,7 +268,7 @@ class WMDS_Status {
 
 	/**
 	 * @param int $timestamp
-	 * @return string e.g. "5 mins ago", empty without a timestamp.
+	 * @return string
 	 */
 	public static function relative_time( $timestamp ) {
 		$timestamp = (int) $timestamp;
@@ -305,7 +295,7 @@ class WMDS_Status {
 
 	/**
 	 * @param int $timestamp
-	 * @return string ISO 8601 for the datetime attribute, empty without one.
+	 * @return string
 	 */
 	public static function iso_time( $timestamp ) {
 		$timestamp = (int) $timestamp;
@@ -315,7 +305,7 @@ class WMDS_Status {
 
 	/**
 	 * @param array $stats
-	 * @return string e.g. "42 seen · 3 created · 2 updated"
+	 * @return string
 	 */
 	public static function summarise( array $stats ) {
 		if ( ! empty( $stats['error'] ) ) {
@@ -335,8 +325,8 @@ class WMDS_Status {
 	}
 
 	/**
-	 * @param string $tab Optional tab to open.
-	 * @return string URL of the settings screen.
+	 * @param string $tab
+	 * @return string
 	 */
 	public static function settings_url( $tab = '' ) {
 		$url = admin_url( 'edit.php?post_type=' . WMDS_CPT . '&page=' . self::PAGE );
@@ -344,14 +334,14 @@ class WMDS_Status {
 		return $tab ? $url . '&tab=' . rawurlencode( $tab ) : $url;
 	}
 
-	/** @return string URL of the vehicle list. */
+	/** @return string */
 	public static function list_url() {
 		return admin_url( 'edit.php?post_type=' . WMDS_CPT );
 	}
 
 	/**
-	 * @param string $action One of the wmds_action names.
-	 * @param array  $args   Extra query arguments.
+	 * @param string $action
+	 * @param array  $args
 	 * @return string
 	 */
 	public static function action_url( $action, array $args = array() ) {

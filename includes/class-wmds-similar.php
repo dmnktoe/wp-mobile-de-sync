@@ -3,23 +3,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * Other vehicles worth a look at the end of a vehicle page: the same make
- * first, then whatever is closest in price.
- */
 class WMDS_Similar {
 	const COUNT = 3;
 
-	/** How far the price may differ for a vehicle of another make, either way. */
 	const PRICE_SPAN = 0.3;
 
-	/** Candidates read per query; the closest in price are kept. */
 	const POOL = 24;
 
 	/**
-	 * @param int $post_id The vehicle on the page.
+	 * @param int $post_id
 	 * @param int $count
-	 * @return int[] Post IDs, best match first.
+	 * @return int[]
 	 */
 	public static function ids( $post_id, $count = self::COUNT ) {
 		$post_id = (int) $post_id;
@@ -68,7 +62,7 @@ class WMDS_Similar {
 	/**
 	 * @param array $meta_query
 	 * @param int[] $exclude
-	 * @return array<int, int> Post ID => price.
+	 * @return array<int, int>
 	 */
 	private static function candidates( array $meta_query, array $exclude ) {
 		$ids = get_posts(
@@ -92,9 +86,9 @@ class WMDS_Similar {
 	}
 
 	/**
-	 * @param array<int, int> $prices Post ID => price.
-	 * @param int             $price  The price to be close to.
-	 * @return int[] Post IDs, closest first.
+	 * @param array<int, int> $prices
+	 * @param int             $price
+	 * @return int[]
 	 */
 	public static function closest( array $prices, $price ) {
 		$distance = array();

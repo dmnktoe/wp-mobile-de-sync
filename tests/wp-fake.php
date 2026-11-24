@@ -29,7 +29,7 @@ function wmds_fake( $bucket = null ) {
 /**
  * @param string $ad_id
  * @param string $modified
- * @return int Post ID
+ * @return int
  */
 function wmds_fake_seed_vehicle( $ad_id, $modified = '2026-01-01T00:00:00.000Z' ) {
 	$post_id = wp_insert_post(
@@ -364,7 +364,7 @@ class WMDS_Fake_WPDB {
 	public $posts    = 'wp_posts';
 	public $postmeta = 'wp_postmeta';
 
-	/** @var int How often it was queried. One run may ask exactly once. */
+	/** @var int */
 	public $queries = 0;
 
 	public function prepare( $sql ) {
@@ -402,25 +402,25 @@ class WMDS_Fake_WPDB {
 $GLOBALS['wpdb'] = new WMDS_Fake_WPDB();
 
 class WMDS_Fake_Client {
-	/** @var array page => array('ads'=>array,'max_pages'=>int,'capped'=>bool) */
+	/** @var array */
 	public $pages = array();
 
-	/** @var array ad_id => array|WP_Error */
+	/** @var array */
 	public $details = array();
 
 	public $credentials = true;
 	public $seller      = true;
 
-	/** @var WP_Error|null Error instead of a search result. */
+	/** @var WP_Error|null */
 	public $search_error = null;
 
-	/** @var int|WP_Error|null What total() answers; null skips the check. */
+	/** @var int|WP_Error|null */
 	public $total = null;
 
-	/** @var int How often total() was asked. */
+	/** @var int */
 	public $totals_asked = 0;
 
-	/** @var array Record of the calls made. */
+	/** @var array */
 	public $searched = array();
 	public $fetched  = array();
 

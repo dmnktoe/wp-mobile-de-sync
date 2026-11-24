@@ -15,11 +15,6 @@ class WMDS_Alerts {
 	const LOG_LINES = 10;
 
 	/**
-	 * The states worth waking somebody up for.
-	 *
-	 * Not configured is left out on purpose: a plugin nobody has set up yet
-	 * is not a fault, and mailing about it every hour would be.
-	 *
 	 * @var string[]
 	 */
 	private static $watched = array( WMDS_Status::FAILED, WMDS_Status::ABORTED, WMDS_Status::STALE );
@@ -36,7 +31,7 @@ class WMDS_Alerts {
 		return WMDS_Settings::flag( 'alerts_enabled' );
 	}
 
-	/** @return int Seconds before the same problem is reported again. */
+	/** @return int */
 	public static function cooldown() {
 		$allowed = array( 3600, 21600, 43200, 86400 );
 		$stored  = (int) WMDS_Settings::get( 'alerts_cooldown' );
@@ -55,19 +50,11 @@ class WMDS_Alerts {
 	}
 
 	/**
-	 * Whether this state is worth an e-mail, and which kind.
-	 *
-	 * A problem is reported once and then not again until the cooldown has
-	 * passed — a sync that fails every fifteen minutes should produce one
-	 * mail, not ninety-six a day. A different problem is reported straight
-	 * away, and so is the recovery, because "it is fixed" is the one message
-	 * nobody wants to wait six hours for.
-	 *
-	 * @param string $level    The current health level.
-	 * @param array  $memory   What was reported last: level and time.
-	 * @param int    $now      Unix time.
-	 * @param int    $cooldown Seconds.
-	 * @return string One of the kind constants, empty when nothing is due.
+	 * @param string $level
+	 * @param array  $memory
+	 * @param int    $now
+	 * @param int    $cooldown
+	 * @return string
 	 */
 	public static function decide( $level, array $memory, $now, $cooldown ) {
 		$last_level = isset( $memory['level'] ) ? (string) $memory['level'] : '';
@@ -244,17 +231,10 @@ class WMDS_Alerts {
 		return WMDS_Mail::send( self::recipients(), $mail['subject'], $mail['body'] );
 	}
 
-	/** Clears the memory, so the next problem is reported rather than suppressed. */
 	public static function forget() {
 		delete_option( self::OPT_LAST );
 	}
 
-	/**
-	 * Keeps the schedule in step with the setting.
-	 *
-	 * Called on activation and on every admin request, so an installation
-	 * that was updated rather than activated gets its events too.
-	 */
 	public static function schedule() {
 		if ( ! self::enabled() ) {
 			self::unschedule();

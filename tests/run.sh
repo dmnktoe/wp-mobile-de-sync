@@ -1,9 +1,4 @@
 #!/usr/bin/env sh
-# Run every test. Exits 1 as soon as one file fails.
-# Deliberately without PHPUnit or Composer - runs on any PHP 7, no setup.
-#
-#   sh tests/run.sh
-
 set -e
 cd "$(dirname "$0")/.."
 

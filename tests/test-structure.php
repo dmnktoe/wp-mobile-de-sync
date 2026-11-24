@@ -1,17 +1,4 @@
 <?php
-/**
- * Checks a class can reach what it refers to.
- *
- * PHP resolves a static property at runtime, so a class that says
- * self::$flushed without declaring it parses cleanly, passes php -l, passes
- * phpcs, and dies the first time that line runs. Splitting a class into
- * several is exactly how a property gets left behind on the wrong one.
- *
- * That happened: the facet cache flush moved to WMDS_Facet_Store while
- * $flushed stayed on WMDS_Facets, and nothing found it until the sync ran
- * inside real WordPress. This is the cheap check that would have.
- */
-
 require_once __DIR__ . '/bootstrap.php';
 
 $root = dirname( __DIR__ );
@@ -63,10 +50,6 @@ foreach ( $files as $file ) {
 	}
 }
 
-/*
- * Only our own classes: WP_Query, WP_Post, WP_Error and WP_CLI come from
- * WordPress, and WMDS_Test_* live in the test harness.
- */
 foreach ( $files as $file ) {
 	preg_match_all( '/\b(WMDS_\w+)::/', (string) file_get_contents( $file ), $m );
 
@@ -79,16 +62,6 @@ foreach ( $files as $file ) {
 
 wmds_assert( 'no class calls one that does not exist', array(), $missing );
 
-/*
- * The same mistake one level down, and the one that actually shipped: when the
- * facet engine was split, selection() was left behind on neither half. Both
- * halves parsed, both passed phpcs, and every page carrying the filter bar
- * died with "call to undefined method" the moment it was rendered.
- *
- * A member is looked for on the class it is called on, whether that is self::
- * or the class by name, and templates are read too — they call the facade as
- * much as the classes do.
- */
 wmds_section( 'A method that is called exists' );
 
 $members = array();

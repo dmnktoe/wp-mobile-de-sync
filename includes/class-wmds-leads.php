@@ -3,23 +3,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * Enquiries as they are kept: the post type, the screens that list and show
- * them, and what the privacy tools of WordPress find in them.
- */
 class WMDS_Leads {
 	const CPT = 'wmds_lead';
 
 	const SOURCE = 'enquiry-form';
 
-	/** On an enquiry: NEW until somebody marks it answered. */
 	const META_STATUS = '_wmds_status';
 	const NEW_LEAD    = 'new';
 	const ANSWERED    = 'answered';
 
 	const STATUS_ACTION = 'wmds_lead_status';
 
-	/** @var int|null Unanswered enquiries, counted once per request. */
+	/** @var int|null */
 	private static $new = null;
 
 	public static function init() {
@@ -42,7 +37,7 @@ class WMDS_Leads {
 
 	/**
 	 * @param int $post_id
-	 * @return bool Whether nobody has marked the enquiry answered yet.
+	 * @return bool
 	 */
 	public static function is_new( $post_id ) {
 		return self::ANSWERED !== get_post_meta( (int) $post_id, self::META_STATUS, true );
@@ -59,7 +54,7 @@ class WMDS_Leads {
 	}
 
 	/**
-	 * @return int Enquiries nobody has marked answered.
+	 * @return int
 	 */
 	public static function count_new() {
 		if ( null !== self::$new ) {
@@ -86,7 +81,7 @@ class WMDS_Leads {
 
 	/**
 	 * @param int    $post_id
-	 * @param string $status NEW_LEAD or ANSWERED.
+	 * @param string $status
 	 */
 	public static function set_status( $post_id, $status ) {
 		update_post_meta( (int) $post_id, self::META_STATUS, self::ANSWERED === $status ? self::ANSWERED : self::NEW_LEAD );
@@ -94,10 +89,6 @@ class WMDS_Leads {
 		self::$new = null;
 	}
 
-	/**
-	 * The number of unanswered enquiries next to the menu entry, the way
-	 * WordPress shows pending comments.
-	 */
 	public static function menu_count() {
 		global $submenu;
 
@@ -123,7 +114,7 @@ class WMDS_Leads {
 	/**
 	 * @param int    $post_id
 	 * @param string $status
-	 * @return string Address that sets the status and comes back.
+	 * @return string
 	 */
 	public static function status_url( $post_id, $status ) {
 		return wp_nonce_url(
@@ -159,10 +150,8 @@ class WMDS_Leads {
 	}
 
 	/**
-	 * A mail to the enquirer, with the subject and their message already in.
-	 *
 	 * @param int $post_id
-	 * @return string mailto: address, empty when there is no e-mail address.
+	 * @return string
 	 */
 	public static function reply_url( $post_id ) {
 		$email = (string) get_post_meta( (int) $post_id, '_wmds_email', true );
@@ -285,8 +274,6 @@ class WMDS_Leads {
 	}
 
 	/**
-	 * Where an enquiry came in through, for the record.
-	 *
 	 * @return array<string, string>
 	 */
 	public static function sources() {
@@ -298,7 +285,7 @@ class WMDS_Leads {
 
 	/**
 	 * @param string $key
-	 * @param string $form Name of the form, where one is on file.
+	 * @param string $form
 	 * @return string
 	 */
 	public static function source_label( $key, $form = '' ) {
@@ -325,8 +312,6 @@ class WMDS_Leads {
 			__( 'Phone', 'wp-mobile-de-sync' )            => (string) get_post_meta( $post->ID, '_wmds_phone', true ),
 			__( 'Listing number', 'wp-mobile-de-sync' )   => (string) get_post_meta( $post->ID, '_wmds_ad_id', true ),
 			__( 'Vehicle', 'wp-mobile-de-sync' )          => (string) get_post_meta( $post->ID, '_wmds_url', true ),
-			// The notice is stored as it was shown, link and all; here it is
-			// read, not clicked, so the markup would only be in the way.
 			__( 'Consent', 'wp-mobile-de-sync' )          => wp_strip_all_tags( (string) get_post_meta( $post->ID, '_wmds_consent', true ) ),
 			__( 'Received through', 'wp-mobile-de-sync' ) => self::source_label(
 				(string) get_post_meta( $post->ID, '_wmds_source', true ),
@@ -356,8 +341,6 @@ class WMDS_Leads {
 	}
 
 	/**
-	 * Status, and the two things to do with an enquiry: answer it and say so.
-	 *
 	 * @param int $post_id
 	 */
 	private static function render_actions( $post_id ) {
@@ -404,12 +387,12 @@ class WMDS_Leads {
 		);
 	}
 
-	/** @return bool Whether the form is offered at all. */
+	/** @return bool */
 	public static function enabled() {
 		return WMDS_Settings::flag( 'enquiry_enabled' );
 	}
 
-	/** @return string The consent line, empty when none is required. */
+	/** @return string */
 	public static function consent_text() {
 		return trim( (string) WMDS_Settings::get( 'enquiry_consent' ) );
 	}
@@ -441,7 +424,7 @@ class WMDS_Leads {
 	 * @param array $data
 	 * @param int   $post_id
 	 * @param array $context
-	 * @return int The stored post ID, 0 when storing is switched off or failed.
+	 * @return int
 	 */
 	public static function store( array $data, $post_id, array $context ) {
 		if ( ! WMDS_Settings::flag( 'enquiry_store' ) ) {
@@ -452,17 +435,11 @@ class WMDS_Leads {
 	}
 
 	/**
-	 * Files an enquiry, whichever form it came in through.
-	 *
-	 * The gate is the caller's: the bundled form asks the Enquiries tab,
-	 * Contact Form 7 asks the Integrations tab. What lands in the database is
-	 * the same record either way, so one screen shows both.
-	 *
-	 * @param array $data    name, email, phone, message, consent.
-	 * @param int   $post_id The vehicle, 0 when the enquiry is about none.
-	 * @param array $context As context() returns it.
-	 * @param array $extra   Further meta, e.g. where the enquiry came from.
-	 * @return int The stored post ID, 0 when it could not be written.
+	 * @param array $data
+	 * @param int   $post_id
+	 * @param array $context
+	 * @param array $extra
+	 * @return int
 	 */
 	public static function file( array $data, $post_id, array $context, array $extra = array() ) {
 		$name = isset( $data['name'] ) ? (string) $data['name'] : '';
@@ -476,8 +453,6 @@ class WMDS_Leads {
 			? sprintf( __( '%1$s about %2$s', 'wp-mobile-de-sync' ), $name, $context['title'] )
 			: $name;
 
-		// Slashed: WordPress unslashes what it is handed, and a message that
-		// mentions C:\\ or a name with a backslash would lose it.
 		$lead = wp_insert_post(
 			wp_slash(
 				array(
@@ -550,7 +525,7 @@ class WMDS_Leads {
 	/**
 	 * @param string $email
 	 * @param int    $page
-	 * @return int[] Enquiries sent from that address, fifty at a time.
+	 * @return int[]
 	 */
 	private static function leads_of( $email, $page ) {
 		$email = trim( (string) $email );
@@ -632,8 +607,7 @@ class WMDS_Leads {
 
 	/**
 	 * @param string $email
-	 * @param int    $page Unused: what was found is deleted, so the next call
-	 *                     starts at the beginning again.
+	 * @param int    $page
 	 * @return array{items_removed:int,items_retained:bool,messages:array,done:bool}
 	 */
 	public static function privacy_erase( $email, $page = 1 ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- the signature is WordPress's.
