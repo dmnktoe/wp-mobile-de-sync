@@ -149,10 +149,53 @@ any post whose content renders a shortcode; the shortcode enqueues it as well
 when it runs, which covers widgets and page builders.
 
 The templates take the font and the text colour from the theme and bring
-everything else: sizes, spacing, cards, controls. They undo what themes do to
+the layout: sizes, spacing, cards, controls. They undo what themes do to
 content inside them — bullets on lists, oversized headings, restyled selects
-(select2 included) — so they look the same in any theme. Colours and radii are
-custom properties, and a handful of them restyle the lot:
+(select2 included) — so the layout holds in any theme.
+
+### Matching the theme
+
+With *Settings → Website → Appearance → Match the theme* (on by default) the
+plugin also takes the theme's look:
+
+| From the theme | Becomes |
+|---|---|
+| the button colour and its text colour | buttons, active filters, slider |
+| the button rounding | controls; cards round twice as much, up to 20px; square buttons make square cards |
+| the page background, when it is dark | the dark set, with cards and controls a shade lighter than the page |
+
+Borders and secondary text are mixed from the theme's text colour, so they sit
+right on any background.
+
+Where the values come from:
+
+- **Block themes and any theme with a `theme.json`**: the button and background
+  styles, including what was changed in the Site Editor. Values that are only
+  WordPress's own defaults are ignored.
+- **Classic themes**: Astra, GeneratePress, Kadence, Blocksy, Neve, OceanWP,
+  Salient, Divi and Twenty Twenty-One lend their primary or button colour;
+  GeneratePress, OceanWP and Twenty Twenty-One their square corners. A
+  background colour set in the Customizer counts as the page background.
+- **Any other theme** keeps the plugin's neutral look until it is told, through
+  the filter `wmds_theme_style`:
+
+```php
+add_filter( 'wmds_theme_style', function ( $tokens ) {
+	$tokens['accent']    = 'var(--my-theme-primary)';
+	$tokens['on_accent'] = '#fff';
+	$tokens['radius']    = '4px';     /* the theme's button rounding */
+	$tokens['page']      = '#101418'; /* a dark page switches on the dark set */
+	return $tokens;
+} );
+```
+
+Switched off, nothing is taken from the theme and the plugin looks the same
+everywhere.
+
+### Custom properties
+
+Colours and radii are custom properties on `.wmds-scope`, and a handful of them
+restyle the lot. Set there, they win over what is taken from the theme:
 
 ```css
 .wmds-scope {
@@ -165,9 +208,11 @@ custom properties, and a handful of them restyle the lot:
 }
 ```
 
-A dark set of values ships with it and is opt-in: put the class `wmds-dark` on
-`<body>` or on any wrapper. It deliberately does not follow
-`prefers-color-scheme` — that describes the visitor's system, not the theme.
+A dark set of values ships with it. It switches on when the theme's background
+is dark (see above), when Twenty Twenty-One shows its dark mode, or wherever
+the class `wmds-dark` is put on `<body>` or a wrapper. It deliberately does not
+follow `prefers-color-scheme` — that describes the visitor's system, not the
+theme.
 
 ## Logos and emission stickers
 

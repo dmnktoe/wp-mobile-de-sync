@@ -27,7 +27,7 @@ surface reads it from the same place, so they cannot contradict each other:
 | Tab | Holds |
 |---|---|
 | **Overview** | the status, the getting-started checklist, *Sync now* with live progress, the newest enquiries and log entries — the page it opens on |
-| **Settings** | credentials and which inventory, interval and label language, the address on the site, similar vehicles, notifications about problems |
+| **Settings** | credentials and which inventory, interval and label language, the address on the site, similar vehicles, matching the theme, notifications about problems |
 | **Enquiries** | the form on a vehicle page, its recipients and privacy notice, mail delivery and the test mail |
 | **Embedding** | blocks, shortcodes and widgets; Contact Form 7 and FacetWP |
 | **Tools & system** | the connection test, maintenance, the log, the server requirements, version and help |

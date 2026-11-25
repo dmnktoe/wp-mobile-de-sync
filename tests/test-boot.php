@@ -94,6 +94,7 @@ foreach ( array(
 	'WMDS_Lead_Mail',
 	'WMDS_Removed',
 	'WMDS_Similar',
+	'WMDS_Theme_Style',
 	'WMDS_Plugin',
 ) as $wmds_class ) {
 	wmds_assert( sprintf( '%s resolved', $wmds_class ), true, class_exists( $wmds_class ) );

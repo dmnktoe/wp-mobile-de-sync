@@ -46,6 +46,7 @@ shortcodes — and works with any theme, including block themes.
 - Detail page with gallery, key facts, equipment, emission sticker, manufacturer logo and **similar vehicles**.
 - The address of a removed vehicle leads to the overview with a note instead of "page not found".
 - `Car` / `Offer` structured data, Open Graph and Twitter cards.
+- Matches the theme by itself: its button colour, its rounding and, on a dark background, a dark variant tinted to it.
 - Every template can be overridden in the theme; colours and radii are CSS custom properties.
 
 **Enquiries that do not get lost**

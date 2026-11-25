@@ -98,6 +98,10 @@ class WMDS_Settings {
 				'type'    => 'bool',
 				'default' => 'yes',
 			),
+			'match_theme'         => array(
+				'type'    => 'bool',
+				'default' => 'yes',
+			),
 			'cf7_store'           => array(
 				'type'    => 'bool',
 				'default' => 'yes',

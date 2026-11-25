@@ -2502,6 +2502,15 @@ msgstr "Das gesuchte Fahrzeug ist nicht mehr verfügbar. Hier finden Sie unseren
 msgid "Similar vehicles"
 msgstr "Ähnliche Fahrzeuge"
 
+msgid "Appearance"
+msgstr "Aussehen"
+
+msgid "Match the theme"
+msgstr "An das Theme anpassen"
+
+msgid "Buttons, corners and the dark variant follow the active theme: its button colour, its rounding and its background. Switched off, vehicle pages keep the plugin's own neutral look in every theme."
+msgstr "Buttons, Ecken und die dunkle Variante richten sich nach dem aktiven Theme: nach seiner Button-Farbe, seiner Rundung und seinem Hintergrund. Ausgeschaltet behalten die Fahrzeugseiten in jedem Theme das neutrale Aussehen des Plugins."
+
 msgid "%d unused vehicle picture deleted."
 msgid_plural "%d unused vehicle pictures deleted."
 msgstr[0] "%d ungenutztes Fahrzeugbild gelöscht."
