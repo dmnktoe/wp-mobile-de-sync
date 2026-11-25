@@ -188,9 +188,7 @@ class WMDS_Dashboard {
 		return get_posts( $args );
 	}
 
-	/**
-	 * @param int $post_id
-	 */
+	/** @param int $post_id */
 	private static function render_item( $post_id ) {
 		$vehicle = new WMDS_Vehicle( $post_id );
 		$edit    = get_edit_post_link( $post_id );

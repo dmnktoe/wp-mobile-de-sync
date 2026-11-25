@@ -62,41 +62,41 @@ wmds_section( 'Vehicle 1: basics and refdata resolution' );
 
 wmds_assert( 'ad_id', '424776053', $defender['ad_id'] );
 wmds_assert( 'title without a duplicated model', 'Land Rover Defender 90 Standheizung Kamera LED Recaro', $defender['title'] );
-wmds_assert( 'Marke uebersetzt', 'Land Rover', $defender['meta']['make'] );
-wmds_assert( 'make_key sprachunabhaengig', 'LAND ROVER', $defender['meta']['make_key'] );
-wmds_assert( 'Kategorie uebersetzt', 'SUV/Gelaendewagen', $defender['meta']['category'] );
-wmds_assert( 'Zustand uebersetzt', 'Gebraucht', $defender['meta']['condition'] );
-wmds_assert( 'Getriebe uebersetzt', 'Schaltgetriebe', $defender['meta']['gearbox'] );
-wmds_assert( 'Kraftstoff uebersetzt', 'Diesel', $defender['meta']['fuel'] );
-wmds_assert( 'Aussenfarbe uebersetzt', 'Schwarz', $defender['meta']['exteriorColor'] );
-wmds_assert( 'modificationDate durchgereicht', '2026-07-28T18:29:13+02:00', $defender['modified'] );
+wmds_assert( 'make translated', 'Land Rover', $defender['meta']['make'] );
+wmds_assert( 'make_key independent of the language', 'LAND ROVER', $defender['meta']['make_key'] );
+wmds_assert( 'category translated', 'SUV/Gelaendewagen', $defender['meta']['category'] );
+wmds_assert( 'condition translated', 'Gebraucht', $defender['meta']['condition'] );
+wmds_assert( 'gearbox translated', 'Schaltgetriebe', $defender['meta']['gearbox'] );
+wmds_assert( 'fuel translated', 'Diesel', $defender['meta']['fuel'] );
+wmds_assert( 'exterior colour translated', 'Schwarz', $defender['meta']['exteriorColor'] );
+wmds_assert( 'modificationDate passed through', '2026-07-28T18:29:13+02:00', $defender['modified'] );
 
 wmds_section( 'Vehicle 2: separate data, no bleed-through' );
 
 wmds_assert( 'ad_id', '427312402', $volvo['ad_id'] );
-wmds_assert( 'Marke', 'Volvo', $volvo['meta']['make'] );
-wmds_assert( 'Kategorie', 'Kombi', $volvo['meta']['category'] );
-wmds_assert( 'Getriebe', 'Automatik', $volvo['meta']['gearbox'] );
+wmds_assert( 'make', 'Volvo', $volvo['meta']['make'] );
+wmds_assert( 'category', 'Kombi', $volvo['meta']['category'] );
+wmds_assert( 'gearbox', 'Automatik', $volvo['meta']['gearbox'] );
 
 wmds_section( 'Numbers and formatting' );
 
 wmds_assert( 'mileage formatted', '129,000', $defender['meta']['mileage'] );
 wmds_assert( 'mileage raw (FacetWP)', 129000, $defender['meta']['mileage_raw'] );
-wmds_assert( 'Leistung', 108, $defender['meta']['power'] );
+wmds_assert( 'power', 108, $defender['meta']['power'] );
 wmds_assert( 'price formatted', '42,999', $defender['meta']['price'] );
 wmds_assert( 'price raw (FacetWP)', 42999, $defender['meta']['price_raw'] );
-wmds_assert( 'Preisbereich', '30.000 – 50.000 €', $defender['meta']['price_raw_short'] );
-wmds_assert( 'Erstzulassung strtotime-faehig', '2014-09-01', $defender['meta']['firstRegistration'] );
-wmds_assert( 'Erstzulassung Jahr (FacetWP)', 2014, $defender['meta']['firstRegistration_year'] );
-wmds_assert( 'Verbrauch kombiniert', '10', $defender['meta']['emissionFuelConsumption_Combined'] );
+wmds_assert( 'price bucket', '30.000 – 50.000 €', $defender['meta']['price_raw_short'] );
+wmds_assert( 'first registration readable by strtotime', '2014-09-01', $defender['meta']['firstRegistration'] );
+wmds_assert( 'first registration year (FacetWP)', 2014, $defender['meta']['firstRegistration_year'] );
+wmds_assert( 'combined consumption', '10', $defender['meta']['emissionFuelConsumption_Combined'] );
 wmds_assert( 'CO2', '265', $defender['meta']['emissionFuelConsumption_CO2'] );
-wmds_assert( 'Verbrauch innerorts fehlt -> leer', '', $defender['meta']['emissionFuelConsumption_Inner'] );
+wmds_assert( 'urban consumption missing -> empty', '', $defender['meta']['emissionFuelConsumption_Inner'] );
 
 wmds_section( 'VAT: derived from vatRate, not from a dedicated field' );
 
 wmds_assert( 'without vatRate -> false', 'false', $defender['meta']['vatable'] );
-wmds_assert( 'mit vatRate -> true', 'true', $volvo['meta']['vatable'] );
-wmds_assert( 'Satz mitgefuehrt', '19.00', $volvo['meta']['vat_rate'] );
+wmds_assert( 'with vatRate -> true', 'true', $volvo['meta']['vatable'] );
+wmds_assert( 'the rate is carried along', '19.00', $volvo['meta']['vat_rate'] );
 
 wmds_section( 'Inspection: generalInspection absent, newHuAu carries the statement' );
 
@@ -104,26 +104,26 @@ wmds_assert( 'no inspection date', '', $defender['meta']['nextInspection'] );
 wmds_assert( 'newHuAu as text', 'New inspection on purchase', $defender['meta']['newHuAu'] );
 wmds_assert( 'inspection date is mapped when present', '2027-05-01', WMDS_Json_Mapper::format_month( '202705' ) );
 
-wmds_section( 'Vorbesitzer' );
+wmds_section( 'Previous owners' );
 
 wmds_assert( 'not stated -> empty', '', $defender['meta']['owners'] );
-wmds_assert( 'angegeben', '1', $volvo['meta']['owners'] );
+wmds_assert( 'stated', '1', $volvo['meta']['owners'] );
 
 wmds_section( 'Features: all 28 template keys are covered' );
 
-wmds_assert( 'Anzahl Regeln', 28, count( WMDS_Json_Mapper::feature_keys() ) );
+wmds_assert( 'number of rules', 28, count( WMDS_Json_Mapper::feature_keys() ) );
 
-wmds_section( 'Ausstattung: Booleans' );
+wmds_section( 'Equipment: booleans' );
 
 wmds_assert( 'Auxiliary heating', 'Auxiliary heating', $defender['meta']['AUXILIARY_HEATING'] );
 wmds_assert( 'satnav', 'Navigation system', $defender['meta']['NAVIGATION_SYSTEM'] );
 wmds_assert( 'metallic paint', 'Metallic paint', $defender['meta']['METALLIC'] );
 wmds_assert( 'Defender has no ABS in the feed', false, isset( $defender['meta']['ABS'] ) );
-wmds_assert( 'Volvo hat ABS', 'ABS', $volvo['meta']['ABS'] );
-wmds_assert( 'Volvo hat ESP', 'ESP', $volvo['meta']['ESP'] );
+wmds_assert( 'the Volvo has ABS', 'ABS', $volvo['meta']['ABS'] );
+wmds_assert( 'the Volvo has ESP', 'ESP', $volvo['meta']['ESP'] );
 wmds_assert( 'Defender has no ESP', false, isset( $defender['meta']['ESP'] ) );
 
-wmds_section( 'Ausstattung: Enums' );
+wmds_section( 'Equipment: enums' );
 
 wmds_assert( 'no xenon when LED', false, isset( $defender['meta']['XENON_HEADLIGHTS'] ) );
 wmds_assert( 'daytime running lights detected', 'Daytime running lights', $defender['meta']['DAYTIME_RUNNING_LIGHTS'] );
@@ -138,40 +138,40 @@ wmds_assert( 'with sensors -> parking sensors', 'Parking sensors', $volvo['meta'
 wmds_section( 'HTML entities in a field value are decoded' );
 
 wmds_assert(
-	'Farbbezeichnung',
+	'colour name',
 	'BLACK SOLID "STONE" / Solid',
 	$volvo['meta']['manufacturer_color_name']
 );
 
-wmds_section( 'Bilder: groesste Repraesentation plus Hash' );
+wmds_section( 'Images: largest representation plus hash' );
 
-wmds_assert( 'ein Bild', 1, count( $defender['images'] ) );
-wmds_assert( 'groesste gewaehlt', 'https://img.example.invalid/a-xxxl.jpg', $defender['images'][0]['url'] );
-wmds_assert( 'Hash uebernommen', '99c3997d960b89eae1b66fb104c8d8a2', $defender['images'][0]['hash'] );
-wmds_assert( 'Rueckfall auf vorhandene Groesse', 'https://img.example.invalid/b-xxxl.jpg', $volvo['images'][0]['url'] );
+wmds_assert( 'one image', 1, count( $defender['images'] ) );
+wmds_assert( 'the largest is chosen', 'https://img.example.invalid/a-xxxl.jpg', $defender['images'][0]['url'] );
+wmds_assert( 'hash taken over', '99c3997d960b89eae1b66fb104c8d8a2', $defender['images'][0]['hash'] );
+wmds_assert( 'falls back to a size that exists', 'https://img.example.invalid/b-xxxl.jpg', $volvo['images'][0]['url'] );
 
 wmds_section( 'A search result has neither description nor seller name' );
 
 wmds_assert( 'no description', '', $defender['meta']['enriched_description'] );
 wmds_assert( 'no seller name', '', $defender['meta']['seller'] );
-wmds_assert( 'Telefon fehlt', false, isset( $defender['meta']['seller_phone_number'] ) );
+wmds_assert( 'no phone', false, isset( $defender['meta']['seller_phone_number'] ) );
 wmds_assert( 'e-mail is present', 'kontakt@example.invalid', $defender['meta']['seller_email'] );
 
 wmds_section( 'Detail call layered over the search result' );
 
 $merged = $mapper->map( array_merge( $search['ads'][0], $detail ) );
 
-wmds_assert( 'Verkaeufername vorhanden', 'Musterhaendler GmbH', $merged['meta']['seller'] );
-wmds_assert( 'Telefon Landesvorwahl', '49', $merged['meta']['seller_phone_country_calling_code'] );
-wmds_assert( 'Telefon Vorwahl', '000', $merged['meta']['seller_phone_area_code'] );
-wmds_assert( 'Telefon Nummer', '0000000', $merged['meta']['seller_phone_number'] );
+wmds_assert( 'seller name present', 'Musterhaendler GmbH', $merged['meta']['seller'] );
+wmds_assert( 'phone country code', '49', $merged['meta']['seller_phone_country_calling_code'] );
+wmds_assert( 'phone area code', '000', $merged['meta']['seller_phone_area_code'] );
+wmds_assert( 'phone number', '0000000', $merged['meta']['seller_phone_number'] );
 wmds_assert( 'two images from the detail call', 2, count( $merged['images'] ) );
-wmds_assert( 'Ad-ID unveraendert', '424776053', $merged['ad_id'] );
+wmds_assert( 'ad ID unchanged', '424776053', $merged['ad_id'] );
 
 wmds_section( 'The description is rendered as HTML' );
 
 $desc = $merged['meta']['enriched_description'];
-wmds_assert_contains( 'Fettdruck', '<strong>', $desc );
+wmds_assert_contains( 'bold', '<strong>', $desc );
 wmds_assert( 'no backslash', false, strpos( $desc, '\\' ) );
 wmds_assert( 'two paragraphs', 2, substr_count( $desc, '<p>' ) );
 wmds_assert_contains( 'special characters preserved', 'intercooler', $desc );
@@ -183,11 +183,11 @@ $empty = $mapper->map( array() );
 wmds_assert( 'no ad_id', '', $empty['ad_id'] );
 wmds_assert( 'fallback title', 'Vehicle ', $empty['title'] );
 wmds_assert( 'no images', 0, count( $empty['images'] ) );
-wmds_assert( 'Preis leer', '', $empty['meta']['price'] );
+wmds_assert( 'price empty', '', $empty['meta']['price'] );
 wmds_assert( 'no features', false, isset( $empty['meta']['ABS'] ) );
 
-$ohne_refdata = new WMDS_Json_Mapper();
-$raw          = $ohne_refdata->map( $search['ads'][0] );
+$without_refdata = new WMDS_Json_Mapper();
+$raw             = $without_refdata->map( $search['ads'][0] );
 wmds_assert( 'without refdata the key survives', 'MANUAL_GEAR', $raw['meta']['gearbox'] );
 
 wmds_section( 'Whatever the feed sets counts as a feature, rule or no rule' );
@@ -213,7 +213,7 @@ wmds_assert( 'damage is not equipment', false, isset( $damaged['meta']['DAMAGE_U
 wmds_section( 'The fields the earlier templates read' );
 
 wmds_assert( 'cubicCapacity beside cubic_capacity', $merged['meta']['cubic_capacity'], $merged['meta']['cubicCapacity'] );
-wmds_assert( 'an ad that does not mention roadworthiness is not marked unfit', '', ( new WMDS_Json_Mapper( $refdata ) )->map( array( 'mobileAdId' => '1' ) )['meta']['roadWorthy'] );
+wmds_assert( 'an ad that does not mention roadworthiness is not marked unfit', '', ( new WMDS_Json_Mapper() )->map( array( 'mobileAdId' => '1' ) )['meta']['roadWorthy'] );
 wmds_assert( 'seller_company_name beside seller', $merged['meta']['seller'], $merged['meta']['seller_company_name'] );
 wmds_assert( 'the vehicle class is readable', 'Car', $merged['meta']['class'] );
 wmds_assert( 'the class key survives too', 'Car', $merged['meta']['class_key'] );

@@ -347,9 +347,7 @@ class WMDS_Lead_Form {
 	public static function client_ip() {
 		$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
 
-		/**
-		 * @param string $ip
-		 */
+		/** @param string $ip */
 		$ip = (string) apply_filters( 'wmds_client_ip', $ip );
 
 		return filter_var( $ip, FILTER_VALIDATE_IP ) ? $ip : '0.0.0.0';

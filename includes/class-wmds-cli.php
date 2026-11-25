@@ -87,7 +87,6 @@ class WMDS_CLI {
 			WP_CLI::warning( 'An import is currently running (lock held).' );
 		}
 
-		$last = get_option( WMDS_Importer::OPT_LAST_RUN, array() );
 		if ( $last ) {
 			WP_CLI::log( '' );
 			WP_CLI::log( 'Last run: ' . ( isset( $last['time'] ) ? $last['time'] : '?' ) );

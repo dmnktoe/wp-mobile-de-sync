@@ -1,4 +1,5 @@
 <?php
+
 $GLOBALS['wmds_mod_options']   = array();
 $GLOBALS['wmds_mod_meta']      = array();
 $GLOBALS['wmds_mod_posts']     = array();

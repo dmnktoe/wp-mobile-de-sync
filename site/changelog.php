@@ -1,4 +1,5 @@
 <?php
+
 $wmds_active = 'changelog';
 require __DIR__ . '/parts/docs-nav.php';
 ?>

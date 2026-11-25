@@ -132,9 +132,7 @@ class WMDS_Status {
 		return in_array( $level, array( self::UNCONFIGURED, self::STALE, self::ABORTED, self::FAILED ), true );
 	}
 
-	/**
-	 * @return int|false
-	 */
+	/** @return int|false */
 	public static function next_run() {
 		$times = array_filter(
 			array(
@@ -174,9 +172,7 @@ class WMDS_Status {
 		);
 	}
 
-	/**
-	 * @return int
-	 */
+	/** @return int */
 	public static function stale_after() {
 		$schedules = wp_get_schedules();
 		$interval  = WMDS_Settings::interval();
@@ -202,9 +198,7 @@ class WMDS_Status {
 		return self::relative_time( $next );
 	}
 
-	/**
-	 * @param bool $ok
-	 */
+	/** @param bool $ok */
 	public static function record_test( $ok ) {
 		update_option(
 			self::OPT_LAST_TEST,

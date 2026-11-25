@@ -36,9 +36,7 @@ class WMDS_Mail {
 		return $to;
 	}
 
-	/**
-	 * @return string[]
-	 */
+	/** @return string[] */
 	public static function test_recipients() {
 		$to = WMDS_Lead_Mail::recipients();
 
@@ -69,10 +67,6 @@ class WMDS_Mail {
 		);
 
 		if ( $sent ) {
-			/**
-			 * @param string|string[] $to
-			 * @param string $subject
-			 */
 			do_action( 'wmds_mail_sent', $to, $subject );
 		}
 

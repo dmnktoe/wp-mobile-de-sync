@@ -107,9 +107,7 @@ class WMDS_Client {
 		);
 	}
 
-	/**
-	 * @return int|WP_Error
-	 */
+	/** @return int|WP_Error */
 	public function total() {
 		$result = $this->search( 1, 1 );
 
@@ -235,28 +233,7 @@ class WMDS_Client {
 
 		$out = array();
 		foreach ( $data['errors'] as $error ) {
-			if ( ! is_array( $error ) ) {
-				continue;
-			}
-			$text = '';
-			if ( ! empty( $error['key'] ) ) {
-				$text = (string) $error['key'];
-			}
-			if ( ! empty( $error['message'] ) ) {
-				$text = '' === $text ? (string) $error['message'] : $text . ' (' . $error['message'] . ')';
-			}
-
-			if ( ! empty( $error['args'] ) && is_array( $error['args'] ) ) {
-				$args = array();
-				foreach ( $error['args'] as $arg ) {
-					if ( is_array( $arg ) && isset( $arg['key'], $arg['value'] ) ) {
-						$args[] = $arg['key'] . '=' . $arg['value'];
-					}
-				}
-				if ( $args ) {
-					$text .= ' [' . implode( ', ', $args ) . ']';
-				}
-			}
+			$text = is_array( $error ) ? self::describe_error( $error ) : '';
 
 			if ( '' !== $text ) {
 				$out[] = $text;
@@ -264,5 +241,33 @@ class WMDS_Client {
 		}
 
 		return implode( '; ', $out );
+	}
+
+	/**
+	 * @param array $error
+	 * @return string
+	 */
+	private static function describe_error( array $error ) {
+		$text = '';
+
+		if ( ! empty( $error['key'] ) ) {
+			$text = (string) $error['key'];
+		}
+		if ( ! empty( $error['message'] ) ) {
+			$text = '' === $text ? (string) $error['message'] : $text . ' (' . $error['message'] . ')';
+		}
+
+		if ( empty( $error['args'] ) || ! is_array( $error['args'] ) ) {
+			return $text;
+		}
+
+		$args = array();
+		foreach ( $error['args'] as $arg ) {
+			if ( is_array( $arg ) && isset( $arg['key'], $arg['value'] ) ) {
+				$args[] = $arg['key'] . '=' . $arg['value'];
+			}
+		}
+
+		return $args ? $text . ' [' . implode( ', ', $args ) . ']' : $text;
 	}
 }

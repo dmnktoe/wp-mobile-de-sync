@@ -25,6 +25,8 @@ class WMDS_Leads {
 	const VIEW_SPAM        = 'spam';
 	const VIEW_UNDELIVERED = 'undelivered';
 
+	const PRIVACY_PAGE = 50;
+
 	/** @var int|null */
 	private static $new = null;
 
@@ -105,9 +107,7 @@ class WMDS_Leads {
 		return $labels[ self::status( $post_id ) ];
 	}
 
-	/**
-	 * @return int
-	 */
+	/** @return int */
 	public static function count_new() {
 		if ( null !== self::$new ) {
 			return self::$new;
@@ -155,9 +155,7 @@ class WMDS_Leads {
 		return self::$spam;
 	}
 
-	/**
-	 * @return int
-	 */
+	/** @return int */
 	public static function count_undelivered() {
 		if ( null !== self::$undelivered ) {
 			return self::$undelivered;
@@ -516,9 +514,7 @@ class WMDS_Leads {
 		);
 	}
 
-	/**
-	 * @param WP_Query $query
-	 */
+	/** @param WP_Query $query */
 	public static function filter_list( $query ) {
 		if ( ! is_admin() || ! $query->is_main_query() || self::CPT !== $query->get( 'post_type' ) ) {
 			return;
@@ -650,9 +646,7 @@ class WMDS_Leads {
 		);
 	}
 
-	/**
-	 * @return array<string, string>
-	 */
+	/** @return array<string, string> */
 	public static function sources() {
 		return array(
 			self::SOURCE     => __( 'Enquiry form', 'wp-mobile-de-sync' ),
@@ -679,9 +673,7 @@ class WMDS_Leads {
 		return ( '' === $form ) ? $label : $label . ' – ' . $form;
 	}
 
-	/**
-	 * @param WP_Post $post
-	 */
+	/** @param WP_Post $post */
 	public static function render_meta_box( $post ) {
 		$rows = array(
 			__( 'Name', 'wp-mobile-de-sync' )             => (string) get_post_meta( $post->ID, '_wmds_name', true ),
@@ -718,9 +710,7 @@ class WMDS_Leads {
 		self::render_actions( $post->ID );
 	}
 
-	/**
-	 * @param int $post_id
-	 */
+	/** @param int $post_id */
 	private static function render_actions( $post_id ) {
 		$reply = self::reply_url( $post_id );
 		$new   = self::is_new( $post_id );
@@ -932,7 +922,7 @@ class WMDS_Leads {
 				array(
 					'post_type'      => self::CPT,
 					'post_status'    => 'any',
-					'posts_per_page' => 50,
+					'posts_per_page' => self::PRIVACY_PAGE,
 					'paged'          => max( 1, (int) $page ),
 					'orderby'        => 'ID',
 					'order'          => 'ASC',
@@ -994,7 +984,7 @@ class WMDS_Leads {
 
 		return array(
 			'data' => $data,
-			'done' => count( $ids ) < 50,
+			'done' => count( $ids ) < self::PRIVACY_PAGE,
 		);
 	}
 
@@ -1017,7 +1007,7 @@ class WMDS_Leads {
 			'items_removed'  => $removed,
 			'items_retained' => $removed < count( $ids ),
 			'messages'       => array(),
-			'done'           => count( $ids ) < 50 || $removed < count( $ids ),
+			'done'           => count( $ids ) < self::PRIVACY_PAGE || $removed < count( $ids ),
 		);
 	}
 }

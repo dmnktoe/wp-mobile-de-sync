@@ -34,9 +34,7 @@ class WMDS_Log {
 		}
 	}
 
-	/**
-	 * @param string $message
-	 */
+	/** @param string $message */
 	public static function problem( $message ) {
 		self::write( $message, self::PROBLEM );
 	}

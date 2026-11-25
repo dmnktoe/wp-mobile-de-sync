@@ -46,9 +46,7 @@ class WMDS_Facet_Request {
 		return $selection;
 	}
 
-	/**
-	 * @return array<string, mixed>
-	 */
+	/** @return array<string, mixed> */
 	public static function selection() {
 		$request = isset( $_GET ) ? wp_unslash( $_GET ) : array(); // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- a read-only list filter, and parse() normalises every value it keeps.
 

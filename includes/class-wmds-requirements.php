@@ -15,9 +15,7 @@ class WMDS_Requirements {
 	const WANTED_EXECUTION = 120;
 	const WANTED_MEMORY    = 134217728;
 
-	/**
-	 * @return array<int,array{key:string,group:string,label:string,value:string,status:string,hint:string}>
-	 */
+	/** @return array<int,array{key:string,group:string,label:string,value:string,status:string,hint:string}> */
 	public static function all() {
 		return array_merge(
 			self::platform(),
@@ -28,9 +26,7 @@ class WMDS_Requirements {
 		);
 	}
 
-	/**
-	 * @return array{fail:int,warn:int,ok:int}
-	 */
+	/** @return array{fail:int,warn:int,ok:int} */
 	public static function tally() {
 		$tally = array(
 			'fail' => 0,
@@ -97,38 +93,25 @@ class WMDS_Requirements {
 
 	/** @return array */
 	private static function extensions() {
-		$required = array(
-			'json'    => __( 'Required to process the API responses.', 'wp-mobile-de-sync' ),
-			'openssl' => __( 'Needed for the HTTPS calls to mobile.de.', 'wp-mobile-de-sync' ),
-		);
-
-		$optional = array(
-			'curl'     => __( 'Without this extension, WordPress uses PHP streams, which is slower.', 'wp-mobile-de-sync' ),
-			'mbstring' => __( 'Without this extension, umlauts in descriptions may be corrupted when text is shortened.', 'wp-mobile-de-sync' ),
+		$extensions = array(
+			'json'     => array( self::FAIL, __( 'Required to process the API responses.', 'wp-mobile-de-sync' ) ),
+			'openssl'  => array( self::FAIL, __( 'Needed for the HTTPS calls to mobile.de.', 'wp-mobile-de-sync' ) ),
+			'curl'     => array( self::WARN, __( 'Without this extension, WordPress uses PHP streams, which is slower.', 'wp-mobile-de-sync' ) ),
+			'mbstring' => array( self::WARN, __( 'Without this extension, umlauts in descriptions may be corrupted when text is shortened.', 'wp-mobile-de-sync' ) ),
 		);
 
 		$checks = array();
 
-		foreach ( $required as $name => $hint ) {
-			$loaded   = extension_loaded( $name );
-			$checks[] = self::check(
-				'ext-' . $name,
-				__( 'PHP extensions', 'wp-mobile-de-sync' ),
-				$name,
-				$loaded ? __( 'available', 'wp-mobile-de-sync' ) : __( 'missing', 'wp-mobile-de-sync' ),
-				$loaded ? self::OK : self::FAIL,
-				$loaded ? '' : $hint
-			);
-		}
+		foreach ( $extensions as $name => $rule ) {
+			list( $level, $hint ) = $rule;
 
-		foreach ( $optional as $name => $hint ) {
 			$loaded   = extension_loaded( $name );
 			$checks[] = self::check(
 				'ext-' . $name,
 				__( 'PHP extensions', 'wp-mobile-de-sync' ),
 				$name,
 				$loaded ? __( 'available', 'wp-mobile-de-sync' ) : __( 'missing', 'wp-mobile-de-sync' ),
-				$loaded ? self::OK : self::WARN,
+				$loaded ? self::OK : $level,
 				$loaded ? '' : $hint
 			);
 		}
@@ -261,9 +244,7 @@ class WMDS_Requirements {
 		return $checks;
 	}
 
-	/**
-	 * @return array{value:string,status:string,hint:string}
-	 */
+	/** @return array{value:string,status:string,hint:string} */
 	private static function rewrite() {
 		if ( ! empty( $GLOBALS['is_nginx'] ) ) {
 			return array(

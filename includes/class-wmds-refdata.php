@@ -10,14 +10,10 @@ class WMDS_Refdata {
 
 	const PREFIX = 'wmds_refdata_';
 
-	/**
-	 * @var array<string, array<string, string>>
-	 */
+	/** @var array<string, array<string, string>> */
 	private static $memo = array();
 
-	/**
-	 * @var array<string, string>
-	 */
+	/** @var array<string, string> */
 	private static $tables = array(
 		'gearbox'         => 'gearboxes',
 		'fuel'            => 'fuels',
@@ -39,9 +35,7 @@ class WMDS_Refdata {
 	/** @var string */
 	private $lang;
 
-	/**
-	 * @param string $lang
-	 */
+	/** @param string $lang */
 	public function __construct( $lang = 'en' ) {
 		$this->lang = $lang ? $lang : 'en';
 	}
@@ -168,9 +162,7 @@ class WMDS_Refdata {
 		}
 	}
 
-	/**
-	 * @return string[]
-	 */
+	/** @return string[] */
 	public static function resolvable_fields() {
 		return array_keys( self::$tables );
 	}

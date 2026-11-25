@@ -4,9 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class WMDS_Json_Mapper {
-	/**
-	 * @var array<string, array>
-	 */
+	/** @var array<string, array> */
 	private static $features = array(
 		'ABS'                       => array(
 			'type'  => 'bool',
@@ -126,9 +124,7 @@ class WMDS_Json_Mapper {
 		),
 	);
 
-	/**
-	 * @var string[]
-	 */
+	/** @var string[] */
 	private static $feature_skip = array(
 		'accidentDamaged',
 		'commercial',
@@ -138,9 +134,7 @@ class WMDS_Json_Mapper {
 		'roadworthy',
 	);
 
-	/**
-	 * @var array<string, string>
-	 */
+	/** @var array<string, string> */
 	private static $feature_aliases = array(
 		'NON_SMOKER_VEHICLE'          => 'NONSMOKER_VEHICLE',
 		'VEGETABLE_OIL_FUEL_SUITABLE' => 'VEGETABLEOILFUEL_SUITABLE',
@@ -150,9 +144,7 @@ class WMDS_Json_Mapper {
 	/** @var WMDS_Refdata|null */
 	private $refdata;
 
-	/**
-	 * @param WMDS_Refdata|null $refdata
-	 */
+	/** @param WMDS_Refdata|null $refdata */
 	public function __construct( $refdata = null ) {
 		$this->refdata = $refdata;
 	}
@@ -165,136 +157,28 @@ class WMDS_Json_Mapper {
 		$ad_id = isset( $ad['mobileAdId'] ) ? (string) $ad['mobileAdId'] : '';
 		$class = isset( $ad['vehicleClass'] ) ? (string) $ad['vehicleClass'] : 'Car';
 
-		$meta = array();
-
-		$make_key = isset( $ad['make'] ) ? (string) $ad['make'] : '';
-		$make     = $this->label( 'make', $make_key, $class );
-
-		$meta['make']          = $make;
-		$meta['make_key']      = $make_key;
-		$meta['model']         = isset( $ad['model'] ) ? (string) $ad['model'] : '';
-		$meta['class']         = self::vehicle_class_label( $class );
-		$meta['class_key']     = $class;
-		$meta['category']      = $this->label( 'category', $this->str( $ad, 'category' ), $class );
-		$meta['condition']     = $this->label( 'condition', $this->str( $ad, 'condition' ), $class );
-		$meta['condition_key'] = $this->str( $ad, 'condition' );
-
-		$model_desc = WMDS_Creole::decode_field( $this->str( $ad, 'modelDescription' ) );
-		$title      = trim( $make . ' ' . ( '' !== $model_desc ? $model_desc : $meta['model'] ) );
-		if ( '' === $title ) {
-			$title = 'Vehicle ' . $ad_id;
-		}
-
-		$price = isset( $ad['price'] ) && is_array( $ad['price'] ) ? $ad['price'] : array();
-		$gross = isset( $price['consumerPriceGross'] ) ? (string) $price['consumerPriceGross'] : '';
-
-		$meta['price']    = ( '' !== $gross ) ? self::number( (float) $gross ) : '';
-		$meta['currency'] = isset( $price['currency'] ) ? (string) $price['currency'] : 'EUR';
-
-		$meta['vatable']  = isset( $price['vatRate'] ) && '' !== $price['vatRate'] ? 'true' : 'false';
-		$meta['vat_rate'] = isset( $price['vatRate'] ) ? (string) $price['vatRate'] : '';
-
-		$meta['price_raw']       = ( '' !== $gross ) ? (int) round( (float) $gross ) : '';
-		$meta['price_raw_short'] = self::price_bucket( $meta['price_raw'] );
-
-		$mileage             = isset( $ad['mileage'] ) ? (int) $ad['mileage'] : null;
-		$meta['mileage']     = ( null !== $mileage ) ? self::number( $mileage ) : '';
-		$meta['mileage_raw'] = ( null !== $mileage ) ? $mileage : '';
-
-		$meta['power']          = isset( $ad['power'] ) ? (int) $ad['power'] : '';
-		$meta['cubic_capacity'] = $this->str( $ad, 'cubicCapacity' );
-		$meta['cubicCapacity']  = $meta['cubic_capacity'];
-		$meta['num_seats']      = $this->str( $ad, 'seats' );
-
-		$meta['axles']          = $this->str( $ad, 'axles' );
-		$meta['height']         = $this->str( $ad, 'height' );
-		$meta['length']         = $this->str( $ad, 'length' );
-		$meta['countryVersion'] = $this->label( 'countryVersion', $this->str( $ad, 'countryVersion' ), $class );
-
-		$meta['fuel']       = $this->label( 'fuel', $this->str( $ad, 'fuel' ), $class );
-		$meta['gearbox']    = $this->label( 'gearbox', $this->str( $ad, 'gearbox' ), $class );
-		$meta['door_count'] = $this->label( 'doors', $this->str( $ad, 'doors' ), $class );
-
-		$first_reg                      = $this->str( $ad, 'firstRegistration' );
-		$meta['firstRegistration']      = self::format_month( $first_reg );
-		$meta['firstRegistration_year'] = self::year( $first_reg );
-
-		$meta['nextInspection'] = self::format_month( $this->str( $ad, 'generalInspection' ) );
-		$meta['newHuAu']        = ! empty( $ad['newHuAu'] ) ? __( 'New inspection on purchase', 'wp-mobile-de-sync' ) : '';
-
-		$meta['construction-year'] = $this->str( $ad, 'constructionYear' );
-		$meta['owners']            = $this->str( $ad, 'numberOfPreviousOwners' );
-
-		$meta['damageUnrepaired'] = ! empty( $ad['damageUnrepaired'] ) ? 'true' : 'false';
-
-		$meta['roadWorthy'] = array_key_exists( 'roadworthy', $ad )
-			? ( $ad['roadworthy'] ? 'true' : 'false' )
-			: '';
-
-		$meta['exteriorColor']           = $this->label( 'exteriorColor', $this->str( $ad, 'exteriorColor' ), $class );
-		$meta['manufacturer_color_name'] = WMDS_Creole::decode_field( $this->str( $ad, 'manufacturerColorName' ) );
-		$meta['interior_type']           = $this->label( 'interiorType', $this->str( $ad, 'interiorType' ), $class );
-		$meta['interior_color']          = $this->label( 'interiorColor', $this->str( $ad, 'interiorColor' ), $class );
-
-		$meta['emissionClass']       = $this->label( 'emissionClass', $this->str( $ad, 'emissionClass' ), $class );
-		$sticker_key                 = $this->str( $ad, 'emissionSticker' );
-		$meta['emissionSticker']     = $this->label( 'emissionSticker', $sticker_key, $class );
-		$meta['emissionSticker_key'] = $sticker_key;
-
-		$meta['climatisation'] = $this->label( 'climatisation', $this->str( $ad, 'climatisation' ), $class );
-		$meta['airbag']        = $this->label( 'airbag', $this->str( $ad, 'airbag' ), $class );
-
-		$meta['parking-assistants'] = self::join_list( $ad, 'parkingAssistants' );
-
-		$fuel_c                                   = self::dig( $ad, array( 'consumptions', 'fuel' ) );
-		$meta['emissionFuelConsumption_Combined'] = $this->str( $fuel_c, 'combined' );
-		$meta['emissionFuelConsumption_Inner']    = $this->str( $fuel_c, 'city' );
-		$meta['emissionFuelConsumption_Outer']    = $this->str( $fuel_c, 'highway' );
-
-		$power_c                          = self::dig( $ad, array( 'consumptions', 'power' ) );
-		$meta['combinedPowerConsumption'] = $this->str( $power_c, 'combined' );
-
-		$meta['emissionFuelConsumption_CO2'] = $this->str(
-			self::dig( $ad, array( 'emissions', 'combined' ) ),
-			'co2'
+		$meta = array_merge(
+			$this->identity_meta( $ad, $class ),
+			$this->price_meta( $ad ),
+			$this->technical_meta( $ad, $class ),
+			$this->history_meta( $ad ),
+			$this->appearance_meta( $ad, $class ),
+			$this->emission_meta( $ad, $class ),
+			$this->equipment_meta( $ad, $class ),
+			$this->consumption_meta( $ad ),
+			$this->availability_meta( $ad ),
+			array(
+				'vehicleListingID' => $ad_id,
+				'schwacke-code'    => $this->str( $ad, 'schwackeCode' ),
+				'detail_page_url'  => $this->str( $ad, 'detailPageUrl' ),
+			),
+			$this->seller_meta( $ad )
 		);
 
-		$meta['available_from'] = '';
-		$meta['available_now']  = '';
-		if ( isset( $ad['deliveryPeriod'] ) && (int) $ad['deliveryPeriod'] <= 1 ) {
-			$meta['available_from'] = __( 'Immediately', 'wp-mobile-de-sync' );
-			$meta['available_now']  = 'true';
-		} elseif ( '' !== $this->str( $ad, 'deliveryDate' ) ) {
-			$meta['available_from'] = self::format_day( $this->str( $ad, 'deliveryDate' ) );
-		}
-
-		$meta['vehicleListingID'] = $ad_id;
-		$meta['schwacke-code']    = $this->str( $ad, 'schwackeCode' );
-		$meta['detail_page_url']  = $this->str( $ad, 'detailPageUrl' );
-
-		$seller = isset( $ad['seller'] ) && is_array( $ad['seller'] ) ? $ad['seller'] : array();
-
-		$meta['seller']              = $this->str( $seller, 'companyName' );
-		$meta['seller_company_name'] = $meta['seller'];
-		$meta['seller_email']        = $this->str( $seller, 'email' );
-		$meta['seller_id']           = $this->str( $seller, 'mobileSellerId' );
-		$meta['seller_since']        = self::format_day( $this->str( $seller, 'mobileSellerSince' ) );
-		$meta['seller_homepage']     = $this->str( $seller, 'homepage' );
-
-		$address = isset( $seller['address'] ) && is_array( $seller['address'] ) ? $seller['address'] : array();
-
-		$meta['seller_street']  = $this->str( $address, 'street' );
-		$meta['seller_zipcode'] = $this->str( $address, 'zipcode' );
-		$meta['seller_city']    = $this->str( $address, 'city' );
-		$meta['seller_country'] = $this->str( $address, 'country' );
-
-		if ( ! empty( $seller['phones'] ) && is_array( $seller['phones'] ) ) {
-			$phone = reset( $seller['phones'] );
-			if ( is_array( $phone ) ) {
-				$meta['seller_phone_country_calling_code'] = $this->str( $phone, 'internationalPrefix' );
-				$meta['seller_phone_area_code']            = $this->str( $phone, 'nationalPrefix' );
-				$meta['seller_phone_number']               = $this->str( $phone, 'number' );
-			}
+		$model_desc = WMDS_Creole::decode_field( $this->str( $ad, 'modelDescription' ) );
+		$title      = trim( $meta['make'] . ' ' . ( '' !== $model_desc ? $model_desc : $meta['model'] ) );
+		if ( '' === $title ) {
+			$title = 'Vehicle ' . $ad_id;
 		}
 
 		$features = self::collect_features( $ad );
@@ -321,6 +205,208 @@ class WMDS_Json_Mapper {
 	}
 
 	/**
+	 * @param array  $ad
+	 * @param string $class
+	 * @return array<string, string>
+	 */
+	private function identity_meta( array $ad, $class ) {
+		$make_key  = isset( $ad['make'] ) ? (string) $ad['make'] : '';
+		$condition = $this->str( $ad, 'condition' );
+
+		return array(
+			'make'          => $this->label( 'make', $make_key, $class ),
+			'make_key'      => $make_key,
+			'model'         => isset( $ad['model'] ) ? (string) $ad['model'] : '',
+			'class'         => self::vehicle_class_label( $class ),
+			'class_key'     => $class,
+			'category'      => $this->label( 'category', $this->str( $ad, 'category' ), $class ),
+			'condition'     => $this->label( 'condition', $condition, $class ),
+			'condition_key' => $condition,
+		);
+	}
+
+	/**
+	 * @param array $ad
+	 * @return array<string, mixed>
+	 */
+	private function price_meta( array $ad ) {
+		$price = isset( $ad['price'] ) && is_array( $ad['price'] ) ? $ad['price'] : array();
+		$gross = isset( $price['consumerPriceGross'] ) ? (string) $price['consumerPriceGross'] : '';
+		$raw   = ( '' !== $gross ) ? (int) round( (float) $gross ) : '';
+
+		return array(
+			'price'           => ( '' !== $gross ) ? self::number( (float) $gross ) : '',
+			'currency'        => isset( $price['currency'] ) ? (string) $price['currency'] : 'EUR',
+			'vatable'         => isset( $price['vatRate'] ) && '' !== $price['vatRate'] ? 'true' : 'false',
+			'vat_rate'        => isset( $price['vatRate'] ) ? (string) $price['vatRate'] : '',
+			'price_raw'       => $raw,
+			'price_raw_short' => self::price_bucket( $raw ),
+		);
+	}
+
+	/**
+	 * @param array  $ad
+	 * @param string $class
+	 * @return array<string, mixed>
+	 */
+	private function technical_meta( array $ad, $class ) {
+		$mileage  = isset( $ad['mileage'] ) ? (int) $ad['mileage'] : null;
+		$capacity = $this->str( $ad, 'cubicCapacity' );
+
+		return array(
+			'mileage'        => ( null !== $mileage ) ? self::number( $mileage ) : '',
+			'mileage_raw'    => ( null !== $mileage ) ? $mileage : '',
+			'power'          => isset( $ad['power'] ) ? (int) $ad['power'] : '',
+			'cubic_capacity' => $capacity,
+			'cubicCapacity'  => $capacity,
+			'num_seats'      => $this->str( $ad, 'seats' ),
+			'axles'          => $this->str( $ad, 'axles' ),
+			'height'         => $this->str( $ad, 'height' ),
+			'length'         => $this->str( $ad, 'length' ),
+			'countryVersion' => $this->label( 'countryVersion', $this->str( $ad, 'countryVersion' ), $class ),
+			'fuel'           => $this->label( 'fuel', $this->str( $ad, 'fuel' ), $class ),
+			'gearbox'        => $this->label( 'gearbox', $this->str( $ad, 'gearbox' ), $class ),
+			'door_count'     => $this->label( 'doors', $this->str( $ad, 'doors' ), $class ),
+		);
+	}
+
+	/**
+	 * @param array $ad
+	 * @return array<string, mixed>
+	 */
+	private function history_meta( array $ad ) {
+		$first_reg  = $this->str( $ad, 'firstRegistration' );
+		$roadworthy = '';
+
+		if ( array_key_exists( 'roadworthy', $ad ) ) {
+			$roadworthy = $ad['roadworthy'] ? 'true' : 'false';
+		}
+
+		return array(
+			'firstRegistration'      => self::format_month( $first_reg ),
+			'firstRegistration_year' => self::year( $first_reg ),
+			'nextInspection'         => self::format_month( $this->str( $ad, 'generalInspection' ) ),
+			'newHuAu'                => ! empty( $ad['newHuAu'] ) ? __( 'New inspection on purchase', 'wp-mobile-de-sync' ) : '',
+			'construction-year'      => $this->str( $ad, 'constructionYear' ),
+			'owners'                 => $this->str( $ad, 'numberOfPreviousOwners' ),
+			'damageUnrepaired'       => ! empty( $ad['damageUnrepaired'] ) ? 'true' : 'false',
+			'roadWorthy'             => $roadworthy,
+		);
+	}
+
+	/**
+	 * @param array  $ad
+	 * @param string $class
+	 * @return array<string, string>
+	 */
+	private function appearance_meta( array $ad, $class ) {
+		return array(
+			'exteriorColor'           => $this->label( 'exteriorColor', $this->str( $ad, 'exteriorColor' ), $class ),
+			'manufacturer_color_name' => WMDS_Creole::decode_field( $this->str( $ad, 'manufacturerColorName' ) ),
+			'interior_type'           => $this->label( 'interiorType', $this->str( $ad, 'interiorType' ), $class ),
+			'interior_color'          => $this->label( 'interiorColor', $this->str( $ad, 'interiorColor' ), $class ),
+		);
+	}
+
+	/**
+	 * @param array  $ad
+	 * @param string $class
+	 * @return array<string, string>
+	 */
+	private function emission_meta( array $ad, $class ) {
+		$sticker = $this->str( $ad, 'emissionSticker' );
+
+		return array(
+			'emissionClass'       => $this->label( 'emissionClass', $this->str( $ad, 'emissionClass' ), $class ),
+			'emissionSticker'     => $this->label( 'emissionSticker', $sticker, $class ),
+			'emissionSticker_key' => $sticker,
+		);
+	}
+
+	/**
+	 * @param array  $ad
+	 * @param string $class
+	 * @return array<string, string>
+	 */
+	private function equipment_meta( array $ad, $class ) {
+		return array(
+			'climatisation'      => $this->label( 'climatisation', $this->str( $ad, 'climatisation' ), $class ),
+			'airbag'             => $this->label( 'airbag', $this->str( $ad, 'airbag' ), $class ),
+			'parking-assistants' => self::join_list( $ad, 'parkingAssistants' ),
+		);
+	}
+
+	/**
+	 * @param array $ad
+	 * @return array<string, string>
+	 */
+	private function consumption_meta( array $ad ) {
+		$fuel = self::dig( $ad, array( 'consumptions', 'fuel' ) );
+
+		return array(
+			'emissionFuelConsumption_Combined' => $this->str( $fuel, 'combined' ),
+			'emissionFuelConsumption_Inner'    => $this->str( $fuel, 'city' ),
+			'emissionFuelConsumption_Outer'    => $this->str( $fuel, 'highway' ),
+			'combinedPowerConsumption'         => $this->str( self::dig( $ad, array( 'consumptions', 'power' ) ), 'combined' ),
+			'emissionFuelConsumption_CO2'      => $this->str( self::dig( $ad, array( 'emissions', 'combined' ) ), 'co2' ),
+		);
+	}
+
+	/**
+	 * @param array $ad
+	 * @return array<string, string>
+	 */
+	private function availability_meta( array $ad ) {
+		$from = '';
+		$now  = '';
+
+		if ( isset( $ad['deliveryPeriod'] ) && (int) $ad['deliveryPeriod'] <= 1 ) {
+			$from = __( 'Immediately', 'wp-mobile-de-sync' );
+			$now  = 'true';
+		} elseif ( '' !== $this->str( $ad, 'deliveryDate' ) ) {
+			$from = self::format_day( $this->str( $ad, 'deliveryDate' ) );
+		}
+
+		return array(
+			'available_from' => $from,
+			'available_now'  => $now,
+		);
+	}
+
+	/**
+	 * @param array $ad
+	 * @return array<string, string>
+	 */
+	private function seller_meta( array $ad ) {
+		$seller  = isset( $ad['seller'] ) && is_array( $ad['seller'] ) ? $ad['seller'] : array();
+		$address = isset( $seller['address'] ) && is_array( $seller['address'] ) ? $seller['address'] : array();
+		$company = $this->str( $seller, 'companyName' );
+
+		$meta = array(
+			'seller'              => $company,
+			'seller_company_name' => $company,
+			'seller_email'        => $this->str( $seller, 'email' ),
+			'seller_id'           => $this->str( $seller, 'mobileSellerId' ),
+			'seller_since'        => self::format_day( $this->str( $seller, 'mobileSellerSince' ) ),
+			'seller_homepage'     => $this->str( $seller, 'homepage' ),
+			'seller_street'       => $this->str( $address, 'street' ),
+			'seller_zipcode'      => $this->str( $address, 'zipcode' ),
+			'seller_city'         => $this->str( $address, 'city' ),
+			'seller_country'      => $this->str( $address, 'country' ),
+		);
+
+		$phone = ! empty( $seller['phones'] ) && is_array( $seller['phones'] ) ? reset( $seller['phones'] ) : null;
+
+		if ( is_array( $phone ) ) {
+			$meta['seller_phone_country_calling_code'] = $this->str( $phone, 'internationalPrefix' );
+			$meta['seller_phone_area_code']            = $this->str( $phone, 'nationalPrefix' );
+			$meta['seller_phone_number']               = $this->str( $phone, 'number' );
+		}
+
+		return $meta;
+	}
+
+	/**
 	 * @param float|int $value
 	 * @return string
 	 */
@@ -330,9 +416,7 @@ class WMDS_Json_Mapper {
 			: number_format( $value, 0, '.', ',' );
 	}
 
-	/**
-	 * @return array<string, string>
-	 */
+	/** @return array<string, string> */
 	private static function feature_labels() {
 		return array(
 			'ABS'                         => __( 'ABS', 'wp-mobile-de-sync' ),
@@ -656,9 +740,7 @@ class WMDS_Json_Mapper {
 		return 'ab 50.000 €';
 	}
 
-	/**
-	 * @return string[]
-	 */
+	/** @return string[] */
 	public static function feature_keys() {
 		return array_keys( self::$features );
 	}

@@ -22,9 +22,7 @@ class WMDS_Tab_Settings {
 		);
 	}
 
-	/**
-	 * @param array $status
-	 */
+	/** @param array $status */
 	public static function render( array $status ) {
 		WMDS_Admin_Ui::form_open( 'settings' );
 
@@ -143,9 +141,7 @@ class WMDS_Tab_Settings {
 		<?php
 	}
 
-	/**
-	 * @param array $status
-	 */
+	/** @param array $status */
 	private static function schedule( array $status ) {
 		$intervals = array(
 			'wmds_5min'  => __( 'Every 5 minutes', 'wp-mobile-de-sync' ),

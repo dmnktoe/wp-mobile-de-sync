@@ -8,9 +8,7 @@ class WMDS_Spam {
 
 	const MAX_BLOCKED = 500;
 
-	/**
-	 * @return string[]
-	 */
+	/** @return string[] */
 	public static function builtin_words() {
 		return array(
 			'unsubscribe',
@@ -25,9 +23,7 @@ class WMDS_Spam {
 		);
 	}
 
-	/**
-	 * @return string[]
-	 */
+	/** @return string[] */
 	public static function shared_domains() {
 		return array(
 			'gmail.com',
@@ -245,9 +241,7 @@ class WMDS_Spam {
 		return self::lines( (string) WMDS_Settings::get( 'enquiry_blocklist' ) );
 	}
 
-	/**
-	 * @param string[] $blocked
-	 */
+	/** @param string[] $blocked */
 	public static function save_blocklist( array $blocked ) {
 		WMDS_Settings::update( array( 'enquiry_blocklist' => implode( "\n", $blocked ) ) );
 	}
@@ -256,9 +250,7 @@ class WMDS_Spam {
 	public static function words() {
 		$words = array_merge( self::builtin_words(), self::lines( (string) WMDS_Settings::get( 'enquiry_spam_words' ) ) );
 
-		/**
-		 * @param string[] $words
-		 */
+		/** @param string[] $words */
 		return array_values( array_unique( (array) apply_filters( 'wmds_spam_words', $words ) ) );
 	}
 

@@ -25,6 +25,16 @@ function wmds_po_chunk( $line ) {
 	);
 }
 
+/** @return array{id:string|null,ctx:string,plural:string|null,str:string[]} */
+function wmds_po_blank() {
+	return array(
+		'id'     => null,
+		'ctx'    => '',
+		'plural' => null,
+		'str'    => array(),
+	);
+}
+
 /**
  * @param string $path
  * @return array<string,string>
@@ -37,12 +47,7 @@ function wmds_po_parse( $path ) {
 	}
 
 	$entries = array();
-	$current = array(
-		'id'     => null,
-		'ctx'    => '',
-		'plural' => null,
-		'str'    => array(),
-	);
+	$current = wmds_po_blank();
 	$pending = '';
 	$field   = null;
 	$index   = 0;
@@ -63,12 +68,7 @@ function wmds_po_parse( $path ) {
 		ksort( $current['str'] );
 		$entries[ $key ] = implode( "\0", $current['str'] );
 
-		$current = array(
-			'id'     => null,
-			'ctx'    => '',
-			'plural' => null,
-			'str'    => array(),
-		);
+		$current = wmds_po_blank();
 	};
 
 	foreach ( $lines as $line ) {

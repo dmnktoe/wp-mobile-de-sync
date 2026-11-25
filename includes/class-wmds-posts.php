@@ -101,9 +101,7 @@ class WMDS_Posts {
 		}
 	}
 
-	/**
-	 * @param int $post_id
-	 */
+	/** @param int $post_id */
 	private static function thumb_cell( $post_id ) {
 		if ( has_post_thumbnail( $post_id ) ) {
 			echo '<span class="wmds-col-thumb">';
@@ -118,9 +116,7 @@ class WMDS_Posts {
 		);
 	}
 
-	/**
-	 * @param WMDS_Vehicle $vehicle
-	 */
+	/** @param WMDS_Vehicle $vehicle */
 	private static function make_cell( WMDS_Vehicle $vehicle ) {
 		$logo = $vehicle->logo_url();
 		$make = $vehicle->get( 'make' );
@@ -249,9 +245,7 @@ class WMDS_Posts {
 		return $makes;
 	}
 
-	/**
-	 * @param WP_Query $query
-	 */
+	/** @param WP_Query $query */
 	public static function query( $query ) {
 		if ( ! is_admin() || ! $query->is_main_query() || WMDS_CPT !== $query->get( 'post_type' ) ) {
 			return;
@@ -261,9 +255,7 @@ class WMDS_Posts {
 		self::apply_sort( $query );
 	}
 
-	/**
-	 * @param WP_Query $query
-	 */
+	/** @param WP_Query $query */
 	private static function apply_make_filter( $query ) {
 		$make = isset( $_GET['wmds_make'] ) ? sanitize_text_field( wp_unslash( $_GET['wmds_make'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- a read-only list filter.
 		if ( '' === $make ) {
@@ -280,9 +272,7 @@ class WMDS_Posts {
 		$query->set( 'meta_query', $meta ); // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- an admin list screen, paginated by WordPress.
 	}
 
-	/**
-	 * @param WP_Query $query
-	 */
+	/** @param WP_Query $query */
 	private static function apply_sort( $query ) {
 		$orderby = (string) $query->get( 'orderby' );
 		$map     = self::sort_map();
@@ -356,9 +346,7 @@ class WMDS_Posts {
 		);
 	}
 
-	/**
-	 * @param WP_Post $post
-	 */
+	/** @param WP_Post $post */
 	public static function render_meta_box( $post ) {
 		$ad_id = (string) get_post_meta( $post->ID, WMDS_Importer::META_AD_ID, true );
 

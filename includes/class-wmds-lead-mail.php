@@ -18,9 +18,7 @@ class WMDS_Lead_Mail {
 
 		$to = WMDS_Mail::addresses( WMDS_Settings::get( 'enquiry_recipient' ), $extra );
 
-		/**
-		 * @param string[] $to
-		 */
+		/** @param string[] $to */
 		return (array) apply_filters( 'wmds_enquiry_recipients', $to );
 	}
 

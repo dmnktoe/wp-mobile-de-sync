@@ -4,24 +4,21 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class WMDS_Importer {
-	const META_AD_ID = 'mobileAdId';
-
+	const META_AD_ID    = 'mobileAdId';
 	const META_MODIFIED = '_wmds_modified';
 	const META_HASH     = '_wmds_hash';
 	const META_KEYS     = '_wmds_keys';
 	const META_RETRIES  = '_wmds_image_retries';
 
-	const IMAGE_RETRIES = 3;
-
-	const LOCK          = 'wmds_import_lock';
 	const OPT_LAST_RUN  = 'wmds_last_run';
 	const OPT_WATERMARK = 'wmds_watermark';
 
+	const LOCK          = 'wmds_import_lock';
+	const LOCK_TTL      = 900;
 	const FOLLOWUP_HOOK = 'wmds_import_followup';
 
-	const BATCH = 20;
-
-	const LOCK_TTL = 900;
+	const BATCH         = 20;
+	const IMAGE_RETRIES = 3;
 
 	const BUDGET_SHARE = 0.6;
 	const MAX_RUNTIME  = 300;
@@ -81,39 +78,40 @@ class WMDS_Importer {
 			restore_previous_locale();
 		}
 
-		if ( is_wp_error( $stats ) ) {
-			$record = array(
-				'seen'    => 0,
-				'created' => 0,
-				'updated' => 0,
-				'skipped' => 0,
-				'removed' => 0,
-				'images'  => 0,
-				'failed'  => 0,
-				'pending' => 0,
-				'full'    => '' === (string) get_option( self::OPT_WATERMARK, '' ),
-				'error'   => $stats->get_error_message(),
-				'time'    => current_time( 'mysql' ),
-			);
-
-			update_option( self::OPT_LAST_RUN, $record, false );
-		} else {
-			$record = $stats;
-		}
+		$record = is_wp_error( $stats ) ? self::record_abort( $stats ) : $stats;
 
 		self::unlock();
 
-		/**
-		 * @param array $record
-		 */
 		do_action( 'wmds_run_finished', $record );
 
 		return $stats;
 	}
 
 	/**
-	 * @return int
+	 * @param WP_Error $error
+	 * @return array
 	 */
+	private static function record_abort( $error ) {
+		$record = array(
+			'seen'    => 0,
+			'created' => 0,
+			'updated' => 0,
+			'skipped' => 0,
+			'removed' => 0,
+			'images'  => 0,
+			'failed'  => 0,
+			'pending' => 0,
+			'full'    => '' === (string) get_option( self::OPT_WATERMARK, '' ),
+			'error'   => $error->get_error_message(),
+			'time'    => current_time( 'mysql' ),
+		);
+
+		update_option( self::OPT_LAST_RUN, $record, false );
+
+		return $record;
+	}
+
+	/** @return int */
 	private static function budget() {
 		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- disabled on many hosts, the budget below covers that case.
 		@set_time_limit( 0 );
@@ -143,6 +141,13 @@ class WMDS_Importer {
 		self::schedule_followup();
 	}
 
+	private static function keep_alive() {
+		self::touch_lock();
+
+		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- disabled on many hosts, the deadline of the pass covers that case.
+		@set_time_limit( 0 );
+	}
+
 	public static function touch_lock() {
 		$started = self::locked_since();
 
@@ -157,9 +162,7 @@ class WMDS_Importer {
 		self::$held = false;
 	}
 
-	/**
-	 * @return int
-	 */
+	/** @return int */
 	public static function locked_since() {
 		$since = get_transient( self::LOCK );
 
@@ -173,10 +176,54 @@ class WMDS_Importer {
 	 * @return array|WP_Error
 	 */
 	private function execute( $batch, $deadline = 0, $reschedule = true ) {
+		list( $known, $trashed ) = $this->known_map();
+
+		$inventory = $this->inventory( $known, $deadline );
+		if ( is_wp_error( $inventory ) ) {
+			return $inventory;
+		}
+
+		$plan   = $inventory['plan'];
+		$counts = $this->process_batch( array_merge( $plan['create'], $plan['update'] ), $batch, $deadline, $known, $trashed );
+
+		$complete  = ( 0 === $counts['pending'] ) && ! $inventory['truncated'];
+		$reconcile = $inventory['full'] && ! $inventory['truncated'] && ! $inventory['capped'];
+		$removed   = self::remove_gone( $plan['seen'], $known, $reconcile );
+
+		if ( $complete && ! $counts['failed'] ) {
+			self::advance_watermark( $inventory['ads'] );
+		} elseif ( ! $complete && $reschedule ) {
+			self::schedule_followup();
+		}
+
+		$stats = array(
+			'seen'    => count( $plan['seen'] ),
+			'created' => $counts['created'],
+			'updated' => $counts['updated'],
+			'skipped' => count( $plan['skip'] ),
+			'removed' => $removed,
+			'images'  => $counts['images'],
+			'failed'  => $counts['failed'],
+			'pending' => $counts['pending'],
+			'full'    => $inventory['full'],
+			'time'    => current_time( 'mysql' ),
+		);
+
+		update_option( self::OPT_LAST_RUN, $stats, false );
+
+		WMDS_Log::write( self::describe_run( $stats ), $stats['failed'] ? WMDS_Log::PROBLEM : WMDS_Log::INFO );
+
+		return $stats;
+	}
+
+	/**
+	 * @param array $known
+	 * @param int   $deadline
+	 * @return array{ads:array[],capped:bool,truncated:bool,full:bool,plan:array}|WP_Error
+	 */
+	private function inventory( array $known, $deadline ) {
 		$watermark = (string) get_option( self::OPT_WATERMARK, '' );
 		$is_full   = ( '' === $watermark );
-
-		list( $known, $trashed ) = $this->known_map();
 
 		$listing = $this->listing( $watermark, $deadline );
 		if ( is_wp_error( $listing ) ) {
@@ -195,11 +242,7 @@ class WMDS_Importer {
 			$plan = WMDS_Sync_Plan::build( $listing['ads'], $known );
 		}
 
-		$ads       = $listing['ads'];
-		$capped    = $listing['capped'];
-		$truncated = $listing['truncated'];
-
-		if ( $capped ) {
+		if ( $listing['capped'] ) {
 			WMDS_Log::problem(
 				sprintf(
 					/* translators: %d: the maximum number of vehicles the API returns. */
@@ -209,20 +252,36 @@ class WMDS_Importer {
 			);
 		}
 
-		$todo    = array_merge( $plan['create'], $plan['update'] );
-		$pending = max( 0, count( $todo ) - $batch );
-		$todo    = array_slice( $todo, 0, $batch );
+		$listing['full'] = $is_full;
+		$listing['plan'] = $plan;
 
-		$created = 0;
-		$updated = 0;
-		$images  = 0;
-		$failed  = 0;
-		$done    = 0;
+		return $listing;
+	}
+
+	/**
+	 * @param array[] $todo
+	 * @param int     $batch
+	 * @param int     $deadline
+	 * @param array   $known
+	 * @param array   $trashed
+	 * @return array{created:int,updated:int,failed:int,images:int,pending:int}
+	 */
+	private function process_batch( array $todo, $batch, $deadline, array $known, array $trashed ) {
+		$counts = array(
+			'created' => 0,
+			'updated' => 0,
+			'failed'  => 0,
+			'images'  => 0,
+			'pending' => max( 0, count( $todo ) - $batch ),
+		);
+
+		$todo = array_slice( $todo, 0, $batch );
+		$done = 0;
 
 		foreach ( $todo as $ad ) {
 			if ( $deadline && $done && time() >= $deadline ) {
-				$left     = count( $todo ) - $done;
-				$pending += $left;
+				$left               = count( $todo ) - $done;
+				$counts['pending'] += $left;
 
 				WMDS_Log::write(
 					sprintf(
@@ -235,76 +294,66 @@ class WMDS_Importer {
 				break;
 			}
 
-			self::touch_lock();
-
-			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- disabled on many hosts, the deadline above covers that case.
-			@set_time_limit( 0 );
+			self::keep_alive();
 
 			++$done;
 
-			$outcome = $this->process( $ad, $known, $images, null, $trashed );
-			if ( 'created' === $outcome ) {
-				++$created;
-			} elseif ( 'updated' === $outcome ) {
-				++$updated;
+			$outcome = $this->process( $ad, $known, $counts['images'], null, $trashed );
+
+			if ( 'created' === $outcome || 'updated' === $outcome ) {
+				++$counts[ $outcome ];
 			} else {
-				++$failed;
+				++$counts['failed'];
 			}
 		}
 
-		$complete = ( 0 === $pending ) && ! $truncated;
+		return $counts;
+	}
 
-		$reconcile = $is_full && ! $truncated && ! $capped;
-		$removal   = WMDS_Sync_Plan::removals( $plan['seen'], $known, $reconcile );
-		$removed   = 0;
+	/**
+	 * @param string[] $seen
+	 * @param array    $known
+	 * @param bool     $reconcile
+	 * @return int
+	 */
+	private static function remove_gone( array $seen, array $known, $reconcile ) {
+		$removal = WMDS_Sync_Plan::removals( $seen, $known, $reconcile );
 
 		if ( '' !== $removal['abort'] ) {
 			if ( $reconcile ) {
 				WMDS_Log::problem( $removal['abort'] );
 			}
-		} else {
-			foreach ( $removal['remove'] as $post_id ) {
-				if ( wp_trash_post( $post_id ) ) {
-					WMDS_Images::release( $post_id );
-					++$removed;
-				}
+
+			return 0;
+		}
+
+		$removed = 0;
+
+		foreach ( $removal['remove'] as $post_id ) {
+			if ( wp_trash_post( $post_id ) ) {
+				WMDS_Images::release( $post_id );
+				++$removed;
 			}
 		}
 
-		if ( $complete && ! $failed ) {
-			$dates = array();
-			foreach ( $ads as $ad ) {
-				if ( is_array( $ad ) && isset( $ad['modificationDate'] ) ) {
-					$dates[] = $ad['modificationDate'];
-				}
-			}
+		return $removed;
+	}
 
-			$next = WMDS_Sync_Plan::next_watermark( $dates );
-			if ( '' !== $next ) {
-				update_option( self::OPT_WATERMARK, $next, false );
+	/** @param array[] $ads */
+	private static function advance_watermark( array $ads ) {
+		$dates = array();
+
+		foreach ( $ads as $ad ) {
+			if ( is_array( $ad ) && isset( $ad['modificationDate'] ) ) {
+				$dates[] = $ad['modificationDate'];
 			}
-		} elseif ( ! $complete && $reschedule ) {
-			self::schedule_followup();
 		}
 
-		$stats = array(
-			'seen'    => count( $plan['seen'] ),
-			'created' => $created,
-			'updated' => $updated,
-			'skipped' => count( $plan['skip'] ),
-			'removed' => $removed,
-			'images'  => $images,
-			'failed'  => $failed,
-			'pending' => $pending,
-			'full'    => $is_full,
-			'time'    => current_time( 'mysql' ),
-		);
+		$next = WMDS_Sync_Plan::next_watermark( $dates );
 
-		update_option( self::OPT_LAST_RUN, $stats, false );
-
-		WMDS_Log::write( self::describe_run( $stats ), $failed ? WMDS_Log::PROBLEM : WMDS_Log::INFO );
-
-		return $stats;
+		if ( '' !== $next ) {
+			update_option( self::OPT_WATERMARK, $next, false );
+		}
 	}
 
 	/**
@@ -355,10 +404,7 @@ class WMDS_Importer {
 		$guard     = 40;
 
 		do {
-			self::touch_lock();
-
-			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- disabled on many hosts, the deadline below covers that case.
-			@set_time_limit( 0 );
+			self::keep_alive();
 
 			$result = $this->client->search( $page, WMDS_Client::MAX_PAGE_SIZE, $watermark );
 			if ( is_wp_error( $result ) ) {
@@ -471,8 +517,7 @@ class WMDS_Importer {
 	 * @return string
 	 */
 	private function process( array $ad, array $known, &$images, $detail = null, array $trashed = array() ) {
-		$ad_id = (string) $ad['mobileAdId'];
-
+		$ad_id  = (string) $ad['mobileAdId'];
 		$listed = isset( $ad['modificationDate'] ) ? (string) $ad['modificationDate'] : '';
 
 		if ( null === $detail ) {
@@ -486,29 +531,59 @@ class WMDS_Importer {
 			return 'error';
 		}
 
-		$ad     = array_merge( $ad, (array) $detail );
-		$mapped = $this->mapper->map( $ad );
+		$mapped = $this->mapper->map( array_merge( $ad, (array) $detail ) );
 		if ( '' === $mapped['ad_id'] ) {
 			return 'error';
 		}
 
-		$post_id = isset( $known[ $ad_id ]['post_id'] ) ? (int) $known[ $ad_id ]['post_id'] : 0;
-		$mode    = $post_id ? 'updated' : 'created';
+		$saved = $this->save_post( $ad_id, $mapped, $known, $trashed );
+		if ( ! $saved ) {
+			return 'error';
+		}
 
+		list( $post_id, $mode ) = $saved;
+
+		update_post_meta( $post_id, self::META_AD_ID, $ad_id );
+
+		$hash = WMDS_Sync_Plan::content_hash( $mapped );
+		if ( (string) get_post_meta( $post_id, self::META_HASH, true ) !== $hash ) {
+			$this->write_meta( $post_id, $mapped['meta'] );
+			update_post_meta( $post_id, self::META_HASH, $hash );
+		}
+
+		$complete = self::store_images( $post_id, $mapped, $images );
+
+		self::settle( $post_id, $complete, '' !== $listed ? $listed : $mapped['modified'] );
+
+		do_action( 'wmds_vehicle_stored', $post_id, $ad_id, $mode );
+
+		return $mode;
+	}
+
+	/**
+	 * @param string $ad_id
+	 * @param array  $mapped
+	 * @param array  $known
+	 * @param array  $trashed
+	 * @return array|null
+	 */
+	private function save_post( $ad_id, array $mapped, array $known, array $trashed ) {
+		$post_id = isset( $known[ $ad_id ]['post_id'] ) ? (int) $known[ $ad_id ]['post_id'] : 0;
 		$revived = false;
+
 		if ( ! $post_id && isset( $trashed[ $ad_id ]['post_id'] ) && wp_untrash_post( (int) $trashed[ $ad_id ]['post_id'] ) ) {
 			$post_id = (int) $trashed[ $ad_id ]['post_id'];
-			$mode    = 'updated';
 			$revived = true;
 		}
 
+		$mode    = $post_id ? 'updated' : 'created';
 		$postarr = array(
 			'post_type'    => WMDS_CPT,
 			'post_title'   => $mapped['title'],
 			'post_content' => $mapped['description'],
 		);
 
-		if ( 'created' === $mode || $revived ) {
+		if ( ! $post_id || $revived ) {
 			$postarr['post_status'] = 'publish';
 		}
 
@@ -527,54 +602,59 @@ class WMDS_Importer {
 					/* translators: %s: mobile.de ad ID. */
 					: sprintf( __( 'Could not save the vehicle %s.', 'wp-mobile-de-sync' ), $ad_id )
 			);
-			return 'error';
+
+			return null;
 		}
 
-		$post_id = (int) $result;
+		return array( (int) $result, $mode );
+	}
 
-		update_post_meta( $post_id, self::META_AD_ID, $ad_id );
-
-		$hash = WMDS_Sync_Plan::content_hash( $mapped );
-		if ( (string) get_post_meta( $post_id, self::META_HASH, true ) !== $hash ) {
-			$this->write_meta( $post_id, $mapped['meta'] );
-			update_post_meta( $post_id, self::META_HASH, $hash );
-		}
-
-		$wanted   = array_slice( $mapped['images'], 0, WMDS_Images::MAX );
-		$stored   = get_post_meta( $post_id, WMDS_Images::META_LIST, true );
-		$complete = true;
+	/**
+	 * @param int   $post_id
+	 * @param array $mapped
+	 * @param int   $images
+	 * @return bool
+	 */
+	private static function store_images( $post_id, array $mapped, &$images ) {
+		$wanted = array_slice( $mapped['images'], 0, WMDS_Images::MAX );
+		$stored = get_post_meta( $post_id, WMDS_Images::META_LIST, true );
 
 		if ( ! $wanted ) {
 			if ( $stored ) {
 				WMDS_Images::sync( $post_id, array(), $mapped['title'] );
 				delete_post_meta( $post_id, WMDS_Images::META_LIST );
 			}
-		} elseif ( WMDS_Sync_Plan::images_changed( $stored, $wanted ) || ! has_post_thumbnail( $post_id ) ) {
-			$result   = WMDS_Images::sync( $post_id, $wanted, $mapped['title'] );
-			$images  += $result['downloaded'];
-			$complete = count( $result['hashes'] ) === count( $wanted );
 
-			update_post_meta( $post_id, WMDS_Images::META_LIST, $result['hashes'] );
+			return true;
 		}
 
+		if ( ! WMDS_Sync_Plan::images_changed( $stored, $wanted ) && has_post_thumbnail( $post_id ) ) {
+			return true;
+		}
+
+		$result  = WMDS_Images::sync( $post_id, $wanted, $mapped['title'] );
+		$images += $result['downloaded'];
+
+		update_post_meta( $post_id, WMDS_Images::META_LIST, $result['hashes'] );
+
+		return count( $result['hashes'] ) === count( $wanted );
+	}
+
+	/**
+	 * @param int    $post_id
+	 * @param bool   $complete
+	 * @param string $modified
+	 */
+	private static function settle( $post_id, $complete, $modified ) {
 		$retries = $complete ? 0 : (int) get_post_meta( $post_id, self::META_RETRIES, true ) + 1;
 
 		if ( $complete || $retries >= self::IMAGE_RETRIES ) {
-			update_post_meta( $post_id, self::META_MODIFIED, wp_slash( '' !== $listed ? $listed : $mapped['modified'] ) );
+			update_post_meta( $post_id, self::META_MODIFIED, wp_slash( $modified ) );
 			delete_post_meta( $post_id, self::META_RETRIES );
 		} else {
 			delete_post_meta( $post_id, self::META_MODIFIED );
 			update_post_meta( $post_id, self::META_RETRIES, $retries );
 		}
-
-		/**
-		 * @param int $post_id
-		 * @param string $ad_id
-		 * @param string $mode
-		 */
-		do_action( 'wmds_vehicle_stored', $post_id, $ad_id, $mode );
-
-		return $mode;
 	}
 
 	/**
@@ -601,9 +681,7 @@ class WMDS_Importer {
 		update_post_meta( $post_id, self::META_KEYS, $written );
 	}
 
-	/**
-	 * @return array[]
-	 */
+	/** @return array[] */
 	private function known_map() {
 		global $wpdb;
 

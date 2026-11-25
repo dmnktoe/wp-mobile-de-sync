@@ -106,9 +106,7 @@ class WMDS_Updater {
 		return $value;
 	}
 
-	/**
-	 * @return bool
-	 */
+	/** @return bool */
 	private static function checking() {
 		if ( self::forced() || wp_doing_cron() ) {
 			return true;
@@ -119,9 +117,7 @@ class WMDS_Updater {
 		return in_array( $pagenow, array( 'update-core.php', 'plugins.php', 'update.php' ), true );
 	}
 
-	/**
-	 * @return array<string,string>
-	 */
+	/** @return array<string,string> */
 	private static function icons() {
 		$url = WMDS_URL . 'assets/icon.svg';
 
@@ -193,9 +189,7 @@ class WMDS_Updater {
 		self::$asked = false;
 	}
 
-	/**
-	 * @return array{version:string,error:string,checked:int}
-	 */
+	/** @return array{version:string,error:string,checked:int} */
 	public static function state() {
 		$cached = get_transient( self::CACHE );
 
@@ -214,9 +208,7 @@ class WMDS_Updater {
 		);
 	}
 
-	/**
-	 * @return bool
-	 */
+	/** @return bool */
 	public static function forced() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- reads a flag out of a WordPress-built URL; nothing here changes state.
 		$forced = is_admin() && isset( $_GET['force-check'] );
@@ -225,9 +217,6 @@ class WMDS_Updater {
 			$forced = true;
 		}
 
-		/**
-		 * @param bool $forced
-		 */
 		return (bool) apply_filters( 'wmds_force_update_check', $forced );
 	}
 
@@ -250,9 +239,7 @@ class WMDS_Updater {
 	/** @var bool */
 	private static $asked = false;
 
-	/**
-	 * @return array|false
-	 */
+	/** @return array|false */
 	private static function release() {
 		$cached = get_transient( self::CACHE );
 
@@ -327,9 +314,7 @@ class WMDS_Updater {
 		return __( 'The latest release on GitHub does not contain an installable ZIP file.', 'wp-mobile-de-sync' );
 	}
 
-	/**
-	 * @param string $plugin_file
-	 */
+	/** @param string $plugin_file */
 	public static function row_notice( $plugin_file ) {
 		if ( $plugin_file !== self::$basename ) {
 			return;

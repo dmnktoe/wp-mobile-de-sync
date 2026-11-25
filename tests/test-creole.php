@@ -24,23 +24,23 @@ wmds_assert( 'two breaks = paragraph', '<p>A</p><p>B</p>', WMDS_Creole::to_html(
 
 wmds_section( 'Bold' );
 
-wmds_assert( 'einfach', '<p><strong>fett</strong></p>', WMDS_Creole::to_html( '**fett**' ) );
+wmds_assert( 'plain', '<p><strong>fett</strong></p>', WMDS_Creole::to_html( '**fett**' ) );
 wmds_assert(
 	'spanning a line break',
 	'<p><strong>eins<br>zwei</strong></p>',
 	WMDS_Creole::to_html( '**eins\\\\zwei**' )
 );
-wmds_assert( 'unpaarig bleibt stehen', '<p>**halb</p>', WMDS_Creole::to_html( '**halb' ) );
+wmds_assert( 'an unpaired marker is left alone', '<p>**halb</p>', WMDS_Creole::to_html( '**halb' ) );
 
 wmds_section( 'Horizontal rule' );
 
-wmds_assert( 'allein', '<hr>', WMDS_Creole::to_html( '----' ) );
+wmds_assert( 'on its own', '<hr>', WMDS_Creole::to_html( '----' ) );
 wmds_assert( 'between text', '<p>A</p><hr><p>B</p>', WMDS_Creole::to_html( 'A\\\\----\\\\B' ) );
 
 wmds_section( 'Bullet list' );
 
 wmds_assert(
-	'zwei Eintraege',
+	'two entries',
 	'<ul><li>eins</li><li>zwei</li></ul>',
 	WMDS_Creole::to_html( '* eins\\\\* zwei\\\\' )
 );
@@ -68,14 +68,14 @@ wmds_section( 'HTML from the feed is displayed, not executed' );
 
 $evil = WMDS_Creole::to_html( '<script>alert(1)</script>' );
 wmds_assert( 'no open script tag', false, strpos( $evil, '<script>' ) );
-wmds_assert_contains( 'maskiert dargestellt', '&lt;script&gt;', $evil );
+wmds_assert_contains( 'shown escaped', '&lt;script&gt;', $evil );
 
 $onclick = WMDS_Creole::to_html( '<a href="#" onclick="boom()">Klick</a>' );
 wmds_assert( 'no anchor tag', false, strpos( $onclick, '<a href' ) );
 
-wmds_section( 'Leere Eingaben' );
+wmds_section( 'Empty input' );
 
-wmds_assert( 'leerer String', '', WMDS_Creole::to_html( '' ) );
+wmds_assert( 'empty string', '', WMDS_Creole::to_html( '' ) );
 wmds_assert( 'whitespace only', '', WMDS_Creole::to_html( "  \n  " ) );
 wmds_assert( 'null', '', WMDS_Creole::to_html( null ) );
 

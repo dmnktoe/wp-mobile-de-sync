@@ -8,9 +8,7 @@ class WMDS_Settings {
 
 	const DEFAULT_SLUG = 'fahrzeuge';
 
-	/**
-	 * @return array<string, array{type:string,default:mixed,choices?:array}>
-	 */
+	/** @return array<string, array{type:string,default:mixed,choices?:array}> */
 	public static function fields() {
 		return array(
 			'username'            => array(
@@ -157,57 +155,57 @@ class WMDS_Settings {
 				continue;
 			}
 
-			$field = $fields[ $key ];
 			$raw   = isset( $request[ 'wmds_' . $key ] ) ? $request[ 'wmds_' . $key ] : null;
-			$raw   = is_scalar( $raw ) ? (string) $raw : null;
+			$value = self::clean( $fields[ $key ], is_scalar( $raw ) ? (string) $raw : null );
 
-			switch ( $field['type'] ) {
-				case 'bool':
-					$values[ $key ] = ( null !== $raw && '' !== $raw ) ? 'yes' : 'no';
-					break;
-
-				case 'password':
-					if ( null !== $raw && '' !== $raw ) {
-						$values[ $key ] = $raw;
-					}
-					break;
-
-				case 'digits':
-					$values[ $key ] = preg_replace( '/\D/', '', (string) $raw );
-					break;
-
-				case 'emails':
-					$values[ $key ] = implode( ', ', WMDS_Mail::addresses( (string) $raw, array(), false ) );
-					break;
-
-				case 'html':
-					$values[ $key ] = wp_kses_post( (string) $raw );
-					break;
-
-				case 'slug':
-					$values[ $key ] = sanitize_title( (string) $raw );
-					break;
-
-				case 'lines':
-					$values[ $key ] = implode( "\n", array_filter( array_map( 'sanitize_text_field', WMDS_Spam::lines( (string) $raw ) ), 'strlen' ) );
-					break;
-
-				case 'choice':
-					$picked = null;
-					foreach ( $field['choices'] as $choice ) {
-						if ( (string) $choice === (string) $raw ) {
-							$picked = $choice;
-						}
-					}
-					$values[ $key ] = null === $picked ? $field['default'] : $picked;
-					break;
-
-				default:
-					$values[ $key ] = sanitize_text_field( (string) $raw );
+			if ( null !== $value ) {
+				$values[ $key ] = $value;
 			}
 		}
 
 		return $values;
+	}
+
+	/**
+	 * @param array       $field
+	 * @param string|null $raw
+	 * @return mixed
+	 */
+	private static function clean( array $field, $raw ) {
+		switch ( $field['type'] ) {
+			case 'bool':
+				return ( null !== $raw && '' !== $raw ) ? 'yes' : 'no';
+
+			case 'password':
+				return ( null !== $raw && '' !== $raw ) ? $raw : null;
+
+			case 'digits':
+				return preg_replace( '/\D/', '', (string) $raw );
+
+			case 'emails':
+				return implode( ', ', WMDS_Mail::addresses( (string) $raw, array(), false ) );
+
+			case 'html':
+				return wp_kses_post( (string) $raw );
+
+			case 'slug':
+				return sanitize_title( (string) $raw );
+
+			case 'lines':
+				return implode( "\n", array_filter( array_map( 'sanitize_text_field', WMDS_Spam::lines( (string) $raw ) ), 'strlen' ) );
+
+			case 'choice':
+				foreach ( $field['choices'] as $choice ) {
+					if ( (string) $choice === (string) $raw ) {
+						return $choice;
+					}
+				}
+
+				return $field['default'];
+
+			default:
+				return sanitize_text_field( (string) $raw );
+		}
 	}
 
 	/** @return string */
@@ -220,9 +218,7 @@ class WMDS_Settings {
 		return (string) self::get( 'password' );
 	}
 
-	/**
-	 * @return string
-	 */
+	/** @return string */
 	public static function language() {
 		$stored = (string) self::get( 'language' );
 		if ( '' !== $stored ) {
@@ -235,15 +231,10 @@ class WMDS_Settings {
 		return preg_match( '/^[a-z]{2}$/', $code ) ? $code : 'en';
 	}
 
-	/**
-	 * @return string
-	 */
+	/** @return string */
 	public static function slug() {
 		$slug = sanitize_title( (string) self::get( 'slug' ) );
 
-		/**
-		 * @param string $slug
-		 */
 		$slug = sanitize_title( (string) apply_filters( 'wmds_slug', '' !== $slug ? $slug : self::DEFAULT_SLUG ) );
 
 		return '' !== $slug ? $slug : self::DEFAULT_SLUG;
@@ -257,9 +248,7 @@ class WMDS_Settings {
 		return trim( (string) self::get( 'dealer' ) );
 	}
 
-	/**
-	 * @return string
-	 */
+	/** @return string */
 	public static function interval() {
 		$fields = self::fields();
 		$value  = (string) self::get( 'interval' );
@@ -267,9 +256,7 @@ class WMDS_Settings {
 		return in_array( $value, $fields['interval']['choices'], true ) ? $value : $fields['interval']['default'];
 	}
 
-	/**
-	 * @return WMDS_Client
-	 */
+	/** @return WMDS_Client */
 	public static function client() {
 		return new WMDS_Client(
 			self::username(),
@@ -285,9 +272,7 @@ class WMDS_Settings {
 			&& ( '' !== self::seller_id() || '' !== self::dealer() );
 	}
 
-	/**
-	 * @param array $values
-	 */
+	/** @param array $values */
 	public static function update( array $values ) {
 		$opts = get_option( self::OPTION, array() );
 		if ( ! is_array( $opts ) ) {

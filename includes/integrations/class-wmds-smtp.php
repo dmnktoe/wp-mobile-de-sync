@@ -13,9 +13,7 @@ class WMDS_Smtp {
 		add_action( 'wmds_mail_sent', array( __CLASS__, 'clear' ) );
 	}
 
-	/**
-	 * @return array<int, array{key:string,name:string,constants:string[],classes:string[]}>
-	 */
+	/** @return array<int, array{key:string,name:string,constants:string[],classes:string[]}> */
 	public static function plugins() {
 		return array(
 			array(
@@ -63,9 +61,7 @@ class WMDS_Smtp {
 		);
 	}
 
-	/**
-	 * @return array{key:string,name:string,version:string}
-	 */
+	/** @return array{key:string,name:string,version:string} */
 	public static function detect() {
 		foreach ( self::plugins() as $plugin ) {
 			foreach ( $plugin['constants'] as $constant ) {
@@ -158,9 +154,7 @@ class WMDS_Smtp {
 		return sprintf( __( '%1$s, sending through %2$s', 'wp-mobile-de-sync' ), $name, $transport );
 	}
 
-	/**
-	 * @return array<int, array{key:string,group:string,label:string,value:string,status:string,hint:string}>
-	 */
+	/** @return array<int, array{key:string,group:string,label:string,value:string,status:string,hint:string}> */
 	public static function checks() {
 		$group = __( 'E-mail', 'wp-mobile-de-sync' );
 
@@ -197,9 +191,7 @@ class WMDS_Smtp {
 		return $checks;
 	}
 
-	/**
-	 * @param WP_Error|mixed $error
-	 */
+	/** @param WP_Error|mixed $error */
 	public static function record( $error ) {
 		if ( ! is_wp_error( $error ) ) {
 			return;

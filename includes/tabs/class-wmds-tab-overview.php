@@ -6,9 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class WMDS_Tab_Overview {
 	const RECENT = 5;
 
-	/**
-	 * @param array $status
-	 */
+	/** @param array $status */
 	public static function render( array $status ) {
 		WMDS_Admin_Ui::render_status_card( $status );
 		WMDS_Admin_Ui::render_checklist( $status );

@@ -10,9 +10,7 @@ class WMDS_Vehicle {
 	/** @var array<string, array> */
 	private $meta;
 
-	/**
-	 * @param int|null $post_id
-	 */
+	/** @param int|null $post_id */
 	public function __construct( $post_id = null ) {
 		$this->post_id = $post_id ? (int) $post_id : (int) get_the_ID();
 		$this->meta    = $this->post_id ? (array) get_post_meta( $this->post_id ) : array();
@@ -56,9 +54,7 @@ class WMDS_Vehicle {
 		return $price . ' ' . ( 'EUR' === $currency ? '€' : $currency );
 	}
 
-	/**
-	 * @return string
-	 */
+	/** @return string */
 	public function vat_note() {
 		if ( 'false' === $this->get( 'vatable' ) ) {
 			return __( 'VAT not reclaimable', 'wp-mobile-de-sync' );
@@ -108,39 +104,29 @@ class WMDS_Vehicle {
 		return sprintf( __( '%1$d kW (%2$d hp)', 'wp-mobile-de-sync' ), $kw, (int) round( $kw * 1.35962 ) );
 	}
 
-	/**
-	 * @return string
-	 */
+	/** @return string */
 	public function first_registration() {
 		return self::month( $this->get( 'firstRegistration' ) );
 	}
 
-	/**
-	 * @return string
-	 */
+	/** @return string */
 	public function emission_sticker_url() {
 		return WMDS_Stickers::url( $this->sticker_key() );
 	}
 
-	/**
-	 * @return string
-	 */
+	/** @return string */
 	public function emission_sticker_label() {
 		return WMDS_Stickers::label( $this->sticker_key() );
 	}
 
-	/**
-	 * @return string
-	 */
+	/** @return string */
 	private function sticker_key() {
 		$key = $this->get( 'emissionSticker_key' );
 
 		return '' !== $key ? $key : $this->get( 'emissionSticker' );
 	}
 
-	/**
-	 * @return string
-	 */
+	/** @return string */
 	public function inspection() {
 		if ( $this->has( 'nextInspection' ) ) {
 			/* translators: %s: expiry month and year, e.g. 11.2027. */
@@ -155,9 +141,7 @@ class WMDS_Vehicle {
 		return $this->get( 'available_from' );
 	}
 
-	/**
-	 * @return string
-	 */
+	/** @return string */
 	public function availability_note() {
 		if ( 'true' === $this->get( 'available_now' ) ) {
 			return __( 'Available immediately', 'wp-mobile-de-sync' );
@@ -172,9 +156,7 @@ class WMDS_Vehicle {
 		return sprintf( __( 'Available from %s', 'wp-mobile-de-sync' ), $from );
 	}
 
-	/**
-	 * @return array<string, string>
-	 */
+	/** @return array<string, string> */
 	public function highlights() {
 		$highlights = array();
 		foreach ( $this->facts() as $fact ) {
@@ -184,9 +166,7 @@ class WMDS_Vehicle {
 		return $highlights;
 	}
 
-	/**
-	 * @return array<string, array{label:string,value:string}>
-	 */
+	/** @return array<string, array{label:string,value:string}> */
 	public function facts() {
 		$facts = array(
 			'mileage'      => array( __( 'Mileage', 'wp-mobile-de-sync' ), $this->mileage() ),
@@ -209,9 +189,7 @@ class WMDS_Vehicle {
 		return $out;
 	}
 
-	/**
-	 * @return array<string, array<string, string>>
-	 */
+	/** @return array<string, array<string, string>> */
 	public function specifications() {
 		$groups = array(
 			__( 'Vehicle', 'wp-mobile-de-sync' ) => array(
@@ -263,9 +241,7 @@ class WMDS_Vehicle {
 		return $groups;
 	}
 
-	/**
-	 * @return string[]
-	 */
+	/** @return string[] */
 	public function features() {
 		$out = array();
 
@@ -285,9 +261,7 @@ class WMDS_Vehicle {
 		return $out;
 	}
 
-	/**
-	 * @return string[]
-	 */
+	/** @return string[] */
 	public function warnings() {
 		$out = array();
 

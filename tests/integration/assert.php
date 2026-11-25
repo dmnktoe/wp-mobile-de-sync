@@ -1,4 +1,5 @@
 <?php
+
 $GLOBALS['wmds_it_failures'] = array();
 
 /**
@@ -79,9 +80,7 @@ function wmds_it_snapshot() {
 	return is_array( $data ) ? $data : array();
 }
 
-/**
- * @param array $data
- */
+/** @param array $data */
 function wmds_it_write_snapshot( array $data ) {
 	$file = rtrim( (string) getenv( 'WMDS_MOCK_STATE' ), '/' ) . '/snapshot.json';
 	file_put_contents( $file, wp_json_encode( $data ) );

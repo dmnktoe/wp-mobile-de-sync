@@ -6,18 +6,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 class WMDS_Stickers {
 	const DIR = 'assets/emission-stickers/';
 
-	/**
-	 * @var array<string, string>
-	 */
+	/** @var array<string, string> */
 	private static $files = array(
 		'red'    => 'red.svg',
 		'yellow' => 'yellow.svg',
 		'green'  => 'green.svg',
 	);
 
-	/**
-	 * @var array<int, string>
-	 */
+	/** @var array<int, string> */
 	private static $groups = array(
 		'2' => 'red',
 		'3' => 'yellow',
@@ -35,10 +31,6 @@ class WMDS_Stickers {
 			? WMDS_URL . self::DIR . self::$files[ $colour ]
 			: '';
 
-		/**
-		 * @param string $url
-		 * @param string $key
-		 */
 		return apply_filters( 'wmds_emission_sticker_url', $url, $key );
 	}
 
