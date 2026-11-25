@@ -73,7 +73,7 @@ site/                   Templates of the project site
 - **WordPress Coding Standards** (`phpcs.xml`), long array syntax, prefix `wmds_` / `WMDS_`, text domain `wp-mobile-de-sync`. Every exclusion in `phpcs.xml` states why it exists; a new one does too.
 - **No explanatory comments in code.** No comment says what code does or why; rationale goes into `docs/` or `CHANGELOG.md`. What stays: `phpcs:` annotations (with their reason after `--`), `translators:` comments, the plugin headers WordPress reads, and the type part of `@param` / `@return` / `@var` tags.
 - **English is the source language** for code, strings, docs and commit messages; German exists only in `languages/` (`tests/no-german.sh` checks the tree).
-- **No credentials or customer data in the repository.** Fixtures are anonymised but structurally real API responses; e-mail addresses in them use `example.invalid`, `example.com` or `example.org`. A CI job checks both.
+- **No credentials or customer data in the repository.** Fixtures are anonymised but structurally real API responses; e-mail addresses in them use `example.invalid`, `example.com` or `example.org`. A CI job checks both; its patterns stay generic, because a filter that names actual customers publishes them.
 
 ---
 
@@ -106,4 +106,4 @@ site/                   Templates of the project site
 - **The version is stated in three places** (plugin header `Version`, `WMDS_VERSION`, `Stable tag` in `readme.txt`): set them with `sh bin/bump.sh X.Y.Z`, then write the entries in `CHANGELOG.md` and `readme.txt`. `tests/test-version.php` fails a half-finished bump.
 - **Merging a new version to `main` is the release**: the Release workflow runs the tests, builds the ZIP, tags `vX.Y.Z` and publishes the GitHub release; sites pick it up through the built-in updater. A version that is already tagged publishes nothing.
 - **The ZIP's top-level folder must be `wp-mobile-de-sync`**, or WordPress unpacks an update beside the installed plugin and deactivates it; GitHub's source download is unusable for that reason. Dev-only files are excluded in `.github/workflows/release.yml`; a new one goes on that list.
-- **The project site** (GitHub Pages, source "GitHub Actions") deploys after every successful Release run on `main`, so the version it names is published.
+- **The project site** (GitHub Pages, source "GitHub Actions") deploys after every successful Release run on `main`, so the version it names is published. Its checkout needs the full history (`fetch-depth: 0`): the sitemap dates each page by its last commit.

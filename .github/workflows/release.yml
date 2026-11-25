@@ -19,7 +19,6 @@ jobs:
       - name: Resolve version
         id: version
         run: |
-          # The plugin header is a /** */ docblock, so the line starts with " * ".
           HEADER=$(grep -m1 -E '^[ \t*]*Version:' wp-mobile-de-sync.php | sed -E 's/^[ \t*]*Version:[[:space:]]*//')
           READMES=$(grep -m1 '^Stable tag:' readme.txt | sed 's/Stable tag:[[:space:]]*//')
 
@@ -52,15 +51,10 @@ jobs:
           php-version: '7.4'
           coverage: none
 
-      # A release that fails its tests should never come into existence.
       - name: Tests
         if: steps.version.outputs.publish == 'true'
         run: sh tests/run.sh
 
-      # The top-level folder inside the ZIP must be named exactly like the
-      # plugin directory. Otherwise WordPress unpacks the update beside the
-      # existing install and deactivates the plugin doing so. That is exactly
-      # why GitHub's generated source download is unusable here.
       - name: Build ZIP
         if: steps.version.outputs.publish == 'true'
         run: |
