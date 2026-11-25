@@ -123,9 +123,7 @@ class WMDS_Admin_Actions {
 		WMDS_Admin_Notices::notice( 'success', __( 'Settings saved.', 'wp-mobile-de-sync' ) );
 	}
 
-	/**
-	 * @param array $before
-	 */
+	/** @param array $before */
 	private static function after_save( array $before ) {
 		$changed = array();
 		foreach ( $before as $key => $value ) {

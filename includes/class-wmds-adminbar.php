@@ -24,9 +24,7 @@ class WMDS_Adminbar {
 		wp_enqueue_style( 'wmds-admin', WMDS_URL . 'assets/admin.css', array(), WMDS_VERSION );
 	}
 
-	/**
-	 * @param WP_Admin_Bar $bar
-	 */
+	/** @param WP_Admin_Bar $bar */
 	public static function menu( $bar ) {
 		if ( ! self::visible() ) {
 			return;

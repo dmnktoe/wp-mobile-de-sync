@@ -8,9 +8,7 @@ class WMDS_Blocks {
 
 	const CATEGORY = 'wmds';
 
-	/**
-	 * @var string[]
-	 */
+	/** @var string[] */
 	private static $styled = array(
 		'wmds/vehicles',
 		'wmds/vehicle-filter',
@@ -92,9 +90,7 @@ class WMDS_Blocks {
 		}
 	}
 
-	/**
-	 * @return array<string, array>
-	 */
+	/** @return array<string, array> */
 	public static function definitions() {
 		return array(
 			'wmds/vehicles'        => array(
@@ -196,9 +192,7 @@ class WMDS_Blocks {
 		);
 	}
 
-	/**
-	 * @return string[]
-	 */
+	/** @return string[] */
 	public static function styled_names() {
 		return self::$styled;
 	}

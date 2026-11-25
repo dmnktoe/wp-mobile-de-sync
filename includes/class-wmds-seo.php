@@ -42,9 +42,7 @@ class WMDS_Seo {
 		}
 	}
 
-	/**
-	 * @return bool
-	 */
+	/** @return bool */
 	public static function seo_plugin_active() {
 		$signals = array(
 			defined( 'WPSEO_VERSION' ),
@@ -64,10 +62,6 @@ class WMDS_Seo {
 	public static function wanted( $what ) {
 		$default = ( 'social' === $what ) ? ! self::seo_plugin_active() : true;
 
-		/**
-		 * @param bool $default
-		 * @param string $what
-		 */
 		return (bool) apply_filters( 'wmds_seo_output', $default, $what );
 	}
 
@@ -77,19 +71,11 @@ class WMDS_Seo {
 		$data    = self::vehicle_data( $vehicle, $post_id );
 
 		if ( self::wanted( 'jsonld' ) ) {
-			/**
-			 * @param array $schema
-			 * @param array $data
-			 */
 			$schema = apply_filters( 'wmds_jsonld', self::vehicle_schema( $data ), $data );
 			self::print_jsonld( $schema );
 		}
 
 		if ( self::wanted( 'social' ) ) {
-			/**
-			 * @param array $meta
-			 * @param array $data
-			 */
 			$meta = apply_filters( 'wmds_social_meta', self::social_meta( $data ), $data );
 			self::print_meta( $meta );
 		}
@@ -117,10 +103,6 @@ class WMDS_Seo {
 		if ( self::wanted( 'jsonld' ) ) {
 			$url = (string) get_post_type_archive_link( WMDS_CPT );
 
-			/**
-			 * @param array $schema
-			 * @param array $items
-			 */
 			$schema = apply_filters( 'wmds_jsonld', self::item_list( $items, $url ), $items );
 			self::print_jsonld( $schema );
 		}
@@ -171,6 +153,27 @@ class WMDS_Seo {
 	 * @param array $data
 	 * @return array
 	 */
+	private static function engine( array $data ) {
+		$engine = array();
+		$units  = array(
+			'enginePower'        => array( 'power', 'KWT' ),
+			'engineDisplacement' => array( 'displacement', 'CMQ' ),
+		);
+
+		foreach ( $units as $property => $unit ) {
+			$value = self::number( $data, $unit[0] );
+			if ( null !== $value && $value > 0 ) {
+				$engine[ $property ] = self::quantity( $value, $unit[1] );
+			}
+		}
+
+		return $engine ? array_merge( array( '@type' => 'EngineSpecification' ), $engine ) : array();
+	}
+
+	/**
+	 * @param array $data
+	 * @return array
+	 */
 	public static function vehicle_schema( array $data ) {
 		$schema = array(
 			'@context' => 'https://schema.org',
@@ -193,25 +196,29 @@ class WMDS_Seo {
 			);
 		}
 
-		$schema = self::maybe( $schema, 'model', self::text( $data, 'model' ) );
-		$schema = self::maybe( $schema, 'bodyType', self::text( $data, 'body_type' ) );
-		$schema = self::maybe( $schema, 'color', self::text( $data, 'colour' ) );
-		$schema = self::maybe( $schema, 'fuelType', self::text( $data, 'fuel' ) );
-		$schema = self::maybe( $schema, 'vehicleTransmission', self::text( $data, 'gearbox' ) );
+		$texts = array(
+			'model'               => 'model',
+			'bodyType'            => 'body_type',
+			'color'               => 'colour',
+			'fuelType'            => 'fuel',
+			'vehicleTransmission' => 'gearbox',
+		);
 
-		$doors = self::number( $data, 'doors' );
-		if ( null !== $doors ) {
-			$schema['numberOfDoors'] = $doors;
+		foreach ( $texts as $property => $field ) {
+			$schema = self::maybe( $schema, $property, self::text( $data, $field ) );
 		}
 
-		$seats = self::number( $data, 'seats' );
-		if ( null !== $seats ) {
-			$schema['vehicleSeatingCapacity'] = $seats;
-		}
+		$counts = array(
+			'numberOfDoors'          => 'doors',
+			'vehicleSeatingCapacity' => 'seats',
+			'numberOfPreviousOwners' => 'owners',
+		);
 
-		$owners = self::number( $data, 'owners' );
-		if ( null !== $owners ) {
-			$schema['numberOfPreviousOwners'] = $owners;
+		foreach ( $counts as $property => $field ) {
+			$count = self::number( $data, $field );
+			if ( null !== $count ) {
+				$schema[ $property ] = $count;
+			}
 		}
 
 		$mileage = self::number( $data, 'mileage' );
@@ -219,17 +226,9 @@ class WMDS_Seo {
 			$schema['mileageFromOdometer'] = self::quantity( $mileage, 'KMT' );
 		}
 
-		$engine = array();
-		$power  = self::number( $data, 'power' );
-		if ( null !== $power && $power > 0 ) {
-			$engine['enginePower'] = self::quantity( $power, 'KWT' );
-		}
-		$displacement = self::number( $data, 'displacement' );
-		if ( null !== $displacement && $displacement > 0 ) {
-			$engine['engineDisplacement'] = self::quantity( $displacement, 'CMQ' );
-		}
+		$engine = self::engine( $data );
 		if ( $engine ) {
-			$schema['vehicleEngine'] = array_merge( array( '@type' => 'EngineSpecification' ), $engine );
+			$schema['vehicleEngine'] = $engine;
 		}
 
 		$co2 = self::number( $data, 'co2' );
@@ -439,9 +438,7 @@ class WMDS_Seo {
 		);
 	}
 
-	/**
-	 * @param array $schema
-	 */
+	/** @param array $schema */
 	private static function print_jsonld( array $schema ) {
 		if ( ! $schema ) {
 			return;
@@ -453,9 +450,7 @@ class WMDS_Seo {
 		);
 	}
 
-	/**
-	 * @param array $meta
-	 */
+	/** @param array $meta */
 	private static function print_meta( array $meta ) {
 		foreach ( $meta as $name => $content ) {
 			printf(

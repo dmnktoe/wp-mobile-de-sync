@@ -37,7 +37,6 @@ class WMDS_Tab_Embed {
 			</p>
 		</div>
 
-
 		<div class="wmds-card">
 			<h2><?php esc_html_e( 'Blocks', 'wp-mobile-de-sync' ); ?></h2>
 			<p class="description">

@@ -1,4 +1,5 @@
 <?php
+
 class WMDS_Test_Redirect extends Exception {
 	/** @var string */
 	public $url;

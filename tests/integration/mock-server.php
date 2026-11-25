@@ -1,4 +1,5 @@
 <?php
+
 /** @return string */
 function wmds_mock_dir() {
 	$dir = (string) getenv( 'WMDS_MOCK_STATE' );
@@ -424,9 +425,7 @@ function wmds_mock_route_ad( array $state, $ad_id ) {
 	wmds_mock_send( 200, $catalog[ $ad_id ]['detail'] );
 }
 
-/**
- * @param string $path
- */
+/** @param string $path */
 function wmds_mock_route_refdata( $path ) {
 	$tables = wmds_mock_refdata();
 	if ( ! isset( $tables[ $path ] ) ) {

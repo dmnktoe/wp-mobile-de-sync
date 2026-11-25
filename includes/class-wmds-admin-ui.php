@@ -4,9 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class WMDS_Admin_Ui {
-	/**
-	 * @param string $tab
-	 */
+	/** @param string $tab */
 	public static function form_open( $tab ) {
 		printf( '<form method="post" action="%s" class="wmds-form">', esc_url( admin_url( 'admin-post.php' ) ) );
 		wp_nonce_field( WMDS_Admin::NONCE );
@@ -84,9 +82,7 @@ class WMDS_Admin_Ui {
 		return _x( 'OK', 'requirement check', 'wp-mobile-de-sync' );
 	}
 
-	/**
-	 * @param array $status
-	 */
+	/** @param array $status */
 	public static function render_status_card( array $status ) {
 		?>
 		<div class="wmds-card wmds-status-card wmds-sev-bg-<?php echo esc_attr( $status['severity'] ); ?>">
@@ -168,9 +164,7 @@ class WMDS_Admin_Ui {
 		<?php
 	}
 
-	/**
-	 * @param array $status
-	 */
+	/** @param array $status */
 	public static function render_checklist( array $status ) {
 		if ( WMDS_Status::OK === $status['level'] && $status['count'] > 0 ) {
 			return;

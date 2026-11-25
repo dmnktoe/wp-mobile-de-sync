@@ -4,9 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class WMDS_Autoloader {
-	/**
-	 * @var string[]
-	 */
+	/** @var string[] */
 	private static $dirs = array( '', 'tabs/', 'integrations/' );
 
 	/** @return string[] */
@@ -18,9 +16,7 @@ class WMDS_Autoloader {
 		spl_autoload_register( array( __CLASS__, 'load' ) );
 	}
 
-	/**
-	 * @param string $class
-	 */
+	/** @param string $class */
 	public static function load( $class ) {
 		if ( 0 !== strpos( $class, 'WMDS_' ) ) {
 			return;

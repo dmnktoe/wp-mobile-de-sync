@@ -25,9 +25,7 @@ class WMDS_Challenge {
 		return WMDS_Settings::flag( 'enquiry_challenge' );
 	}
 
-	/**
-	 * @return string
-	 */
+	/** @return string */
 	public static function url() {
 		return add_query_arg( 'action', self::ACTION, admin_url( 'admin-post.php' ) );
 	}
@@ -154,9 +152,7 @@ class WMDS_Challenge {
 		return true;
 	}
 
-	/**
-	 * @return string
-	 */
+	/** @return string */
 	public static function key() {
 		$key = (string) get_option( self::OPT_KEY, '' );
 

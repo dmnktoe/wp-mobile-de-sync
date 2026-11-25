@@ -25,23 +25,7 @@ class WMDS_Facet_Query {
 			}
 
 			if ( 'range' === $type ) {
-				$range = $selection[ $key ];
-				if ( isset( $range['min'] ) ) {
-					$clauses[] = array(
-						'key'     => $meta,
-						'value'   => $range['min'],
-						'compare' => '>=',
-						'type'    => 'DECIMAL(20,4)',
-					);
-				}
-				if ( isset( $range['max'] ) ) {
-					$clauses[] = array(
-						'key'     => $meta,
-						'value'   => $range['max'],
-						'compare' => '<=',
-						'type'    => 'DECIMAL(20,4)',
-					);
-				}
+				$clauses = array_merge( $clauses, self::range_clauses( $meta, $selection[ $key ] ) );
 				continue;
 			}
 
@@ -62,6 +46,32 @@ class WMDS_Facet_Query {
 		}
 
 		$clauses['relation'] = 'AND';
+
+		return $clauses;
+	}
+
+	/**
+	 * @param string $meta
+	 * @param array  $range
+	 * @return array[]
+	 */
+	private static function range_clauses( $meta, $range ) {
+		$clauses  = array();
+		$compares = array(
+			'min' => '>=',
+			'max' => '<=',
+		);
+
+		foreach ( $compares as $bound => $compare ) {
+			if ( isset( $range[ $bound ] ) ) {
+				$clauses[] = array(
+					'key'     => $meta,
+					'value'   => $range[ $bound ],
+					'compare' => $compare,
+					'type'    => 'DECIMAL(20,4)',
+				);
+			}
+		}
 
 		return $clauses;
 	}
@@ -158,9 +168,7 @@ class WMDS_Facet_Query {
 		);
 	}
 
-	/**
-	 * @param WP_Query $query
-	 */
+	/** @param WP_Query $query */
 	public static function apply_to_archive( $query ) {
 		if ( is_admin() || ! $query instanceof WP_Query || ! $query->is_main_query() ) {
 			return;
@@ -169,9 +177,6 @@ class WMDS_Facet_Query {
 			return;
 		}
 
-		/**
-		 * @param int $per_page
-		 */
 		$query->set( 'posts_per_page', max( 1, (int) apply_filters( 'wmds_archive_per_page', 12 ) ) );
 
 		$selection = WMDS_Facet_Request::selection();

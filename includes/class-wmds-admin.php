@@ -99,9 +99,7 @@ class WMDS_Admin {
 		);
 	}
 
-	/**
-	 * @return array<string, string[]>
-	 */
+	/** @return array<string, string[]> */
 	public static function forms() {
 		return array(
 			'settings'  => WMDS_Tab_Settings::fields(),

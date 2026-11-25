@@ -7,9 +7,7 @@ class WMDS_Admin_Notices {
 	const NOTICES   = 'wmds_notices_';
 	const DISMISSED = 'wmds_dismissed';
 
-	/**
-	 * @var array<int, array{type:string,message:string}>
-	 */
+	/** @var array<int, array{type:string,message:string}> */
 	private static $notices = array();
 
 	/**

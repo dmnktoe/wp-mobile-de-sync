@@ -14,9 +14,7 @@ class WMDS_Alerts {
 
 	const LOG_LINES = 10;
 
-	/**
-	 * @var string[]
-	 */
+	/** @var string[] */
 	private static $watched = array( WMDS_Status::FAILED, WMDS_Status::ABORTED, WMDS_Status::STALE );
 
 	public static function init() {
@@ -43,9 +41,6 @@ class WMDS_Alerts {
 	public static function recipients() {
 		$to = WMDS_Mail::addresses( WMDS_Settings::get( 'alerts_recipient' ) );
 
-		/**
-		 * @param string[] $to
-		 */
 		return (array) apply_filters( 'wmds_alert_recipients', $to );
 	}
 
@@ -149,19 +144,7 @@ class WMDS_Alerts {
 		}
 
 		$lines[] = '';
-		$lines[] = sprintf(
-			/* translators: %d: number of published vehicles. */
-			__( 'Vehicles published: %d', 'wp-mobile-de-sync' ),
-			isset( $status['count'] ) ? (int) $status['count'] : 0
-		);
-
-		if ( ! empty( $status['last'] ) && is_array( $status['last'] ) ) {
-			$lines[] = __( 'Last run', 'wp-mobile-de-sync' ) . ': ' . WMDS_Status::summarise( $status['last'] );
-		}
-
-		if ( ! empty( $status['last_ts'] ) ) {
-			$lines[] = __( 'Last run at', 'wp-mobile-de-sync' ) . ': ' . WMDS_Status::local_time( (int) $status['last_ts'] );
-		}
+		$lines   = array_merge( $lines, self::run_lines( $status ) );
 
 		if ( $log ) {
 			$lines[] = '';
@@ -181,18 +164,11 @@ class WMDS_Alerts {
 	}
 
 	/**
-	 * @param array  $status
-	 * @param string $site
-	 * @param string $url
-	 * @return array{subject:string,body:string}
+	 * @param array $status
+	 * @return string[]
 	 */
-	public static function compose_summary( array $status, $site, $url ) {
-		/* translators: %s: site name. */
-		$subject = sprintf( __( '[%s] Vehicle sync: weekly summary', 'wp-mobile-de-sync' ), $site );
-
+	private static function run_lines( array $status ) {
 		$lines = array(
-			isset( $status['label'] ) ? (string) $status['label'] : '',
-			'',
 			sprintf(
 				/* translators: %d: number of published vehicles. */
 				__( 'Vehicles published: %d', 'wp-mobile-de-sync' ),
@@ -203,9 +179,32 @@ class WMDS_Alerts {
 		if ( ! empty( $status['last'] ) && is_array( $status['last'] ) ) {
 			$lines[] = __( 'Last run', 'wp-mobile-de-sync' ) . ': ' . WMDS_Status::summarise( $status['last'] );
 		}
+
 		if ( ! empty( $status['last_ts'] ) ) {
 			$lines[] = __( 'Last run at', 'wp-mobile-de-sync' ) . ': ' . WMDS_Status::local_time( (int) $status['last_ts'] );
 		}
+
+		return $lines;
+	}
+
+	/**
+	 * @param array  $status
+	 * @param string $site
+	 * @param string $url
+	 * @return array{subject:string,body:string}
+	 */
+	public static function compose_summary( array $status, $site, $url ) {
+		/* translators: %s: site name. */
+		$subject = sprintf( __( '[%s] Vehicle sync: weekly summary', 'wp-mobile-de-sync' ), $site );
+
+		$lines = array_merge(
+			array(
+				isset( $status['label'] ) ? (string) $status['label'] : '',
+				'',
+			),
+			self::run_lines( $status )
+		);
+
 		if ( ! empty( $status['next'] ) ) {
 			$lines[] = __( 'Next run', 'wp-mobile-de-sync' ) . ': ' . WMDS_Status::local_time( (int) $status['next'] );
 		}

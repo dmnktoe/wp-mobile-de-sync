@@ -1,4 +1,5 @@
 <?php
+
 use League\CommonMark\Environment\Environment;
 use League\CommonMark\Event\DocumentParsedEvent;
 use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
@@ -88,9 +89,7 @@ class WMDS_Site_Builder {
 		$this->converter = new MarkdownConverter( $environment );
 	}
 
-	/**
-	 * @return int
-	 */
+	/** @return int */
 	public function run() {
 		$this->meta     = $this->read_meta();
 		$this->releases = $this->read_changelog();
@@ -130,9 +129,7 @@ class WMDS_Site_Builder {
 		return 0;
 	}
 
-	/**
-	 * @return array<string,string>
-	 */
+	/** @return array<string,string> */
 	private function read_meta() {
 		$plugin = $this->read( 'wp-mobile-de-sync.php' );
 		$readme = $this->read( 'readme.txt' );
@@ -158,9 +155,7 @@ class WMDS_Site_Builder {
 		);
 	}
 
-	/**
-	 * @return array<int,array{version:string,date:string,body:string}>
-	 */
+	/** @return array<int,array{version:string,date:string,body:string}> */
 	private function read_changelog() {
 		$parts    = preg_split( '/^## /m', $this->read( 'CHANGELOG.md' ) );
 		$releases = array();
@@ -189,9 +184,7 @@ class WMDS_Site_Builder {
 		return $releases;
 	}
 
-	/**
-	 * @return array<int,array{slug:string,source:string,title:string,summary:string}>
-	 */
+	/** @return array<int,array{slug:string,source:string,title:string,summary:string}> */
 	private function read_docs() {
 		$listed = array();
 		$docs   = array();
@@ -234,9 +227,7 @@ class WMDS_Site_Builder {
 		return $docs;
 	}
 
-	/**
-	 * @param string $readme
-	 */
+	/** @param string $readme */
 	private function build_home( $readme ) {
 		$parts       = preg_split( '/^## (.+)$/m', $readme, -1, PREG_SPLIT_DELIM_CAPTURE );
 		$intro       = array_shift( $parts );
@@ -379,9 +370,7 @@ class WMDS_Site_Builder {
 		return $recent;
 	}
 
-	/**
-	 * @param array{slug:string,source:string,title:string,summary:string} $doc
-	 */
+	/** @param array{slug:string,source:string,title:string,summary:string} $doc */
 	private function build_doc( $doc ) {
 		$file     = $doc['slug'] . '.html';
 		$markdown = $this->read( $doc['source'] );
@@ -482,9 +471,7 @@ class WMDS_Site_Builder {
 		$this->pages[ $file ] = $this->template( 'layout', array( 'page' => $page ) );
 	}
 
-	/**
-	 * @return array<string,mixed>
-	 */
+	/** @return array<string,mixed> */
 	private function software_jsonld() {
 		return array(
 			'@context'             => 'https://schema.org',
@@ -547,9 +534,7 @@ class WMDS_Site_Builder {
 		return preg_replace( '/\salign="center"/', ' class="center"', $html );
 	}
 
-	/**
-	 * @param DocumentParsedEvent $event
-	 */
+	/** @param DocumentParsedEvent $event */
 	public function on_parsed( DocumentParsedEvent $event ) {
 		$walker = $event->getDocument()->walker();
 
@@ -828,30 +813,22 @@ class WMDS_Site_Builder {
 		return 'assets/' . $file . '?v=' . substr( md5_file( $this->root . '/site/' . $file ), 0, 10 );
 	}
 
-	/**
-	 * @return array{src:string,alt:string,width:int,height:int}|null
-	 */
+	/** @return array{src:string,alt:string,width:int,height:int}|null */
 	public function image() {
 		return $this->image;
 	}
 
-	/**
-	 * @return string
-	 */
+	/** @return string */
 	public function download_url() {
 		return 'https://github.com/' . $this->repo . '/releases/latest/download/' . self::ZIP;
 	}
 
-	/**
-	 * @return string
-	 */
+	/** @return string */
 	public function repo_url() {
 		return 'https://github.com/' . $this->repo;
 	}
 
-	/**
-	 * @return string
-	 */
+	/** @return string */
 	public function site_url() {
 		return $this->site_url;
 	}
@@ -899,9 +876,7 @@ class WMDS_Site_Builder {
 		}
 	}
 
-	/**
-	 * @param string $dir
-	 */
+	/** @param string $dir */
 	private function mkdir( $dir ) {
 		if ( ! is_dir( $dir ) && ! mkdir( $dir, 0777, true ) ) {
 			fwrite( STDERR, "Cannot create {$dir}\n" );

@@ -7,9 +7,7 @@ class WMDS_Plugin {
 	/** @var string */
 	private static $file = '';
 
-	/**
-	 * @param string $file
-	 */
+	/** @param string $file */
 	public static function boot( $file ) {
 		self::$file = $file;
 

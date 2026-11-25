@@ -72,9 +72,7 @@ class WMDS_Facetwp {
 		return $choices;
 	}
 
-	/**
-	 * @return array<string, string>
-	 */
+	/** @return array<string, string> */
 	public static function extra() {
 		return array(
 			'make_key'         => __( 'Make (key)', 'wp-mobile-de-sync' ),
@@ -134,9 +132,7 @@ class WMDS_Facetwp {
 		return $options;
 	}
 
-	/**
-	 * @param int $post_id
-	 */
+	/** @param int $post_id */
 	public static function index_post( $post_id ) {
 		$post_id = (int) $post_id;
 

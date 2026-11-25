@@ -111,9 +111,7 @@ class WMDS_Logos {
 		return null;
 	}
 
-	/**
-	 * @return array<string, array{file:string,source:string}>
-	 */
+	/** @return array<string, array{file:string,source:string}> */
 	private static function index() {
 		if ( null !== self::$index ) {
 			return self::$index;

@@ -1,4 +1,5 @@
 <?php
+
 $wmds_latest = $releases ? $releases[0] : null;
 ?>
 <div class="wrap">

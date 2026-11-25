@@ -1,4 +1,5 @@
 <?php
+
 $wmds_title = $page['title'];
 $wmds_image = $site->image();
 $wmds_docs  = array();

@@ -4,9 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class WMDS_Catalog {
-	/**
-	 * @return array<int, array{tag:string,title:string,description:string,example:string}>
-	 */
+	/** @return array<int, array{tag:string,title:string,description:string,example:string}> */
 	public static function shortcodes() {
 		return array(
 			array(
@@ -48,9 +46,7 @@ class WMDS_Catalog {
 		);
 	}
 
-	/**
-	 * @return array<int, array{name:string,title:string,description:string}>
-	 */
+	/** @return array<int, array{name:string,title:string,description:string}> */
 	public static function blocks() {
 		$out = array();
 
@@ -65,9 +61,7 @@ class WMDS_Catalog {
 		return $out;
 	}
 
-	/**
-	 * @return array<int, array{id:string,title:string,where:string,description:string}>
-	 */
+	/** @return array<int, array{id:string,title:string,where:string,description:string}> */
 	public static function widgets() {
 		return array(
 			array(

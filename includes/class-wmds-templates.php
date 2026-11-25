@@ -8,14 +8,10 @@ class WMDS_Templates {
 
 	const SUBDIR = 'wp-mobile-de-sync';
 
-	/**
-	 * @var string[]
-	 */
+	/** @var string[] */
 	private static $tags = array( 'vehicles' );
 
-	/**
-	 * @var string[]
-	 */
+	/** @var string[] */
 	private static $styled_tags = array( 'vehicle-filter', 'vehicle-count', 'vehicle-enquiry' );
 
 	public static function init() {
@@ -49,10 +45,6 @@ class WMDS_Templates {
 			$found     = file_exists( $candidate ) ? $candidate : '';
 		}
 
-		/**
-		 * @param string $found
-		 * @param string $file
-		 */
 		return apply_filters( 'wmds_template', $found, $file );
 	}
 
@@ -99,9 +91,7 @@ class WMDS_Templates {
 		return '' !== $found ? $found : $template;
 	}
 
-	/**
-	 * @return array{0:string,1:string}
-	 */
+	/** @return array{0:string,1:string} */
 	public static function wrapper() {
 		$wrapper = array( '', '' );
 
@@ -112,9 +102,6 @@ class WMDS_Templates {
 			);
 		}
 
-		/**
-		 * @param array{0:string,1:string} $wrapper
-		 */
 		$wrapper = apply_filters( 'wmds_theme_wrapper', $wrapper );
 
 		return ( is_array( $wrapper ) && isset( $wrapper[0], $wrapper[1] ) ) ? array( (string) $wrapper[0], (string) $wrapper[1] ) : array( '', '' );
@@ -227,9 +214,7 @@ class WMDS_Templates {
 		return '<svg class="wmds-icon wmds-icon--' . $name . '" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' . $paths[ $name ] . '</svg>';
 	}
 
-	/**
-	 * @param string $name
-	 */
+	/** @param string $name */
 	public static function the_icon( $name ) {
 		echo self::icon( $name ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from a fixed table above, nothing in it comes from outside.
 	}
@@ -261,9 +246,7 @@ class WMDS_Templates {
 		self::maybe_enqueue( self::styles_needed() );
 	}
 
-	/**
-	 * @return bool
-	 */
+	/** @return bool */
 	public static function styles_needed() {
 		if ( is_singular( WMDS_CPT ) || is_post_type_archive( WMDS_CPT ) ) {
 			return true;
@@ -295,13 +278,8 @@ class WMDS_Templates {
 		return false;
 	}
 
-	/**
-	 * @param bool $needed
-	 */
+	/** @param bool $needed */
 	public static function maybe_enqueue( $needed ) {
-		/**
-		 * @param bool $needed
-		 */
 		if ( ! apply_filters( 'wmds_enqueue_styles', (bool) $needed ) ) {
 			return;
 		}

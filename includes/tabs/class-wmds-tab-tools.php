@@ -4,9 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class WMDS_Tab_Tools {
-	/**
-	 * @param array $status
-	 */
+	/** @param array $status */
 	public static function render( array $status ) {
 		if ( $status['configured'] ) {
 			self::connection();

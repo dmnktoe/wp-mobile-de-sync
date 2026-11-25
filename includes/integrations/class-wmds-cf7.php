@@ -40,9 +40,7 @@ class WMDS_Cf7 {
 		return WMDS_Settings::flag( 'cf7_copy_seller' );
 	}
 
-	/**
-	 * @return array<string, string>
-	 */
+	/** @return array<string, string> */
 	public static function properties() {
 		return array(
 			'title'        => __( 'Title', 'wp-mobile-de-sync' ),
@@ -122,9 +120,7 @@ class WMDS_Cf7 {
 		);
 	}
 
-	/**
-	 * @return int
-	 */
+	/** @return int */
 	public static function vehicle_id() {
 		$post_id = 0;
 
@@ -242,9 +238,7 @@ class WMDS_Cf7 {
 		return $components;
 	}
 
-	/**
-	 * @param mixed $contact_form
-	 */
+	/** @param mixed $contact_form */
 	public static function record( $contact_form = null ) {
 		if ( ! self::stores() || ! class_exists( 'WPCF7_Submission' ) ) {
 			return;

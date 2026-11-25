@@ -4,11 +4,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class WMDS_Facet_Store {
-	/**
-	 * @var bool
-	 */
 	const OPT_VERSION = 'wmds_facet_version';
 
+	/** @var bool */
 	private static $flushed = false;
 
 	/**
@@ -158,9 +156,7 @@ class WMDS_Facet_Store {
 		return ( count( $ids ) >= WMDS_Facets::MAX_CONSTRAINT ) ? null : $ids;
 	}
 
-	/**
-	 * @return string
-	 */
+	/** @return string */
 	private static function version() {
 		return (string) get_option( self::OPT_VERSION, '0' );
 	}

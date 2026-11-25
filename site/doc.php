@@ -1,4 +1,5 @@
 <?php
+
 $wmds_prev = null;
 $wmds_next = null;
 

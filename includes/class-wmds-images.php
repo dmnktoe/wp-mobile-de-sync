@@ -25,18 +25,7 @@ class WMDS_Images {
 		require_once ABSPATH . 'wp-admin/includes/media.php';
 		require_once ABSPATH . 'wp-admin/includes/image.php';
 
-		$existing = array();
-		$unnamed  = array();
-
-		foreach ( get_attached_media( 'image', $post_id ) as $attachment ) {
-			$hash = (string) get_post_meta( $attachment->ID, self::META_HASH, true );
-
-			if ( '' === $hash || isset( $existing[ $hash ] ) ) {
-				$unnamed[] = (int) $attachment->ID;
-			} else {
-				$existing[ $hash ] = (int) $attachment->ID;
-			}
-		}
+		list( $existing, $unnamed ) = self::attached( $post_id );
 
 		$kept       = array();
 		$hashes     = array();
@@ -97,6 +86,27 @@ class WMDS_Images {
 
 	/**
 	 * @param int $post_id
+	 * @return array[]
+	 */
+	private static function attached( $post_id ) {
+		$by_hash = array();
+		$unnamed = array();
+
+		foreach ( get_attached_media( 'image', $post_id ) as $attachment ) {
+			$hash = (string) get_post_meta( $attachment->ID, self::META_HASH, true );
+
+			if ( '' === $hash || isset( $by_hash[ $hash ] ) ) {
+				$unnamed[] = (int) $attachment->ID;
+			} else {
+				$by_hash[ $hash ] = (int) $attachment->ID;
+			}
+		}
+
+		return array( $by_hash, $unnamed );
+	}
+
+	/**
+	 * @param int $post_id
 	 * @return int
 	 */
 	public static function release( $post_id ) {
@@ -115,9 +125,7 @@ class WMDS_Images {
 		return $deleted;
 	}
 
-	/**
-	 * @param int $post_id
-	 */
+	/** @param int $post_id */
 	public static function delete_for( $post_id ) {
 		if ( WMDS_CPT !== get_post_type( (int) $post_id ) ) {
 			return;
@@ -126,9 +134,7 @@ class WMDS_Images {
 		self::release( $post_id );
 	}
 
-	/**
-	 * @return int[]
-	 */
+	/** @return int[] */
 	public static function orphans() {
 		global $wpdb;
 
@@ -148,9 +154,7 @@ class WMDS_Images {
 		return array_map( 'intval', (array) $ids );
 	}
 
-	/**
-	 * @return int
-	 */
+	/** @return int */
 	public static function delete_orphans() {
 		$deleted = 0;
 

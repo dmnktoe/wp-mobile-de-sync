@@ -1,4 +1,5 @@
 <?php
+
 require_once __DIR__ . '/bootstrap.php';
 
 define( 'WMDS_DIR', dirname( __DIR__ ) . '/' );

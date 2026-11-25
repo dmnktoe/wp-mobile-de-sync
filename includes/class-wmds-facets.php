@@ -28,9 +28,7 @@ class WMDS_Facets {
 		add_action( 'wmds_run_finished', array( 'WMDS_Facet_Store', 'flush_after_run' ), 10, 0 );
 	}
 
-	/**
-	 * @return array<string, array>
-	 */
+	/** @return array<string, array> */
 	public static function definitions() {
 		$facets = array(
 			'q'         => array(
@@ -103,17 +101,12 @@ class WMDS_Facets {
 			),
 		);
 
-		/**
-		 * @param array $facets
-		 */
 		$facets = apply_filters( 'wmds_facets', $facets );
 
 		return is_array( $facets ) ? $facets : array();
 	}
 
-	/**
-	 * @return array<string, array{label:string,meta:string,order:string,type:string}>
-	 */
+	/** @return array<string, array{label:string,meta:string,order:string,type:string}> */
 	public static function sorts() {
 		$sorts = array(
 			'newest'       => array(
@@ -166,9 +159,6 @@ class WMDS_Facets {
 			),
 		);
 
-		/**
-		 * @param array $sorts
-		 */
 		$sorts = apply_filters( 'wmds_facet_sorts', $sorts );
 
 		return is_array( $sorts ) ? $sorts : array();
@@ -254,9 +244,7 @@ class WMDS_Facets {
 		return WMDS_Facet_Request::parse( $request );
 	}
 
-	/**
-	 * @return array<string, mixed>
-	 */
+	/** @return array<string, mixed> */
 	public static function selection() {
 		return WMDS_Facet_Request::selection();
 	}
@@ -322,9 +310,7 @@ class WMDS_Facets {
 		return WMDS_Facet_Request::url_without( $selection, $key, $value );
 	}
 
-	/**
-	 * @return string
-	 */
+	/** @return string */
 	public static function base_url() {
 		return WMDS_Facet_Request::base_url();
 	}
@@ -355,9 +341,7 @@ class WMDS_Facets {
 		return WMDS_Facet_Query::query_args( $selection, $base );
 	}
 
-	/**
-	 * @param WP_Query $query
-	 */
+	/** @param WP_Query $query */
 	public static function apply_to_archive( $query ) {
 		WMDS_Facet_Query::apply_to_archive( $query );
 	}
@@ -380,9 +364,7 @@ class WMDS_Facets {
 		return WMDS_Facet_Store::bounds( $key, $selection );
 	}
 
-	/**
-	 * @param int $post_id
-	 */
+	/** @param int $post_id */
 	public static function flush( $post_id = 0 ) {
 		WMDS_Facet_Store::flush( $post_id );
 	}

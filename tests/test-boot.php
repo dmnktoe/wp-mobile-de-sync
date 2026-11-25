@@ -1,4 +1,5 @@
 <?php
+
 $GLOBALS['wmds_boot_shortcodes'] = array();
 $GLOBALS['wmds_boot_actions']    = array();
 
