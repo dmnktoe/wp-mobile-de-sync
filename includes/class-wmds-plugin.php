@@ -38,6 +38,7 @@ class WMDS_Plugin {
 
 		WMDS_Images::init();
 		WMDS_Templates::init();
+		WMDS_Theme_Style::init();
 		WMDS_Removed::init();
 		WMDS_Facets::init();
 		WMDS_Blocks::init();

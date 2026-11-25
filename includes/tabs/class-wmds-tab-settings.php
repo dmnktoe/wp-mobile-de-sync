@@ -15,6 +15,7 @@ class WMDS_Tab_Settings {
 			'language',
 			'slug',
 			'similar_enabled',
+			'match_theme',
 			'alerts_enabled',
 			'alerts_recipient',
 			'alerts_cooldown',
@@ -270,6 +271,19 @@ class WMDS_Tab_Settings {
 						</label>
 						<p class="description">
 							<?php esc_html_e( 'Vehicles of the same make first, then those closest in price.', 'wp-mobile-de-sync' ); ?>
+						</p>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><?php esc_html_e( 'Appearance', 'wp-mobile-de-sync' ); ?></th>
+					<td>
+						<label>
+							<input type="checkbox" name="wmds_match_theme" value="yes"
+								<?php checked( WMDS_Settings::flag( 'match_theme' ) ); ?>>
+							<?php esc_html_e( 'Match the theme', 'wp-mobile-de-sync' ); ?>
+						</label>
+						<p class="description">
+							<?php esc_html_e( 'Buttons, corners and the dark variant follow the active theme: its button colour, its rounding and its background. Switched off, vehicle pages keep the plugin\'s own neutral look in every theme.', 'wp-mobile-de-sync' ); ?>
 						</p>
 					</td>
 				</tr>

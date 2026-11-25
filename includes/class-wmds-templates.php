@@ -299,5 +299,10 @@ class WMDS_Templates {
 		}
 
 		wp_register_style( self::HANDLE, WMDS_URL . 'assets/wmds.css', array(), WMDS_VERSION );
+
+		$css = WMDS_Theme_Style::css();
+		if ( '' !== $css ) {
+			wp_add_inline_style( self::HANDLE, $css );
+		}
 	}
 }

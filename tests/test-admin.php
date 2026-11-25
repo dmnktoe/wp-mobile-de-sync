@@ -146,7 +146,7 @@ wmds_assert_contains( 'and so does no tab at all', 'wmds-status-card', wmds_rend
 wmds_section( 'Each tab carries the fields it owns' );
 
 $settings = wmds_render_tab( 'settings' );
-foreach ( array( 'username', 'password', 'seller_id', 'dealer', 'interval', 'language', 'slug', 'similar_enabled', 'alerts_enabled', 'alerts_recipient', 'alerts_cooldown', 'alerts_weekly' ) as $field ) {
+foreach ( array( 'username', 'password', 'seller_id', 'dealer', 'interval', 'language', 'slug', 'similar_enabled', 'match_theme', 'alerts_enabled', 'alerts_recipient', 'alerts_cooldown', 'alerts_weekly' ) as $field ) {
 	wmds_assert_contains( 'settings: ' . $field, 'name="wmds_' . $field . '"', $settings );
 }
 
@@ -328,6 +328,7 @@ wmds_run_action(
 wmds_run_action( 'save', array( 'wmds_tab' => 'settings' ) );
 wmds_assert( 'unticking the alert switch switches it off', false, WMDS_Alerts::enabled() );
 wmds_assert( 'and the similar vehicles', false, WMDS_Settings::flag( 'similar_enabled' ) );
+wmds_assert( 'and matching the theme', false, WMDS_Settings::flag( 'match_theme' ) );
 
 wmds_section( 'Every action lands where it says it does' );
 

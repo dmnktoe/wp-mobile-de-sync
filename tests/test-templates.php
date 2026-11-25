@@ -148,8 +148,30 @@ define( 'WMDS_CPT', 'fahrzeuge' );
 
 require_once __DIR__ . '/../includes/class-wmds-templates.php';
 require_once __DIR__ . '/../includes/class-wmds-blocks.php';
+require_once __DIR__ . '/../includes/class-wmds-settings.php';
+require_once __DIR__ . '/../includes/class-wmds-theme-style.php';
+
+$GLOBALS['wmds_test_inline']   = array();
+$GLOBALS['wmds_test_template'] = '';
+
+function get_option( $key, $default = false ) {
+	return $default;
+}
+
+function get_template() {
+	return $GLOBALS['wmds_test_template'];
+}
+
+function wp_add_inline_style( $handle, $css ) {
+	$GLOBALS['wmds_test_inline'][ $handle ][] = $css;
+
+	return true;
+}
 
 function wmds_test_reset() {
+	$GLOBALS['wmds_test_inline']   = array();
+	$GLOBALS['wmds_test_template'] = '';
+	WMDS_Theme_Style::reset();
 	$GLOBALS['wmds_test_styles']      = array();
 	$GLOBALS['wmds_test_scripts']     = array();
 	$GLOBALS['wmds_test_theme_files'] = array();
@@ -235,6 +257,13 @@ wmds_assert( 'registers on demand', true, wp_style_is( 'wmds', 'registered' ) );
 wmds_assert( 'and enqueues', true, wp_style_is( 'wmds', 'enqueued' ) );
 wmds_assert_contains( 'points at the bundled file', 'assets/wmds.css', $GLOBALS['wmds_test_styles']['wmds']['src'] );
 wmds_assert( 'carries the plugin version', WMDS_VERSION, $GLOBALS['wmds_test_styles']['wmds']['version'] );
+
+wmds_assert( 'a theme that lends nothing adds no inline style', false, isset( $GLOBALS['wmds_test_inline']['wmds'] ) );
+
+wmds_test_reset();
+$GLOBALS['wmds_test_template'] = 'astra';
+WMDS_Templates::maybe_enqueue( true );
+wmds_assert_contains( 'the theme\'s colours follow the stylesheet', '--wmds-theme-accent:var(--ast-global-color-0)', implode( '', $GLOBALS['wmds_test_inline']['wmds'] ) );
 
 wmds_test_reset();
 WMDS_Templates::maybe_enqueue( false );

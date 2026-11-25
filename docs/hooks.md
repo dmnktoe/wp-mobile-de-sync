@@ -12,6 +12,7 @@ Every filter and action the plugin offers. All names start with `wmds_`.
 | `wmds_template` | `string $path, string $file` | point a template at a different file |
 | `wmds_theme_wrapper` | `array( $open, $close )` | wrap a page in the content container a classic theme expects |
 | `wmds_enqueue_styles` | `bool $enqueue` | switch off the bundled stylesheet |
+| `wmds_theme_style` | `array $tokens` | set or change what is taken from the theme: `accent`, `on_accent`, `radius`, `page` |
 | `wmds_archive_per_page` | `int $per_page` | vehicles per archive page (default 12) |
 | `wmds_facets` | `array $facets` | add, remove or reorder the filter components |
 | `wmds_facet_sorts` | `array $sorts` | change the sort orders on offer |

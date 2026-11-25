@@ -3,6 +3,30 @@
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
+## [2.7.0] – 2026-11-25
+
+### Added
+- **Vehicle pages match the theme.** Buttons, active filters and the slider
+  take the theme's button colour, and controls and cards its rounding: square
+  buttons make square cards, pill buttons pill-shaped controls. Block themes
+  are read from their `theme.json`, including changes made in the Site Editor;
+  Astra, GeneratePress, Kadence, Blocksy, Neve, OceanWP, Salient, Divi and
+  Twenty Twenty-One lend their primary colour. Any other theme keeps the
+  plugin's look.
+- **A dark theme gets the dark variant by itself.** When the theme's
+  background is dark — a dark style variation, a dark Customizer background,
+  Twenty Twenty-One's dark mode — cards and controls turn dark too, a shade
+  lighter than the page and tinted like it.
+- **Settings → Website → Appearance → Match the theme**, on by default.
+  Switched off, vehicle pages keep the plugin's own neutral look.
+- Filter `wmds_theme_style` to tell the plugin a theme's colours, or to change
+  what it found.
+
+### Changed
+- Borders and secondary text are mixed from the theme's text colour instead of
+  a fixed grey, so they sit right on coloured and dark backgrounds.
+- The arrow in drop-downs stays visible on a dark background.
+
 ## [2.6.0] – 2026-11-24
 
 ### Added

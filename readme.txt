@@ -4,7 +4,7 @@ Tags: mobile.de, vehicles, dealership, facetwp, contact form 7
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 2.6.0
+Stable tag: 2.7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -114,6 +114,15 @@ Pkw-EnVKV, so the bundled German catalogue carries the statutory wording rather
 than a translation of the English source.
 
 == Changelog ==
+
+= 2.7.0 =
+* Added: vehicle pages match the theme - its button colour, its rounding and,
+  on a dark background, a dark variant tinted like the page. Block themes are
+  read from theme.json; Astra, GeneratePress, Kadence, Blocksy, Neve, OceanWP,
+  Salient, Divi and Twenty Twenty-One are recognised.
+* Added: Settings - Website - Appearance - "Match the theme", on by default.
+* Added: filter `wmds_theme_style`.
+* Changed: borders and secondary text follow the theme's text colour.
 
 = 2.6.0 =
 * Added: proof of work on the enquiry form, in the format of ALTCHA - no
