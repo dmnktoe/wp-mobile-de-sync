@@ -239,8 +239,8 @@ list( $importer, $client ) = wmds_setup(
 			array(
 				'images' => array(
 					array(
-						'hash' => 'hash-111-NEU',
-						'xxxl' => 'https://img.example.invalid/111-neu.jpg',
+						'hash' => 'hash-111-NEW',
+						'xxxl' => 'https://img.example.invalid/111-new.jpg',
 					),
 				),
 			)
@@ -252,7 +252,7 @@ $stats                     = $importer->run();
 wmds_assert( 'image re-downloaded', 1, $stats['images'] );
 wmds_assert(
 	'new hash stored',
-	array( 'hash-111-NEU' ),
+	array( 'hash-111-NEW' ),
 	get_post_meta( wmds_post_for( '111' ), WMDS_Images::META_LIST, true )
 );
 wmds_assert( 'only one attachment on the post', 1, count( wmds_fake( 'attachments' )[ wmds_post_for( '111' ) ] ) );

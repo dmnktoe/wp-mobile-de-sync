@@ -235,7 +235,7 @@ if ( ! function_exists( 'set_post_thumbnail' ) ) {
 
 if ( ! function_exists( 'wp_get_attachment_image_url' ) ) {
 	function wp_get_attachment_image_url( $id, $size = 'thumbnail' ) {
-		return 'https://example.invalid/bild-' . (int) $id . '-' . $size . '.jpg';
+		return 'https://example.invalid/image-' . (int) $id . '-' . $size . '.jpg';
 	}
 }
 

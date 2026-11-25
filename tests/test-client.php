@@ -118,7 +118,7 @@ wmds_assert( 'a hyphenated make keeps its hyphen', 'Mercedes-Benz', WMDS_Refdata
 wmds_assert( 'a short name stays as it is', 'BMW', WMDS_Refdata::readable( 'BMW' ) );
 wmds_assert( 'a label is not touched', 'Part leather', WMDS_Refdata::readable( 'Part leather' ) );
 wmds_assert( 'table unreachable -> readable key', 'Diesel', $rd->label( 'fuel', 'DIESEL' ) );
-wmds_assert( 'unknown field -> unchanged', 'ANYTHING', $rd->label( 'gibtsnicht', 'ANYTHING' ) );
+wmds_assert( 'unknown field -> unchanged', 'ANYTHING', $rd->label( 'nosuchfield', 'ANYTHING' ) );
 wmds_assert( 'empty value stays empty', '', $rd->label( 'gearbox', '' ) );
 
 wmds_section( 'Refdata: class-dependent tables receive the vehicleClass' );

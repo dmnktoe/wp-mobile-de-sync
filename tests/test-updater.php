@@ -88,7 +88,7 @@ function release_json( array $overrides = array() ) {
 			'draft'        => false,
 			'prerelease'   => false,
 			'published_at' => '2026-08-01T10:00:00Z',
-			'body'         => "## Neu\n- Etwas\n\nRequires PHP: 7.2\nTested up to: 6.9\n",
+			'body'         => "## New\n- Something\n\nRequires PHP: 7.2\nTested up to: 6.9\n",
 			'assets'       => array(
 				array(
 					'name'                 => 'wp-mobile-de-sync.zip',
@@ -106,10 +106,10 @@ wmds_section( 'A valid release is evaluated' );
 
 $release = WMDS_Updater::parse( 200, release_json() );
 
-wmds_assert( 'erkannt', true, is_array( $release ) );
+wmds_assert( 'recognised', true, is_array( $release ) );
 wmds_assert( 'version without the v', '2.1.0', $release['version'] );
 wmds_assert_contains( 'package is the asset', 'wp-mobile-de-sync.zip', $release['package'] );
-wmds_assert( 'Datum', '2026-08-01T10:00:00Z', $release['date'] );
+wmds_assert( 'date', '2026-08-01T10:00:00Z', $release['date'] );
 wmds_assert( 'Requires PHP read from the notes', '7.2', $release['requires_php'] );
 wmds_assert( 'Tested up to read from the notes', '6.9', $release['tested'] );
 wmds_assert( 'Requires at least falls back to the default', '5.8', $release['requires'] );
@@ -118,7 +118,7 @@ wmds_section( 'No attached ZIP means no update' );
 
 wmds_assert( 'no assets', false, WMDS_Updater::parse( 200, release_json( array( 'assets' => array() ) ) ) );
 wmds_assert(
-	'fremdes Asset',
+	'an asset that is not the plugin',
 	false,
 	WMDS_Updater::parse(
 		200,
@@ -126,7 +126,7 @@ wmds_assert(
 			array(
 				'assets' => array(
 					array(
-						'name'                 => 'notizen.pdf',
+						'name'                 => 'notes.pdf',
 						'browser_download_url' => 'https://example.invalid/x.pdf',
 					),
 				),
@@ -140,11 +140,11 @@ wmds_section( 'Drafts and pre-releases are skipped' );
 wmds_assert( 'draft', false, WMDS_Updater::parse( 200, release_json( array( 'draft' => true ) ) ) );
 wmds_assert( 'prerelease', false, WMDS_Updater::parse( 200, release_json( array( 'prerelease' => true ) ) ) );
 
-wmds_section( 'Unbrauchbare Antworten' );
+wmds_section( 'Unusable responses' );
 
 wmds_assert( 'HTTP 404', false, WMDS_Updater::parse( 404, '{}' ) );
 wmds_assert( 'Rate Limit', false, WMDS_Updater::parse( 403, '{"message":"API rate limit exceeded"}' ) );
-wmds_assert( 'Netzwerkfehler', false, WMDS_Updater::parse( 0, '' ) );
+wmds_assert( 'network error', false, WMDS_Updater::parse( 0, '' ) );
 wmds_assert( 'not JSON', false, WMDS_Updater::parse( 200, '<html>' ) );
 wmds_assert( 'no tag_name', false, WMDS_Updater::parse( 200, '{"assets":[]}' ) );
 wmds_assert(
@@ -160,18 +160,18 @@ foreach ( array(
 	'V2.1.0' => '2.1.0',
 	'2.1.0'  => '2.1.0',
 	'v3'     => '3',
-) as $tag => $erwartet ) {
+) as $tag => $expected ) {
 	$r = WMDS_Updater::parse( 200, release_json( array( 'tag_name' => $tag ) ) );
-	wmds_assert( $tag, $erwartet, $r['version'] );
+	wmds_assert( $tag, $expected, $r['version'] );
 }
 
 wmds_section( 'Release notes become plain HTML' );
 
-$html = WMDS_Updater::changelog( "## Behoben\n- Erster Punkt\n- Zweiter Punkt\n\nEin **wichtiger** Hinweis." );
+$html = WMDS_Updater::changelog( "## Fixed\n- First item\n- Second item\n\nAn **important** note." );
 
-wmds_assert_contains( 'heading', '<h3>Behoben</h3>', $html );
-wmds_assert_contains( 'list', '<ul><li>Erster Punkt</li><li>Zweiter Punkt</li></ul>', $html );
-wmds_assert_contains( 'paragraph', '<p>Ein <strong>wichtiger</strong> Hinweis.</p>', $html );
+wmds_assert_contains( 'heading', '<h3>Fixed</h3>', $html );
+wmds_assert_contains( 'list', '<ul><li>First item</li><li>Second item</li></ul>', $html );
+wmds_assert_contains( 'paragraph', '<p>An <strong>important</strong> note.</p>', $html );
 
 wmds_assert_contains( 'empty notes', 'No notes', WMDS_Updater::changelog( '' ) );
 wmds_assert_contains( 'whitespace only', 'No notes', WMDS_Updater::changelog( "  \n " ) );

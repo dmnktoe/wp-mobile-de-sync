@@ -13,20 +13,20 @@ wmds_assert( 'LAND ROVER', 'landrover', WMDS_Logos::normalize( 'LAND ROVER' ) );
 wmds_assert( 'Land Rover.png', 'landrover', WMDS_Logos::normalize( 'Land Rover' ) );
 wmds_assert( 'MERCEDES-BENZ', 'mercedesbenz', WMDS_Logos::normalize( 'MERCEDES-BENZ' ) );
 wmds_assert( 'Mercedes-Benz.png', 'mercedesbenz', WMDS_Logos::normalize( 'Mercedes-Benz' ) );
-wmds_assert( 'Citroen mit Trema', 'citroen', WMDS_Logos::normalize( 'Citroën' ) );
+wmds_assert( 'Citroen with a diaeresis', 'citroen', WMDS_Logos::normalize( 'Citroën' ) );
 wmds_assert( 'CITROEN without', 'citroen', WMDS_Logos::normalize( 'CITROEN' ) );
-wmds_assert( 'BMW bleibt BMW', 'bmw', WMDS_Logos::normalize( 'BMW' ) );
+wmds_assert( 'BMW stays BMW', 'bmw', WMDS_Logos::normalize( 'BMW' ) );
 wmds_assert( 'ALPINA', 'alpina', WMDS_Logos::normalize( 'ALPINA' ) );
 wmds_assert( 'Alfa Romeo', 'alfaromeo', WMDS_Logos::normalize( 'ALFA ROMEO' ) );
 wmds_assert( 'Harley-Davidson', 'harleydavidson', WMDS_Logos::normalize( 'HARLEY-DAVIDSON' ) );
-wmds_assert( 'leer bleibt leer', '', WMDS_Logos::normalize( '   ' ) );
+wmds_assert( 'empty stays empty', '', WMDS_Logos::normalize( '   ' ) );
 
 wmds_section( 'Matching against assets/logos/' );
 
-$dateien = glob( WMDS_DIR . 'assets/logos/*.png' );
-wmds_assert( '32 logos bundled', 32, count( (array) $dateien ) );
+$files = glob( WMDS_DIR . 'assets/logos/*.png' );
+wmds_assert( '32 logos bundled', 32, count( (array) $files ) );
 
-$schluessel = array(
+$keys = array(
 	'LAND ROVER'      => 'Land Rover',
 	'VOLVO'           => 'Volvo',
 	'BMW'             => 'BMW',
@@ -43,9 +43,9 @@ $schluessel = array(
 	'HYUNDAI'         => 'Hyundai',
 );
 
-foreach ( $schluessel as $key => $erwartet_im_dateinamen ) {
+foreach ( $keys as $key => $expected_in_filename ) {
 	$url = WMDS_Logos::url( $key );
-	wmds_assert_contains( $key . ' findet ein Logo', $erwartet_im_dateinamen, rawurldecode( $url ) );
+	wmds_assert_contains( $key . ' finds a logo', $expected_in_filename, rawurldecode( $url ) );
 }
 
 wmds_section( 'mobile.de sends VW, the file is called Volkswagen' );
@@ -57,12 +57,12 @@ wmds_assert_contains( 'VOLKSWAGEN still works', 'Volkswagen', rawurldecode( WMDS
 wmds_section( 'An unknown make yields nothing rather than a broken image' );
 
 wmds_assert( 'make with no file', '', WMDS_Logos::url( 'TESLA' ) );
-wmds_assert( 'leerer Schluessel', '', WMDS_Logos::url( '' ) );
-wmds_assert( 'Unsinn', '', WMDS_Logos::url( '###' ) );
+wmds_assert( 'empty key', '', WMDS_Logos::url( '' ) );
+wmds_assert( 'nonsense', '', WMDS_Logos::url( '###' ) );
 
-wmds_section( 'URL zeigt ins Plugin-Verzeichnis' );
+wmds_section( 'The URL points into the plugin directory' );
 
-wmds_assert_contains( 'Basis-URL', WMDS_URL . 'assets/logos/', WMDS_Logos::url( 'VOLVO' ) );
-wmds_assert_contains( 'Leerzeichen kodiert', 'Land%20Rover', WMDS_Logos::url( 'LAND ROVER' ) );
+wmds_assert_contains( 'base URL', WMDS_URL . 'assets/logos/', WMDS_Logos::url( 'VOLVO' ) );
+wmds_assert_contains( 'spaces encoded', 'Land%20Rover', WMDS_Logos::url( 'LAND ROVER' ) );
 
 wmds_result();

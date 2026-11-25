@@ -293,8 +293,8 @@ $v      = new WMDS_Vehicle( $post_id );
 $images = $v->images();
 
 wmds_assert( 'both attachments', 2, count( $images ) );
-wmds_assert( 'large variant', 'https://example.invalid/bild-501-large.jpg', $images[0]['url'] );
-wmds_assert( 'thumbnail at medium size', 'https://example.invalid/bild-501-medium.jpg', $images[0]['thumb'] );
+wmds_assert( 'large variant', 'https://example.invalid/image-501-large.jpg', $images[0]['url'] );
+wmds_assert( 'thumbnail at medium size', 'https://example.invalid/image-501-medium.jpg', $images[0]['thumb'] );
 wmds_assert( 'alt text from the title', 'Audi A4', $images[0]['alt'] );
 
 wmds_section( 'End-to-end with a real ad from the fixtures' );
