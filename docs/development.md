@@ -162,9 +162,18 @@ them:
 | Source | Becomes |
 |---|---|
 | `README.md` | the home page, section by section |
-| `docs/*.md` | one page each, in the order of the README's documentation table |
+| `docs/*.md` | one page each, in the order of the README's documentation list |
 | `CHANGELOG.md` | the changelog page and the recent releases on the home page |
 | plugin header, `readme.txt` | version, requirements, the download button |
+
+The README is written as a plain document, and the home page takes its parts
+from that structure: the first paragraph is the description under the name,
+the paragraphs after it the introduction, and the first picture the figure
+below. A paragraph of nothing but links is left out, since the site has its
+own navigation. Under *Highlights* every `###` heading is one group and the
+pictures follow as figures; under *Documentation* every list item
+`- [Title](docs/file.md): summary` names a page, its title and its summary.
+*License* stays on GitHub.
 
 `bin/build-site.php` renders them with `league/commonmark` into the templates
 under `site/`. Links between documents become links between pages, headings get

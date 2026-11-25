@@ -192,7 +192,7 @@ class WMDS_Site_Builder {
 		$listed = array();
 		$docs   = array();
 
-		if ( preg_match_all( '/^\|\s*\[([^\]]+)\]\((docs\/[\w-]+\.md)\)\s*\|\s*(.+?)\s*\|\s*$/m', $this->read( 'README.md' ), $rows, PREG_SET_ORDER ) ) {
+		if ( preg_match_all( '/^- \[([^\]]+)\]\((docs\/[\w-]+\.md)\):\s*(.+?)\s*$/m', $this->read( 'README.md' ), $rows, PREG_SET_ORDER ) ) {
 			foreach ( $rows as $row ) {
 				$listed[ $row[2] ] = array( $row[1], $row[3] );
 			}
@@ -235,16 +235,10 @@ class WMDS_Site_Builder {
 	 */
 	private function build_home( $readme ) {
 		$parts       = preg_split( '/^## (.+)$/m', $readme, -1, PREG_SPLIT_DELIM_CAPTURE );
-		$intro       = array_shift( $parts );
+		$intro       = $this->split_intro( array_shift( $parts ) );
 		$sections    = array();
 		$highlights  = array();
 		$screenshots = array();
-
-		$tagline = preg_match( '/^\*\*(.+)\*\*\s*$/m', $intro, $match ) ? $match[1] : $this->meta['description'];
-
-		$close = strrpos( $intro, '</div>' );
-		$lead  = false === $close ? '' : substr( $intro, $close + 6 );
-		$lead  = trim( preg_replace( '/^\s*<br>/', '', $lead ) );
 
 		$total = count( $parts );
 
@@ -273,8 +267,8 @@ class WMDS_Site_Builder {
 		$body = $this->template(
 			'home',
 			array(
-				'tagline'     => $tagline,
-				'lead'        => $this->markdown( $lead, 'README.md', 'index.html' ),
+				'tagline'     => $intro['tagline'],
+				'lead'        => $this->markdown( $intro['lead'], 'README.md', 'index.html' ),
 				'hero_image'  => $this->image,
 				'highlights'  => $highlights,
 				'screenshots' => $screenshots,
@@ -286,7 +280,7 @@ class WMDS_Site_Builder {
 		$this->page(
 			'index.html',
 			array(
-				'title'       => $this->meta['name'] . ' — ' . $this->strip( $tagline ),
+				'title'       => $this->meta['name'] . ' — ' . $this->strip( $intro['tagline'] ),
 				'description' => $this->strip( $this->meta['description'] ),
 				'active'      => 'home',
 				'body'        => $body,
@@ -297,11 +291,40 @@ class WMDS_Site_Builder {
 
 	/**
 	 * @param string $markdown
+	 * @return array{tagline:string,lead:string}
+	 */
+	private function split_intro( $markdown ) {
+		$markdown = preg_replace( '/^# .+$/m', '', $markdown, 1 );
+		$tagline  = '';
+		$lead     = array();
+
+		foreach ( preg_split( '/\n\s*\n/', trim( $markdown ) ) as $block ) {
+			$text = preg_replace( '/!?\[[^\]]*\]\([^)]*\)/', '', $block );
+
+			if ( '' === trim( $text, " \t\n·" ) ) {
+				continue;
+			}
+
+			if ( '' === $tagline ) {
+				$tagline = preg_replace( '/\s+/', ' ', trim( $block ) );
+			} else {
+				$lead[] = trim( $block );
+			}
+		}
+
+		return array(
+			'tagline' => '' !== $tagline ? $tagline : $this->meta['description'],
+			'lead'    => implode( "\n\n", $lead ),
+		);
+	}
+
+	/**
+	 * @param string $markdown
 	 * @return array<int,array{title:string,html:string}>
 	 */
 	private function split_highlights( $markdown ) {
-		$markdown = preg_replace( '/^<p[^>]*>.*<\/p>\s*$/m', '', $markdown );
-		$parts    = preg_split( '/^\*\*(.+)\*\*\s*$/m', $markdown, -1, PREG_SPLIT_DELIM_CAPTURE );
+		$markdown = preg_replace( '/^!\[[^\]]*\]\([^)]*\)\s*$/m', '', $markdown );
+		$parts    = preg_split( '/^### (.+)$/m', $markdown, -1, PREG_SPLIT_DELIM_CAPTURE );
 		$groups   = array();
 
 		array_shift( $parts );
@@ -325,16 +348,16 @@ class WMDS_Site_Builder {
 	private function images( $markdown, $source ) {
 		$images = array();
 
-		if ( ! preg_match_all( '/<img src="([^"]+\.(?:jpe?g|png|webp|gif))" alt="([^"]*)"/', $markdown, $tags, PREG_SET_ORDER ) ) {
+		if ( ! preg_match_all( '/!\[([^\]]*)\]\(([^)\s]+\.(?:jpe?g|png|webp|gif))\)/', $markdown, $tags, PREG_SET_ORDER ) ) {
 			return $images;
 		}
 
 		foreach ( $tags as $tag ) {
-			$size = @getimagesize( $this->root . '/' . $this->resolve( dirname( $source ), $tag[1] ) ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- a missing file is reported by link().
+			$size = @getimagesize( $this->root . '/' . $this->resolve( dirname( $source ), $tag[2] ) ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- a missing file is reported by link().
 
 			$images[] = array(
-				'src'    => $this->link( $tag[1], $source, 'index.html' ),
-				'alt'    => $tag[2],
+				'src'    => $this->link( $tag[2], $source, 'index.html' ),
+				'alt'    => $tag[1],
 				'width'  => $size ? $size[0] : 0,
 				'height' => $size ? $size[1] : 0,
 			);
@@ -539,8 +562,7 @@ class WMDS_Site_Builder {
 		);
 
 		$html = str_replace( array( '<table>', '</table>' ), array( '<div class="table"><table>', '</table></div>' ), $html );
-		$html = preg_replace( '/<img (?![^>]*loading=)/', '<img loading="lazy" decoding="async" ', $html );
-		return preg_replace( '/\salign="center"/', ' class="center"', $html );
+		return preg_replace( '/<img (?![^>]*loading=)/', '<img loading="lazy" decoding="async" ', $html );
 	}
 
 	/**
